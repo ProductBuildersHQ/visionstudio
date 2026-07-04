@@ -1,4 +1,4 @@
-module github.com/ProductBuildersHQ/visionapp
+module github.com/ProductBuildersHQ/visionstudio
 
 go 1.23
 

@@ -2,7 +2,7 @@
 
 ## Create Your First Project
 
-1. Launch VisionApp
+1. Launch VisionStudio
 2. The sidebar shows available projects
 3. Select a project or create a new one
 

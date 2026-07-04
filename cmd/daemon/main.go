@@ -16,7 +16,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
-	"github.com/ProductBuildersHQ/visionapp/pkg/api"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/api"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		logger.Info("Starting VisionApp daemon", "addr", addr)
+		logger.Info("Starting VisionStudio daemon", "addr", addr)
 		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Error("Server error", "error", err)
 			os.Exit(1)
@@ -156,11 +156,11 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 	s.logger.Debug("Getting spec", "project", projectName, "type", specType)
 
 	// TODO: Load actual spec content from filesystem
-	content := `# Market Requirements Document: VisionApp
+	content := `# Market Requirements Document: VisionStudio
 
 ## 1. Executive Summary
 
-VisionApp is a desktop application that provides an LLM-powered workspace for authoring, evaluating, and iterating on product specifications...
+VisionStudio is a desktop application that provides an LLM-powered workspace for authoring, evaluating, and iterating on product specifications...
 
 ## 2. Problem Statement
 

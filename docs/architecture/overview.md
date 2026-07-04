@@ -1,6 +1,6 @@
 # Architecture Overview
 
-VisionApp uses a desktop architecture with Electron frontend and Go backend.
+VisionStudio uses a desktop architecture with Electron frontend and Go backend.
 
 ## Components
 

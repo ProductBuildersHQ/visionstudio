@@ -1,6 +1,6 @@
 # Evaluation
 
-VisionApp uses LLM-as-a-Judge to evaluate spec quality against profile-specific rubrics.
+VisionStudio uses LLM-as-a-Judge to evaluate spec quality against profile-specific rubrics.
 
 ## Evaluation Process
 

@@ -71,4 +71,4 @@ await api.saveSpec('project', 'mrd', content)
 ## Styling
 
 - **Tailwind CSS v4** - Utility-first CSS
-- **Custom theme** - VisionApp color palette (`va-*` colors)
+- **Custom theme** - VisionStudio color palette (`va-*` colors)

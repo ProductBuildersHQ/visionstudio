@@ -1,9 +1,9 @@
-site_name: VisionApp
+site_name: VisionStudio
 site_description: LLM-powered specification authoring and evaluation
-site_url: https://productbuildershq.github.io/visionapp/
+site_url: https://productbuildershq.github.io/visionstudio/
 
-repo_name: ProductBuildersHQ/visionapp
-repo_url: https://github.com/ProductBuildersHQ/visionapp
+repo_name: ProductBuildersHQ/visionstudio
+repo_url: https://github.com/ProductBuildersHQ/visionstudio
 
 theme:
   name: material

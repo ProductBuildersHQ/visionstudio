@@ -1,10 +1,10 @@
-# VisionApp
+# VisionStudio
 
 LLM-powered desktop application for specification authoring and evaluation.
 
 ## Overview
 
-VisionApp provides an integrated workspace for creating, evaluating, and iterating on product specifications using the VisionSpec methodology. It combines structured spec workflows with AI-assisted writing and LLM-as-a-Judge evaluation.
+VisionStudio provides an integrated workspace for creating, evaluating, and iterating on product specifications using the VisionSpec methodology. It combines structured spec workflows with AI-assisted writing and LLM-as-a-Judge evaluation.
 
 ## Features
 
@@ -49,8 +49,8 @@ VisionApp provides an integrated workspace for creating, evaluating, and iterati
 
 ```bash
 # Clone the repository
-git clone https://github.com/ProductBuildersHQ/visionapp.git
-cd visionapp
+git clone https://github.com/ProductBuildersHQ/visionstudio.git
+cd visionstudio
 
 # Build the Go daemon
 go build -o bin/daemon ./cmd/daemon/
@@ -67,7 +67,7 @@ cd desktop && npm run dev:main    # Start Electron
 ### Project Structure
 
 ```
-visionapp/
+visionstudio/
 ├── cmd/daemon/          # Go daemon entry point
 ├── pkg/
 │   └── api/             # API types and handlers

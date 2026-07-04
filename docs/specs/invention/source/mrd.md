@@ -1,8 +1,8 @@
-# Market Requirements Document: VisionApp
+# Market Requirements Document: VisionStudio
 
 ## 1. Executive Summary
 
-VisionApp is a desktop application that provides an LLM-powered workspace for authoring, evaluating, and iterating on product specifications using the VisionSpec methodology. It combines structured spec workflows with AI-assisted writing and LLM-as-a-Judge evaluation to help product teams create high-quality specifications efficiently.
+VisionStudio is a desktop application that provides an LLM-powered workspace for authoring, evaluating, and iterating on product specifications using the VisionSpec methodology. It combines structured spec workflows with AI-assisted writing and LLM-as-a-Judge evaluation to help product teams create high-quality specifications efficiently.
 
 ## 2. Problem Statement
 
@@ -65,7 +65,7 @@ Product teams creating specifications face several challenges:
 
 ### OKRs
 
-**Objective:** Establish VisionApp as the standard for AI-assisted spec authoring
+**Objective:** Establish VisionStudio as the standard for AI-assisted spec authoring
 
 - **KR1:** 100 active users within 6 months of launch
 - **KR2:** 80% of users complete full workflow (MRD → TRD) at least once

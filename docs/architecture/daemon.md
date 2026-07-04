@@ -1,6 +1,6 @@
 # Go Daemon
 
-The Go daemon provides the backend API for VisionApp.
+The Go daemon provides the backend API for VisionStudio.
 
 ## Location
 

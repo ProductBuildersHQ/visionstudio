@@ -1,10 +1,10 @@
-# VisionApp
+# VisionStudio
 
 LLM-powered desktop application for specification authoring and evaluation.
 
-## What is VisionApp?
+## What is VisionStudio?
 
-VisionApp provides an integrated workspace for creating, evaluating, and iterating on product specifications using the [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) methodology.
+VisionStudio provides an integrated workspace for creating, evaluating, and iterating on product specifications using the [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) methodology.
 
 ## Key Features
 
@@ -27,7 +27,7 @@ See [Installation](getting-started/installation.md) for detailed setup instructi
 
 ## Architecture
 
-VisionApp uses a desktop architecture with:
+VisionStudio uses a desktop architecture with:
 
 - **Electron** - Cross-platform desktop shell
 - **React/TypeScript** - Frontend UI

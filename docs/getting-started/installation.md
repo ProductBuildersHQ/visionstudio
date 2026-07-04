@@ -9,8 +9,8 @@
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/ProductBuildersHQ/visionapp.git
-cd visionapp
+git clone https://github.com/ProductBuildersHQ/visionstudio.git
+cd visionstudio
 ```
 
 ## Build the Go Daemon
@@ -37,7 +37,7 @@ Start the daemon:
 You should see:
 
 ```
-level=INFO msg="Starting VisionApp daemon" addr=127.0.0.1:8765
+level=INFO msg="Starting VisionStudio daemon" addr=127.0.0.1:8765
 ```
 
 Start the frontend:
@@ -47,4 +47,4 @@ cd desktop
 npm run dev
 ```
 
-The Electron app should open with the VisionApp interface.
+The Electron app should open with the VisionStudio interface.

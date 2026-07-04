@@ -1,0 +1,24 @@
+name: invention
+description: Zero-to-one creation of VisionApp - desktop application for LLM-powered specification authoring and evaluation
+profile: big-tech-product
+
+# Project metadata
+metadata:
+  team: ProductBuildersHQ
+  status: discovery
+  created: 2025-06-19
+
+# LLM configuration for synthesis and evaluation
+llm:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+
+# Context sources for grounding technical synthesis
+context:
+  sources:
+    - type: git
+      path: ../../../  # visionapp root
+    - type: git
+      path: ../../../../visionspec  # visionspec library
+    - type: git
+      path: ../../../../omniagent   # omniagent LLM interface

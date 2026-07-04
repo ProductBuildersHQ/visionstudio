@@ -1,0 +1,42 @@
+site_name: VisionApp
+site_description: LLM-powered specification authoring and evaluation
+site_url: https://productbuildershq.github.io/visionapp/
+
+repo_name: ProductBuildersHQ/visionapp
+repo_url: https://github.com/ProductBuildersHQ/visionapp
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: blue
+    accent: blue
+  features:
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quick Start: getting-started/quickstart.md
+  - User Guide:
+      - Projects: guide/projects.md
+      - Workflows: guide/workflows.md
+      - Editor: guide/editor.md
+      - Evaluation: guide/evaluation.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Go Daemon: architecture/daemon.md
+      - Frontend: architecture/frontend.md
+  - Development:
+      - Setup: development/setup.md
+      - Contributing: development/contributing.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - admonition
+  - tables

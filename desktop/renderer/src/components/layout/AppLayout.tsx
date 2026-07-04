@@ -4,9 +4,10 @@ interface AppLayoutProps {
   sidebar: ReactNode
   llmPanel: ReactNode
   main: ReactNode
+  terminal?: ReactNode
 }
 
-export function AppLayout({ sidebar, llmPanel, main }: AppLayoutProps) {
+export function AppLayout({ sidebar, llmPanel, main, terminal }: AppLayoutProps) {
   return (
     <div className="flex h-screen w-screen overflow-hidden">
       {/* Left column: Sidebar + LLM Panel */}
@@ -24,7 +25,13 @@ export function AppLayout({ sidebar, llmPanel, main }: AppLayoutProps) {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {main}
+        {/* Main panel */}
+        <div className="flex-1 overflow-hidden">
+          {main}
+        </div>
+
+        {/* Terminal panel */}
+        {terminal}
       </div>
     </div>
   )

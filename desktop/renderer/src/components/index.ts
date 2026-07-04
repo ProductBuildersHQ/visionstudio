@@ -10,3 +10,6 @@ export { SpecEditor } from './editor/SpecEditor'
 
 // LLM components
 export { LLMPanel } from './llm/LLMPanel'
+
+// Terminal components
+export { TerminalPanel, DEFAULT_TERMINAL_HEIGHT } from './terminal'

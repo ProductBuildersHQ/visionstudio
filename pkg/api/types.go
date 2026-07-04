@@ -95,3 +95,18 @@ type ChatResponse struct {
 	Response string `json:"response"`
 	Error    string `json:"error,omitempty"`
 }
+
+// WorkflowStatus represents the current workflow state for a project
+type WorkflowStatus struct {
+	CurrentPhase    string            `json:"currentPhase"`
+	CompletedPhases []string          `json:"completedPhases"`
+	Progress        float64           `json:"progress"` // 0.0 to 1.0
+	SpecStatuses    map[string]string `json:"specStatuses"`
+	BlockedBy       []string          `json:"blockedBy,omitempty"`
+	LastUpdated     string            `json:"lastUpdated"`
+}
+
+type GetWorkflowStatusResponse struct {
+	Status WorkflowStatus `json:"status"`
+	Error  string         `json:"error,omitempty"`
+}

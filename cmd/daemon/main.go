@@ -96,6 +96,9 @@ func (s *Server) Router() http.Handler {
 		r.Put("/projects/{project}/specs/{specType}", s.handleSaveSpec)
 		r.Post("/projects/{project}/specs/{specType}/evaluate", s.handleEvaluateSpec)
 
+		// Workflow
+		r.Get("/projects/{project}/workflow/status", s.handleGetWorkflowStatus)
+
 		// Chat
 		r.Post("/chat", s.handleChat)
 	})
@@ -233,6 +236,69 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	// TODO: Integrate with omniagent LLM
 	s.writeJSON(w, http.StatusOK, api.ChatResponse{
 		Response: fmt.Sprintf("I received your message: %q. LLM integration coming soon!", req.Message),
+	})
+}
+
+func (s *Server) handleGetWorkflowStatus(w http.ResponseWriter, r *http.Request) {
+	projectName := chi.URLParam(r, "project")
+	s.logger.Debug("Getting workflow status", "project", projectName)
+
+	// TODO: Compute actual workflow status from project specs
+	// For now, return mock data based on the example project
+	specStatuses := map[string]string{
+		"mrd":          string(api.SpecStatusEvaluated),
+		"press":        string(api.SpecStatusEvaluated),
+		"faq":          string(api.SpecStatusEvaluated),
+		"narrative-6p": string(api.SpecStatusNotStarted),
+		"prd":          string(api.SpecStatusNotStarted),
+		"uxd":          string(api.SpecStatusNotStarted),
+		"trd":          string(api.SpecStatusNotStarted),
+		"tpd":          string(api.SpecStatusNotStarted),
+	}
+
+	// Determine current phase based on spec statuses
+	currentPhase := "source"
+	completedPhases := []string{}
+	blockedBy := []string{}
+
+	// Simple logic: if MRD is done, we're in GTM phase
+	if specStatuses["mrd"] == string(api.SpecStatusEvaluated) ||
+		specStatuses["mrd"] == string(api.SpecStatusApproved) {
+		completedPhases = append(completedPhases, "source")
+		currentPhase = "gtm"
+	}
+
+	// If GTM specs are done, we're in product phase
+	gtmDone := (specStatuses["press"] == string(api.SpecStatusEvaluated) ||
+		specStatuses["press"] == string(api.SpecStatusApproved)) &&
+		(specStatuses["faq"] == string(api.SpecStatusEvaluated) ||
+			specStatuses["faq"] == string(api.SpecStatusApproved))
+
+	if gtmDone {
+		completedPhases = append(completedPhases, "gtm")
+		currentPhase = "product"
+		blockedBy = []string{"narrative-6p"}
+	}
+
+	// Calculate progress
+	totalSpecs := len(specStatuses)
+	completedSpecs := 0
+	for _, status := range specStatuses {
+		if status == string(api.SpecStatusEvaluated) || status == string(api.SpecStatusApproved) {
+			completedSpecs++
+		}
+	}
+	progress := float64(completedSpecs) / float64(totalSpecs)
+
+	s.writeJSON(w, http.StatusOK, api.GetWorkflowStatusResponse{
+		Status: api.WorkflowStatus{
+			CurrentPhase:    currentPhase,
+			CompletedPhases: completedPhases,
+			Progress:        progress,
+			SpecStatuses:    specStatuses,
+			BlockedBy:       blockedBy,
+			LastUpdated:     time.Now().UTC().Format(time.RFC3339),
+		},
 	})
 }
 

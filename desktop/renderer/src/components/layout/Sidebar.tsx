@@ -76,8 +76,8 @@ export function Sidebar({
   }
 
   return (
-    <div className="p-3">
-      {/* Projects header */}
+    <div className="p-3 pt-10">
+      {/* Projects header - pt-10 accommodates macOS traffic lights */}
       <div className="text-xs font-semibold text-va-text-muted uppercase tracking-wider mb-2">
         Projects
       </div>

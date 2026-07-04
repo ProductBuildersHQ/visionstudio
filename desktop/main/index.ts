@@ -2,12 +2,19 @@ import { app, BrowserWindow, shell } from 'electron'
 import path from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { fileURLToPath } from 'url'
+import { PTYManager } from './pty/manager.js'
+import { TmuxManager } from './pty/tmux.js'
+import { registerTerminalIPC } from './ipc/terminal.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 let mainWindow: BrowserWindow | null = null
 let daemonProcess: ChildProcess | null = null
+
+// Terminal infrastructure
+const ptyManager = new PTYManager()
+const tmuxManager = new TmuxManager()
 
 const DAEMON_PORT = 8765
 const isDev = process.env.NODE_ENV !== 'production'
@@ -23,6 +30,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 16 },
@@ -44,7 +52,11 @@ function createWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null
+    ptyManager.setMainWindow(null)
   })
+
+  // Set up terminal infrastructure
+  ptyManager.setMainWindow(mainWindow)
 }
 
 function startDaemon() {
@@ -84,6 +96,9 @@ function stopDaemon() {
 }
 
 app.whenReady().then(() => {
+  // Register IPC handlers for terminal
+  registerTerminalIPC(ptyManager, tmuxManager)
+
   startDaemon()
 
   // Give daemon a moment to start
@@ -104,5 +119,6 @@ app.on('window-all-closed', () => {
 })
 
 app.on('before-quit', () => {
+  ptyManager.killAll()
   stopDaemon()
 })

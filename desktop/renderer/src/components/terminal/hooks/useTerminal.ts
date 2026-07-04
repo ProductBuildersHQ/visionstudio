@@ -3,6 +3,11 @@ import type { TerminalTab, PTYSession, SpawnOptions } from '../../../types/termi
 
 const MAX_TABS = 8
 
+// Check if we're running in Electron with preload
+const isElectron = (): boolean => {
+  return typeof window !== 'undefined' && window.electronAPI !== undefined
+}
+
 interface UseTerminalResult {
   tabs: TerminalTab[]
   activeTabId: string | null
@@ -22,6 +27,11 @@ export function useTerminal(): UseTerminalResult {
   const tabCounter = useRef(0)
 
   const createTab = useCallback(async (options?: SpawnOptions) => {
+    if (!isElectron()) {
+      console.error('Terminal requires Electron environment with preload script')
+      return
+    }
+
     if (tabs.length >= MAX_TABS) {
       console.warn(`Maximum tabs (${MAX_TABS}) reached`)
       return
@@ -56,9 +66,11 @@ export function useTerminal(): UseTerminalResult {
     if (!tab) return
 
     // Kill the PTY session
-    window.electronAPI.terminal.kill(tab.sessionId).catch((err) => {
-      console.error('Failed to kill terminal session:', err)
-    })
+    if (isElectron()) {
+      window.electronAPI.terminal.kill(tab.sessionId).catch((err) => {
+        console.error('Failed to kill terminal session:', err)
+      })
+    }
 
     setTabs((prev) => {
       const newTabs = prev.filter((t) => t.id !== tabId)
@@ -95,9 +107,11 @@ export function useTerminal(): UseTerminalResult {
   // Clean up all sessions on unmount
   useEffect(() => {
     return () => {
-      tabs.forEach((tab) => {
-        window.electronAPI.terminal.kill(tab.sessionId).catch(() => {})
-      })
+      if (isElectron()) {
+        tabs.forEach((tab) => {
+          window.electronAPI.terminal.kill(tab.sessionId).catch(() => {})
+        })
+      }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

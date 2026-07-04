@@ -20,6 +20,9 @@ const DAEMON_PORT = 8765
 const isDev = process.env.NODE_ENV !== 'production'
 
 function createWindow() {
+  const preloadPath = path.join(__dirname, 'preload.cjs')
+  console.log('Preload script path:', preloadPath)
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
@@ -30,10 +33,17 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
+      sandbox: false, // Required for node-pty in preload
+      preload: preloadPath,
     },
     titleBarStyle: 'hiddenInset',
     trafficLightPosition: { x: 16, y: 16 },
+  })
+
+  // Forward renderer console to main process (for debugging)
+  mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+    const levelNames = ['verbose', 'info', 'warning', 'error']
+    console.log(`[Renderer ${levelNames[level] || level}] ${message} (${sourceId}:${line})`)
   })
 
   // Load the app

@@ -41,13 +41,13 @@ export class PTYManager {
     }
 
     const shell = options.shell || process.env.SHELL || '/bin/zsh'
-    const cwd = options.cwd || process.env.HOME || '/'
+    let cwd = options.cwd || process.env.HOME || '/'
     const cols = options.cols || 80
     const rows = options.rows || 24
 
-    // Validate cwd to prevent path traversal
+    // Convert relative paths to absolute (relative to HOME)
     if (!cwd.startsWith('/')) {
-      throw new Error('cwd must be an absolute path')
+      cwd = process.env.HOME || '/'
     }
 
     const id = randomUUID()

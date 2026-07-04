@@ -1,8 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { Terminal } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
-import { WebLinksAddon } from 'xterm-addon-web-links'
-import 'xterm/css/xterm.css'
+import { useEffect, useRef } from 'react'
+import { Terminal } from '@xterm/xterm'
+import { FitAddon } from '@xterm/addon-fit'
+import { WebLinksAddon } from '@xterm/addon-web-links'
+import '@xterm/xterm/css/xterm.css'
 
 interface TerminalInstanceProps {
   sessionId: string
@@ -41,98 +41,142 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
   const containerRef = useRef<HTMLDivElement>(null)
   const terminalRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
-  const cleanupRef = useRef<(() => void)[]>([])
-
-  // Handle resize
-  const handleResize = useCallback(() => {
-    if (fitAddonRef.current && terminalRef.current) {
-      try {
-        fitAddonRef.current.fit()
-        const { cols, rows } = terminalRef.current
-        window.electronAPI.terminal.resize(sessionId, cols, rows)
-      } catch {
-        // Ignore resize errors during teardown
-      }
-    }
-  }, [sessionId])
+  const isInitializedRef = useRef(false)
+  const cleanupFnsRef = useRef<(() => void)[]>([])
 
   useEffect(() => {
-    if (!containerRef.current) return
+    if (!containerRef.current || isInitializedRef.current) return
 
-    // Initialize xterm.js
-    const terminal = new Terminal({
-      theme: TERMINAL_THEME,
-      fontFamily: 'SF Mono, Menlo, Monaco, Consolas, monospace',
-      fontSize: 13,
-      lineHeight: 1.2,
-      cursorBlink: true,
-      cursorStyle: 'block',
-      scrollback: 5000,
-      allowProposedApi: true,
-    })
+    const container = containerRef.current
+    let initRetryCount = 0
+    const maxRetries = 20
+    let initTimeout: ReturnType<typeof setTimeout>
 
-    const fitAddon = new FitAddon()
-    const webLinksAddon = new WebLinksAddon()
+    // Wait for container to have valid dimensions before initializing
+    const tryInit = () => {
+      if (isInitializedRef.current) return
 
-    terminal.loadAddon(fitAddon)
-    terminal.loadAddon(webLinksAddon)
-
-    terminal.open(containerRef.current)
-    fitAddon.fit()
-
-    terminalRef.current = terminal
-    fitAddonRef.current = fitAddon
-
-    // Handle terminal input -> PTY
-    const inputDisposable = terminal.onData((data) => {
-      window.electronAPI.terminal.write(sessionId, data)
-    })
-
-    // Handle title changes
-    const titleDisposable = terminal.onTitleChange((title) => {
-      onTitleChange?.(title)
-    })
-
-    // Handle PTY output -> terminal
-    const dataCleanup = window.electronAPI.terminal.onData((id, data) => {
-      if (id === sessionId) {
-        terminal.write(data)
+      const { offsetWidth, offsetHeight } = container
+      if ((offsetWidth === 0 || offsetHeight === 0) && initRetryCount < maxRetries) {
+        initRetryCount++
+        initTimeout = setTimeout(tryInit, 50)
+        return
       }
-    })
 
-    // Handle PTY exit
-    const exitCleanup = window.electronAPI.terminal.onExit((id, code) => {
-      if (id === sessionId) {
-        terminal.write(`\r\n\x1b[90m[Process exited with code ${code}]\x1b[0m\r\n`)
-        onExit?.(code)
+      isInitializedRef.current = true
+      initTerminal()
+    }
+
+    const initTerminal = () => {
+      // Initialize xterm.js
+      const terminal = new Terminal({
+        theme: TERMINAL_THEME,
+        fontFamily: 'SF Mono, Menlo, Monaco, Consolas, monospace',
+        fontSize: 13,
+        lineHeight: 1.2,
+        cursorBlink: true,
+        cursorStyle: 'block',
+        scrollback: 5000,
+        allowProposedApi: true,
+      })
+
+      const fitAddon = new FitAddon()
+      const webLinksAddon = new WebLinksAddon()
+
+      terminal.loadAddon(fitAddon)
+      terminal.loadAddon(webLinksAddon)
+
+      // Open terminal
+      terminal.open(container)
+
+      terminalRef.current = terminal
+      fitAddonRef.current = fitAddon
+
+      // Debounced resize handler
+      let resizeTimeout: ReturnType<typeof setTimeout> | null = null
+      const handleResize = () => {
+        if (resizeTimeout) clearTimeout(resizeTimeout)
+        resizeTimeout = setTimeout(() => {
+          if (fitAddonRef.current && terminalRef.current && container) {
+            const { offsetWidth, offsetHeight } = container
+            if (offsetWidth === 0 || offsetHeight === 0) return
+
+            try {
+              fitAddonRef.current.fit()
+              const { cols, rows } = terminalRef.current
+              window.electronAPI.terminal.resize(sessionId, cols, rows)
+            } catch {
+              // Ignore resize errors
+            }
+          }
+        }, 50)
       }
-    })
 
-    // Handle window resize
-    const resizeObserver = new ResizeObserver(handleResize)
-    resizeObserver.observe(containerRef.current)
+      // Initial fit after a short delay
+      const fitTimeout = setTimeout(() => {
+        try {
+          fitAddon.fit()
+          const { cols, rows } = terminal
+          window.electronAPI.terminal.resize(sessionId, cols, rows)
+        } catch {
+          // Ignore initial fit errors
+        }
+      }, 100)
 
-    // Initial size sync
-    const { cols, rows } = terminal
-    window.electronAPI.terminal.resize(sessionId, cols, rows)
+      // Set up resize observer
+      const resizeObserver = new ResizeObserver(handleResize)
+      resizeObserver.observe(container)
 
-    // Store cleanup functions
-    cleanupRef.current = [
-      () => inputDisposable.dispose(),
-      () => titleDisposable.dispose(),
-      dataCleanup,
-      exitCleanup,
-      () => resizeObserver.disconnect(),
-      () => terminal.dispose(),
-    ]
+      // Handle terminal input -> PTY
+      const inputDisposable = terminal.onData((data) => {
+        window.electronAPI.terminal.write(sessionId, data)
+      })
+
+      // Handle title changes
+      const titleDisposable = terminal.onTitleChange((title) => {
+        onTitleChange?.(title)
+      })
+
+      // Handle PTY output -> terminal
+      const dataCleanup = window.electronAPI.terminal.onData((id, data) => {
+        if (id === sessionId) {
+          terminal.write(data)
+        }
+      })
+
+      // Handle PTY exit
+      const exitCleanup = window.electronAPI.terminal.onExit((id, code) => {
+        if (id === sessionId) {
+          terminal.write(`\r\n\x1b[90m[Process exited with code ${code}]\x1b[0m\r\n`)
+          onExit?.(code)
+        }
+      })
+
+      // Store cleanup functions
+      cleanupFnsRef.current = [
+        () => clearTimeout(fitTimeout),
+        () => resizeTimeout && clearTimeout(resizeTimeout),
+        () => inputDisposable.dispose(),
+        () => titleDisposable.dispose(),
+        dataCleanup,
+        exitCleanup,
+        () => resizeObserver.disconnect(),
+        () => terminal.dispose(),
+      ]
+    }
+
+    // Start initialization
+    tryInit()
 
     return () => {
-      cleanupRef.current.forEach((cleanup) => cleanup())
-      cleanupRef.current = []
+      clearTimeout(initTimeout)
+      cleanupFnsRef.current.forEach((fn) => fn())
+      cleanupFnsRef.current = []
       terminalRef.current = null
       fitAddonRef.current = null
+      // Don't reset isInitializedRef here to prevent re-init on HMR
     }
-  }, [sessionId, onTitleChange, onExit, handleResize])
+  }, [sessionId, onTitleChange, onExit])
 
   return (
     <div
@@ -141,6 +185,8 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
       style={{
         width: '100%',
         height: '100%',
+        minWidth: 200,
+        minHeight: 100,
         backgroundColor: TERMINAL_THEME.background,
       }}
     />

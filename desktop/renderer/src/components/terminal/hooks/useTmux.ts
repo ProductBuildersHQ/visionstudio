@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { TmuxSession, PTYSession } from '../../../types/terminal'
 
+// Check if we're running in Electron with preload
+const isElectron = (): boolean => {
+  return typeof window !== 'undefined' && window.electronAPI !== undefined
+}
+
 interface UseTmuxResult {
   sessions: TmuxSession[]
   isAvailable: boolean
@@ -18,6 +23,11 @@ export function useTmux(): UseTmuxResult {
   const [error, setError] = useState<string | null>(null)
 
   const checkAvailability = useCallback(async () => {
+    if (!isElectron()) {
+      setIsAvailable(false)
+      return false
+    }
+
     try {
       const available = await window.electronAPI.tmux.isAvailable()
       setIsAvailable(available)

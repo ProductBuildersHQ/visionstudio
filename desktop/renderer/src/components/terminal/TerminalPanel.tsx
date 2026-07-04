@@ -41,15 +41,18 @@ export function TerminalPanel({ height, onHeightChange, projectPath, projectName
   const resizeRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
   const tabCounter = useRef(0)
+  const initialTabCreated = useRef(false)
 
   // Sync tabs from useTerminal hook
   useEffect(() => {
     setAllTabs(tabs)
   }, [tabs])
 
-  // Create initial tab on mount
+  // Create initial tab on mount (guard against React Strict Mode double-mount)
   useEffect(() => {
+    if (initialTabCreated.current) return
     if (tabs.length === 0) {
+      initialTabCreated.current = true
       createTab({ cwd: projectPath })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

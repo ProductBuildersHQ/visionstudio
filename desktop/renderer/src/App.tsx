@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, LLMPanel, TerminalPanel, DEFAULT_TERMINAL_HEIGHT } from './components'
+import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT } from './components'
 import { api } from './services/api'
 import type { Project, Spec } from './types'
 
@@ -12,7 +12,6 @@ function App() {
   const [activeSpec, setActiveSpec] = useState<Spec | null>(null)
   const [specContent, setSpecContent] = useState<string>('')
   const [isDirty, setIsDirty] = useState(false)
-  const [isLLMLoading, setIsLLMLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [terminalHeight, setTerminalHeight] = useState(DEFAULT_TERMINAL_HEIGHT)
@@ -84,18 +83,6 @@ function App() {
     }
   }
 
-  const handleLLMMessage = async (message: string): Promise<string> => {
-    setIsLLMLoading(true)
-    try {
-      const response = await api.chat(message, specContent)
-      return response
-    } catch (err) {
-      return `Error: ${err}`
-    } finally {
-      setIsLLMLoading(false)
-    }
-  }
-
   const handleTerminalHeightChange = useCallback((height: number) => {
     setTerminalHeight(height)
   }, [])
@@ -138,9 +125,6 @@ function App() {
           onWorkflowClick={handleWorkflowClick}
           activeSpec={activeSpec}
         />
-      }
-      llmPanel={
-        <LLMPanel onSendMessage={handleLLMMessage} isLoading={isLLMLoading} />
       }
       main={
         activeProject ? (

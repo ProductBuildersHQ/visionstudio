@@ -2,6 +2,16 @@ import type { Project, Spec, EvalResult } from '../types'
 
 const API_BASE = 'http://127.0.0.1:8765/api'
 
+// Workflow status type
+export interface WorkflowStatus {
+  currentPhase: string
+  completedPhases: string[]
+  progress: number
+  specStatuses: Record<string, string>
+  blockedBy?: string[]
+  lastUpdated: string
+}
+
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...options,
@@ -73,5 +83,18 @@ export const api = {
     }
 
     return data.response
+  },
+
+  // Workflow
+  async getWorkflowStatus(project: string): Promise<WorkflowStatus> {
+    const data = await fetchJSON<{ status: WorkflowStatus; error?: string }>(
+      `${API_BASE}/projects/${project}/workflow/status`
+    )
+
+    if (data.error) {
+      throw new Error(data.error)
+    }
+
+    return data.status
   },
 }

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, LLMPanel } from './components'
+import { useState, useEffect, useCallback } from 'react'
+import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, LLMPanel, TerminalPanel, DEFAULT_TERMINAL_HEIGHT } from './components'
 import { api } from './services/api'
 import type { Project, Spec } from './types'
 
@@ -15,6 +15,7 @@ function App() {
   const [isLLMLoading, setIsLLMLoading] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [terminalHeight, setTerminalHeight] = useState(DEFAULT_TERMINAL_HEIGHT)
 
   // Load projects on mount
   useEffect(() => {
@@ -95,6 +96,10 @@ function App() {
     }
   }
 
+  const handleTerminalHeightChange = useCallback((height: number) => {
+    setTerminalHeight(height)
+  }, [])
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-va-bg text-va-text">
@@ -157,6 +162,14 @@ function App() {
         ) : (
           <EmptyState message="Select a project to get started" />
         )
+      }
+      terminal={
+        <TerminalPanel
+          height={terminalHeight}
+          onHeightChange={handleTerminalHeightChange}
+          projectPath={activeProject?.path}
+          projectName={activeProject?.name}
+        />
       }
     />
   )

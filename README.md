@@ -19,20 +19,20 @@ VisionStudio provides an integrated workspace for creating, evaluating, and iter
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Electron Desktop App                      │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │              React/TypeScript Frontend                   ││
-│  │  • Sidebar (projects, specs)                            ││
-│  │  • Workflow diagram                                      ││
-│  │  • Markdown editor                                       ││
-│  │  • LLM chat panel                                        ││
-│  └──────────────────────┬──────────────────────────────────┘│
+│                    Electron Desktop App                     │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │              React/TypeScript Frontend                │  │
+│  │  • Sidebar (projects, specs)                          │  │
+│  │  • Workflow diagram                                   │  │
+│  │  • Markdown editor                                    │  │
+│  │  • LLM chat panel                                     │  │
+│  └──────────────────────┬────────────────────────────────┘  │
 └─────────────────────────┼───────────────────────────────────┘
                           │ HTTP/WebSocket
 ┌─────────────────────────▼───────────────────────────────────┐
-│                      Go Daemon                               │
+│                      Go Daemon                              │
 │  • REST API for projects/specs                              │
-│  • VisionSpec integration                                    │
+│  • VisionSpec integration                                   │
 │  • LLM provider abstraction (omniagent)                     │
 └─────────────────────────────────────────────────────────────┘
 ```

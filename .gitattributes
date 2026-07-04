@@ -1,0 +1,4 @@
+# Linguist overrides
+# Mark archived/vendored code to exclude from language stats
+
+_wails_archive/** linguist-vendored

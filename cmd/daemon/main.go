@@ -31,8 +31,9 @@ func main() {
 
 	addr := fmt.Sprintf("127.0.0.1:%d", *port)
 	httpServer := &http.Server{
-		Addr:    addr,
-		Handler: srv.Router(),
+		Addr:              addr,
+		Handler:           srv.Router(),
+		ReadHeaderTimeout: 10 * time.Second,
 	}
 
 	// Graceful shutdown

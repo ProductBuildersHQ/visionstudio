@@ -33,12 +33,12 @@ VisionStudio provides an integrated workspace for creating, evaluating, and iter
 
 ## Features
 
-- **Project Management** - Create and manage multiple spec projects
-- **Profile-Driven Workflows** - Select from profiles (aws-product, big-tech-product, etc.)
-- **Visual Workflow Diagram** - See spec sequence and status at a glance
-- **Markdown Editor** - Source and rendered view toggle
-- **LLM-as-a-Judge Evaluation** - Evaluate specs against profile rubrics
-- **LLM Writing Assistant** - Context-aware chat for spec assistance
+- 📁 **Project Management** - Create and manage multiple spec projects
+- ⚡ **Profile-Driven Workflows** - Select from profiles (aws-product, big-tech-product, etc.)
+- 📊 **Visual Workflow Diagram** - See spec sequence and status at a glance
+- ✏️ **Markdown Editor** - Source and rendered view toggle
+- ⚖️ **LLM-as-a-Judge Evaluation** - Evaluate specs against profile rubrics
+- 🤖 **LLM Writing Assistant** - Context-aware chat for spec assistance
 
 ## Architecture
 

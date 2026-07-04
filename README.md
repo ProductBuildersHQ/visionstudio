@@ -1,5 +1,7 @@
 # VisionStudio
 
+![](docs/images/visionspec-visionstudio_hero_v4.png)
+
 [![Go CI][go-ci-svg]][go-ci-url]
 [![Go Lint][go-lint-svg]][go-lint-url]
 [![Go SAST][go-sast-svg]][go-sast-url]

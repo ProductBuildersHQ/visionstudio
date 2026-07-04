@@ -1,7 +1,8 @@
 .task
 bin
-frontend/dist
-frontend/node_modules
+node_modules
+dist
+desktop/dist-main
 build/linux/appimage/build
 build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
 # Mobile generated (per-machine; overlays hold absolute paths)

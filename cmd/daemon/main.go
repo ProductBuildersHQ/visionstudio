@@ -111,8 +111,8 @@ func (s *Server) handleListProjects(w http.ResponseWriter, r *http.Request) {
 	// For now, return mock data
 	projects := []api.Project{
 		{
-			Name: "invention",
-			Path: "docs/specs/invention",
+			Name: "example-project",
+			Path: "docs/specs/example-project",
 			Profile: api.Profile{
 				Name:        "big-tech-product",
 				Description: "Big Tech methodology for product development",

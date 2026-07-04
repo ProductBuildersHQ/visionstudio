@@ -18,7 +18,7 @@ function createWindow() {
     height: 900,
     minWidth: 1000,
     minHeight: 600,
-    title: 'VisionApp',
+    title: 'VisionStudio',
     backgroundColor: '#1b2636',
     webPreferences: {
       nodeIntegration: false,

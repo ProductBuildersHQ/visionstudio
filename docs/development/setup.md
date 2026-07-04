@@ -9,8 +9,8 @@
 ## Clone and Setup
 
 ```bash
-git clone https://github.com/ProductBuildersHQ/visionapp.git
-cd visionapp
+git clone https://github.com/ProductBuildersHQ/visionstudio.git
+cd visionstudio
 ```
 
 ## Build Go Daemon

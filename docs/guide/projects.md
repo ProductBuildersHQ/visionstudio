@@ -1,6 +1,6 @@
 # Projects
 
-A project in VisionApp represents a product or feature you're specifying.
+A project in VisionStudio represents a product or feature you're specifying.
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ llm:
 
 1. Create the directory structure
 2. Add `visionspec.yaml` with your profile
-3. The project appears in VisionApp's sidebar
+3. The project appears in VisionStudio's sidebar
 
 ## Profiles
 

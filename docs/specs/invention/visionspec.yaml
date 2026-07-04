@@ -1,5 +1,5 @@
 name: invention
-description: Zero-to-one creation of VisionApp - desktop application for LLM-powered specification authoring and evaluation
+description: Zero-to-one creation of VisionStudio - desktop application for LLM-powered specification authoring and evaluation
 profile: big-tech-product
 
 # Project metadata
@@ -17,7 +17,7 @@ llm:
 context:
   sources:
     - type: git
-      path: ../../../  # visionapp root
+      path: ../../../  # visionstudio root
     - type: git
       path: ../../../../visionspec  # visionspec library
     - type: git

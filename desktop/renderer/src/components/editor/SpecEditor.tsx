@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Spec, ViewMode } from '../../types'
+import type { Spec, ViewMode, EvalResult, Finding } from '../../types'
 
 interface SpecEditorProps {
   spec: Spec
@@ -9,7 +9,11 @@ interface SpecEditorProps {
 }
 
 export function SpecEditor({ spec, onContentChange, onSave, isDirty }: SpecEditorProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>('source')
+  // Default to rendered view for reading
+  const [viewMode, setViewMode] = useState<ViewMode>('rendered')
+  const [showEvalPanel, setShowEvalPanel] = useState(!!spec.evalResult)
+
+  const hasEval = !!spec.evalResult
 
   return (
     <div className="flex flex-col h-full">
@@ -48,6 +52,21 @@ export function SpecEditor({ spec, onContentChange, onSave, isDirty }: SpecEdito
             </button>
           </div>
 
+          {/* Eval panel toggle */}
+          {hasEval && (
+            <button
+              onClick={() => setShowEvalPanel(!showEvalPanel)}
+              className={`px-3 py-1 text-xs font-medium rounded border transition-colors flex items-center gap-1.5 ${
+                showEvalPanel
+                  ? 'bg-va-accent/20 border-va-accent text-va-accent'
+                  : 'border-va-border text-va-text-muted hover:text-va-text hover:border-va-text-muted'
+              }`}
+            >
+              <EvalBadge decision={spec.evalResult!.decision} />
+              Eval
+            </button>
+          )}
+
           {/* Save button */}
           <button
             onClick={onSave}
@@ -59,17 +78,135 @@ export function SpecEditor({ spec, onContentChange, onSave, isDirty }: SpecEdito
         </div>
       </div>
 
-      {/* Editor content */}
-      <div className="flex-1 overflow-hidden">
-        {viewMode === 'source' ? (
-          <SourceEditor
-            content={spec.content || ''}
-            onChange={onContentChange}
-          />
-        ) : (
-          <RenderedView content={spec.content || ''} />
+      {/* Content area */}
+      <div className="flex-1 overflow-hidden flex">
+        {/* Main editor/view */}
+        <div className={`${showEvalPanel && hasEval ? 'w-2/3' : 'w-full'} h-full overflow-hidden transition-all`}>
+          {viewMode === 'source' ? (
+            <SourceEditor
+              content={spec.content || ''}
+              onChange={onContentChange}
+            />
+          ) : (
+            <RenderedView content={spec.content || ''} />
+          )}
+        </div>
+
+        {/* Eval panel */}
+        {showEvalPanel && hasEval && (
+          <div className="w-1/3 border-l border-va-border overflow-hidden">
+            <EvalPanel evalResult={spec.evalResult!} />
+          </div>
         )}
       </div>
+    </div>
+  )
+}
+
+// Small badge to show eval decision status
+function EvalBadge({ decision }: { decision: string }) {
+  const colors = {
+    pass: 'bg-va-success',
+    conditional: 'bg-va-warning',
+    fail: 'bg-va-danger',
+  }
+  return (
+    <span className={`w-2 h-2 rounded-full ${colors[decision as keyof typeof colors] || 'bg-va-text-muted'}`} />
+  )
+}
+
+// Evaluation panel component
+function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
+  const decisionColors = {
+    pass: { bg: 'bg-va-success/10', border: 'border-va-success/30', text: 'text-va-success' },
+    conditional: { bg: 'bg-va-warning/10', border: 'border-va-warning/30', text: 'text-va-warning' },
+    fail: { bg: 'bg-va-danger/10', border: 'border-va-danger/30', text: 'text-va-danger' },
+  }
+  const decision = decisionColors[evalResult.decision] || decisionColors.pass
+
+  return (
+    <div className="h-full overflow-y-auto bg-va-bg">
+      {/* Header */}
+      <div className={`p-4 ${decision.bg} border-b ${decision.border}`}>
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-va-text">LLM-as-a-Judge</h3>
+          <span className={`text-xs font-bold ${decision.text}`}>
+            {evalResult.decision.toUpperCase()}
+          </span>
+        </div>
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className={`text-2xl font-bold ${decision.text}`}>
+            {evalResult.score.toFixed(1)}
+          </span>
+          <span className="text-xs text-va-text-muted">/ 10.0</span>
+        </div>
+      </div>
+
+      {/* Findings */}
+      <div className="p-4">
+        <h4 className="text-xs font-semibold text-va-text-muted uppercase tracking-wide mb-3">
+          Findings ({evalResult.findings.length})
+        </h4>
+        <div className="space-y-2">
+          {evalResult.findings.length === 0 ? (
+            <p className="text-xs text-va-text-muted italic">No findings</p>
+          ) : (
+            evalResult.findings.map((finding, idx) => (
+              <FindingCard key={idx} finding={finding} />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Individual finding card with color indicators
+function FindingCard({ finding }: { finding: Finding }) {
+  const severityStyles = {
+    critical: {
+      bg: 'bg-red-500/10',
+      border: 'border-l-red-500',
+      badge: 'bg-red-500 text-white',
+      text: 'text-red-400',
+    },
+    high: {
+      bg: 'bg-orange-500/10',
+      border: 'border-l-orange-500',
+      badge: 'bg-orange-500 text-white',
+      text: 'text-orange-400',
+    },
+    medium: {
+      bg: 'bg-yellow-500/10',
+      border: 'border-l-yellow-500',
+      badge: 'bg-yellow-500 text-black',
+      text: 'text-yellow-400',
+    },
+    low: {
+      bg: 'bg-blue-500/10',
+      border: 'border-l-blue-500',
+      badge: 'bg-blue-500 text-white',
+      text: 'text-blue-400',
+    },
+    info: {
+      bg: 'bg-va-panel',
+      border: 'border-l-va-text-muted',
+      badge: 'bg-va-text-muted text-va-bg',
+      text: 'text-va-text-muted',
+    },
+  }
+
+  const style = severityStyles[finding.severity] || severityStyles.info
+
+  return (
+    <div className={`${style.bg} ${style.border} border-l-2 rounded-r p-3`}>
+      <div className="flex items-center gap-2 mb-1">
+        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${style.badge}`}>
+          {finding.severity.toUpperCase()}
+        </span>
+        <span className="text-xs text-va-text-muted capitalize">{finding.category}</span>
+      </div>
+      <p className="text-xs text-va-text leading-relaxed">{finding.message}</p>
     </div>
   )
 }

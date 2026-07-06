@@ -54,7 +54,7 @@ export function WorkflowDiagram({ project, onSpecClick }: WorkflowDiagramProps) 
         </div>
 
         {/* Workflow diagram */}
-        <div className="space-y-8">
+        <div className="space-y-2">
           {/* Source row */}
           {sourceSpecs.length > 0 && (
             <WorkflowRow
@@ -179,8 +179,8 @@ function SpecNode({ spec, onClick }: { spec: Spec; onClick: () => void }) {
 
 function FlowArrow() {
   return (
-    <div className="flex justify-center">
-      <div className="text-va-text-muted text-2xl">↓</div>
+    <div className="flex justify-center py-0">
+      <div className="text-va-text-muted text-sm">↓</div>
     </div>
   )
 }

@@ -586,7 +586,7 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 		"trd":              {name: "Technical Design", path: "technical/trd.md"},
 		"tpd":              {name: "Test Plan", path: "technical/tpd.md"},
 		"ird":              {name: "Infrastructure", path: "technical/ird.md"},
-		"spec":             {name: "Reconciled Spec", path: "spec.md"},
+		"spec":             {name: "Execution Spec", path: "spec.md"},
 	}
 
 	meta, ok := specMeta[specType]

@@ -11,4 +11,7 @@ build/ios/xcode/gen/
 build/android/overlay.json
 build/android/gen/
 # Ideation chat transcripts
-IDEATION_CHAT*.mdsite/
+IDEATION_CHAT*.md
+
+# Generated documentation
+site/

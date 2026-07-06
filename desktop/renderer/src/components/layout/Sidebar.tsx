@@ -97,11 +97,11 @@ export function Sidebar({
   }
 
   return (
-    <div className="p-3 pt-10">
-      {/* App branding - pt-10 accommodates macOS traffic lights */}
-      <div className="mb-4">
-        <div className="text-[10px] text-va-text-muted tracking-wide">ProductBuildersHQ</div>
-        <div className="text-sm font-semibold text-va-text">VisionStudio</div>
+    <div className="p-3 pt-12">
+      {/* App branding - pt-12 accommodates macOS traffic lights + breathing room */}
+      <div className="mb-5">
+        <div className="text-xs text-va-text-muted tracking-wide">ProductBuildersHQ</div>
+        <div className="text-lg font-semibold text-va-text">VisionStudio</div>
       </div>
 
       {/* Projects header */}

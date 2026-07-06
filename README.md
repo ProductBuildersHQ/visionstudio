@@ -1,6 +1,6 @@
 # VisionStudio
 
-![](docs/images/img_visionspec-visionstudio_hero_v4.png)
+[![](docs/images/img_visionspec-visionstudio_hero_v4.png)](https://productbuildershq.com/visionstudio/)
 
 [![Go CI][go-ci-svg]][go-ci-url]
 [![Go Lint][go-lint-svg]][go-lint-url]

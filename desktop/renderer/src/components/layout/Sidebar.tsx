@@ -97,8 +97,14 @@ export function Sidebar({
   }
 
   return (
-    <div className="p-3 pt-14">
-      {/* Projects header - pt-14 accommodates macOS traffic lights + visual breathing room */}
+    <div className="p-3 pt-10">
+      {/* App branding - pt-10 accommodates macOS traffic lights */}
+      <div className="mb-4">
+        <div className="text-[10px] text-va-text-muted tracking-wide">ProductBuildersHQ</div>
+        <div className="text-sm font-semibold text-va-text">VisionStudio</div>
+      </div>
+
+      {/* Projects header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-va-text-muted uppercase tracking-wider">

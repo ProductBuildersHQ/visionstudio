@@ -1,5 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import { marked } from 'marked'
 import type { Spec, ViewMode, EvalResult, Finding } from '../../types'
+
+// Configure marked for GitHub-flavored markdown with tables
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+})
 
 interface SpecEditorProps {
   spec: Spec
@@ -230,39 +237,24 @@ function SourceEditor({
   )
 }
 
-// Rendered markdown view (basic for now, can add proper markdown renderer)
+// Rendered markdown view using marked library
 function RenderedView({ content }: { content: string }) {
-  // Basic markdown rendering - TODO: use a proper markdown library
-  const renderMarkdown = (md: string): string => {
-    return md
-      // Headers
-      .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mt-6 mb-3">$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-8 mb-4">$1</h1>')
-      // Bold
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Italic
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Code blocks
-      .replace(/```([\s\S]*?)```/g, '<pre class="bg-va-panel p-3 rounded my-2 overflow-x-auto"><code>$1</code></pre>')
-      // Inline code
-      .replace(/`(.*?)`/g, '<code class="bg-va-panel px-1 rounded">$1</code>')
-      // Lists
-      .replace(/^\- (.*$)/gim, '<li class="ml-4">$1</li>')
-      // Links
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-va-accent hover:underline">$1</a>')
-      // Paragraphs
-      .replace(/\n\n/g, '</p><p class="my-2">')
-      // Line breaks
-      .replace(/\n/g, '<br/>')
-  }
+  const html = useMemo(() => {
+    return marked.parse(content || '') as string
+  }, [content])
 
   return (
     <div
-      className="h-full overflow-y-auto p-6 prose prose-invert max-w-none"
-      dangerouslySetInnerHTML={{
-        __html: `<p class="my-2">${renderMarkdown(content)}</p>`,
-      }}
+      className="h-full overflow-y-auto p-6 prose prose-invert max-w-none
+        prose-headings:text-va-text prose-p:text-va-text prose-strong:text-va-text
+        prose-code:text-va-accent prose-code:bg-va-panel prose-code:px-1 prose-code:rounded
+        prose-pre:bg-va-panel prose-pre:p-3 prose-pre:rounded
+        prose-a:text-va-accent hover:prose-a:underline
+        prose-table:border-collapse prose-table:w-full prose-table:my-4
+        prose-th:border prose-th:border-va-border prose-th:bg-va-sidebar prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:text-va-text prose-th:font-semibold
+        prose-td:border prose-td:border-va-border prose-td:px-3 prose-td:py-2 prose-td:text-va-text
+        prose-li:text-va-text prose-li:marker:text-va-text-muted"
+      dangerouslySetInnerHTML={{ __html: html }}
     />
   )
 }

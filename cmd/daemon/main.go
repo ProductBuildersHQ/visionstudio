@@ -20,6 +20,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/grokify/mogo/os/osutil"
 
 	specconfig "github.com/ProductBuildersHQ/visionspec/pkg/config"
 	"github.com/ProductBuildersHQ/visionspec/pkg/lint"
@@ -391,7 +392,7 @@ func (s *Server) initializeProject(projectPath, projectName, profileName string)
 
 		// Write template to file
 		specPath := filepath.Join(projectPath, targetDir, specType.Filename())
-		if err := os.WriteFile(specPath, []byte(tmpl.Content), 0644); err != nil {
+		if err := os.WriteFile(specPath, []byte(tmpl.Content), 0o600); err != nil {
 			return fmt.Errorf("writing %s: %w", specPath, err)
 		}
 
@@ -563,6 +564,12 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 	specType := chi.URLParam(r, "specType")
 	s.logger.Debug("Getting spec", "project", projectName, "type", specType)
 
+	// Validate specType for path traversal
+	if err := osutil.ValidateNoTraversal(specType); err != nil {
+		s.writeJSON(w, http.StatusBadRequest, api.GetSpecResponse{})
+		return
+	}
+
 	// Get project from config
 	project, err := config.GetProject(projectName)
 	if err != nil {
@@ -597,20 +604,20 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 		}{name: specType, path: fmt.Sprintf("specs/%s.md", specType)}
 	}
 
-	// Read spec content from filesystem
-	specPath := filepath.Join(project.Path, meta.path)
+	// Read spec content from filesystem (specType validated above)
+	specPath := filepath.Join(project.Path, meta.path) //nolint:gosec // specType validated by osutil.ValidateNoTraversal
 	content := ""
 	status := api.SpecStatusNotStarted
 
-	if data, err := os.ReadFile(specPath); err == nil {
+	if data, err := os.ReadFile(specPath); err == nil { //nolint:gosec // specType validated above
 		content = string(data)
 		status = api.SpecStatusDraft
 	}
 
-	// Check for eval result
+	// Check for eval result (specType validated above)
 	var evalResult *api.EvalResult
-	evalPath := filepath.Join(project.Path, "eval", specType+".json")
-	if evalData, err := os.ReadFile(evalPath); err == nil {
+	evalPath := filepath.Join(project.Path, "eval", specType+".json") //nolint:gosec // specType validated above
+	if evalData, err := os.ReadFile(evalPath); err == nil {           //nolint:gosec // specType validated above
 		var result api.EvalResult
 		if json.Unmarshal(evalData, &result) == nil {
 			evalResult = &result
@@ -637,6 +644,15 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleSaveSpec(w http.ResponseWriter, r *http.Request) {
 	projectName := chi.URLParam(r, "project")
 	specType := chi.URLParam(r, "specType")
+
+	// Validate specType for path traversal
+	if err := osutil.ValidateNoTraversal(specType); err != nil {
+		s.writeJSON(w, http.StatusBadRequest, api.SaveSpecResponse{
+			Success: false,
+			Error:   "Invalid spec type",
+		})
+		return
+	}
 
 	var req api.SaveSpecRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -680,10 +696,11 @@ func (s *Server) handleSaveSpec(w http.ResponseWriter, r *http.Request) {
 		relPath = fmt.Sprintf("specs/%s.md", specType)
 	}
 
-	specPath := filepath.Join(project.Path, relPath)
+	// specType validated above, relPath is either from hardcoded map or validated specType
+	specPath := filepath.Join(project.Path, relPath) //nolint:gosec // specType validated by osutil.ValidateNoTraversal
 
 	// Ensure directory exists
-	if err := os.MkdirAll(filepath.Dir(specPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(specPath), 0755); err != nil { //nolint:gosec // specType validated above
 		s.writeJSON(w, http.StatusInternalServerError, api.SaveSpecResponse{
 			Success: false,
 			Error:   fmt.Sprintf("Failed to create directory: %v", err),
@@ -692,7 +709,7 @@ func (s *Server) handleSaveSpec(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Write spec content
-	if err := os.WriteFile(specPath, []byte(req.Content), 0644); err != nil {
+	if err := os.WriteFile(specPath, []byte(req.Content), 0o600); err != nil { //nolint:gosec // specType validated above
 		s.writeJSON(w, http.StatusInternalServerError, api.SaveSpecResponse{
 			Success: false,
 			Error:   fmt.Sprintf("Failed to write file: %v", err),
@@ -814,8 +831,9 @@ func (s *Server) loadProjectState(projectPath string) *types.Project {
 			continue
 		}
 
+		// projectPath from user config, dir and specType.Filename() are hardcoded constants
 		specPath := filepath.Join(projectPath, dir, specType.Filename())
-		if _, err := os.Stat(specPath); err == nil {
+		if _, err := os.Stat(specPath); err == nil { //nolint:gosec // paths from user config + hardcoded constants
 			project.Specs[specType] = &types.Spec{
 				Type:   specType,
 				Path:   specPath,
@@ -1060,7 +1078,7 @@ func (s *Server) ensureWatcher(projectName, projectPath string) {
 
 	s.watchers[projectName] = watcher
 
-	// Watch project directories
+	// Watch project directories (projectPath from user config, subdirs are hardcoded constants)
 	dirsToWatch := []string{
 		projectPath,
 		filepath.Join(projectPath, specconfig.SourceDir),
@@ -1070,7 +1088,7 @@ func (s *Server) ensureWatcher(projectName, projectPath string) {
 	}
 
 	for _, dir := range dirsToWatch {
-		if _, err := os.Stat(dir); err == nil {
+		if _, err := os.Stat(dir); err == nil { //nolint:gosec // paths from user config + hardcoded constants
 			if err := watcher.Add(dir); err != nil {
 				s.logger.Warn("Failed to watch directory", "dir", dir, "error", err)
 			} else {

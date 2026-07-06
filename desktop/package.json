@@ -1,5 +1,6 @@
 {
   "name": "visionstudio",
+  "productName": "VisionStudio",
   "version": "0.1.0",
   "description": "LLM-powered specification authoring and evaluation",
   "type": "module",

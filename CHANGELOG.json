@@ -1,0 +1,74 @@
+{
+  "irVersion": "1.0",
+  "project": "visionstudio",
+  "repository": "https://github.com/ProductBuildersHQ/visionstudio",
+  "versioning": "semver",
+  "commitConvention": "conventional",
+  "maintainers": ["ProductBuildersHQ"],
+  "releases": [
+    {
+      "version": "v0.1.0",
+      "date": "2026-07-06",
+      "highlights": [
+        { "description": "Initial release of VisionStudio desktop application" },
+        { "description": "Go daemon with REST API for specification operations" },
+        { "description": "Electron shell with React frontend and terminal integration" },
+        { "description": "Workflow visualization with true AWS Working Backwards order" }
+      ],
+      "added": [
+        { "description": "Go daemon with REST API for spec CRUD operations", "commit": "dbe7ab3" },
+        { "description": "Electron desktop shell with native window controls", "commit": "c68dadf" },
+        { "description": "React frontend with spec editor UI", "commit": "2fca5ad" },
+        { "description": "Workflow status API endpoint", "commit": "4e31b15" },
+        { "description": "Terminal infrastructure with PTY support", "commit": "b1731bc" },
+        { "description": "Terminal UI with workflow integration", "commit": "431f36a" },
+        { "description": "Content Security Policy headers", "commit": "ff6393c" },
+        { "description": "Project Info modal with metadata display", "commit": "a90d9e2" },
+        { "description": "Project configuration management with persistence", "commit": "702a3c5" },
+        { "description": "Project and workflow API types", "commit": "4c9e9a3" },
+        { "description": "Project management and spec operations in daemon", "commit": "57826f8" },
+        { "description": "Directory picker via Electron dialog", "commit": "99f3ae0" },
+        { "description": "Project management UI with add/remove support", "commit": "bf36014" },
+        { "description": "Rendered HTML view with eval panel", "commit": "0e65779" },
+        { "description": "Proper markdown rendering with table support", "commit": "e7738aa" },
+        { "description": "Reconciliation row with Execution Spec in workflow", "commit": "9aba7d9" },
+        { "description": "Consolidated All Findings view for evaluations", "commit": "8786210" },
+        { "description": "ProductBuildersHQ VisionStudio branding in sidebar", "commit": "6000ae8" }
+      ],
+      "fixed": [
+        { "description": "Use generic example-project in mock data", "commit": "d12f88c" },
+        { "description": "ReadHeaderTimeout to prevent Slowloris attack", "commit": "5ac90a7" },
+        { "description": "Top padding for macOS traffic lights", "commit": "721b21a" },
+        { "description": "Terminal spawn and initialization issues", "commit": "6707be9" },
+        { "description": "React Strict Mode IPC listener cleanup timing", "commit": "7896f80" },
+        { "description": "Absolute project paths for terminal cwd", "commit": "24ff033" },
+        { "description": "Workflow diagram vertical spacing", "commit": "935d4c8" },
+        { "description": "Missing spec types in specMeta map", "commit": "343c5fa" },
+        { "description": "Standardize spec name to Execution Spec", "commit": "72ae892" },
+        { "description": "Markdown rendering with proper lists, spacing, tables", "commit": "12b6011" },
+        { "description": "Sidebar header padding and connection indicator", "commit": "e802364" },
+        { "description": "Use warning triangle for disconnected state", "commit": "a1a1438" },
+        { "description": "Branding font size and top padding", "commit": "db965d1" }
+      ],
+      "changed": [
+        { "description": "Rename project to VisionStudio", "commit": "9c0aa59" }
+      ],
+      "documentation": [
+        { "description": "README and MkDocs documentation", "commit": "a9f7f20" },
+        { "description": "VisionApp specification (invention)", "commit": "e680ee3" },
+        { "description": "IDE terminal feature specifications", "commit": "3a071be" },
+        { "description": "README screenshots", "commit": "23e6d4c" }
+      ],
+      "dependencies": [
+        { "description": "Update visionspec to v0.12.0 with true AWS Working Backwards order and IRD support", "commit": "426661f" }
+      ],
+      "maintenance": [
+        { "description": "Add gitignore", "commit": "1b7a087" },
+        { "description": "Archive Wails v3 implementation", "commit": "b1f679d" },
+        { "description": "Add shared workflow files", "commit": "f14e5f6" },
+        { "description": "Remove archived Wails code", "commit": "114d00a" },
+        { "description": "Remove debug logging from PTY manager", "commit": "da09c6d" }
+      ]
+    }
+  ]
+}

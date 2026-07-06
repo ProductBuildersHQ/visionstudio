@@ -19,6 +19,9 @@ export function WorkflowDiagram({ project, onSpecClick }: WorkflowDiagramProps) 
   const techSpecs = project.specs.filter((s) =>
     ['trd', 'tpd', 'ird'].includes(s.type)
   )
+  const reconciliationSpecs = project.specs.filter((s) =>
+    ['spec'].includes(s.type)
+  )
 
   return (
     <div className="h-full overflow-auto p-6">
@@ -100,6 +103,19 @@ export function WorkflowDiagram({ project, onSpecClick }: WorkflowDiagramProps) 
               title="Technical"
               description="LLM-generated implementation specs"
               specs={techSpecs}
+              onSpecClick={onSpecClick}
+            />
+          )}
+
+          {/* Arrow */}
+          {techSpecs.length > 0 && reconciliationSpecs.length > 0 && <FlowArrow />}
+
+          {/* Reconciliation row */}
+          {reconciliationSpecs.length > 0 && (
+            <WorkflowRow
+              title="Reconciliation"
+              description="LLM-synthesized, human-reviewed execution spec"
+              specs={reconciliationSpecs}
               onSpecClick={onSpecClick}
             />
           )}

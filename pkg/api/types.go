@@ -48,14 +48,17 @@ type Profile struct {
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Workflow    []string `json:"workflow"`
+	Framework   string   `json:"framework,omitempty"` // e.g., "AWS", "Big Tech", "Startup"
+	SpecType    string   `json:"specType,omitempty"`  // e.g., "Product", "Feature", "Platform"
 }
 
 // Project represents a spec project
 type Project struct {
-	Name    string  `json:"name"`
-	Path    string  `json:"path"`
-	Profile Profile `json:"profile"`
-	Specs   []Spec  `json:"specs"`
+	Name      string  `json:"name"`
+	Path      string  `json:"path"`
+	Profile   Profile `json:"profile"`
+	Specs     []Spec  `json:"specs"`
+	GitRemote string  `json:"gitRemote,omitempty"` // e.g., "https://github.com/org/repo"
 }
 
 // API request/response types

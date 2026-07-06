@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Project, Spec } from '../../types'
+import { ProjectInfoModal } from './ProjectInfoModal'
 
 interface SidebarProps {
   projects: Project[]
@@ -64,6 +65,7 @@ export function Sidebar({
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
     new Set(activeProject ? [activeProject.name] : [])
   )
+  const [showProjectInfo, setShowProjectInfo] = useState(false)
 
   const toggleProject = (projectName: string) => {
     const newExpanded = new Set(expandedProjects)
@@ -127,6 +129,15 @@ export function Sidebar({
                   <span>Workflow</span>
                 </button>
 
+                {/* Project Info link */}
+                <button
+                  onClick={() => setShowProjectInfo(true)}
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left text-va-text-muted hover:text-va-text hover:bg-va-panel transition-colors"
+                >
+                  <span>ℹ️</span>
+                  <span>Project Info</span>
+                </button>
+
                 {/* Divider */}
                 <div className="border-t border-va-border my-2" />
 
@@ -151,6 +162,14 @@ export function Sidebar({
           </div>
         )
       })}
+
+      {/* Project Info Modal */}
+      {showProjectInfo && activeProject && (
+        <ProjectInfoModal
+          project={activeProject}
+          onClose={() => setShowProjectInfo(false)}
+        />
+      )}
     </div>
   )
 }

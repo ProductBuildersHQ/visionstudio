@@ -29,6 +29,8 @@ export interface Profile {
   name: string
   description: string
   workflow: string[]
+  framework?: string // e.g., "AWS", "Big Tech", "Startup"
+  specType?: string  // e.g., "Product", "Feature", "Platform"
 }
 
 export interface Project {
@@ -36,6 +38,7 @@ export interface Project {
   path: string
   profile: Profile
   specs: Spec[]
+  gitRemote?: string // e.g., "https://github.com/org/repo"
 }
 
 // UI State types

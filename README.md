@@ -42,6 +42,20 @@ VisionStudio provides an integrated workspace for creating, evaluating, and iter
 - ⚖️ **LLM-as-a-Judge Evaluation** - Evaluate specs against profile rubrics
 - 🤖 **LLM Writing Assistant** - Context-aware chat for spec assistance
 
+## Screen Shots
+
+### Workflow
+
+[![](docs/images/ss_visionstudio_series-1_img-001_workflow.png)](https://productbuildershq.com/visionstudio/)
+
+### PRD Spec
+
+[![](docs/images/ss_visionstudio_series-1_img-002_prd.png)](https://productbuildershq.com/visionstudio/)
+
+### Findings List
+
+[![](docs/images/ss_visionstudio_series-1_img-003_findings.png)](https://productbuildershq.com/visionstudio/)
+
 ## Architecture
 
 ```

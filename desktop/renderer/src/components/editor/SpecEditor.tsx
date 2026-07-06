@@ -245,15 +245,7 @@ function RenderedView({ content }: { content: string }) {
 
   return (
     <div
-      className="h-full overflow-y-auto p-6 prose prose-invert max-w-none
-        prose-headings:text-va-text prose-p:text-va-text prose-strong:text-va-text
-        prose-code:text-va-accent prose-code:bg-va-panel prose-code:px-1 prose-code:rounded
-        prose-pre:bg-va-panel prose-pre:p-3 prose-pre:rounded
-        prose-a:text-va-accent hover:prose-a:underline
-        prose-table:border-collapse prose-table:w-full prose-table:my-4
-        prose-th:border prose-th:border-va-border prose-th:bg-va-sidebar prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:text-va-text prose-th:font-semibold
-        prose-td:border prose-td:border-va-border prose-td:px-3 prose-td:py-2 prose-td:text-va-text
-        prose-li:text-va-text prose-li:marker:text-va-text-muted"
+      className="h-full overflow-y-auto p-6 markdown-content"
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

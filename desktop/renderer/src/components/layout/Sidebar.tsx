@@ -8,6 +8,7 @@ interface SidebarProps {
   onProjectSelect: (project: Project) => void
   onSpecSelect: (spec: Spec) => void
   onWorkflowClick: () => void
+  onFindingsClick: () => void
   activeSpec: Spec | null
   onAddProjectClick: () => void
   onRemoveProject: (projectName: string) => void
@@ -63,6 +64,7 @@ export function Sidebar({
   onProjectSelect,
   onSpecSelect,
   onWorkflowClick,
+  onFindingsClick,
   activeSpec,
   onAddProjectClick,
   onRemoveProject,
@@ -196,6 +198,15 @@ export function Sidebar({
                 >
                   <span>📊</span>
                   <span>Workflow</span>
+                </button>
+
+                {/* All Findings link */}
+                <button
+                  onClick={onFindingsClick}
+                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left text-va-text-muted hover:text-va-text hover:bg-va-panel transition-colors"
+                >
+                  <span>📋</span>
+                  <span>All Findings</span>
                 </button>
 
                 {/* Project Info link */}

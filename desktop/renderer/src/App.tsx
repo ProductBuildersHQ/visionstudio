@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal } from './components'
+import { FindingsView } from './components/project/FindingsView'
 import { api } from './services/api'
 import { useProjectEvents, FileEvent } from './hooks/useProjectEvents'
 import type { Project, Spec } from './types'
 
-type ActiveView = 'workflow' | 'spec'
+type ActiveView = 'workflow' | 'spec' | 'findings'
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -124,6 +125,11 @@ function App() {
     setActiveSpec(null)
   }
 
+  const handleFindingsClick = () => {
+    setActiveView('findings')
+    setActiveSpec(null)
+  }
+
   const handleContentChange = (content: string) => {
     setSpecContent(content)
     setIsDirty(content !== (activeSpec?.content || ''))
@@ -204,6 +210,7 @@ function App() {
             onProjectSelect={handleProjectSelect}
             onSpecSelect={handleSpecSelect}
             onWorkflowClick={handleWorkflowClick}
+            onFindingsClick={handleFindingsClick}
             activeSpec={activeSpec}
             onAddProjectClick={() => setShowAddProjectModal(true)}
             onRemoveProject={handleRemoveProject}
@@ -221,6 +228,11 @@ function App() {
         activeProject ? (
           activeView === 'workflow' ? (
             <WorkflowDiagram
+              project={activeProject}
+              onSpecClick={handleSpecSelect}
+            />
+          ) : activeView === 'findings' ? (
+            <FindingsView
               project={activeProject}
               onSpecClick={handleSpecSelect}
             />

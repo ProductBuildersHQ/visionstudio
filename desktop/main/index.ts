@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, session } from 'electron'
+import { app, BrowserWindow, shell, session, dialog, ipcMain } from 'electron'
 import path from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { fileURLToPath } from 'url'
@@ -138,6 +138,18 @@ app.whenReady().then(() => {
 
   // Register IPC handlers for terminal
   registerTerminalIPC(ptyManager, tmuxManager)
+
+  // Register IPC handler for directory selection dialog
+  ipcMain.handle('dialog:selectDirectory', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory', 'createDirectory'],
+      title: 'Select Specs Directory',
+    })
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+    return result.filePaths[0]
+  })
 
   startDaemon()
 

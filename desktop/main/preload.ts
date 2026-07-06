@@ -1,10 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-// Debug: Listen to ALL IPC events
-ipcRenderer.on('terminal:data', (event, payload) => {
-  console.log('[Preload DEBUG] Raw terminal:data event received:', payload)
-})
-
 // Type definitions for IPC communication
 interface SpawnOptions {
   cwd?: string
@@ -33,6 +28,12 @@ interface TmuxSession {
 
 // Expose terminal API to renderer via contextBridge
 contextBridge.exposeInMainWorld('electronAPI', {
+  dialog: {
+    selectDirectory: (): Promise<string | null> => {
+      return ipcRenderer.invoke('dialog:selectDirectory')
+    },
+  },
+
   terminal: {
     spawn: (options: SpawnOptions): Promise<PTYSession> => {
       return ipcRenderer.invoke('terminal:spawn', options)
@@ -51,21 +52,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     onData: (callback: (id: string, data: string) => void): (() => void) => {
-      console.log('[Preload] onData registering listener')
       const channel = 'terminal:data'
       const handler = (_event: Electron.IpcRendererEvent, payload: { id: string; data: string }) => {
-        console.log('[Preload] Handler called! payload:', JSON.stringify(payload).slice(0, 100))
-        try {
-          callback(payload.id, payload.data)
-        } catch (err) {
-          console.error('[Preload] Callback error:', err)
-        }
+        callback(payload.id, payload.data)
       }
       ipcRenderer.on(channel, handler)
-      console.log('[Preload] onData listener registered for channel:', channel)
-      // Return cleanup function
       return () => {
-        console.log('[Preload] Removing listener for channel:', channel)
         ipcRenderer.removeListener(channel, handler)
       }
     },

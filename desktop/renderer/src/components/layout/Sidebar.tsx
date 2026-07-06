@@ -97,17 +97,18 @@ export function Sidebar({
   }
 
   return (
-    <div className="p-3 pt-10">
-      {/* Projects header - pt-10 accommodates macOS traffic lights */}
+    <div className="p-3 pt-14">
+      {/* Projects header - pt-14 accommodates macOS traffic lights + visual breathing room */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-va-text-muted uppercase tracking-wider">
             Projects
           </span>
-          {isConnected !== undefined && (
+          {/* Connection indicator - only show when disconnected */}
+          {isConnected === false && (
             <span
-              className={`w-2 h-2 rounded-full ${isConnected ? 'bg-va-success' : 'bg-va-error'}`}
-              title={isConnected ? 'Connected - receiving live updates' : 'Disconnected - reconnecting...'}
+              className="w-2 h-2 rounded-full bg-va-error animate-pulse"
+              title="Disconnected - reconnecting..."
             />
           )}
         </div>

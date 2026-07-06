@@ -185,11 +185,11 @@ type WorkflowPhase struct {
 
 // Workflow represents a complete workflow graph
 type Workflow struct {
-	Name        string                   `json:"name"`
-	Description string                   `json:"description,omitempty"`
-	Phases      []WorkflowPhase          `json:"phases"`
-	Nodes       map[string]WorkflowNode  `json:"nodes"`
-	Progress    WorkflowProgress         `json:"progress"`
+	Name        string                  `json:"name"`
+	Description string                  `json:"description,omitempty"`
+	Phases      []WorkflowPhase         `json:"phases"`
+	Nodes       map[string]WorkflowNode `json:"nodes"`
+	Progress    WorkflowProgress        `json:"progress"`
 }
 
 // WorkflowProgress tracks completion progress
@@ -211,14 +211,14 @@ type GetWorkflowResponse struct {
 type FileEventType string
 
 const (
-	EventFileCreated  FileEventType = "file_created"
-	EventFileModified FileEventType = "file_modified"
-	EventFileDeleted  FileEventType = "file_deleted"
-	EventFileRenamed  FileEventType = "file_renamed"
-	EventEvalStarted  FileEventType = "eval_started"
-	EventEvalComplete FileEventType = "eval_complete"
-	EventLintComplete FileEventType = "lint_complete"
-	EventSpecUpdated  FileEventType = "spec_updated"
+	EventFileCreated     FileEventType = "file_created"
+	EventFileModified    FileEventType = "file_modified"
+	EventFileDeleted     FileEventType = "file_deleted"
+	EventFileRenamed     FileEventType = "file_renamed"
+	EventEvalStarted     FileEventType = "eval_started"
+	EventEvalComplete    FileEventType = "eval_complete"
+	EventLintComplete    FileEventType = "lint_complete"
+	EventSpecUpdated     FileEventType = "spec_updated"
 	EventWorkflowChanged FileEventType = "workflow_changed"
 )
 
@@ -226,8 +226,8 @@ const (
 type FileEvent struct {
 	Type      FileEventType  `json:"type"`
 	Project   string         `json:"project"`
-	Path      string         `json:"path,omitempty"`      // Relative path within project
-	SpecType  string         `json:"specType,omitempty"`  // If this is a spec file
+	Path      string         `json:"path,omitempty"`     // Relative path within project
+	SpecType  string         `json:"specType,omitempty"` // If this is a spec file
 	Timestamp string         `json:"timestamp"`
-	Data      map[string]any `json:"data,omitempty"`      // Additional event-specific data
+	Data      map[string]any `json:"data,omitempty"` // Additional event-specific data
 }

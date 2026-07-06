@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://productbuildershq.com/visionstudio/development/setup/">
+        <link rel="canonical" href="https://productbuildershq.com/visionstudio/releases/v0.1.0/">
       
       
-        <link rel="prev" href="../../architecture/frontend/">
+        <link rel="prev" href="../../development/contributing/">
       
-      
-        <link rel="next" href="../contributing/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>Setup - VisionStudio</title>
+        <title>v0.1.0 - VisionStudio</title>
       
     
     
@@ -80,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#development-setup" class="md-skip">
+        <a href="#v010-release-notes" class="md-skip">
           Skip to content
         </a>
       
@@ -120,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Setup
+              v0.1.0
             
           </span>
         </div>
@@ -726,8 +724,6 @@
       
   
   
-    
-  
   
   
     
@@ -740,11 +736,13 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -765,7 +763,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -780,37 +778,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Setup
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../development/setup/" class="md-nav__link">
         
   
   
@@ -826,153 +797,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#clone-and-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Clone and Setup
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build-go-daemon" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build Go Daemon
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#install-frontend-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install Frontend Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development Workflow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#terminal-1-go-daemon" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Terminal 1: Go Daemon
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#terminal-2-vite-dev-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Terminal 2: Vite Dev Server
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#terminal-3-electron" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Terminal 3: Electron
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#hot-reload" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Hot Reload
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#building-for-production" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Building for Production
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running Tests
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -985,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/" class="md-nav__link">
+      <a href="../../development/contributing/" class="md-nav__link">
         
   
   
@@ -1017,8 +841,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1029,13 +855,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
@@ -1056,7 +880,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1071,10 +895,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../releases/v0.1.0/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.1.0
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1090,6 +941,175 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Highlights
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#desktop-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desktop Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#go-daemon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go Daemon
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-editor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec Editor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Visualization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uiux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UI/UX
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next-v020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next (v0.2.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1129,10 +1149,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#highlights" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Highlights
       
     </span>
   </a>
@@ -1140,55 +1160,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#clone-and-setup" class="md-nav__link">
+  <a href="#features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Clone and Setup
+        Features
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build-go-daemon" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build Go Daemon
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#install-frontend-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install Frontend Dependencies
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development Workflow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Development Workflow">
+    <nav class="md-nav" aria-label="Features">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#terminal-1-go-daemon" class="md-nav__link">
+  <a href="#desktop-application" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Terminal 1: Go Daemon
+        Desktop Application
       
     </span>
   </a>
@@ -1196,10 +1183,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#terminal-2-vite-dev-server" class="md-nav__link">
+  <a href="#go-daemon" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Terminal 2: Vite Dev Server
+        Go Daemon
       
     </span>
   </a>
@@ -1207,10 +1194,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#terminal-3-electron" class="md-nav__link">
+  <a href="#spec-editor" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Terminal 3: Electron
+        Spec Editor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow Visualization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Project Management
       
     </span>
   </a>
@@ -1223,10 +1232,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#hot-reload" class="md-nav__link">
+  <a href="#uiux" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Hot Reload
+        UI/UX
       
     </span>
   </a>
@@ -1234,10 +1243,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-for-production" class="md-nav__link">
+  <a href="#dependencies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Building for Production
+        Dependencies
       
     </span>
   </a>
@@ -1245,10 +1254,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-tests" class="md-nav__link">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running Tests
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known Limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next-v020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next (v0.2.0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Links
       
     </span>
   </a>
@@ -1275,63 +1317,105 @@
   
 
 
-<h1 id="development-setup">Development Setup<a class="headerlink" href="#development-setup" title="Permanent link">&para;</a></h1>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<h1 id="v010-release-notes">v0.1.0 Release Notes<a class="headerlink" href="#v010-release-notes" title="Permanent link">&para;</a></h1>
+<p><strong>Release Date:</strong> 2026-07-06</p>
+<p>VisionStudio v0.1.0 is the initial release of the desktop application for VisionSpec specification orchestration. This release provides a complete workflow for viewing, editing, and managing multi-domain specifications.</p>
+<h2 id="highlights">Highlights<a class="headerlink" href="#highlights" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Go 1.23+</li>
-<li>Node.js 20+</li>
-<li>npm</li>
+<li>Native desktop application with Electron shell</li>
+<li>Go daemon with REST API for spec operations</li>
+<li>Project management (add/remove projects)</li>
+<li>Spec viewing with rich Markdown rendering</li>
+<li>Workflow visualization with Mermaid diagrams</li>
+<li>LLM-as-a-Judge evaluation display</li>
+<li>Real-time file watching with SSE</li>
 </ul>
-<h2 id="clone-and-setup">Clone and Setup<a class="headerlink" href="#clone-and-setup" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ProductBuildersHQ/visionstudio.git
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>visionstudio
-</code></pre></div>
-<h2 id="build-go-daemon">Build Go Daemon<a class="headerlink" href="#build-go-daemon" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>go<span class="w"> </span>mod<span class="w"> </span>tidy
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>bin/daemon<span class="w"> </span>./cmd/daemon/
-</code></pre></div>
-<h2 id="install-frontend-dependencies">Install Frontend Dependencies<a class="headerlink" href="#install-frontend-dependencies" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>desktop
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>npm<span class="w"> </span>install
-</code></pre></div>
-<h2 id="development-workflow">Development Workflow<a class="headerlink" href="#development-workflow" title="Permanent link">&para;</a></h2>
-<h3 id="terminal-1-go-daemon">Terminal 1: Go Daemon<a class="headerlink" href="#terminal-1-go-daemon" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./bin/daemon
-</code></pre></div>
-<h3 id="terminal-2-vite-dev-server">Terminal 2: Vite Dev Server<a class="headerlink" href="#terminal-2-vite-dev-server" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>desktop
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>npm<span class="w"> </span>run<span class="w"> </span>dev:renderer
-</code></pre></div>
-<h3 id="terminal-3-electron">Terminal 3: Electron<a class="headerlink" href="#terminal-3-electron" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>desktop
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>npm<span class="w"> </span>run<span class="w"> </span>dev:main
-</code></pre></div>
-<p>Or use the combined command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>desktop
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>npm<span class="w"> </span>run<span class="w"> </span>dev
-</code></pre></div>
-<h2 id="hot-reload">Hot Reload<a class="headerlink" href="#hot-reload" title="Permanent link">&para;</a></h2>
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
+<h3 id="desktop-application">Desktop Application<a class="headerlink" href="#desktop-application" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>Frontend</strong>: Vite provides instant hot reload</li>
-<li><strong>Go Daemon</strong>: Restart manually after changes</li>
+<li><strong>Electron Shell</strong>: Native macOS/Windows/Linux application with proper traffic light positioning</li>
+<li><strong>React Frontend</strong>: Modern UI with Tailwind CSS styling</li>
+<li><strong>Terminal Integration</strong>: Built-in terminal for CLI operations</li>
+<li><strong>Directory Picker</strong>: Native file dialogs for project selection</li>
 </ul>
-<h2 id="building-for-production">Building for Production<a class="headerlink" href="#building-for-production" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Build Go daemon</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>bin/daemon<span class="w"> </span>./cmd/daemon/
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Build frontend</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nb">cd</span><span class="w"> </span>desktop
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>npm<span class="w"> </span>run<span class="w"> </span>build
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># Package Electron app (TODO)</span>
+<h3 id="go-daemon">Go Daemon<a class="headerlink" href="#go-daemon" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>REST API</strong>: Full spec CRUD operations at <code>localhost:8765</code></li>
+<li><strong>Project Management</strong>: Add/remove projects with persistence to <code>~/.visionstudio/projects.json</code></li>
+<li><strong>Spec Operations</strong>: Read, write, and evaluate specifications</li>
+<li><strong>Workflow API</strong>: Generate workflow diagrams from profiles</li>
+<li><strong>File Watching</strong>: Real-time updates via Server-Sent Events</li>
+<li><strong>Security</strong>: ReadHeaderTimeout to prevent Slowloris, path traversal validation</li>
+</ul>
+<h3 id="spec-editor">Spec Editor<a class="headerlink" href="#spec-editor" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Markdown Rendering</strong>: Full GitHub-flavored Markdown with tables, lists, code blocks</li>
+<li><strong>Eval Panel</strong>: Display LLM-as-a-Judge evaluation results alongside specs</li>
+<li><strong>Findings View</strong>: Consolidated view of all evaluation findings across specs</li>
+<li><strong>Syntax Highlighting</strong>: Code blocks with language-specific highlighting</li>
+</ul>
+<h3 id="workflow-visualization">Workflow Visualization<a class="headerlink" href="#workflow-visualization" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Mermaid Diagrams</strong>: Visual workflow showing spec dependencies</li>
+<li><strong>True AWS Working Backwards Order</strong>: MRD → Press → FAQ → 6-Pager → PRD → UXD → TRD → IRD → TPD → Spec</li>
+<li><strong>Category Groupings</strong>: Source, GTM, Product, Technical phases</li>
+<li><strong>Progress Tracking</strong>: Visual indicators for spec completion status</li>
+</ul>
+<h3 id="project-management">Project Management<a class="headerlink" href="#project-management" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Add Projects</strong>: Create new projects with profile selection and optional initialization</li>
+<li><strong>Remove Projects</strong>: Untrack projects without deleting files</li>
+<li><strong>Profile Support</strong>: big-tech-product, big-tech-feature, startup-mvp, aws-workingbackwards</li>
+<li><strong>Git Integration</strong>: Display repository remote URL</li>
+</ul>
+<h2 id="uiux">UI/UX<a class="headerlink" href="#uiux" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Sidebar Navigation</strong>: Collapsible project tree with spec status indicators</li>
+<li><strong>ProductBuildersHQ Branding</strong>: VisionStudio branding in sidebar header</li>
+<li><strong>Connection Status</strong>: Warning indicator when daemon is disconnected</li>
+<li><strong>Responsive Layout</strong>: Resizable panels for editor, workflow, and eval views</li>
+</ul>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h2>
+<ul>
+<li>visionspec v0.12.0 (true AWS Working Backwards order, IRD support)</li>
+<li>Electron 33</li>
+<li>React 19</li>
+<li>Chi router</li>
+<li>fsnotify for file watching</li>
+</ul>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Clone and build</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ProductBuildersHQ/visionstudio
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span>visionstudio
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="c1"># Build daemon</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>bin/daemon<span class="w"> </span>./cmd/daemon
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="c1"># Build Electron app</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="nb">cd</span><span class="w"> </span>desktop
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>npm<span class="w"> </span>install
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>npm<span class="w"> </span>run<span class="w"> </span>build
 </code></pre></div>
-<h2 id="running-tests">Running Tests<a class="headerlink" href="#running-tests" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Go tests</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>./...
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Frontend tests (TODO)</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nb">cd</span><span class="w"> </span>desktop<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npm<span class="w"> </span><span class="nb">test</span>
-</code></pre></div>
+<h2 id="known-limitations">Known Limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Evaluation uses existing 1-10 float scale (1-5 integer scale planned for v0.2.0)</li>
+<li>No real-time evaluation during editing</li>
+<li>Single-user, local-only deployment</li>
+</ul>
+<h2 id="whats-next-v020">What's Next (v0.2.0)<a class="headerlink" href="#whats-next-v020" title="Permanent link">&para;</a></h2>
+<ul>
+<li>1-5 integer evaluation scale</li>
+<li>Per-dimension scoring</li>
+<li>Reason codes for actionable feedback</li>
+<li>Confidence values</li>
+<li>Updated evaluation UI</li>
+</ul>
+<h2 id="links">Links<a class="headerlink" href="#links" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="https://productbuildershq.com/visionstudio">Documentation</a></li>
+<li><a href="https://github.com/ProductBuildersHQ/visionstudio">GitHub Repository</a></li>
+<li><a href="https://github.com/ProductBuildersHQ/visionspec">VisionSpec</a></li>
+</ul>
 
 
 

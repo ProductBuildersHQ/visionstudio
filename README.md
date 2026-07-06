@@ -46,13 +46,19 @@ VisionStudio provides an integrated workspace for creating, evaluating, and iter
 
 ### Workflow
 
+Multiple workflows can be selected, including custom workflows.
+
 [![](docs/images/ss_visionstudio_series-1_img-001_workflow.png)](https://productbuildershq.com/visionstudio/)
 
-### PRD Spec
+### Spec View
+
+Individual specifications with LLM-as-a-Judge evaluations can be viewed.
 
 [![](docs/images/ss_visionstudio_series-1_img-002_prd.png)](https://productbuildershq.com/visionstudio/)
 
 ### Findings List
+
+A list of all findings is provided for easy scanning of all findings.
 
 [![](docs/images/ss_visionstudio_series-1_img-003_findings.png)](https://productbuildershq.com/visionstudio/)
 

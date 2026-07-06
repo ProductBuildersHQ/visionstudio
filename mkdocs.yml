@@ -33,6 +33,8 @@ nav:
   - Development:
       - Setup: development/setup.md
       - Contributing: development/contributing.md
+  - Releases:
+      - v0.1.0: releases/v0.1.0.md
 
 markdown_extensions:
   - pymdownx.highlight:

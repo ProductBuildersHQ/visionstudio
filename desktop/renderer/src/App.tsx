@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT } from './components'
+import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal } from './components'
 import { api } from './services/api'
+import { useProjectEvents, FileEvent } from './hooks/useProjectEvents'
 import type { Project, Spec } from './types'
 
 type ActiveView = 'workflow' | 'spec'
@@ -15,6 +16,62 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [terminalHeight, setTerminalHeight] = useState(DEFAULT_TERMINAL_HEIGHT)
+  const [showAddProjectModal, setShowAddProjectModal] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
+
+  // Real-time event handling
+  const handleFileChanged = useCallback((event: FileEvent) => {
+    console.log('File changed:', event)
+
+    // If we're viewing a spec that was modified, reload it
+    if (activeSpec && event.specType === activeSpec.type && event.type === 'file_modified') {
+      if (activeProject && !isDirty) {
+        // Reload spec content if user hasn't made local changes
+        api.getSpec(activeProject.name, activeSpec.type).then(fullSpec => {
+          setActiveSpec(fullSpec)
+          setSpecContent(fullSpec.content || '')
+        }).catch(console.error)
+      }
+    }
+
+    // Refresh project list to update spec statuses
+    if (activeProject && event.project === activeProject.name) {
+      loadProjects()
+    }
+  }, [activeSpec, activeProject, isDirty])
+
+  const handleEvalComplete = useCallback((event: FileEvent) => {
+    console.log('Eval complete:', event)
+
+    // Refresh project to get updated eval results
+    if (activeProject && event.project === activeProject.name) {
+      loadProjects()
+    }
+
+    // Show notification (could add a toast notification system here)
+    if (event.data) {
+      const score = event.data.score as number
+      const decision = event.data.decision as string
+      console.log(`Evaluation complete for ${event.specType}: score=${score}, decision=${decision}`)
+    }
+  }, [activeProject])
+
+  const handleWorkflowChanged = useCallback((_event: FileEvent) => {
+    // Workflow changed - refresh to update the diagram
+    if (activeProject) {
+      loadProjects()
+    }
+  }, [activeProject])
+
+  // Subscribe to real-time events
+  useProjectEvents(activeProject?.name, {
+    onFileChanged: handleFileChanged,
+    onEvalComplete: handleEvalComplete,
+    onWorkflowChanged: handleWorkflowChanged,
+    onConnected: () => setIsConnected(true),
+    onDisconnected: () => setIsConnected(false),
+    enabled: !!activeProject,
+  })
 
   // Load projects on mount
   useEffect(() => {
@@ -87,6 +144,29 @@ function App() {
     setTerminalHeight(height)
   }, [])
 
+  const handleAddProject = async (name: string, path: string, profile: string, initialize: boolean) => {
+    const newProject = await api.addProject(name, path, profile, initialize)
+    setProjects([...projects, newProject])
+    setActiveProject(newProject)
+    setActiveView('workflow')
+  }
+
+  const handleRemoveProject = async (projectName: string) => {
+    try {
+      await api.removeProject(projectName)
+      const updatedProjects = projects.filter(p => p.name !== projectName)
+      setProjects(updatedProjects)
+      // If the removed project was active, select another one
+      if (activeProject?.name === projectName) {
+        setActiveProject(updatedProjects.length > 0 ? updatedProjects[0] : null)
+        setActiveView('workflow')
+        setActiveSpec(null)
+      }
+    } catch (err) {
+      console.error('Failed to remove project:', err)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-va-bg text-va-text">
@@ -117,14 +197,25 @@ function App() {
   return (
     <AppLayout
       sidebar={
-        <Sidebar
-          projects={projects}
-          activeProject={activeProject}
-          onProjectSelect={handleProjectSelect}
-          onSpecSelect={handleSpecSelect}
-          onWorkflowClick={handleWorkflowClick}
-          activeSpec={activeSpec}
-        />
+        <>
+          <Sidebar
+            projects={projects}
+            activeProject={activeProject}
+            onProjectSelect={handleProjectSelect}
+            onSpecSelect={handleSpecSelect}
+            onWorkflowClick={handleWorkflowClick}
+            activeSpec={activeSpec}
+            onAddProjectClick={() => setShowAddProjectModal(true)}
+            onRemoveProject={handleRemoveProject}
+            isConnected={isConnected}
+          />
+          {showAddProjectModal && (
+            <AddProjectModal
+              onClose={() => setShowAddProjectModal(false)}
+              onAdd={handleAddProject}
+            />
+          )}
+        </>
       }
       main={
         activeProject ? (

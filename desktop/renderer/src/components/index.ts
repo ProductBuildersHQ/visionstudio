@@ -1,6 +1,7 @@
 // Layout components
 export { AppLayout } from './layout/AppLayout'
 export { Sidebar } from './layout/Sidebar'
+export { AddProjectModal } from './layout/AddProjectModal'
 
 // Project components
 export { WorkflowDiagram } from './project/WorkflowDiagram'

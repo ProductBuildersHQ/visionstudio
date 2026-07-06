@@ -67,7 +67,12 @@ export interface ElectronTmuxAPI {
   isAvailable: () => Promise<boolean>
 }
 
+export interface ElectronDialogAPI {
+  selectDirectory: () => Promise<string | null>
+}
+
 export interface ElectronAPI {
+  dialog: ElectronDialogAPI
   terminal: ElectronTerminalAPI
   tmux: ElectronTmuxAPI
 }

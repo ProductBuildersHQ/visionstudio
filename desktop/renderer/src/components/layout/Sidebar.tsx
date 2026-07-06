@@ -9,6 +9,9 @@ interface SidebarProps {
   onSpecSelect: (spec: Spec) => void
   onWorkflowClick: () => void
   activeSpec: Spec | null
+  onAddProjectClick: () => void
+  onRemoveProject: (projectName: string) => void
+  isConnected?: boolean
 }
 
 // Status indicator component
@@ -61,11 +64,25 @@ export function Sidebar({
   onSpecSelect,
   onWorkflowClick,
   activeSpec,
+  onAddProjectClick,
+  onRemoveProject,
+  isConnected,
 }: SidebarProps) {
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(
     new Set(activeProject ? [activeProject.name] : [])
   )
   const [showProjectInfo, setShowProjectInfo] = useState(false)
+  const [confirmingRemove, setConfirmingRemove] = useState<string | null>(null)
+
+  const handleRemoveClick = (e: React.MouseEvent, projectName: string) => {
+    e.stopPropagation()
+    setConfirmingRemove(projectName)
+  }
+
+  const handleConfirmRemove = (projectName: string) => {
+    onRemoveProject(projectName)
+    setConfirmingRemove(null)
+  }
 
   const toggleProject = (projectName: string) => {
     const newExpanded = new Set(expandedProjects)
@@ -80,8 +97,27 @@ export function Sidebar({
   return (
     <div className="p-3 pt-10">
       {/* Projects header - pt-10 accommodates macOS traffic lights */}
-      <div className="text-xs font-semibold text-va-text-muted uppercase tracking-wider mb-2">
-        Projects
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-va-text-muted uppercase tracking-wider">
+            Projects
+          </span>
+          {isConnected !== undefined && (
+            <span
+              className={`w-2 h-2 rounded-full ${isConnected ? 'bg-va-success' : 'bg-va-error'}`}
+              title={isConnected ? 'Connected - receiving live updates' : 'Disconnected - reconnecting...'}
+            />
+          )}
+        </div>
+        <button
+          onClick={onAddProjectClick}
+          className="w-5 h-5 flex items-center justify-center text-va-text-muted hover:text-va-text hover:bg-va-panel rounded transition-colors"
+          title="Add Project"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+        </button>
       </div>
 
       {/* Project list */}
@@ -92,18 +128,51 @@ export function Sidebar({
         return (
           <div key={project.name} className="mb-1">
             {/* Project header */}
-            <button
-              onClick={() => {
-                toggleProject(project.name)
-                onProjectSelect(project)
-              }}
-              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left hover:bg-va-panel transition-colors ${
-                isActive ? 'bg-va-panel text-va-text' : 'text-va-text-muted'
-              }`}
-            >
-              <span className="text-xs">{isExpanded ? '▼' : '►'}</span>
-              <span>{project.name}</span>
-            </button>
+            <div className="flex items-center group">
+              <button
+                onClick={() => {
+                  toggleProject(project.name)
+                  onProjectSelect(project)
+                }}
+                className={`flex-1 flex items-center gap-2 px-2 py-1.5 rounded-l text-sm text-left hover:bg-va-panel transition-colors ${
+                  isActive ? 'bg-va-panel text-va-text' : 'text-va-text-muted'
+                }`}
+              >
+                <span className="text-xs">{isExpanded ? '▼' : '►'}</span>
+                <span className="truncate">{project.name}</span>
+              </button>
+              <button
+                onClick={(e) => handleRemoveClick(e, project.name)}
+                className="w-6 h-6 flex items-center justify-center text-va-text-muted hover:text-va-error opacity-0 group-hover:opacity-100 transition-all"
+                title="Remove project"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Remove confirmation */}
+            {confirmingRemove === project.name && (
+              <div className="ml-4 mt-1 p-2 bg-va-panel border border-va-border rounded text-sm">
+                <p className="text-va-text mb-2">Remove "{project.name}" from tracking?</p>
+                <p className="text-xs text-va-text-muted mb-2">Files will not be deleted.</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleConfirmRemove(project.name)}
+                    className="px-2 py-1 bg-va-error hover:bg-va-error/80 text-white rounded text-xs"
+                  >
+                    Remove
+                  </button>
+                  <button
+                    onClick={() => setConfirmingRemove(null)}
+                    className="px-2 py-1 bg-va-border hover:bg-va-text-muted/20 text-va-text rounded text-xs"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Expanded project content */}
             {isExpanded && isActive && (

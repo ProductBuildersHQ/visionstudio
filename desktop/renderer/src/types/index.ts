@@ -41,6 +41,23 @@ export interface Project {
   gitRemote?: string // e.g., "https://github.com/org/repo"
 }
 
+// Lint types
+
+export interface LintFinding {
+  path: string
+  rule: string
+  message: string
+  severity: 'error' | 'warning' | 'info'
+}
+
+export interface LintResult {
+  project: string
+  findings: LintFinding[]
+  errors: number
+  warnings: number
+  passed: boolean
+}
+
 // UI State types
 
 export type ViewMode = 'source' | 'rendered'

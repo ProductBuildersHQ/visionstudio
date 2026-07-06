@@ -1,4 +1,4 @@
-import type { Project, Spec, EvalResult } from '../types'
+import type { Project, Spec, EvalResult, Profile, LintResult } from '../types'
 
 const API_BASE = 'http://127.0.0.1:8765/api'
 
@@ -10,6 +10,44 @@ export interface WorkflowStatus {
   specStatuses: Record<string, string>
   blockedBy?: string[]
   lastUpdated: string
+}
+
+// Workflow node
+export interface WorkflowNode {
+  id: string
+  name: string
+  description?: string
+  type: string   // "source", "gtm", "technical", "output"
+  phase: string
+  status: string // "pending", "ready", "in_progress", "completed", "blocked", "skipped"
+  depends_on?: string[]
+  automated?: boolean
+  metadata?: Record<string, unknown>
+}
+
+// Workflow phase
+export interface WorkflowPhase {
+  id: string
+  name: string
+  description?: string
+  order: number
+  nodes: string[] // Node IDs
+}
+
+// Workflow progress
+export interface WorkflowProgress {
+  completed: number
+  total: number
+  percent: number
+}
+
+// Full workflow
+export interface Workflow {
+  name: string
+  description?: string
+  phases: WorkflowPhase[]
+  nodes: Record<string, WorkflowNode>
+  progress: WorkflowProgress
 }
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
@@ -43,6 +81,45 @@ export const api = {
   async getProject(name: string): Promise<Project> {
     const data = await fetchJSON<{ project: Project }>(`${API_BASE}/projects/${name}`)
     return data.project
+  },
+
+  async addProject(name: string, path: string, profile: string, initialize = false): Promise<Project> {
+    const data = await fetchJSON<{ project: Project; error?: string }>(
+      `${API_BASE}/projects`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ name, path, profile, initialize }),
+      }
+    )
+    if (data.error) {
+      throw new Error(data.error)
+    }
+    return data.project
+  },
+
+  async removeProject(name: string): Promise<void> {
+    const data = await fetchJSON<{ success: boolean; error?: string }>(
+      `${API_BASE}/projects/${name}`,
+      { method: 'DELETE' }
+    )
+    if (data.error) {
+      throw new Error(data.error)
+    }
+  },
+
+  async listProfiles(): Promise<Profile[]> {
+    const data = await fetchJSON<{ profiles: Profile[] }>(`${API_BASE}/profiles`)
+    return data.profiles
+  },
+
+  async lintProject(project: string): Promise<LintResult> {
+    const data = await fetchJSON<{ result: LintResult; error?: string }>(
+      `${API_BASE}/projects/${project}/lint`
+    )
+    if (data.error) {
+      throw new Error(data.error)
+    }
+    return data.result
   },
 
   // Specs
@@ -86,6 +163,18 @@ export const api = {
   },
 
   // Workflow
+  async getWorkflow(project: string): Promise<{ workflow: Workflow; mermaid: string }> {
+    const data = await fetchJSON<{ workflow: Workflow; mermaid: string; error?: string }>(
+      `${API_BASE}/projects/${project}/workflow`
+    )
+
+    if (data.error) {
+      throw new Error(data.error)
+    }
+
+    return { workflow: data.workflow, mermaid: data.mermaid }
+  },
+
   async getWorkflowStatus(project: string): Promise<WorkflowStatus> {
     const data = await fetchJSON<{ status: WorkflowStatus; error?: string }>(
       `${API_BASE}/projects/${project}/workflow/status`

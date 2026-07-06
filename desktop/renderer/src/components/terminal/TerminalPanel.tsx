@@ -50,9 +50,11 @@ export function TerminalPanel({ height, onHeightChange, projectPath, projectName
 
   // Create initial tab on mount (guard against React Strict Mode double-mount)
   useEffect(() => {
+    console.log('[TerminalPanel] Mount effect - tabs:', tabs.length, 'initialTabCreated:', initialTabCreated.current)
     if (initialTabCreated.current) return
     if (tabs.length === 0) {
       initialTabCreated.current = true
+      console.log('[TerminalPanel] Creating initial tab with cwd:', projectPath)
       createTab({ cwd: projectPath })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

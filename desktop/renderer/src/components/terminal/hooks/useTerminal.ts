@@ -27,6 +27,7 @@ export function useTerminal(): UseTerminalResult {
   const tabCounter = useRef(0)
 
   const createTab = useCallback(async (options?: SpawnOptions) => {
+    console.log('[useTerminal] createTab called, isElectron:', isElectron())
     if (!isElectron()) {
       console.error('Terminal requires Electron environment with preload script')
       return
@@ -38,6 +39,7 @@ export function useTerminal(): UseTerminalResult {
     }
 
     try {
+      console.log('[useTerminal] Spawning terminal with options:', options)
       const session: PTYSession = await window.electronAPI.terminal.spawn({
         cwd: options?.cwd || undefined,
         shell: options?.shell,
@@ -45,6 +47,7 @@ export function useTerminal(): UseTerminalResult {
         rows: options?.rows || 24,
         env: options?.env,
       })
+      console.log('[useTerminal] Session created:', session.id)
 
       tabCounter.current += 1
       const newTab: TerminalTab = {

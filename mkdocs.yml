@@ -1,20 +1,52 @@
 site_name: VisionStudio
 site_description: LLM-powered specification authoring and evaluation
-site_url: https://productbuildershq.github.io/visionstudio/
-
-repo_name: ProductBuildersHQ/visionstudio
+site_url: https://productbuildershq.com/visionstudio
 repo_url: https://github.com/ProductBuildersHQ/visionstudio
+repo_name: ProductBuildersHQ/visionstudio
 
 theme:
   name: material
+  custom_dir: docs/overrides
   palette:
-    scheme: slate
-    primary: blue
-    accent: blue
+    # Light mode first (ProductBuildersHQ default)
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
     - navigation.sections
     - navigation.expand
+    - navigation.top
+    - search.highlight
     - content.code.copy
+
+# ProductBuildersHQ Theme Assets (served from main site)
+extra_css:
+  - https://productbuildershq.com/css/productbuildershq-mkdocs.css
+
+extra_javascript:
+  - https://productbuildershq.com/js/site-nav.min.js
+  - https://productbuildershq.com/js/pbhq-nav.js
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
 
 nav:
   - Home: index.md
@@ -36,9 +68,7 @@ nav:
   - Releases:
       - v0.1.0: releases/v0.1.0.md
 
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.superfences
-  - admonition
-  - tables
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ProductBuildersHQ/visionstudio

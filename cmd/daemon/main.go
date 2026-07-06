@@ -8,7 +8,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -113,13 +116,29 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleListProjects(w http.ResponseWriter, r *http.Request) {
 	// TODO: Integrate with visionspec to list actual projects
 	// For now, return mock data
+
+	// Get absolute path for project directory
+	// The daemon binary is in bin/, so go up one level to repo root
+	execPath, err := os.Executable()
+	if err != nil {
+		execPath = ""
+	}
+	repoRoot := filepath.Dir(filepath.Dir(execPath)) // bin/daemon -> bin -> repo root
+	projectPath := filepath.Join(repoRoot, "docs/specs/example-project")
+
+	// Get git remote URL
+	gitRemote := getGitRemote(repoRoot)
+
 	projects := []api.Project{
 		{
-			Name: "example-project",
-			Path: "docs/specs/example-project",
+			Name:      "example-project",
+			Path:      projectPath,
+			GitRemote: gitRemote,
 			Profile: api.Profile{
 				Name:        "big-tech-product",
 				Description: "Big Tech methodology for product development",
+				Framework:   "Big Tech",
+				SpecType:    "Product",
 				Workflow:    []string{"mrd", "press", "faq", "narrative-6p", "prd", "uxd", "trd", "tpd"},
 			},
 			Specs: []api.Spec{
@@ -145,11 +164,20 @@ func (s *Server) handleGetProject(w http.ResponseWriter, r *http.Request) {
 	projectName := chi.URLParam(r, "project")
 	s.logger.Debug("Getting project", "name", projectName)
 
+	// Get absolute path for project directory
+	// The daemon binary is in bin/, so go up one level to repo root
+	execPath, err := os.Executable()
+	if err != nil {
+		execPath = ""
+	}
+	repoRoot := filepath.Dir(filepath.Dir(execPath))
+	projectPath := filepath.Join(repoRoot, "docs/specs", projectName)
+
 	// TODO: Load actual project from filesystem
 	s.writeJSON(w, http.StatusOK, api.GetProjectResponse{
 		Project: api.Project{
 			Name: projectName,
-			Path: fmt.Sprintf("docs/specs/%s", projectName),
+			Path: projectPath,
 		},
 	})
 }
@@ -308,4 +336,14 @@ func (s *Server) writeJSON(w http.ResponseWriter, status int, data any) {
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		s.logger.Error("Failed to encode JSON", "error", err)
 	}
+}
+
+// getGitRemote returns the git remote URL for the given directory
+func getGitRemote(dir string) string {
+	cmd := exec.Command("git", "-C", dir, "remote", "get-url", "origin")
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(output))
 }

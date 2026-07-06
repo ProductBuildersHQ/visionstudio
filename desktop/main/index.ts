@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell, session } from 'electron'
 import path from 'path'
 import { spawn, ChildProcess } from 'child_process'
 import { fileURLToPath } from 'url'
@@ -106,6 +106,36 @@ function stopDaemon() {
 }
 
 app.whenReady().then(() => {
+  // Set Content Security Policy
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    const csp = isDev
+      ? [
+          "default-src 'self'",
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Dev needs unsafe-eval for Vite HMR
+          "style-src 'self' 'unsafe-inline'",
+          "font-src 'self' data:",
+          "img-src 'self' data: blob:",
+          "connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:*", // Vite HMR + daemon
+          "worker-src 'self' blob:",
+        ].join('; ')
+      : [
+          "default-src 'self'",
+          "script-src 'self'",
+          "style-src 'self' 'unsafe-inline'", // xterm.js uses inline styles
+          "font-src 'self' data:",
+          "img-src 'self' data: blob:",
+          "connect-src 'self' http://127.0.0.1:*", // daemon API
+          "worker-src 'self' blob:",
+        ].join('; ')
+
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [csp],
+      },
+    })
+  })
+
   // Register IPC handlers for terminal
   registerTerminalIPC(ptyManager, tmuxManager)
 

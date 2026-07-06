@@ -82,8 +82,17 @@ export class PTYManager {
 
     // Handle PTY output
     ptyProcess.onData((data: string) => {
+      console.log('[PTYManager] Data from PTY:', id, 'length:', data.length, 'mainWindow:', !!this.mainWindow)
       if (this.mainWindow && !this.mainWindow.isDestroyed()) {
-        this.mainWindow.webContents.send('terminal:data', { id, data })
+        console.log('[PTYManager] Sending to renderer via IPC, channel: terminal:data')
+        try {
+          this.mainWindow.webContents.send('terminal:data', { id, data })
+          console.log('[PTYManager] IPC send completed')
+        } catch (err) {
+          console.error('[PTYManager] IPC send error:', err)
+        }
+      } else {
+        console.log('[PTYManager] Cannot send - mainWindow is null or destroyed')
       }
     })
 

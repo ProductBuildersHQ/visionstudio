@@ -42,9 +42,12 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
   const terminalRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
   const isInitializedRef = useRef(false)
+  const isMountedRef = useRef(true)
   const cleanupFnsRef = useRef<(() => void)[]>([])
 
   useEffect(() => {
+    isMountedRef.current = true
+
     if (!containerRef.current || isInitializedRef.current) return
 
     const container = containerRef.current
@@ -57,6 +60,7 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
       if (isInitializedRef.current) return
 
       const { offsetWidth, offsetHeight } = container
+      console.log('[TerminalInstance] tryInit - dimensions:', offsetWidth, 'x', offsetHeight, 'retry:', initRetryCount)
       if ((offsetWidth === 0 || offsetHeight === 0) && initRetryCount < maxRetries) {
         initRetryCount++
         initTimeout = setTimeout(tryInit, 50)
@@ -68,6 +72,7 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
     }
 
     const initTerminal = () => {
+      console.log('[TerminalInstance] initTerminal called for session:', sessionId)
       // Initialize xterm.js
       const terminal = new Terminal({
         theme: TERMINAL_THEME,
@@ -88,6 +93,7 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
 
       // Open terminal
       terminal.open(container)
+      console.log('[TerminalInstance] Terminal opened in container')
 
       terminalRef.current = terminal
       fitAddonRef.current = fitAddon
@@ -140,6 +146,7 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
       // Handle PTY output -> terminal
       const dataCleanup = window.electronAPI.terminal.onData((id, data) => {
         if (id === sessionId) {
+          console.log('[TerminalInstance] Received data for session:', id, 'length:', data.length)
           terminal.write(data)
         }
       })
@@ -169,12 +176,18 @@ export function TerminalInstance({ sessionId, onTitleChange, onExit, className }
     tryInit()
 
     return () => {
+      isMountedRef.current = false
       clearTimeout(initTimeout)
-      cleanupFnsRef.current.forEach((fn) => fn())
-      cleanupFnsRef.current = []
-      terminalRef.current = null
-      fitAddonRef.current = null
-      // Don't reset isInitializedRef here to prevent re-init on HMR
+      // Delay cleanup to handle React Strict Mode remounting
+      setTimeout(() => {
+        if (!isMountedRef.current) {
+          cleanupFnsRef.current.forEach((fn) => fn())
+          cleanupFnsRef.current = []
+          terminalRef.current = null
+          fitAddonRef.current = null
+          // Don't reset isInitializedRef here to prevent re-init on HMR
+        }
+      }, 100)
     }
   }, [sessionId, onTitleChange, onExit])
 

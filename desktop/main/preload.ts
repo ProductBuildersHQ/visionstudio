@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+// Debug: Listen to ALL IPC events
+ipcRenderer.on('terminal:data', (event, payload) => {
+  console.log('[Preload DEBUG] Raw terminal:data event received:', payload)
+})
+
 // Type definitions for IPC communication
 interface SpawnOptions {
   cwd?: string
@@ -46,13 +51,22 @@ contextBridge.exposeInMainWorld('electronAPI', {
     },
 
     onData: (callback: (id: string, data: string) => void): (() => void) => {
-      const handler = (_event: Electron.IpcRendererEvent, data: { id: string; data: string }) => {
-        callback(data.id, data.data)
+      console.log('[Preload] onData registering listener')
+      const channel = 'terminal:data'
+      const handler = (_event: Electron.IpcRendererEvent, payload: { id: string; data: string }) => {
+        console.log('[Preload] Handler called! payload:', JSON.stringify(payload).slice(0, 100))
+        try {
+          callback(payload.id, payload.data)
+        } catch (err) {
+          console.error('[Preload] Callback error:', err)
+        }
       }
-      ipcRenderer.on('terminal:data', handler)
+      ipcRenderer.on(channel, handler)
+      console.log('[Preload] onData listener registered for channel:', channel)
       // Return cleanup function
       return () => {
-        ipcRenderer.removeListener('terminal:data', handler)
+        console.log('[Preload] Removing listener for channel:', channel)
+        ipcRenderer.removeListener(channel, handler)
       }
     },
 

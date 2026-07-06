@@ -3,7 +3,7 @@ module github.com/ProductBuildersHQ/visionstudio
 go 1.26.0
 
 require (
-	github.com/ProductBuildersHQ/visionspec v0.11.1-0.20260706135025-e302419835ac
+	github.com/ProductBuildersHQ/visionspec v0.11.1-0.20260706135458-e02eb5c85b81
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.3.0
 	github.com/go-chi/cors v1.2.2

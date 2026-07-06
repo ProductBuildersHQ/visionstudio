@@ -1,5 +1,5 @@
-github.com/ProductBuildersHQ/visionspec v0.11.1-0.20260706135025-e302419835ac h1:xnvYNOtTnqEa16+l7xeTq8NNXvuiCP7vgaOpAtQ6Gfk=
-github.com/ProductBuildersHQ/visionspec v0.11.1-0.20260706135025-e302419835ac/go.mod h1:+CY2y50tb5P7rboVzY0oJkOWibX86XLq6HkPoYxoIg0=
+github.com/ProductBuildersHQ/visionspec v0.11.1-0.20260706135458-e02eb5c85b81 h1:GfgLVz9JNG5NxxspwD1kO8kL9VdsbWQ3DFGQ4c9u9uU=
+github.com/ProductBuildersHQ/visionspec v0.11.1-0.20260706135458-e02eb5c85b81/go.mod h1:+CY2y50tb5P7rboVzY0oJkOWibX86XLq6HkPoYxoIg0=
 github.com/fsnotify/fsnotify v1.10.1 h1:b0/UzAf9yR5rhf3RPm9gf3ehBPpf0oZKIjtpKrx59Ho=
 github.com/fsnotify/fsnotify v1.10.1/go.mod h1:TLheqan6HD6GBK6PrDWyDPBaEV8LspOxvPSjC+bVfgo=
 github.com/go-chi/chi/v5 v5.3.0 h1:halUjDxhshgXHMrao5bB8eNBXo/rnzwr8m5m36glehM=

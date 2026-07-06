@@ -486,6 +486,9 @@ func buildSpecsFromWorkflow(workflow []string, projectPath string) []api.Spec {
 		"uxd":              {name: "User Experience", path: "source/uxd.md"},
 		"trd":              {name: "Technical Design", path: "technical/trd.md"},
 		"tpd":              {name: "Test Plan", path: "technical/tpd.md"},
+		"ird":              {name: "Infrastructure", path: "technical/ird.md"},
+		"spec":             {name: "Execution Spec", path: "spec.md"},
+		"current-truth":    {name: "Current Truth", path: "current-truth.md"},
 	}
 
 	specs := make([]api.Spec, 0, len(workflow))

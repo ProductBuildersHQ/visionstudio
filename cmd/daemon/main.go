@@ -112,8 +112,27 @@ func (s *Server) Router() http.Handler {
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", s.handleHealth)
 
-		// Profiles
+		// Organization
+		r.Get("/organization", s.handleGetOrganization)
+		r.Post("/organization", s.handleCreateOrganization)
+		r.Put("/organization", s.handleUpdateOrganization)
+		r.Delete("/organization", s.handleDeleteOrganization)
+		r.Get("/organization/v2moms", s.handleListOrganizationV2MOMs)
+		r.Get("/organization/v2moms/{v2momId}", s.handleGetOrganizationV2MOM)
+		r.Get("/organization/cascade", s.handleGetOrganizationCascade)
+
+		// Profiles (requirements methodologies)
 		r.Get("/profiles", s.handleListProfiles)
+
+		// Methodologies
+		r.Get("/methodologies/requirements", s.handleListRequirementsMethodologies)
+		r.Get("/methodologies/implementation", s.handleListImplementationMethodologies)
+		r.Get("/projects/{project}/methodology", s.handleGetProjectMethodology)
+		r.Put("/projects/{project}/methodology", s.handleUpdateProjectMethodology)
+
+		// Samples
+		r.Get("/samples", s.handleListSamples)
+		r.Get("/samples/{sampleId}", s.handleGetSample)
 
 		// Projects
 		r.Get("/projects", s.handleListProjects)
@@ -136,6 +155,36 @@ func (s *Server) Router() http.Handler {
 
 		// Chat
 		r.Post("/chat", s.handleChat)
+
+		// V2MOM
+		r.Get("/projects/{project}/v2moms", s.handleListV2MOMs)
+		r.Get("/projects/{project}/v2moms/cascade", s.handleGetV2MOMCascade)
+		r.Get("/projects/{project}/v2moms/{v2momId}", s.handleGetV2MOM)
+
+		// Capabilities
+		r.Get("/projects/{project}/capabilities", s.handleListCapabilities)
+		r.Get("/projects/{project}/capabilities/{capabilityId}", s.handleGetCapability)
+
+		// Roadmap
+		r.Get("/projects/{project}/roadmap", s.handleGetRoadmap)
+
+		// Maturity Model
+		r.Get("/projects/{project}/maturity/models", s.handleListMaturityModels)
+		r.Get("/projects/{project}/maturity/models/{modelId}", s.handleGetMaturityModel)
+		r.Get("/projects/{project}/maturity/dashboard", s.handleMaturityDashboard)
+
+		// AIDLC (AWS AI DLC Workflow)
+		r.Get("/projects/{project}/aidlc/state", s.handleGetAIDLCState)
+		r.Get("/projects/{project}/aidlc/workflow", s.handleGetAIDLCWorkflow)
+		r.Get("/projects/{project}/aidlc/documents", s.handleListAIDLCDocuments)
+		r.Get("/projects/{project}/aidlc/documents/{docId}", s.handleGetAIDLCDocument)
+		r.Post("/projects/{project}/aidlc/documents/create", s.handleCreateAIDLCDocument)
+		r.Get("/projects/{project}/aidlc/sync/diff", s.handleGetAIDLCSyncDiff)
+		r.Post("/projects/{project}/aidlc/sync", s.handleAIDLCSync)
+		r.Get("/projects/{project}/aidlc/phase/requirements", s.handleGetAIDLCPhaseRequirements)
+		r.Post("/projects/{project}/aidlc/phase/transition", s.handleAIDLCPhaseTransition)
+		r.Get("/projects/{project}/aidlc/templates", s.handleListAIDLCTemplates)
+		r.Get("/projects/{project}/aidlc/templates/{docType}", s.handleGetAIDLCTemplate)
 	})
 
 	return r
@@ -208,12 +257,24 @@ func (s *Server) handleListProjects(w http.ResponseWriter, r *http.Request) {
 		// Build spec list from profile workflow
 		specs := buildSpecsFromWorkflow(profile.Workflow, p.Path)
 
+		// Determine methodologies
+		reqMethodology := p.RequirementsMethodology
+		if reqMethodology == "" {
+			reqMethodology = p.Profile
+		}
+		implMethodology := p.ImplementationMethodology
+		if implMethodology == "" {
+			implMethodology = "none"
+		}
+
 		projects = append(projects, api.Project{
-			Name:      p.Name,
-			Path:      p.Path,
-			Profile:   profile,
-			GitRemote: gitRemote,
-			Specs:     specs,
+			Name:                      p.Name,
+			Path:                      p.Path,
+			Profile:                   profile,
+			RequirementsMethodology:   reqMethodology,
+			ImplementationMethodology: implMethodology,
+			GitRemote:                 gitRemote,
+			Specs:                     specs,
 		})
 	}
 
@@ -755,6 +816,451 @@ func (s *Server) handleChat(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Maturity Model handlers
+
+func (s *Server) handleListMaturityModels(w http.ResponseWriter, r *http.Request) {
+	projectName := chi.URLParam(r, "project")
+	s.logger.Debug("Listing maturity models", "project", projectName)
+
+	// Get project from config
+	tracked, err := config.GetProject(projectName)
+	if err != nil {
+		s.writeJSON(w, http.StatusNotFound, map[string]any{
+			"models": []any{},
+			"error":  err.Error(),
+		})
+		return
+	}
+
+	// Look for maturity model files in .visionspec/maturity/ or maturity/
+	models := []api.MaturityModelSummary{}
+
+	maturityDirs := []string{
+		filepath.Join(tracked.Path, ".visionspec", "maturity"),
+		filepath.Join(tracked.Path, "maturity"),
+	}
+
+	for _, dir := range maturityDirs {
+		if entries, err := os.ReadDir(dir); err == nil {
+			for _, entry := range entries {
+				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".json") {
+					continue
+				}
+
+				modelPath := filepath.Join(dir, entry.Name())
+				if model, err := s.loadMaturityModelSummary(modelPath); err == nil {
+					models = append(models, model)
+				}
+			}
+			break // Only use the first directory that exists
+		}
+	}
+
+	s.writeJSON(w, http.StatusOK, map[string]any{
+		"models": models,
+	})
+}
+
+func (s *Server) loadMaturityModelSummary(path string) (api.MaturityModelSummary, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return api.MaturityModelSummary{}, err
+	}
+
+	var raw map[string]any
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return api.MaturityModelSummary{}, err
+	}
+
+	// Extract summary fields
+	id := filepath.Base(path)
+	id = strings.TrimSuffix(id, ".json")
+
+	name, _ := raw["name"].(string)
+	if name == "" {
+		name = id
+	}
+
+	description, _ := raw["description"].(string)
+
+	var dimensionCount int
+	if dims, ok := raw["dimensions"].([]any); ok {
+		dimensionCount = len(dims)
+	}
+
+	var goalCount int
+	if goals, ok := raw["goals"].([]any); ok {
+		goalCount = len(goals)
+	}
+
+	var overallScore float64
+	if score, ok := raw["overallScore"].(float64); ok {
+		overallScore = score
+	}
+
+	info, _ := os.Stat(path)
+	lastUpdated := time.Now()
+	if info != nil {
+		lastUpdated = info.ModTime()
+	}
+
+	return api.MaturityModelSummary{
+		ID:             id,
+		Name:           name,
+		Description:    description,
+		DimensionCount: dimensionCount,
+		GoalCount:      goalCount,
+		OverallScore:   overallScore,
+		LastUpdated:    lastUpdated.UTC().Format(time.RFC3339),
+	}, nil
+}
+
+func (s *Server) handleGetMaturityModel(w http.ResponseWriter, r *http.Request) {
+	projectName := chi.URLParam(r, "project")
+	modelID := chi.URLParam(r, "modelId")
+	s.logger.Debug("Getting maturity model", "project", projectName, "model", modelID)
+
+	// Get project from config
+	tracked, err := config.GetProject(projectName)
+	if err != nil {
+		s.writeJSON(w, http.StatusNotFound, map[string]any{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Look for the model file
+	modelPaths := []string{
+		filepath.Join(tracked.Path, ".visionspec", "maturity", modelID+".json"),
+		filepath.Join(tracked.Path, "maturity", modelID+".json"),
+	}
+
+	var modelData []byte
+	for _, path := range modelPaths {
+		if data, err := os.ReadFile(path); err == nil {
+			modelData = data
+			break
+		}
+	}
+
+	if modelData == nil {
+		s.writeJSON(w, http.StatusNotFound, map[string]any{
+			"error": "Model not found: " + modelID,
+		})
+		return
+	}
+
+	// Parse and return the model
+	var model map[string]any
+	if err := json.Unmarshal(modelData, &model); err != nil {
+		s.writeJSON(w, http.StatusInternalServerError, map[string]any{
+			"error": "Failed to parse model: " + err.Error(),
+		})
+		return
+	}
+
+	// Ensure ID is set
+	if model["id"] == nil {
+		model["id"] = modelID
+	}
+
+	s.writeJSON(w, http.StatusOK, map[string]any{
+		"model": model,
+	})
+}
+
+func (s *Server) handleMaturityDashboard(w http.ResponseWriter, r *http.Request) {
+	projectName := chi.URLParam(r, "project")
+	theme := r.URL.Query().Get("theme")
+	if theme == "" {
+		theme = "dark"
+	}
+	modelID := r.URL.Query().Get("model")
+	if modelID == "" {
+		modelID = "default"
+	}
+
+	s.logger.Debug("Getting maturity dashboard", "project", projectName, "theme", theme, "model", modelID)
+
+	// Get project from config
+	tracked, err := config.GetProject(projectName)
+	if err != nil {
+		http.Error(w, "Project not found: "+err.Error(), http.StatusNotFound)
+		return
+	}
+
+	// Look for model file to get data
+	modelPaths := []string{
+		filepath.Join(tracked.Path, ".visionspec", "maturity", modelID+".json"),
+		filepath.Join(tracked.Path, "maturity", modelID+".json"),
+		filepath.Join(tracked.Path, ".visionspec", "maturity", "model.json"),
+		filepath.Join(tracked.Path, "maturity", "model.json"),
+	}
+
+	var modelData map[string]any
+	for _, path := range modelPaths {
+		if data, err := os.ReadFile(path); err == nil {
+			if err := json.Unmarshal(data, &modelData); err == nil {
+				break
+			}
+		}
+	}
+
+	// Generate HTML dashboard
+	html := s.generateMaturityDashboardHTML(modelData, theme, projectName)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write([]byte(html))
+}
+
+// generateMaturityDashboardHTML creates an HTML dashboard for maturity model visualization
+func (s *Server) generateMaturityDashboardHTML(model map[string]any, theme, projectName string) string {
+	// Default maturity levels
+	levels := []struct {
+		Level int
+		Name  string
+		Color string
+	}{
+		{1, "Reactive", "#ef4444"},
+		{2, "Basic", "#f59e0b"},
+		{3, "Defined", "#eab308"},
+		{4, "Managed", "#22c55e"},
+		{5, "Optimizing", "#3b82f6"},
+	}
+
+	// Theme colors
+	bgColor := "#1b2636"
+	textColor := "#e0e6ed"
+	mutedColor := "#8899a6"
+	borderColor := "#2d3e50"
+	panelColor := "#1e2a3a"
+	if theme == "light" {
+		bgColor = "#ffffff"
+		textColor = "#1a1a1a"
+		mutedColor = "#6b7280"
+		borderColor = "#e5e7eb"
+		panelColor = "#f9fafb"
+	}
+
+	// Build dimensions HTML
+	dimensionsHTML := ""
+	if dims, ok := model["dimensions"].([]any); ok {
+		for _, d := range dims {
+			dim, ok := d.(map[string]any)
+			if !ok {
+				continue
+			}
+			name, _ := dim["name"].(string)
+			currentLevel := 1
+			if cl, ok := dim["currentLevel"].(float64); ok {
+				currentLevel = int(cl)
+			}
+			targetLevel := currentLevel
+			if tl, ok := dim["targetLevel"].(float64); ok {
+				targetLevel = int(tl)
+			}
+
+			// Get level color
+			levelColor := levels[0].Color
+			if currentLevel >= 1 && currentLevel <= 5 {
+				levelColor = levels[currentLevel-1].Color
+			}
+
+			dimensionsHTML += fmt.Sprintf(`
+				<div style="background: %s; border: 1px solid %s; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+						<span style="font-weight: 600;">%s</span>
+						<span style="background: %s; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">M%d</span>
+					</div>
+					<div style="display: flex; gap: 4px; margin-bottom: 8px;">
+						%s
+					</div>
+					<div style="font-size: 12px; color: %s;">Target: M%d</div>
+				</div>
+			`, panelColor, borderColor, name, levelColor, currentLevel, s.generateLevelBars(currentLevel, targetLevel, levels), mutedColor, targetLevel)
+		}
+	} else {
+		// No dimensions - show placeholder
+		dimensionsHTML = fmt.Sprintf(`
+			<div style="text-align: center; padding: 40px; color: %s;">
+				<div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+				<div style="font-size: 18px; margin-bottom: 8px;">No Maturity Data</div>
+				<div style="font-size: 14px;">Add a maturity model configuration to see the dashboard.</div>
+			</div>
+		`, mutedColor)
+	}
+
+	// Build goals HTML
+	goalsHTML := ""
+	if goals, ok := model["goals"].([]any); ok && len(goals) > 0 {
+		goalsHTML = `<h3 style="margin-top: 24px; margin-bottom: 12px;">Goals</h3>`
+		for _, g := range goals {
+			goal, ok := g.(map[string]any)
+			if !ok {
+				continue
+			}
+			name, _ := goal["name"].(string)
+			status, _ := goal["status"].(string)
+			currentLevel := 1
+			if cl, ok := goal["currentLevel"].(float64); ok {
+				currentLevel = int(cl)
+			}
+			targetLevel := currentLevel
+			if tl, ok := goal["targetLevel"].(float64); ok {
+				targetLevel = int(tl)
+			}
+
+			statusColor := mutedColor
+			if status == "on_track" {
+				statusColor = "#22c55e"
+			} else if status == "at_risk" {
+				statusColor = "#f59e0b"
+			} else if status == "blocked" {
+				statusColor = "#ef4444"
+			}
+
+			goalsHTML += fmt.Sprintf(`
+				<div style="background: %s; border: 1px solid %s; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+					<span>%s</span>
+					<div style="display: flex; align-items: center; gap: 12px;">
+						<span style="font-size: 12px;">M%d → M%d</span>
+						<span style="width: 8px; height: 8px; border-radius: 50%%; background: %s;"></span>
+					</div>
+				</div>
+			`, panelColor, borderColor, name, currentLevel, targetLevel, statusColor)
+		}
+	}
+
+	// Overall score
+	overallScore := 0.0
+	if score, ok := model["overallScore"].(float64); ok {
+		overallScore = score
+	}
+
+	modelName := "Maturity Model"
+	if name, ok := model["name"].(string); ok && name != "" {
+		modelName = name
+	}
+
+	return fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>%s - %s</title>
+	<style>
+		* { box-sizing: border-box; margin: 0; padding: 0; }
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			background: %s;
+			color: %s;
+			padding: 24px;
+			line-height: 1.5;
+		}
+		h1 { font-size: 24px; margin-bottom: 8px; }
+		h2 { font-size: 18px; margin-bottom: 16px; color: %s; font-weight: normal; }
+		h3 { font-size: 16px; font-weight: 600; }
+		.summary {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+		.summary-card {
+			background: %s;
+			border: 1px solid %s;
+			border-radius: 8px;
+			padding: 16px;
+			text-align: center;
+		}
+		.summary-value {
+			font-size: 32px;
+			font-weight: 600;
+			margin-bottom: 4px;
+		}
+		.summary-label {
+			font-size: 12px;
+			color: %s;
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+		.legend {
+			display: flex;
+			gap: 16px;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+		}
+		.legend-item {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-size: 12px;
+		}
+		.legend-dot {
+			width: 12px;
+			height: 12px;
+			border-radius: 2px;
+		}
+	</style>
+</head>
+<body>
+	<h1>%s</h1>
+	<h2>%s</h2>
+
+	<div class="summary">
+		<div class="summary-card">
+			<div class="summary-value">%.1f</div>
+			<div class="summary-label">Overall Score</div>
+		</div>
+	</div>
+
+	<div class="legend">
+		<div class="legend-item"><div class="legend-dot" style="background: %s"></div>M1 Reactive</div>
+		<div class="legend-item"><div class="legend-dot" style="background: %s"></div>M2 Basic</div>
+		<div class="legend-item"><div class="legend-dot" style="background: %s"></div>M3 Defined</div>
+		<div class="legend-item"><div class="legend-dot" style="background: %s"></div>M4 Managed</div>
+		<div class="legend-item"><div class="legend-dot" style="background: %s"></div>M5 Optimizing</div>
+	</div>
+
+	<h3 style="margin-bottom: 12px;">Dimensions</h3>
+	%s
+
+	%s
+</body>
+</html>`,
+		modelName, projectName,
+		bgColor, textColor, mutedColor,
+		panelColor, borderColor, mutedColor,
+		modelName, projectName,
+		overallScore,
+		levels[0].Color, levels[1].Color, levels[2].Color, levels[3].Color, levels[4].Color,
+		dimensionsHTML,
+		goalsHTML,
+	)
+}
+
+// generateLevelBars creates the visual level indicator bars
+func (s *Server) generateLevelBars(current, target int, levels []struct {
+	Level int
+	Name  string
+	Color string
+}) string {
+	html := ""
+	for i := 0; i < 5; i++ {
+		level := i + 1
+		color := "#374151" // Default gray
+		if level <= current {
+			color = levels[i].Color
+		}
+		opacity := "1"
+		if level > current && level <= target {
+			opacity = "0.3"
+			color = levels[i].Color
+		}
+		html += fmt.Sprintf(`<div style="flex: 1; height: 8px; background: %s; opacity: %s; border-radius: 2px;"></div>`, color, opacity)
+	}
+	return html
+}
+
 func (s *Server) handleGetWorkflow(w http.ResponseWriter, r *http.Request) {
 	projectName := chi.URLParam(r, "project")
 	s.logger.Debug("Getting workflow", "project", projectName)
@@ -1185,10 +1691,27 @@ func (s *Server) processWatchEvents(projectName, projectPath string, watcher *fs
 				if evalData, err := os.ReadFile(event.Name); err == nil {
 					var evalResult map[string]any
 					if json.Unmarshal(evalData, &evalResult) == nil {
-						fileEvent.Data = map[string]any{
+						eventData := map[string]any{
 							"score":    evalResult["score"],
 							"decision": evalResult["decision"],
 						}
+						// Include v2 fields if present
+						if v, ok := evalResult["schemaVersion"]; ok {
+							eventData["schemaVersion"] = v
+						}
+						if v, ok := evalResult["scoreV2"]; ok {
+							eventData["scoreV2"] = v
+						}
+						if v, ok := evalResult["pass"]; ok {
+							eventData["pass"] = v
+						}
+						if v, ok := evalResult["confidence"]; ok {
+							eventData["confidence"] = v
+						}
+						if v, ok := evalResult["blocking"]; ok {
+							eventData["blocking"] = v
+						}
+						fileEvent.Data = eventData
 					}
 				}
 			}

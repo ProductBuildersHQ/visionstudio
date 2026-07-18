@@ -10,9 +10,11 @@ import (
 
 // TrackedProject represents a project tracked by VisionStudio
 type TrackedProject struct {
-	Name    string `json:"name"`
-	Path    string `json:"path"`
-	Profile string `json:"profile"`
+	Name                      string `json:"name"`
+	Path                      string `json:"path"`
+	Profile                   string `json:"profile"`
+	RequirementsMethodology   string `json:"requirementsMethodology,omitempty"`
+	ImplementationMethodology string `json:"implementationMethodology,omitempty"`
 }
 
 // ProjectsConfig holds the list of tracked projects
@@ -180,4 +182,31 @@ func GetProject(name string) (*TrackedProject, error) {
 	}
 
 	return nil, fmt.Errorf("project %q not found", name)
+}
+
+// UpdateProject updates an existing project in the configuration
+func UpdateProject(project *TrackedProject) error {
+	cfg, err := LoadProjects()
+	if err != nil {
+		return fmt.Errorf("load projects: %w", err)
+	}
+
+	found := false
+	for i, p := range cfg.Projects {
+		if p.Name == project.Name {
+			cfg.Projects[i] = *project
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return fmt.Errorf("project %q not found", project.Name)
+	}
+
+	if err := SaveProjects(cfg); err != nil {
+		return fmt.Errorf("save projects: %w", err)
+	}
+
+	return nil
 }

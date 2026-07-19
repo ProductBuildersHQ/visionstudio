@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
-import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal } from './components'
+import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal, MaturityModelView, CapabilityStackView, RoadmapView } from './components'
+import { MethodologySelector } from './components/layout/MethodologySelector'
+import { OrganizationView } from './components/organization'
 import { FindingsView } from './components/project/FindingsView'
+import { V2MOMView } from './components/v2mom'
+import { AIDLCWorkflowView, AIDLCSyncPanel } from './components/aidlc'
 import { api } from './services/api'
 import { useProjectEvents, FileEvent } from './hooks/useProjectEvents'
-import type { Project, Spec } from './types'
+import type { Project, Spec, ProjectMethodologyConfig } from './types'
 
-type ActiveView = 'workflow' | 'spec' | 'findings'
+type ActiveView = 'workflow' | 'spec' | 'findings' | 'v2mom' | 'maturity-model' | 'capabilities' | 'roadmap' | 'aidlc-workflow' | 'aidlc-sync' | 'organization'
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -18,6 +22,7 @@ function App() {
   const [error, setError] = useState<string | null>(null)
   const [terminalHeight, setTerminalHeight] = useState(DEFAULT_TERMINAL_HEIGHT)
   const [showAddProjectModal, setShowAddProjectModal] = useState(false)
+  const [showMethodologyModal, setShowMethodologyModal] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
 
   // Real-time event handling
@@ -130,6 +135,65 @@ function App() {
     setActiveSpec(null)
   }
 
+  const handleV2MOMClick = () => {
+    setActiveView('v2mom')
+    setActiveSpec(null)
+  }
+
+  const handleMaturityModelClick = () => {
+    setActiveView('maturity-model')
+    setActiveSpec(null)
+  }
+
+  const handleCapabilitiesClick = () => {
+    setActiveView('capabilities')
+    setActiveSpec(null)
+  }
+
+  const handleRoadmapClick = () => {
+    setActiveView('roadmap')
+    setActiveSpec(null)
+  }
+
+  const handleAIDLCWorkflowClick = () => {
+    setActiveView('aidlc-workflow')
+    setActiveSpec(null)
+  }
+
+  const handleAIDLCSyncClick = () => {
+    setActiveView('aidlc-sync')
+    setActiveSpec(null)
+  }
+
+  const handleMethodologyClick = () => {
+    setShowMethodologyModal(true)
+  }
+
+  const handleOrganizationClick = () => {
+    setActiveView('organization')
+    setActiveSpec(null)
+  }
+
+  const handleMethodologySave = (config: ProjectMethodologyConfig) => {
+    // Update the active project with new methodology settings
+    if (activeProject) {
+      const updatedProject = {
+        ...activeProject,
+        requirementsMethodology: config.requirementsMethodology,
+        implementationMethodology: config.implementationMethodology,
+      }
+      setActiveProject(updatedProject)
+
+      // Update the project in the list
+      setProjects(prevProjects =>
+        prevProjects.map(p =>
+          p.name === activeProject.name ? updatedProject : p
+        )
+      )
+    }
+    setShowMethodologyModal(false)
+  }
+
   const handleContentChange = (content: string) => {
     setSpecContent(content)
     setIsDirty(content !== (activeSpec?.content || ''))
@@ -211,6 +275,14 @@ function App() {
             onSpecSelect={handleSpecSelect}
             onWorkflowClick={handleWorkflowClick}
             onFindingsClick={handleFindingsClick}
+            onV2MOMClick={handleV2MOMClick}
+            onMaturityModelClick={handleMaturityModelClick}
+            onCapabilitiesClick={handleCapabilitiesClick}
+            onRoadmapClick={handleRoadmapClick}
+            onAIDLCWorkflowClick={handleAIDLCWorkflowClick}
+            onAIDLCSyncClick={handleAIDLCSyncClick}
+            onMethodologyClick={handleMethodologyClick}
+            onOrganizationClick={handleOrganizationClick}
             activeSpec={activeSpec}
             onAddProjectClick={() => setShowAddProjectModal(true)}
             onRemoveProject={handleRemoveProject}
@@ -222,10 +294,23 @@ function App() {
               onAdd={handleAddProject}
             />
           )}
+          {showMethodologyModal && activeProject && (
+            <MethodologySelector
+              projectName={activeProject.name}
+              currentConfig={{
+                requirementsMethodology: activeProject.requirementsMethodology || activeProject.profile.name,
+                implementationMethodology: activeProject.implementationMethodology || 'none',
+              }}
+              onClose={() => setShowMethodologyModal(false)}
+              onSave={handleMethodologySave}
+            />
+          )}
         </>
       }
       main={
-        activeProject ? (
+        activeView === 'organization' ? (
+          <OrganizationView onClose={() => setActiveView('workflow')} />
+        ) : activeProject ? (
           activeView === 'workflow' ? (
             <WorkflowDiagram
               project={activeProject}
@@ -236,6 +321,18 @@ function App() {
               project={activeProject}
               onSpecClick={handleSpecSelect}
             />
+          ) : activeView === 'v2mom' ? (
+            <V2MOMView projectName={activeProject.name} />
+          ) : activeView === 'maturity-model' ? (
+            <MaturityModelView projectName={activeProject.name} />
+          ) : activeView === 'capabilities' ? (
+            <CapabilityStackView projectName={activeProject.name} />
+          ) : activeView === 'roadmap' ? (
+            <RoadmapView projectName={activeProject.name} />
+          ) : activeView === 'aidlc-workflow' ? (
+            <AIDLCWorkflowView projectName={activeProject.name} />
+          ) : activeView === 'aidlc-sync' ? (
+            <AIDLCSyncPanel projectName={activeProject.name} />
           ) : activeSpec ? (
             <SpecEditor
               spec={{ ...activeSpec, content: specContent }}

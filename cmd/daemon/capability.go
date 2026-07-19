@@ -29,15 +29,17 @@ func (s *Server) handleListCapabilities(w http.ResponseWriter, r *http.Request) 
 }
 
 // discoverCapabilities finds all capability stack files in a project
+//
+//nolint:dupl // Similar structure to discoverV2MOMs but different types
 func (s *Server) discoverCapabilities(projectPath string) []api.CapabilitySummary {
 	capabilities := make([]api.CapabilitySummary, 0)
 
 	capabilityDir := filepath.Join(projectPath, "capability")
-	if _, err := os.Stat(capabilityDir); os.IsNotExist(err) {
+	if _, err := os.Stat(capabilityDir); os.IsNotExist(err) { //nolint:gosec // G703: Path from tracked project config
 		return capabilities
 	}
 
-	_ = filepath.WalkDir(capabilityDir, func(path string, d os.DirEntry, err error) error {
+	_ = filepath.WalkDir(capabilityDir, func(path string, d os.DirEntry, err error) error { //nolint:gosec // G703: Path from tracked project config
 		if err != nil {
 			return nil
 		}
@@ -46,7 +48,7 @@ func (s *Server) discoverCapabilities(projectPath string) []api.CapabilitySummar
 		}
 
 		// Load capability to get metadata
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(path) //nolint:gosec // G122: Path from WalkDir in trusted project directory
 		if err != nil {
 			return nil
 		}
@@ -160,7 +162,7 @@ func (s *Server) loadCapability(projectPath, capabilityID string) (api.Capabilit
 	var data []byte
 	var err error
 	for _, pattern := range patterns {
-		data, err = os.ReadFile(pattern)
+		data, err = os.ReadFile(pattern) //nolint:gosec // G703: Path from tracked project config
 		if err == nil {
 			break
 		}
@@ -182,7 +184,7 @@ func (s *Server) loadCapability(projectPath, capabilityID string) (api.Capabilit
 func (s *Server) loadCapabilityFromPath(projectPath, relPath string) (api.CapabilityStack, error) {
 	fullPath := filepath.Join(projectPath, relPath)
 
-	data, err := os.ReadFile(fullPath)
+	data, err := os.ReadFile(fullPath) //nolint:gosec // G703: Path from tracked project config
 	if err != nil {
 		return api.CapabilityStack{}, err
 	}

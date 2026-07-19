@@ -862,7 +862,7 @@ func (s *Server) handleListMaturityModels(w http.ResponseWriter, r *http.Request
 }
 
 func (s *Server) loadMaturityModelSummary(path string) (api.MaturityModelSummary, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) //nolint:gosec // G703: Path from tracked project config
 	if err != nil {
 		return api.MaturityModelSummary{}, err
 	}
@@ -898,7 +898,7 @@ func (s *Server) loadMaturityModelSummary(path string) (api.MaturityModelSummary
 		overallScore = score
 	}
 
-	info, _ := os.Stat(path)
+	info, _ := os.Stat(path) //nolint:gosec // G703: Path from tracked project config
 	lastUpdated := time.Now()
 	if info != nil {
 		lastUpdated = info.ModTime()
@@ -937,7 +937,7 @@ func (s *Server) handleGetMaturityModel(w http.ResponseWriter, r *http.Request) 
 
 	var modelData []byte
 	for _, path := range modelPaths {
-		if data, err := os.ReadFile(path); err == nil {
+		if data, err := os.ReadFile(path); err == nil { //nolint:gosec // G703: Path from tracked project config
 			modelData = data
 			break
 		}
@@ -999,7 +999,7 @@ func (s *Server) handleMaturityDashboard(w http.ResponseWriter, r *http.Request)
 
 	var modelData map[string]any
 	for _, path := range modelPaths {
-		if data, err := os.ReadFile(path); err == nil {
+		if data, err := os.ReadFile(path); err == nil { //nolint:gosec // G703: Path from tracked project config
 			if err := json.Unmarshal(data, &modelData); err == nil {
 				break
 			}
@@ -1010,7 +1010,7 @@ func (s *Server) handleMaturityDashboard(w http.ResponseWriter, r *http.Request)
 	html := s.generateMaturityDashboardHTML(modelData, theme, projectName)
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.Write([]byte(html))
+	_, _ = w.Write([]byte(html))
 }
 
 // generateMaturityDashboardHTML creates an HTML dashboard for maturity model visualization

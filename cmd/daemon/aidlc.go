@@ -706,7 +706,7 @@ func (s *Server) handleCreateAIDLCDocument(w http.ResponseWriter, r *http.Reques
 	docPath := filepath.Join(phaseDir, docType.Filename())
 
 	// Create phase directory if needed
-	if err := os.MkdirAll(phaseDir, 0755); err != nil {
+	if err := os.MkdirAll(phaseDir, 0755); err != nil { //nolint:gosec // G703: Path from tracked project config
 		s.writeJSON(w, http.StatusInternalServerError, api.CreateAIDLCDocumentResponse{
 			Error: "Failed to create directory: " + err.Error(),
 		})

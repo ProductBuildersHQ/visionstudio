@@ -80,7 +80,7 @@ func (s *Server) loadSampleSummary(id, path string) api.SampleSummary {
 
 	// Try to load project.json for metadata
 	projectPath := filepath.Join(path, "project.json")
-	if data, err := os.ReadFile(projectPath); err == nil {
+	if data, err := os.ReadFile(projectPath); err == nil { //nolint:gosec // G703: Path from embedded samples directory
 		var projectJSON map[string]any
 		if json.Unmarshal(data, &projectJSON) == nil {
 			if meta, ok := projectJSON["metadata"].(map[string]any); ok {
@@ -118,7 +118,7 @@ func (s *Server) loadSampleSummary(id, path string) api.SampleSummary {
 // countJSONFiles counts JSON files in a directory (recursively)
 func countJSONFiles(dir string) int {
 	count := 0
-	_ = filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+	_ = filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error { //nolint:gosec // G703: Path from embedded samples directory
 		if err != nil {
 			return nil
 		}
@@ -151,7 +151,7 @@ func (s *Server) handleGetSample(w http.ResponseWriter, r *http.Request) {
 	}
 
 	samplePath := filepath.Join(samplesDir, sampleID)
-	if _, err := os.Stat(samplePath); os.IsNotExist(err) {
+	if _, err := os.Stat(samplePath); os.IsNotExist(err) { //nolint:gosec // G703: Path from embedded samples directory
 		s.writeJSON(w, http.StatusNotFound, api.GetSampleResponse{
 			Error: "Sample not found: " + sampleID,
 		})
@@ -167,7 +167,7 @@ func (s *Server) handleGetSample(w http.ResponseWriter, r *http.Request) {
 
 	// Load project.json
 	projectPath := filepath.Join(samplePath, "project.json")
-	if data, err := os.ReadFile(projectPath); err == nil {
+	if data, err := os.ReadFile(projectPath); err == nil { //nolint:gosec // G703: Path from embedded samples directory
 		var projectJSON map[string]any
 		if json.Unmarshal(data, &projectJSON) == nil {
 			detail.ProjectJSON = projectJSON
@@ -176,7 +176,7 @@ func (s *Server) handleGetSample(w http.ResponseWriter, r *http.Request) {
 
 	// Load README.md
 	readmePath := filepath.Join(samplePath, "README.md")
-	if data, err := os.ReadFile(readmePath); err == nil {
+	if data, err := os.ReadFile(readmePath); err == nil { //nolint:gosec // G703: Path from embedded samples directory
 		detail.README = string(data)
 	}
 

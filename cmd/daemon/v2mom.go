@@ -29,15 +29,17 @@ func (s *Server) handleListV2MOMs(w http.ResponseWriter, r *http.Request) {
 }
 
 // discoverV2MOMs finds all V2MOM files in a project
+//
+//nolint:dupl // Similar structure to discoverCapabilities but different types
 func (s *Server) discoverV2MOMs(projectPath string) []api.V2MOMSummary {
 	v2moms := make([]api.V2MOMSummary, 0)
 
 	v2momDir := filepath.Join(projectPath, "v2mom")
-	if _, err := os.Stat(v2momDir); os.IsNotExist(err) {
+	if _, err := os.Stat(v2momDir); os.IsNotExist(err) { //nolint:gosec // G703: Path from tracked project config
 		return v2moms
 	}
 
-	_ = filepath.WalkDir(v2momDir, func(path string, d os.DirEntry, err error) error {
+	_ = filepath.WalkDir(v2momDir, func(path string, d os.DirEntry, err error) error { //nolint:gosec // G703: Path from tracked project config
 		if err != nil {
 			return nil
 		}
@@ -46,7 +48,7 @@ func (s *Server) discoverV2MOMs(projectPath string) []api.V2MOMSummary {
 		}
 
 		// Load V2MOM to get metadata
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(path) //nolint:gosec // G122: Path from WalkDir in trusted project directory
 		if err != nil {
 			return nil
 		}
@@ -160,7 +162,7 @@ func (s *Server) loadV2MOM(projectPath, v2momID string) (api.V2MOM, error) {
 	var data []byte
 	var err error
 	for _, pattern := range patterns {
-		data, err = os.ReadFile(pattern)
+		data, err = os.ReadFile(pattern) //nolint:gosec // G703: Path from tracked project config
 		if err == nil {
 			break
 		}
@@ -182,7 +184,7 @@ func (s *Server) loadV2MOM(projectPath, v2momID string) (api.V2MOM, error) {
 func (s *Server) loadV2MOMFromPath(projectPath, relPath string) (api.V2MOM, error) {
 	fullPath := filepath.Join(projectPath, relPath)
 
-	data, err := os.ReadFile(fullPath)
+	data, err := os.ReadFile(fullPath) //nolint:gosec // G703: Path from tracked project config
 	if err != nil {
 		return api.V2MOM{}, err
 	}

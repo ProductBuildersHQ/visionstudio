@@ -58,7 +58,7 @@ func (s *Server) loadRoadmap(projectPath string) (api.Roadmap, error) {
 		roadmapFile = filepath.Join(projectPath, "roadmap.json")
 	}
 
-	data, err := os.ReadFile(roadmapFile)
+	data, err := os.ReadFile(roadmapFile) //nolint:gosec // G703: Path from tracked project config
 	if err != nil {
 		return api.Roadmap{}, err
 	}

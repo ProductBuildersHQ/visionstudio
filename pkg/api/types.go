@@ -81,11 +81,11 @@ type Profile struct {
 type Project struct {
 	Name                      string  `json:"name"`
 	Path                      string  `json:"path"`
-	Profile                   Profile `json:"profile"`                                       // kept for backwards compat
-	RequirementsMethodology   string  `json:"requirementsMethodology,omitempty"`             // e.g., "aws-working-backwards/product"
-	ImplementationMethodology string  `json:"implementationMethodology,omitempty"`           // e.g., "aidlc", "speckit", "none"
+	Profile                   Profile `json:"profile"`                             // kept for backwards compat
+	RequirementsMethodology   string  `json:"requirementsMethodology,omitempty"`   // e.g., "aws-working-backwards/product"
+	ImplementationMethodology string  `json:"implementationMethodology,omitempty"` // e.g., "aidlc", "speckit", "none"
 	Specs                     []Spec  `json:"specs"`
-	GitRemote                 string  `json:"gitRemote,omitempty"`                           // e.g., "https://github.com/org/repo"
+	GitRemote                 string  `json:"gitRemote,omitempty"` // e.g., "https://github.com/org/repo"
 }
 
 // API request/response types
@@ -483,11 +483,11 @@ type AIDLCIssue struct {
 
 // AIDLCQualityScore represents evaluation results
 type AIDLCQualityScore struct {
-	Rating      AIDLCQualityRating      `json:"rating"`
-	Score       float64                 `json:"score"`
-	Issues      []AIDLCIssue            `json:"issues,omitempty"`
-	Dimensions  map[string]float64      `json:"dimensions,omitempty"`
-	EvaluatedAt string                  `json:"evaluated_at,omitempty"`
+	Rating      AIDLCQualityRating `json:"rating"`
+	Score       float64            `json:"score"`
+	Issues      []AIDLCIssue       `json:"issues,omitempty"`
+	Dimensions  map[string]float64 `json:"dimensions,omitempty"`
+	EvaluatedAt string             `json:"evaluated_at,omitempty"`
 }
 
 // AIDLCDocument represents an AIDLC document
@@ -504,30 +504,30 @@ type AIDLCDocument struct {
 
 // AIDLCState represents the parsed aidlc-state.md content
 type AIDLCState struct {
-	CurrentPhase    AIDLCPhase                     `json:"current_phase"`
-	CurrentDocument string                         `json:"current_document,omitempty"`
-	CompletedDocs   []string                       `json:"completed_docs"`
-	PendingDocs     []string                       `json:"pending_docs"`
-	InProgressDocs  []string                       `json:"in_progress_docs,omitempty"`
-	DocumentScores  map[string]*AIDLCQualityScore  `json:"document_scores,omitempty"`
-	PhaseProgress   map[AIDLCPhase]float64         `json:"phase_progress,omitempty"`
-	OverallProgress float64                        `json:"overall_progress"`
-	LastUpdated     string                         `json:"last_updated"`
+	CurrentPhase    AIDLCPhase                    `json:"current_phase"`
+	CurrentDocument string                        `json:"current_document,omitempty"`
+	CompletedDocs   []string                      `json:"completed_docs"`
+	PendingDocs     []string                      `json:"pending_docs"`
+	InProgressDocs  []string                      `json:"in_progress_docs,omitempty"`
+	DocumentScores  map[string]*AIDLCQualityScore `json:"document_scores,omitempty"`
+	PhaseProgress   map[AIDLCPhase]float64        `json:"phase_progress,omitempty"`
+	OverallProgress float64                       `json:"overall_progress"`
+	LastUpdated     string                        `json:"last_updated"`
 }
 
 // AIDLCWorkflowNode represents a node in the workflow DAG
 type AIDLCWorkflowNode struct {
-	ID          string              `json:"id"`
-	DocType     string              `json:"doc_type"`
-	Phase       AIDLCPhase          `json:"phase"`
-	Name        string              `json:"name"`
-	Description string              `json:"description,omitempty"`
-	Status      string              `json:"status"`
-	Score       *AIDLCQualityScore  `json:"score,omitempty"`
-	DependsOn   []string            `json:"depends_on,omitempty"`
-	Blocks      []string            `json:"blocks,omitempty"`
-	Required    bool                `json:"required"`
-	Automated   bool                `json:"automated,omitempty"`
+	ID          string             `json:"id"`
+	DocType     string             `json:"doc_type"`
+	Phase       AIDLCPhase         `json:"phase"`
+	Name        string             `json:"name"`
+	Description string             `json:"description,omitempty"`
+	Status      string             `json:"status"`
+	Score       *AIDLCQualityScore `json:"score,omitempty"`
+	DependsOn   []string           `json:"depends_on,omitempty"`
+	Blocks      []string           `json:"blocks,omitempty"`
+	Required    bool               `json:"required"`
+	Automated   bool               `json:"automated,omitempty"`
 }
 
 // AIDLCWorkflowPhase represents a phase in the workflow
@@ -549,12 +549,12 @@ type AIDLCWorkflowEdge struct {
 
 // AIDLCWorkflow represents the full AIDLC workflow
 type AIDLCWorkflow struct {
-	Name        string                        `json:"name"`
-	Description string                        `json:"description,omitempty"`
-	Phases      []AIDLCWorkflowPhase          `json:"phases"`
-	Nodes       map[string]AIDLCWorkflowNode  `json:"nodes"`
-	Edges       []AIDLCWorkflowEdge           `json:"edges"`
-	Progress    WorkflowProgress              `json:"progress"`
+	Name        string                       `json:"name"`
+	Description string                       `json:"description,omitempty"`
+	Phases      []AIDLCWorkflowPhase         `json:"phases"`
+	Nodes       map[string]AIDLCWorkflowNode `json:"nodes"`
+	Edges       []AIDLCWorkflowEdge          `json:"edges"`
+	Progress    WorkflowProgress             `json:"progress"`
 }
 
 // AIDLCSyncAction represents a sync operation
@@ -810,11 +810,11 @@ type V2MOMMethodAlignment struct {
 
 // OrganizationCascade represents the full org → projects cascade
 type OrganizationCascade struct {
-	Organization    *Organization                 `json:"organization"`
-	OrgV2MOMs       []OrganizationV2MOM           `json:"orgV2moms"`
-	ProjectV2MOMs   map[string][]V2MOMSummary     `json:"projectV2moms"`   // project name → v2moms
-	Alignments      []V2MOMMethodAlignment        `json:"alignments"`
-	AlignmentScores map[string]float64            `json:"alignmentScores"` // project name → avg score
+	Organization    *Organization             `json:"organization"`
+	OrgV2MOMs       []OrganizationV2MOM       `json:"orgV2moms"`
+	ProjectV2MOMs   map[string][]V2MOMSummary `json:"projectV2moms"` // project name → v2moms
+	Alignments      []V2MOMMethodAlignment    `json:"alignments"`
+	AlignmentScores map[string]float64        `json:"alignmentScores"` // project name → avg score
 }
 
 // Organization API request/response types

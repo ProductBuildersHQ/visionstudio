@@ -35,12 +35,34 @@ VisionStudio provides an integrated workspace for creating, evaluating, and iter
 
 ## Features
 
+### Specification Authoring
+
 - 📁 **Project Management** - Create and manage multiple spec projects
-- ⚡ **Profile-Driven Workflows** - Select from profiles (aws-product, big-tech-product, etc.)
+- ⚡ **Dual Methodology Selection** - Choose requirements methodology (AWS Working Backwards, etc.) and implementation methodology (AIDLC, SpecKit)
 - 📊 **Visual Workflow Diagram** - See spec sequence and status at a glance
 - ✏️ **Markdown Editor** - Source and rendered view toggle
 - ⚖️ **LLM-as-a-Judge Evaluation** - Evaluate specs against profile rubrics
 - 🤖 **LLM Writing Assistant** - Context-aware chat for spec assistance
+- 📦 **Sample Projects** - Import sample projects to learn the workflow
+
+### AIDLC Integration
+
+- 🔄 **AIDLC Workflow** - AWS AI-Driven Development Lifecycle with Inception → Construction → Operations phases
+- 📋 **Document Generation** - Generate AIDLC deliverables (Vision, Requirements, Technical Spec, etc.)
+- ✅ **Phase Gates** - Track phase completion and transition requirements
+- 🔁 **Sync Status** - Keep AIDLC documents synchronized with specs
+
+### Strategic Planning
+
+- 🎯 **V2MOM Cascade** - Hierarchical V2MOMs from Organization → Team → Project
+- 🧱 **Capability Stack** - Visual capability management with domains
+- 🗺️ **Roadmap View** - Timeline-based initiative and milestone planning
+- 📈 **Maturity Model** - Framework-based maturity assessments with dashboards
+
+### Organization
+
+- 🏢 **Organization Settings** - Configure organization hierarchy and teams
+- 👥 **Team Management** - Manage teams and their V2MOMs
 
 ## Screen Shots
 
@@ -69,17 +91,21 @@ A list of all findings is provided for easy scanning of all findings.
 │                    Electron Desktop App                     │
 │  ┌───────────────────────────────────────────────────────┐  │
 │  │              React/TypeScript Frontend                │  │
-│  │  • Sidebar (projects, specs)                          │  │
-│  │  • Workflow diagram                                   │  │
-│  │  • Markdown editor                                    │  │
+│  │  • Sidebar (projects, specs, methodology)             │  │
+│  │  • Workflow diagram + AIDLC workflow                  │  │
+│  │  • Markdown editor + evaluation results               │  │
+│  │  • V2MOM cascade, capability stack, roadmap           │  │
+│  │  • Maturity model dashboard                           │  │
 │  │  • LLM chat panel                                     │  │
 │  └──────────────────────┬────────────────────────────────┘  │
 └─────────────────────────┼───────────────────────────────────┘
                           │ HTTP/WebSocket
 ┌─────────────────────────▼───────────────────────────────────┐
 │                      Go Daemon                              │
-│  • REST API for projects/specs                              │
-│  • VisionSpec integration                                   │
+│  • REST API for projects/specs/AIDLC/V2MOM/roadmap          │
+│  • VisionSpec v0.13.0 integration                           │
+│  • Methodology selection (requirements + implementation)    │
+│  • Organization and team management                         │
 │  • LLM provider abstraction (omniagent)                     │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -115,19 +141,34 @@ cd desktop && npm run dev:main    # Start Electron
 
 ```
 visionstudio/
-├── cmd/daemon/          # Go daemon entry point
+├── cmd/daemon/          # Go daemon (REST API server)
+│   ├── main.go          # Server setup and core routes
+│   ├── aidlc.go         # AIDLC workflow handlers
+│   ├── v2mom.go         # V2MOM cascade handlers
+│   ├── capability.go    # Capability stack handlers
+│   ├── roadmap.go       # Roadmap handlers
+│   ├── organization.go  # Organization handlers
+│   ├── methodologies.go # Methodology selection handlers
+│   └── samples.go       # Sample projects handlers
 ├── pkg/
-│   └── api/             # API types and handlers
+│   ├── api/             # API types
+│   └── config/          # Configuration (projects, organization)
 ├── desktop/
-│   ├── main/            # Electron main process (TypeScript)
-│   ├── renderer/        # React frontend
-│   │   └── src/
-│   │       ├── components/
-│   │       ├── services/
-│   │       └── types/
+│   ├── main/            # Electron main process
+│   ├── renderer/src/
+│   │   ├── components/
+│   │   │   ├── aidlc/           # AIDLC workflow views
+│   │   │   ├── v2mom/           # V2MOM cascade views
+│   │   │   ├── capability-stack/ # Capability views
+│   │   │   ├── roadmap/         # Roadmap views
+│   │   │   ├── maturity-model/  # Maturity views
+│   │   │   ├── organization/    # Organization views
+│   │   │   └── samples/         # Sample picker
+│   │   ├── services/    # API client
+│   │   └── types/       # TypeScript types
 │   └── package.json
-├── docs/
-│   └── specs/           # VisionSpec project specs
+├── samples/             # Sample projects (Grafana, Simple)
+├── docs/                # MkDocs documentation
 └── go.mod
 ```
 

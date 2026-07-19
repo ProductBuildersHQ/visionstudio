@@ -56,8 +56,18 @@ nav:
   - User Guide:
       - Projects: guide/projects.md
       - Workflows: guide/workflows.md
+      - Methodology Selection: guide/methodologies.md
       - Editor: guide/editor.md
       - Evaluation: guide/evaluation.md
+      - AIDLC Workflow: guide/aidlc.md
+      - V2MOM Cascade: guide/v2mom.md
+      - Capabilities: guide/capabilities.md
+      - Roadmap: guide/roadmap.md
+      - Maturity Model: guide/maturity.md
+      - Organization: guide/organization.md
+      - Sample Projects: guide/samples.md
+  - API Reference:
+      - AIDLC API: guide/aidlc-api.md
   - Architecture:
       - Overview: architecture/overview.md
       - Go Daemon: architecture/daemon.md

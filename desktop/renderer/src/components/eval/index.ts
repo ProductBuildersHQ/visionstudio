@@ -1,0 +1,1 @@
+export { DimensionScoreCard } from './DimensionScoreCard'

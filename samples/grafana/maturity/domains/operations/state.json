@@ -1,0 +1,130 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-state.schema.json",
+  "metadata": {
+    "name": "Grafana Operations Maturity State",
+    "description": "Current operations maturity state",
+    "maturityModelRef": "./model.json",
+    "assessedAt": "2026-07-15",
+    "assessedBy": "Operations Team"
+  },
+
+  "sloWindows": ["30d", "quarterly"],
+
+  "sliState": {
+    "sli-alert-eval-latency": {
+      "sliId": "sli-alert-eval-latency",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 180, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 100, "maturityLevel": 5 }
+      }
+    },
+    "sli-alert-cardinality": {
+      "sliId": "sli-alert-cardinality",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 750000, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 1000000, "maturityLevel": 5 }
+      }
+    },
+    "sli-alerting-channels": {
+      "sliId": "sli-alerting-channels",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 18, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 25, "maturityLevel": 5 }
+      }
+    },
+    "sli-terraform-coverage": {
+      "sliId": "sli-terraform-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 82, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 90, "maturityLevel": 4 },
+        "Q4_2027": { "value": 95, "maturityLevel": 5 }
+      }
+    },
+    "sli-ha-adoption": {
+      "sliId": "sli-ha-adoption",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 72, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 90, "maturityLevel": 5 }
+      }
+    },
+    "sli-failover-time": {
+      "sliId": "sli-failover-time",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 25, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 10, "maturityLevel": 5 }
+      }
+    },
+    "sli-self-monitoring-coverage": {
+      "sliId": "sli-self-monitoring-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 88, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    }
+  },
+
+  "maturityState": {
+    "alerting": {
+      "domainId": "alerting",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-09-01",
+        "assessedBy": "Alerting Team",
+        "note": "Unified Alerting GA, working on 1M series support"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "Industry-leading alerting scale"
+      }
+    },
+    "infrastructure-as-code": {
+      "domainId": "infrastructure-as-code",
+      "current": {
+        "level": 4,
+        "achievedAt": "2026-01-01",
+        "assessedBy": "Platform Team",
+        "note": "High Terraform coverage, Helm charts mature"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "95% Terraform resource coverage"
+      }
+    },
+    "high-availability": {
+      "domainId": "high-availability",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-06-01",
+        "assessedBy": "Platform Team",
+        "note": "Active-active HA with fast failover"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "Zero-downtime deployments"
+      }
+    }
+  },
+
+  "enablerState": {}
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-state.schema.json",
+  "metadata": {
+    "name": "Grafana Security Maturity State",
+    "description": "Current security maturity state",
+    "maturityModelRef": "./model.json",
+    "assessedAt": "2026-07-15",
+    "assessedBy": "Security Team"
+  },
+
+  "sloWindows": ["30d", "quarterly"],
+
+  "sliState": {
+    "sli-auth-methods": {
+      "sliId": "sli-auth-methods",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 12, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "notes": "OAuth (GitHub, Google, Azure, Okta, GitLab, Generic), SAML, LDAP, Basic, API Keys, Service Accounts, JWT"
+    },
+    "sli-sast-coverage": {
+      "sliId": "sli-sast-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 95, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q2_2027": { "value": 100, "maturityLevel": 5 }
+      }
+    },
+    "sli-sca-coverage": {
+      "sliId": "sli-sca-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 98, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    },
+    "sli-vuln-mttr": {
+      "sliId": "sli-vuln-mttr",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 3, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 1, "maturityLevel": 5 }
+      }
+    },
+    "sli-bb-response-time": {
+      "sliId": "sli-bb-response-time",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 36, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q2_2027": { "value": 24, "maturityLevel": 4 }
+      }
+    },
+    "sli-bb-submissions": {
+      "sliId": "sli-bb-submissions",
+      "qualitativeState": "measured",
+      "windows": {
+        "quarterly": { "value": 52, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 75, "maturityLevel": 4 }
+      }
+    },
+    "sli-rbac-coverage": {
+      "sliId": "sli-rbac-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 95, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    }
+  },
+
+  "maturityState": {
+    "identity": {
+      "domainId": "identity",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-06-01",
+        "assessedBy": "Security Team",
+        "note": "Comprehensive auth with 12 methods, working on passkeys"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "Zero-trust enterprise requirements"
+      }
+    },
+    "application-security": {
+      "domainId": "application-security",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-09-01",
+        "assessedBy": "Security Team",
+        "note": "Near-complete scanning coverage, fast remediation"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "Enterprise security requirements"
+      }
+    },
+    "bug-bounty": {
+      "domainId": "bug-bounty",
+      "current": {
+        "level": 3,
+        "achievedAt": "2025-01-01",
+        "assessedBy": "Security Team",
+        "note": "Public program via Intigriti, improving response time"
+      },
+      "target": {
+        "level": 4,
+        "targetDate": "2027-03-31",
+        "rationale": "Industry-leading researcher engagement"
+      }
+    }
+  },
+
+  "enablerState": {}
+}

@@ -1,0 +1,183 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-state.schema.json",
+  "metadata": {
+    "name": "Grafana Maturity State",
+    "description": "Current state assessment for Grafana",
+    "maturityModelRef": "./grafana.model.json",
+    "assessedAt": "2026-07-15",
+    "assessedBy": "Analysis Team"
+  },
+
+  "sloWindows": ["30d", "quarterly"],
+
+  "sliState": {
+    "sli-dashboard-load-time": {
+      "sliId": "sli-dashboard-load-time",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 2.1, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 1.5, "maturityLevel": 4 },
+        "Q2_2027": { "value": 1.0, "maturityLevel": 5 }
+      }
+    },
+    "sli-plugin-count": {
+      "sliId": "sli-plugin-count",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 380, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 500, "maturityLevel": 5 }
+      }
+    },
+    "sli-datasource-count": {
+      "sliId": "sli-datasource-count",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 88, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    },
+    "sli-auth-methods": {
+      "sliId": "sli-auth-methods",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 12, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    },
+    "sli-sast-coverage": {
+      "sliId": "sli-sast-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 95, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q2_2027": { "value": 100, "maturityLevel": 5 }
+      }
+    },
+    "sli-test-coverage": {
+      "sliId": "sli-test-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 76, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 80, "maturityLevel": 4 },
+        "Q4_2027": { "value": 85, "maturityLevel": 5 }
+      }
+    },
+    "sli-e2e-coverage": {
+      "sliId": "sli-e2e-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 68, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 75, "maturityLevel": 4 }
+      }
+    },
+    "sli-api-coverage": {
+      "sliId": "sli-api-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 95, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 100, "maturityLevel": 5 }
+      }
+    },
+    "sli-doc-coverage": {
+      "sliId": "sli-doc-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 90, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    },
+    "sli-alerting-channels": {
+      "sliId": "sli-alerting-channels",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 38, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 50, "maturityLevel": 5 }
+      }
+    }
+  },
+
+  "maturityState": {
+    "core-platform": {
+      "domainId": "core-platform",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-06-01",
+        "assessedBy": "Analysis Team",
+        "note": "Strong ecosystem, performance improvements in progress"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "Industry-leading observability platform"
+      }
+    },
+    "security": {
+      "domainId": "security",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-01-01",
+        "assessedBy": "Analysis Team",
+        "note": "Comprehensive security with active bug bounty"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "Security-first for enterprise adoption"
+      }
+    },
+    "quality": {
+      "domainId": "quality",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-06-01",
+        "assessedBy": "Analysis Team",
+        "note": "Strong testing practices, improving coverage"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "Industry-leading quality"
+      }
+    },
+    "api-dx": {
+      "domainId": "api-dx",
+      "current": {
+        "level": 4,
+        "achievedAt": "2024-12-01",
+        "assessedBy": "Analysis Team",
+        "note": "Comprehensive API and documentation"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "Developer-first platform"
+      }
+    },
+    "operations": {
+      "domainId": "operations",
+      "current": {
+        "level": 4,
+        "achievedAt": "2024-06-01",
+        "assessedBy": "Analysis Team",
+        "note": "Enterprise-ready alerting and HA"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "World-class operational capabilities"
+      }
+    }
+  },
+
+  "enablerState": {}
+}

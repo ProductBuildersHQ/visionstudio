@@ -1,0 +1,84 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/roadmap-item.schema.json",
+  "metadata": {
+    "name": "Simple Project Roadmap",
+    "description": "Product roadmap for the simple sample project",
+    "version": "1.0.0",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "items": [
+    {
+      "id": "ri-performance",
+      "title": "Performance Optimization",
+      "description": "Optimize frontend and backend performance to achieve M4 targets",
+      "status": "in_progress",
+      "priority": "high",
+      "quarter": "Q3_2026",
+      "effort": "large",
+      "rice": {
+        "reach": 1000,
+        "impact": 3,
+        "confidence": 0.8,
+        "effort": 3,
+        "score": 800
+      },
+      "capability_refs": ["widget-ui", "rest-api", "caching"],
+      "goal_refs": ["measure-latency"]
+    },
+    {
+      "id": "ri-testing",
+      "title": "Test Coverage Improvement",
+      "description": "Increase test coverage to 80% across all modules",
+      "status": "in_progress",
+      "priority": "high",
+      "quarter": "Q3_2026",
+      "effort": "medium",
+      "rice": {
+        "reach": 500,
+        "impact": 2,
+        "confidence": 0.9,
+        "effort": 2,
+        "score": 450
+      },
+      "capability_refs": ["ci-cd"],
+      "goal_refs": ["measure-coverage"]
+    },
+    {
+      "id": "ri-dashboard-v2",
+      "title": "Dashboard V2",
+      "description": "Redesign dashboard with real-time updates",
+      "status": "planned",
+      "priority": "medium",
+      "quarter": "Q4_2026",
+      "effort": "large",
+      "rice": {
+        "reach": 800,
+        "impact": 3,
+        "confidence": 0.7,
+        "effort": 3,
+        "score": 560
+      },
+      "capability_refs": ["dashboard", "widget-ui"],
+      "goal_refs": ["measure-features"]
+    },
+    {
+      "id": "ri-auth-upgrade",
+      "title": "Authentication Upgrade",
+      "description": "Add OAuth2 and SSO support",
+      "status": "planned",
+      "priority": "medium",
+      "quarter": "Q4_2026",
+      "effort": "medium",
+      "rice": {
+        "reach": 600,
+        "impact": 2,
+        "confidence": 0.8,
+        "effort": 2,
+        "score": 480
+      },
+      "capability_refs": ["auth"],
+      "goal_refs": ["measure-features"]
+    }
+  ]
+}

@@ -1,0 +1,295 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "grafana-quality-fy2027",
+    "name": "Quality Engineering Team FY2027",
+    "author": "Quality Team Lead",
+    "team": "Quality Engineering",
+    "fiscalYear": "FY2027",
+    "quarter": "Annual",
+    "version": "1.0.0",
+    "status": "Active",
+    "parentId": "grafana-fy2027",
+    "structure": "nested",
+    "terminology": "v2mom"
+  },
+  "vision": "Deliver world-class software quality that enables Grafana to be trusted by millions of users for their most critical observability needs.",
+  "values": [
+    {
+      "name": "Shift Left",
+      "description": "Catch issues early in the development cycle",
+      "priority": 1
+    },
+    {
+      "name": "Automation First",
+      "description": "Automate everything that can be automated",
+      "priority": 2
+    },
+    {
+      "name": "Fast Feedback",
+      "description": "Developers should know within minutes if they broke something",
+      "priority": 3
+    },
+    {
+      "name": "Reliability",
+      "description": "Tests must be reliable - flaky tests are worse than no tests",
+      "priority": 4
+    }
+  ],
+  "methods": [
+    {
+      "id": "qual-method-1",
+      "name": "Achieve 85% Test Coverage",
+      "description": "Increase code coverage from 76% to 85% with focus on critical paths",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Quality Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "cov-kr1",
+          "name": "Go Backend Coverage",
+          "baseline": "78%",
+          "target": "88%",
+          "current": "81%",
+          "unit": "percent",
+          "progress": 0.3,
+          "status": "On Track"
+        },
+        {
+          "id": "cov-kr2",
+          "name": "React Frontend Coverage",
+          "baseline": "72%",
+          "target": "82%",
+          "current": "74%",
+          "unit": "percent",
+          "progress": 0.2,
+          "status": "On Track"
+        },
+        {
+          "id": "cov-kr3",
+          "name": "Critical Path Coverage",
+          "baseline": "85%",
+          "target": "98%",
+          "current": "88%",
+          "unit": "percent",
+          "progress": 0.23,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-coverage-gaps", "proj-critical-tests"]
+    },
+    {
+      "id": "qual-method-2",
+      "name": "E2E Test Excellence",
+      "description": "Migrate to Playwright and achieve 99% test reliability",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Quality Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-09-30",
+      "measures": [
+        {
+          "id": "e2e-kr1",
+          "name": "E2E Test Reliability",
+          "baseline": "94%",
+          "target": "99%",
+          "current": "96%",
+          "unit": "percent",
+          "progress": 0.4,
+          "status": "On Track"
+        },
+        {
+          "id": "e2e-kr2",
+          "name": "E2E Coverage",
+          "baseline": "65%",
+          "target": "80%",
+          "current": "68%",
+          "unit": "percent",
+          "progress": 0.2,
+          "status": "On Track"
+        },
+        {
+          "id": "e2e-kr3",
+          "name": "E2E Suite Runtime",
+          "baseline": "45 min",
+          "target": "< 20 min",
+          "current": "32 min",
+          "unit": "minutes",
+          "progress": 0.52,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-playwright-migration", "proj-e2e-parallelization"]
+    },
+    {
+      "id": "qual-method-3",
+      "name": "CI/CD Speed & Reliability",
+      "description": "Reduce CI time and improve reliability for faster feedback",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Quality Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-06-30",
+      "measures": [
+        {
+          "id": "ci-kr1",
+          "name": "CI Pipeline Duration",
+          "baseline": "25 min",
+          "target": "< 12 min",
+          "current": "18 min",
+          "unit": "minutes",
+          "progress": 0.54,
+          "status": "On Track"
+        },
+        {
+          "id": "ci-kr2",
+          "name": "CI Success Rate",
+          "baseline": "92%",
+          "target": "98%",
+          "current": "95%",
+          "unit": "percent",
+          "progress": 0.5,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-ci-optimization", "proj-test-sharding"]
+    },
+    {
+      "id": "qual-method-4",
+      "name": "Performance Testing",
+      "description": "Establish comprehensive performance testing for regressions",
+      "priority": "P1",
+      "status": "Planning",
+      "owner": "Quality Team",
+      "startDate": "2027-04-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "perf-kr1",
+          "name": "Performance Test Coverage",
+          "baseline": "20%",
+          "target": "60%",
+          "current": "20%",
+          "unit": "percent",
+          "progress": 0,
+          "status": "Not Started"
+        },
+        {
+          "id": "perf-kr2",
+          "name": "Performance Regressions Caught",
+          "baseline": "40%",
+          "target": "90%",
+          "current": "40%",
+          "unit": "percent",
+          "progress": 0,
+          "status": "Not Started"
+        }
+      ],
+      "projects": ["proj-perf-framework", "proj-perf-baselines"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "qual-obs-1",
+      "name": "Flaky Tests",
+      "description": "Existing flaky tests undermine confidence in test suite",
+      "severity": "High",
+      "likelihood": "High",
+      "mitigation": "Quarantine flaky tests, fix or delete",
+      "status": "Mitigating"
+    },
+    {
+      "id": "qual-obs-2",
+      "name": "Test Data Management",
+      "description": "Complex test data setup slows tests and causes failures",
+      "severity": "Medium",
+      "likelihood": "High",
+      "mitigation": "Implement test data factories and fixtures",
+      "status": "Mitigating"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-coverage-gaps",
+      "name": "Coverage Gap Analysis",
+      "description": "Identify and fill critical coverage gaps",
+      "category": "Testing",
+      "methodId": "qual-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-critical-tests",
+      "name": "Critical Path Test Suite",
+      "description": "Comprehensive tests for all critical user journeys",
+      "category": "Testing",
+      "methodId": "qual-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-playwright-migration",
+      "name": "Playwright Migration",
+      "description": "Migrate E2E tests from Cypress to Playwright",
+      "category": "Testing",
+      "methodId": "qual-method-2",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-e2e-parallelization",
+      "name": "E2E Parallelization",
+      "description": "Parallelize E2E tests across multiple workers",
+      "category": "Infrastructure",
+      "methodId": "qual-method-2",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-ci-optimization",
+      "name": "CI Pipeline Optimization",
+      "description": "Optimize CI for faster feedback loops",
+      "category": "Infrastructure",
+      "methodId": "qual-method-3",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-test-sharding",
+      "name": "Test Sharding",
+      "description": "Implement intelligent test sharding",
+      "category": "Infrastructure",
+      "methodId": "qual-method-3",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q2"
+    },
+    {
+      "id": "proj-perf-framework",
+      "name": "Performance Testing Framework",
+      "description": "Establish k6-based performance testing framework",
+      "category": "Testing",
+      "methodId": "qual-method-4",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-perf-baselines",
+      "name": "Performance Baselines",
+      "description": "Establish performance baselines for key operations",
+      "category": "Testing",
+      "methodId": "qual-method-4",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3-Q4"
+    }
+  ]
+}

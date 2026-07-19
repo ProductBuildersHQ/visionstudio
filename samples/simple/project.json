@@ -1,0 +1,20 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/project.schema.json",
+  "metadata": {
+    "name": "simple-sample",
+    "title": "Simple Sample Project",
+    "description": "A simplified sample for learning the PRISM framework",
+    "version": "1.0.0",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "files": {
+    "v2mom": ["v2mom/simple.v2mom.json"],
+    "capability": ["capability/simple.capability.json"],
+    "maturity": {
+      "model": "maturity/simple.model.json",
+      "state": "maturity/simple.state.json"
+    },
+    "roadmap": ["roadmap/simple.roadmap.json"]
+  }
+}

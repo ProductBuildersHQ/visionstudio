@@ -1,0 +1,345 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "grafana-capability-stack",
+    "version": "1.0.0",
+    "title": "Grafana Capability Stack",
+    "description": "Comprehensive capability model for Grafana observability platform",
+    "domain": "observability",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["Analysis Team"]
+  },
+  "layers": [
+    {
+      "id": "core-platform",
+      "name": "Core Platform",
+      "description": "Dashboard engine, visualization, and plugin framework",
+      "order": 1,
+      "phase": "runtime"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "description": "Authentication, authorization, and security controls",
+      "order": 2,
+      "phase": "runtime"
+    },
+    {
+      "id": "quality",
+      "name": "Quality Engineering",
+      "description": "Testing, quality assurance, and reliability",
+      "order": 3,
+      "phase": "build"
+    },
+    {
+      "id": "api-dx",
+      "name": "API & Developer Experience",
+      "description": "APIs, SDKs, documentation, and developer tools",
+      "order": 4,
+      "phase": "build"
+    },
+    {
+      "id": "operations",
+      "name": "Operations & Reliability",
+      "description": "Deployment, HA, alerting, and operational capabilities",
+      "order": 5,
+      "phase": "deploy"
+    }
+  ],
+  "categories": [
+    { "id": "visualization", "name": "Visualization", "color": "#3b82f6" },
+    { "id": "data", "name": "Data", "color": "#10b981" },
+    { "id": "extensibility", "name": "Extensibility", "color": "#8b5cf6" },
+    { "id": "security", "name": "Security", "color": "#ef4444" },
+    { "id": "testing", "name": "Testing", "color": "#f59e0b" },
+    { "id": "api", "name": "API", "color": "#06b6d4" },
+    { "id": "operations", "name": "Operations", "color": "#84cc16" },
+    { "id": "alerting", "name": "Alerting", "color": "#f97316" }
+  ],
+  "capabilities": [
+    {
+      "id": "dashboard-engine",
+      "name": "Dashboard Engine",
+      "fullName": "Dashboard Rendering and Layout Engine",
+      "description": "Core dashboard rendering, layout management, and panel orchestration",
+      "layerId": "core-platform",
+      "categoryId": "visualization",
+      "status": "operational",
+      "owner": "Dashboard Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-dashboard-load-time", "sli-panel-render-time"],
+        "levelCriteria": {
+          "M1": "Basic dashboard rendering",
+          "M2": "Multiple panel types, basic layouts",
+          "M3": "Dynamic layouts, templating, variables",
+          "M4": "Sub-second rendering, virtual scrolling",
+          "M5": "Real-time updates, predictive caching"
+        }
+      }
+    },
+    {
+      "id": "visualization-library",
+      "name": "Visualization Library",
+      "description": "Library of visualization panel types",
+      "layerId": "core-platform",
+      "categoryId": "visualization",
+      "status": "operational",
+      "owner": "Visualization Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-panel-types", "sli-viz-performance"]
+      }
+    },
+    {
+      "id": "plugin-system",
+      "name": "Plugin System",
+      "fullName": "Plugin Framework and SDK",
+      "description": "Plugin loading, sandboxing, and SDK for extensions",
+      "layerId": "core-platform",
+      "categoryId": "extensibility",
+      "status": "operational",
+      "owner": "Plugin Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-plugin-count", "sli-plugin-load-time"],
+        "levelCriteria": {
+          "M1": "Basic plugin loading",
+          "M2": "Plugin marketplace, basic SDK",
+          "M3": "Signed plugins, TypeScript SDK",
+          "M4": "Plugin sandboxing, hot reload",
+          "M5": "Plugin certification, auto-updates"
+        }
+      }
+    },
+    {
+      "id": "data-source-framework",
+      "name": "Data Source Framework",
+      "description": "Framework for connecting to data backends",
+      "layerId": "core-platform",
+      "categoryId": "data",
+      "status": "operational",
+      "owner": "Data Sources Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-datasource-count", "sli-query-latency"]
+      }
+    },
+    {
+      "id": "query-engine",
+      "name": "Query Engine",
+      "description": "Query execution, caching, and optimization",
+      "layerId": "core-platform",
+      "categoryId": "data",
+      "status": "operational",
+      "owner": "Query Team",
+      "dependencies": ["data-source-framework"],
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-query-latency", "sli-cache-hit-rate"]
+      }
+    },
+    {
+      "id": "authentication",
+      "name": "Authentication",
+      "fullName": "User Authentication System",
+      "description": "Multi-method authentication including OAuth, SAML, LDAP",
+      "layerId": "security",
+      "categoryId": "security",
+      "status": "operational",
+      "owner": "Security Team",
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-auth-methods", "sli-auth-success-rate"],
+        "levelCriteria": {
+          "M1": "Basic username/password",
+          "M2": "OAuth, API keys",
+          "M3": "SAML, LDAP, SSO",
+          "M4": "MFA, session management",
+          "M5": "Passkeys, adaptive auth"
+        }
+      }
+    },
+    {
+      "id": "authorization",
+      "name": "Authorization",
+      "fullName": "Role-Based Access Control",
+      "description": "RBAC with fine-grained permissions",
+      "layerId": "security",
+      "categoryId": "security",
+      "status": "operational",
+      "owner": "Security Team",
+      "dependencies": ["authentication"],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-rbac-coverage"],
+        "levelCriteria": {
+          "M1": "Admin/Viewer roles",
+          "M2": "Org-level permissions",
+          "M3": "Dashboard/folder permissions",
+          "M4": "Custom roles, ABAC",
+          "M5": "Data-level permissions"
+        }
+      }
+    },
+    {
+      "id": "security-scanning",
+      "name": "Security Scanning",
+      "description": "SAST, SCA, and secrets detection",
+      "layerId": "security",
+      "categoryId": "security",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "CodeQL", "vendor": "GitHub", "type": "managed-service", "status": "deployed" },
+        { "name": "Semgrep", "type": "open-source", "status": "deployed" },
+        { "name": "Dependabot", "vendor": "GitHub", "type": "managed-service", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-sast-coverage", "sli-sca-coverage"]
+      }
+    },
+    {
+      "id": "bug-bounty",
+      "name": "Bug Bounty Program",
+      "description": "External security researcher program via Intigriti",
+      "layerId": "security",
+      "categoryId": "security",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "Intigriti", "vendor": "Intigriti", "type": "commercial", "status": "deployed", "url": "https://www.intigriti.com/programs/grafana" }
+      ],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-bb-response-time", "sli-bb-submissions"]
+      }
+    },
+    {
+      "id": "unit-testing",
+      "name": "Unit Testing",
+      "description": "Unit test suite for Go and TypeScript",
+      "layerId": "quality",
+      "categoryId": "testing",
+      "status": "operational",
+      "owner": "Quality Team",
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-test-coverage", "sli-test-reliability"]
+      }
+    },
+    {
+      "id": "e2e-testing",
+      "name": "E2E Testing",
+      "description": "End-to-end testing with Playwright",
+      "layerId": "quality",
+      "categoryId": "testing",
+      "status": "operational",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "Playwright", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-e2e-coverage", "sli-e2e-reliability"]
+      }
+    },
+    {
+      "id": "api-testing",
+      "name": "API Testing",
+      "description": "API integration test suite",
+      "layerId": "quality",
+      "categoryId": "testing",
+      "status": "operational",
+      "owner": "Quality Team",
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-api-test-coverage"]
+      }
+    },
+    {
+      "id": "rest-api",
+      "name": "REST API",
+      "description": "RESTful HTTP API for all Grafana operations",
+      "layerId": "api-dx",
+      "categoryId": "api",
+      "status": "operational",
+      "owner": "API Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-api-coverage", "sli-api-latency"]
+      }
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "description": "User and developer documentation",
+      "layerId": "api-dx",
+      "categoryId": "api",
+      "status": "operational",
+      "owner": "Docs Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-doc-coverage", "sli-doc-freshness"]
+      }
+    },
+    {
+      "id": "alerting-engine",
+      "name": "Alerting Engine",
+      "description": "Alert rule evaluation and notification system",
+      "layerId": "operations",
+      "categoryId": "alerting",
+      "status": "operational",
+      "owner": "Alerting Team",
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-alerting-channels", "sli-alert-latency"],
+        "levelCriteria": {
+          "M1": "Basic threshold alerts",
+          "M2": "Multi-condition alerts, email/Slack",
+          "M3": "Alert routing, silencing, grouping",
+          "M4": "High-cardinality alerting, recording rules",
+          "M5": "AIOps, anomaly detection"
+        }
+      }
+    },
+    {
+      "id": "high-availability",
+      "name": "High Availability",
+      "description": "HA deployment support",
+      "layerId": "operations",
+      "categoryId": "operations",
+      "status": "operational",
+      "owner": "Operations Team",
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-ha-adoption", "sli-failover-time"]
+      }
+    },
+    {
+      "id": "provisioning",
+      "name": "Provisioning",
+      "description": "Infrastructure as code provisioning",
+      "layerId": "operations",
+      "categoryId": "operations",
+      "status": "operational",
+      "owner": "Operations Team",
+      "tooling": [
+        { "name": "Terraform Provider", "type": "open-source", "status": "deployed" },
+        { "name": "Helm Charts", "type": "open-source", "status": "deployed" },
+        { "name": "Grafonnet", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-iac-adoption"]
+      }
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../maturity/grafana.model.json",
+    "stateRef": "../maturity/grafana.state.json",
+    "defaultDomain": "core-platform"
+  }
+}

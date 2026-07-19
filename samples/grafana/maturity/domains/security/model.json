@@ -1,0 +1,258 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Grafana Security Maturity Model",
+    "description": "Detailed security maturity model for Grafana",
+    "version": "1.0.0",
+    "organization": "Grafana Labs",
+    "domain": "security",
+    "parentRef": "../../grafana.model.json",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-auth-methods": {
+      "id": "sli-auth-methods",
+      "name": "Authentication Methods",
+      "description": "Number of supported authentication methods",
+      "metricName": "Auth methods",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "identity"
+    },
+    "sli-sast-coverage": {
+      "id": "sli-sast-coverage",
+      "name": "SAST Coverage",
+      "description": "Code covered by static analysis",
+      "metricName": "SAST coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "application-security"
+    },
+    "sli-sca-coverage": {
+      "id": "sli-sca-coverage",
+      "name": "SCA Coverage",
+      "description": "Dependencies scanned for vulnerabilities",
+      "metricName": "SCA coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "application-security"
+    },
+    "sli-vuln-mttr": {
+      "id": "sli-vuln-mttr",
+      "name": "Vulnerability MTTR",
+      "description": "Mean time to remediate critical vulnerabilities",
+      "metricName": "Critical vuln MTTR",
+      "unit": "days",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "code",
+      "category": "vulnerability"
+    },
+    "sli-bb-response-time": {
+      "id": "sli-bb-response-time",
+      "name": "Bug Bounty Response Time",
+      "description": "Average time to respond to bug bounty submissions",
+      "metricName": "BB response time",
+      "unit": "hours",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "vulnerability"
+    },
+    "sli-bb-submissions": {
+      "id": "sli-bb-submissions",
+      "name": "Bug Bounty Submissions",
+      "description": "Valid bug bounty submissions per quarter",
+      "metricName": "BB submissions",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "vulnerability"
+    },
+    "sli-rbac-coverage": {
+      "id": "sli-rbac-coverage",
+      "name": "RBAC Coverage",
+      "description": "Resources protected by RBAC",
+      "metricName": "RBAC coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "runtime",
+      "category": "authorization"
+    }
+  },
+  "domains": {
+    "identity": {
+      "name": "Identity & Access",
+      "description": "Authentication and authorization capabilities",
+      "owner": "Security Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "Basic username/password only",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Multiple auth methods, basic RBAC",
+          "criteria": [
+            { "id": "id-m2-auth", "name": "Multiple Auth", "sliId": "sli-auth-methods", "operator": "gte", "target": 3, "required": true },
+            { "id": "id-m2-rbac", "name": "Basic RBAC", "sliId": "sli-rbac-coverage", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Enterprise SSO, fine-grained RBAC",
+          "criteria": [
+            { "id": "id-m3-auth", "name": "Enterprise Auth", "sliId": "sli-auth-methods", "operator": "gte", "target": 8, "required": true },
+            { "id": "id-m3-rbac", "name": "Full RBAC", "sliId": "sli-rbac-coverage", "operator": "gte", "target": 90, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Comprehensive IAM with MFA",
+          "criteria": [
+            { "id": "id-m4-auth", "name": "Comprehensive Auth", "sliId": "sli-auth-methods", "operator": "gte", "target": 10, "required": true },
+            { "id": "id-m4-rbac", "name": "Complete RBAC", "sliId": "sli-rbac-coverage", "operator": "gte", "target": 98, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Zero-trust, adaptive authentication",
+          "criteria": [
+            { "id": "id-m5-auth", "name": "All Auth Methods", "sliId": "sli-auth-methods", "operator": "gte", "target": 12, "required": true },
+            { "id": "id-m5-rbac", "name": "Perfect RBAC", "sliId": "sli-rbac-coverage", "operator": "eq", "target": 100, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "application-security": {
+      "name": "Application Security",
+      "description": "Code security and vulnerability management",
+      "owner": "Security Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "No automated scanning",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic SAST and SCA",
+          "criteria": [
+            { "id": "app-m2-sast", "name": "Basic SAST", "sliId": "sli-sast-coverage", "operator": "gte", "target": 50, "required": true },
+            { "id": "app-m2-sca", "name": "Basic SCA", "sliId": "sli-sca-coverage", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Full scanning with CI integration",
+          "criteria": [
+            { "id": "app-m3-sast", "name": "Full SAST", "sliId": "sli-sast-coverage", "operator": "gte", "target": 90, "required": true },
+            { "id": "app-m3-sca", "name": "Full SCA", "sliId": "sli-sca-coverage", "operator": "gte", "target": 90, "required": true },
+            { "id": "app-m3-mttr", "name": "Critical MTTR", "sliId": "sli-vuln-mttr", "operator": "lte", "target": 14, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Comprehensive with fast remediation",
+          "criteria": [
+            { "id": "app-m4-sast", "name": "Complete SAST", "sliId": "sli-sast-coverage", "operator": "gte", "target": 98, "required": true },
+            { "id": "app-m4-sca", "name": "Complete SCA", "sliId": "sli-sca-coverage", "operator": "gte", "target": 98, "required": true },
+            { "id": "app-m4-mttr", "name": "Fast MTTR", "sliId": "sli-vuln-mttr", "operator": "lte", "target": 7, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "100% coverage with rapid response",
+          "criteria": [
+            { "id": "app-m5-sast", "name": "100% SAST", "sliId": "sli-sast-coverage", "operator": "eq", "target": 100, "required": true },
+            { "id": "app-m5-sca", "name": "100% SCA", "sliId": "sli-sca-coverage", "operator": "eq", "target": 100, "required": true },
+            { "id": "app-m5-mttr", "name": "Rapid MTTR", "sliId": "sli-vuln-mttr", "operator": "lte", "target": 1, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "bug-bounty": {
+      "name": "Bug Bounty Program",
+      "description": "External security researcher engagement",
+      "owner": "Security Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "No formal program",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Private program, limited scope",
+          "criteria": [
+            { "id": "bb-m2-response", "name": "Basic Response", "sliId": "sli-bb-response-time", "operator": "lte", "target": 168, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Public program, core scope",
+          "criteria": [
+            { "id": "bb-m3-response", "name": "Good Response", "sliId": "sli-bb-response-time", "operator": "lte", "target": 72, "required": true },
+            { "id": "bb-m3-submissions", "name": "Active Program", "sliId": "sli-bb-submissions", "operator": "gte", "target": 30, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Full scope, fast response",
+          "criteria": [
+            { "id": "bb-m4-response", "name": "Fast Response", "sliId": "sli-bb-response-time", "operator": "lte", "target": 24, "required": true },
+            { "id": "bb-m4-submissions", "name": "High Engagement", "sliId": "sli-bb-submissions", "operator": "gte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading program",
+          "criteria": [
+            { "id": "bb-m5-response", "name": "Rapid Response", "sliId": "sli-bb-response-time", "operator": "lte", "target": 8, "required": true },
+            { "id": "bb-m5-submissions", "name": "Elite Program", "sliId": "sli-bb-submissions", "operator": "gte", "target": 100, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

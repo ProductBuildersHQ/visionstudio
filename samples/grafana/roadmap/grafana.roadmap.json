@@ -1,0 +1,197 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/roadmap.schema.json",
+  "metadata": {
+    "name": "Grafana FY2027 Roadmap",
+    "description": "Product roadmap for Grafana FY2027",
+    "version": "1.0.0",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "items": [
+    {
+      "id": "ri-performance-optimization",
+      "name": "Dashboard Performance Optimization",
+      "description": "Reduce P99 dashboard load time to under 1 second through query caching, virtual scrolling, and rendering optimizations",
+      "moscow": "must-have",
+      "capability_refs": ["dashboard-engine", "query-engine"],
+      "goal_refs": ["method-platform-maturity"],
+      "quarter": "Q1-Q2 2027",
+      "status": "in_progress",
+      "progress": 45,
+      "owner": "Dashboard Team",
+      "effort": {
+        "person_days": 120,
+        "tshirt_size": "XL",
+        "confidence": "medium"
+      },
+      "complexity": {
+        "new_architecture": true,
+        "dependencies": [
+          {
+            "team_name": "Infrastructure",
+            "type": "technical",
+            "description": "Redis cluster for query caching"
+          }
+        ]
+      },
+      "tags": ["performance", "core-platform", "P0"]
+    },
+    {
+      "id": "ri-plugin-sdk-v2",
+      "name": "Plugin SDK v2",
+      "description": "Next-generation plugin SDK with TypeScript-first design, better debugging, and hot reload",
+      "moscow": "must-have",
+      "capability_refs": ["plugin-system"],
+      "goal_refs": ["method-platform-maturity"],
+      "quarter": "Q1-Q3 2027",
+      "status": "in_progress",
+      "progress": 25,
+      "owner": "Plugin Team",
+      "effort": {
+        "person_days": 180,
+        "tshirt_size": "XL",
+        "confidence": "high"
+      },
+      "tags": ["extensibility", "core-platform", "P0"]
+    },
+    {
+      "id": "ri-soc2-type2",
+      "name": "SOC 2 Type II Certification",
+      "description": "Complete SOC 2 Type II audit and achieve certification for Grafana Cloud",
+      "moscow": "must-have",
+      "capability_refs": ["security-scanning"],
+      "goal_refs": ["method-security-compliance"],
+      "quarter": "Q1-Q2 2027",
+      "status": "in_progress",
+      "progress": 70,
+      "owner": "Security Team",
+      "effort": {
+        "person_days": 90,
+        "tshirt_size": "L",
+        "confidence": "high"
+      },
+      "complexity": {
+        "new_compliance": true
+      },
+      "tags": ["security", "compliance", "P0"]
+    },
+    {
+      "id": "ri-bug-bounty-expansion",
+      "name": "Bug Bounty Program Expansion",
+      "description": "Expand Intigriti bug bounty scope to cover all Grafana products, improve triage automation",
+      "moscow": "should-have",
+      "capability_refs": ["bug-bounty"],
+      "goal_refs": ["method-security-compliance"],
+      "quarter": "Q1-Q2 2027",
+      "status": "in_progress",
+      "progress": 40,
+      "owner": "Security Team",
+      "effort": {
+        "person_days": 30,
+        "tshirt_size": "M",
+        "confidence": "high"
+      },
+      "tags": ["security", "P1"]
+    },
+    {
+      "id": "ri-graphql-api",
+      "name": "GraphQL API",
+      "description": "Introduce GraphQL API alongside REST for better client flexibility and efficiency",
+      "moscow": "should-have",
+      "capability_refs": ["rest-api"],
+      "goal_refs": ["method-api-dx"],
+      "quarter": "Q2-Q4 2027",
+      "status": "planning",
+      "progress": 5,
+      "owner": "API Team",
+      "effort": {
+        "person_days": 150,
+        "tshirt_size": "XL",
+        "confidence": "medium"
+      },
+      "complexity": {
+        "new_architecture": true
+      },
+      "tags": ["api", "P1"]
+    },
+    {
+      "id": "ri-passkey-auth",
+      "name": "Passkey Authentication",
+      "description": "Support FIDO2/WebAuthn passkey authentication for passwordless login",
+      "moscow": "should-have",
+      "capability_refs": ["authentication"],
+      "goal_refs": ["sec-method-3"],
+      "quarter": "Q2-Q3 2027",
+      "status": "planning",
+      "progress": 0,
+      "owner": "Security Team",
+      "effort": {
+        "person_days": 45,
+        "tshirt_size": "M",
+        "confidence": "high"
+      },
+      "tags": ["security", "auth", "P1"]
+    },
+    {
+      "id": "ri-alerting-v2",
+      "name": "Alerting Engine v2",
+      "description": "Next-generation alerting with better scalability, high-cardinality support, and AIOps features",
+      "moscow": "must-have",
+      "capability_refs": ["alerting-engine"],
+      "goal_refs": ["method-operations-scale"],
+      "quarter": "Q1-Q4 2027",
+      "status": "in_progress",
+      "progress": 30,
+      "owner": "Alerting Team",
+      "effort": {
+        "person_days": 240,
+        "tshirt_size": "XXL",
+        "confidence": "medium"
+      },
+      "complexity": {
+        "new_architecture": true,
+        "new_data_model": true
+      },
+      "tags": ["alerting", "operations", "P0"]
+    },
+    {
+      "id": "ri-test-infra",
+      "name": "Test Infrastructure Modernization",
+      "description": "Modernize CI infrastructure for faster, more reliable tests",
+      "moscow": "should-have",
+      "capability_refs": ["unit-testing", "e2e-testing"],
+      "goal_refs": ["method-quality-excellence"],
+      "quarter": "Q1-Q2 2027",
+      "status": "in_progress",
+      "progress": 55,
+      "owner": "Quality Team",
+      "effort": {
+        "person_days": 60,
+        "tshirt_size": "L",
+        "confidence": "high"
+      },
+      "tags": ["quality", "testing", "P1"]
+    },
+    {
+      "id": "ri-3d-viz",
+      "name": "3D Visualization Panel",
+      "description": "WebGL-based 3D visualization for infrastructure topology and network diagrams",
+      "moscow": "could-have",
+      "capability_refs": ["visualization-library"],
+      "goal_refs": ["core-method-4"],
+      "quarter": "Q4 2027",
+      "status": "research",
+      "progress": 0,
+      "owner": "Visualization Team",
+      "effort": {
+        "person_days": 90,
+        "tshirt_size": "L",
+        "confidence": "low"
+      },
+      "complexity": {
+        "new_architecture": true
+      },
+      "tags": ["visualization", "innovation", "P3"]
+    }
+  ]
+}

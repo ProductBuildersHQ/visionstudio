@@ -1,0 +1,90 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "simple-fy2027",
+    "name": "Simple Project V2MOM FY2027",
+    "description": "Annual goals and priorities for the Simple Project",
+    "fiscalYear": "FY2027",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "owner": "Product Team"
+  },
+  "vision": "Build the most user-friendly widget platform that delights developers and end-users alike.",
+  "values": [
+    {
+      "id": "v-simplicity",
+      "name": "Simplicity",
+      "description": "Make everything as simple as possible, but not simpler",
+      "priority": 1
+    },
+    {
+      "id": "v-reliability",
+      "name": "Reliability",
+      "description": "Build systems that just work",
+      "priority": 2
+    },
+    {
+      "id": "v-speed",
+      "name": "Speed",
+      "description": "Fast to use, fast to develop, fast to deploy",
+      "priority": 3
+    }
+  ],
+  "methods": [
+    {
+      "id": "m-core-features",
+      "name": "Core Features",
+      "description": "Deliver essential widget functionality",
+      "valueRefs": ["v-simplicity", "v-reliability"]
+    },
+    {
+      "id": "m-quality",
+      "name": "Quality",
+      "description": "Ensure high test coverage and reliability",
+      "valueRefs": ["v-reliability"]
+    },
+    {
+      "id": "m-performance",
+      "name": "Performance",
+      "description": "Optimize for speed and efficiency",
+      "valueRefs": ["v-speed"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "o-legacy",
+      "name": "Legacy Code",
+      "description": "Technical debt from early development",
+      "impact": "medium"
+    },
+    {
+      "id": "o-resources",
+      "name": "Limited Resources",
+      "description": "Small team with competing priorities",
+      "impact": "high"
+    }
+  ],
+  "measures": [
+    {
+      "id": "measure-coverage",
+      "name": "Test Coverage",
+      "description": "Achieve 80% test coverage",
+      "target": "80%",
+      "methodRef": "m-quality"
+    },
+    {
+      "id": "measure-latency",
+      "name": "Response Time",
+      "description": "P99 latency under 200ms",
+      "target": "<200ms",
+      "methodRef": "m-performance"
+    },
+    {
+      "id": "measure-features",
+      "name": "Feature Completion",
+      "description": "Ship all planned features",
+      "target": "100%",
+      "methodRef": "m-core-features"
+    }
+  ]
+}

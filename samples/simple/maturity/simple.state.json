@@ -1,0 +1,102 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-state.schema.json",
+  "metadata": {
+    "name": "Simple Project Maturity State",
+    "description": "Current maturity state for the simple sample project",
+    "maturityModelRef": "./simple.model.json",
+    "assessedAt": "2026-07-15",
+    "assessedBy": "Product Team"
+  },
+
+  "sloWindows": ["30d"],
+
+  "sliState": {
+    "sli-render-time": {
+      "sliId": "sli-render-time",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 850, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 500, "maturityLevel": 4 }
+      }
+    },
+    "sli-api-latency": {
+      "sliId": "sli-api-latency",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 320, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 200, "maturityLevel": 4 }
+      }
+    },
+    "sli-test-coverage": {
+      "sliId": "sli-test-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 65, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 80, "maturityLevel": 4 }
+      }
+    },
+    "sli-deploy-frequency": {
+      "sliId": "sli-deploy-frequency",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 3, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 5, "maturityLevel": 4 }
+      }
+    }
+  },
+
+  "maturityState": {
+    "frontend": {
+      "domainId": "frontend",
+      "current": {
+        "level": 3,
+        "achievedAt": "2026-01-15",
+        "assessedBy": "Frontend Team",
+        "note": "Responsive design complete, optimizing for M4"
+      },
+      "target": {
+        "level": 4,
+        "targetDate": "2026-12-31",
+        "rationale": "Sub-500ms render time"
+      }
+    },
+    "backend": {
+      "domainId": "backend",
+      "current": {
+        "level": 3,
+        "achievedAt": "2026-02-01",
+        "assessedBy": "Backend Team",
+        "note": "API documented, working on performance"
+      },
+      "target": {
+        "level": 4,
+        "targetDate": "2026-12-31",
+        "rationale": "High-performance API"
+      }
+    },
+    "operations": {
+      "domainId": "operations",
+      "current": {
+        "level": 3,
+        "achievedAt": "2026-03-01",
+        "assessedBy": "Platform Team",
+        "note": "CI/CD in place, improving coverage"
+      },
+      "target": {
+        "level": 4,
+        "targetDate": "2026-12-31",
+        "rationale": "Continuous deployment capability"
+      }
+    }
+  },
+
+  "enablerState": {}
+}

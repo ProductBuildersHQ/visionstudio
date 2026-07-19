@@ -1,0 +1,339 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "grafana-fy2027",
+    "name": "Grafana FY2027 Strategy",
+    "author": "Executive Team",
+    "team": "Grafana Labs",
+    "fiscalYear": "FY2027",
+    "quarter": "Annual",
+    "version": "1.0.0",
+    "status": "Active",
+    "structure": "nested",
+    "terminology": "v2mom"
+  },
+  "vision": "Be the ubiquitous observability platform that empowers every organization to understand, monitor, and act on their data in real-time, enabling teams to build more reliable systems and deliver better user experiences.",
+  "values": [
+    {
+      "name": "Open Source First",
+      "description": "Core features remain open source; commercial features add enterprise value without limiting community",
+      "priority": 1
+    },
+    {
+      "name": "Developer Experience",
+      "description": "Make observability accessible and delightful for developers at all skill levels",
+      "priority": 2
+    },
+    {
+      "name": "Data Agnostic",
+      "description": "Connect to any data source, avoid lock-in, empower users with choice",
+      "priority": 3
+    },
+    {
+      "name": "Community Driven",
+      "description": "Listen to community feedback, support contributors, and grow the ecosystem",
+      "priority": 4
+    },
+    {
+      "name": "Reliability at Scale",
+      "description": "Grafana must be as reliable as the systems it monitors",
+      "priority": 5
+    }
+  ],
+  "methods": [
+    {
+      "id": "method-platform-maturity",
+      "name": "Advance Platform Maturity",
+      "description": "Strengthen core platform capabilities including performance, scalability, and user experience to support enterprise-scale deployments.",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Core Platform Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "m1-kr1",
+          "name": "Dashboard Load Time P99",
+          "baseline": "3.2s",
+          "target": "< 1s",
+          "current": "2.1s",
+          "unit": "seconds",
+          "progress": 0.5,
+          "status": "On Track"
+        },
+        {
+          "id": "m1-kr2",
+          "name": "Plugin Ecosystem Growth",
+          "baseline": "350",
+          "target": "500",
+          "current": "380",
+          "unit": "plugins",
+          "progress": 0.2,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-perf-optimization", "proj-plugin-sdk-v2"]
+    },
+    {
+      "id": "method-security-compliance",
+      "name": "Enterprise Security & Compliance",
+      "description": "Achieve enterprise security standards and compliance certifications to unlock regulated industry adoption.",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Security Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "m2-kr1",
+          "name": "Security Maturity Level",
+          "baseline": "M4",
+          "target": "M5",
+          "current": "M4",
+          "progress": 0.7,
+          "status": "On Track"
+        },
+        {
+          "id": "m2-kr2",
+          "name": "Bug Bounty Response Time",
+          "baseline": "72h",
+          "target": "< 24h",
+          "current": "36h",
+          "unit": "hours",
+          "progress": 0.6,
+          "status": "At Risk"
+        }
+      ],
+      "projects": ["proj-soc2-type2", "proj-bug-bounty-expansion"]
+    },
+    {
+      "id": "method-api-dx",
+      "name": "World-Class API & Developer Experience",
+      "description": "Make Grafana the most developer-friendly observability platform with comprehensive APIs, SDKs, and documentation.",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "API/DX Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "m3-kr1",
+          "name": "API Coverage",
+          "baseline": "92%",
+          "target": "100%",
+          "current": "95%",
+          "unit": "percent",
+          "progress": 0.4,
+          "status": "On Track"
+        },
+        {
+          "id": "m3-kr2",
+          "name": "Documentation NPS",
+          "baseline": "45",
+          "target": "70",
+          "current": "52",
+          "progress": 0.28,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-graphql-api", "proj-sdk-refresh"]
+    },
+    {
+      "id": "method-quality-excellence",
+      "name": "Quality Excellence",
+      "description": "Achieve industry-leading quality through comprehensive testing, automation, and continuous improvement.",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Quality Engineering Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "m4-kr1",
+          "name": "Test Coverage",
+          "baseline": "72%",
+          "target": "85%",
+          "current": "76%",
+          "unit": "percent",
+          "progress": 0.31,
+          "status": "On Track"
+        },
+        {
+          "id": "m4-kr2",
+          "name": "E2E Test Reliability",
+          "baseline": "94%",
+          "target": "99%",
+          "current": "96%",
+          "unit": "percent",
+          "progress": 0.4,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-test-infra", "proj-e2e-overhaul"]
+    },
+    {
+      "id": "method-operations-scale",
+      "name": "Operations at Scale",
+      "description": "Enable Grafana to run reliably at any scale with world-class operational capabilities.",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Operations Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "m5-kr1",
+          "name": "Alerting Channel Coverage",
+          "baseline": "35",
+          "target": "50",
+          "current": "38",
+          "unit": "channels",
+          "progress": 0.2,
+          "status": "On Track"
+        },
+        {
+          "id": "m5-kr2",
+          "name": "HA Deployment Adoption",
+          "baseline": "40%",
+          "target": "70%",
+          "current": "48%",
+          "unit": "percent",
+          "progress": 0.27,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-ha-improvements", "proj-alerting-v2"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "obs-1",
+      "name": "Open Source vs Enterprise Balance",
+      "description": "Maintaining balance between open source features and enterprise monetization",
+      "severity": "High",
+      "likelihood": "High",
+      "mitigation": "Clear feature tiers with community-first mindset",
+      "status": "Mitigating"
+    },
+    {
+      "id": "obs-2",
+      "name": "Competition from Cloud Providers",
+      "description": "AWS, GCP, Azure all have native monitoring solutions",
+      "severity": "High",
+      "likelihood": "High",
+      "mitigation": "Focus on multi-cloud, vendor-neutral positioning",
+      "status": "Mitigating"
+    },
+    {
+      "id": "obs-3",
+      "name": "Plugin Ecosystem Quality",
+      "description": "Community plugins vary in quality and maintenance",
+      "severity": "Medium",
+      "likelihood": "Medium",
+      "mitigation": "Plugin certification program, better SDK tooling",
+      "status": "Mitigating"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-perf-optimization",
+      "name": "Dashboard Performance Optimization",
+      "description": "Reduce dashboard load times through query optimization and caching",
+      "category": "Performance",
+      "methodId": "method-platform-maturity",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-plugin-sdk-v2",
+      "name": "Plugin SDK v2",
+      "description": "Next-generation plugin SDK with better DX and performance",
+      "category": "Platform",
+      "methodId": "method-platform-maturity",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-soc2-type2",
+      "name": "SOC 2 Type II Certification",
+      "description": "Achieve SOC 2 Type II certification for Grafana Cloud",
+      "category": "Security",
+      "methodId": "method-security-compliance",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-bug-bounty-expansion",
+      "name": "Bug Bounty Program Expansion",
+      "description": "Expand bug bounty scope and improve response times",
+      "category": "Security",
+      "methodId": "method-security-compliance",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1"
+    },
+    {
+      "id": "proj-graphql-api",
+      "name": "GraphQL API",
+      "description": "Introduce GraphQL API alongside REST for better client flexibility",
+      "category": "API",
+      "methodId": "method-api-dx",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q4"
+    },
+    {
+      "id": "proj-sdk-refresh",
+      "name": "SDK Refresh",
+      "description": "Update official SDKs (Go, Python, JS) with modern patterns",
+      "category": "Developer Experience",
+      "methodId": "method-api-dx",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3-Q4"
+    },
+    {
+      "id": "proj-test-infra",
+      "name": "Test Infrastructure Modernization",
+      "description": "Modernize test infrastructure for faster, more reliable CI",
+      "category": "Quality",
+      "methodId": "method-quality-excellence",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-e2e-overhaul",
+      "name": "E2E Test Overhaul",
+      "description": "Migrate to Playwright, improve E2E coverage and reliability",
+      "category": "Quality",
+      "methodId": "method-quality-excellence",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-ha-improvements",
+      "name": "High Availability Improvements",
+      "description": "Improve HA deployment experience and documentation",
+      "category": "Operations",
+      "methodId": "method-operations-scale",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-alerting-v2",
+      "name": "Alerting Engine v2",
+      "description": "Next-generation alerting with better scalability and features",
+      "category": "Operations",
+      "methodId": "method-operations-scale",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q4"
+    }
+  ]
+}

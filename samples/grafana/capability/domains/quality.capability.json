@@ -1,0 +1,231 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "grafana-quality-capability",
+    "version": "1.0.0",
+    "title": "Grafana Quality Engineering Capability Stack",
+    "description": "Quality and testing capabilities for Grafana",
+    "domain": "quality",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["Quality Team"]
+  },
+  "layers": [
+    {
+      "id": "unit-testing",
+      "name": "Unit Testing",
+      "description": "Component and unit-level testing",
+      "order": 1,
+      "phase": "build"
+    },
+    {
+      "id": "integration-testing",
+      "name": "Integration Testing",
+      "description": "API and integration testing",
+      "order": 2,
+      "phase": "build"
+    },
+    {
+      "id": "e2e-testing",
+      "name": "E2E Testing",
+      "description": "End-to-end and UI testing",
+      "order": 3,
+      "phase": "build"
+    },
+    {
+      "id": "infrastructure",
+      "name": "Test Infrastructure",
+      "description": "CI/CD and test automation infrastructure",
+      "order": 4,
+      "phase": "build"
+    }
+  ],
+  "categories": [
+    { "id": "backend", "name": "Backend Testing", "color": "#3b82f6" },
+    { "id": "frontend", "name": "Frontend Testing", "color": "#8b5cf6" },
+    { "id": "api", "name": "API Testing", "color": "#10b981" },
+    { "id": "e2e", "name": "E2E Testing", "color": "#f59e0b" },
+    { "id": "performance", "name": "Performance Testing", "color": "#ef4444" },
+    { "id": "ci", "name": "CI/CD", "color": "#06b6d4" }
+  ],
+  "capabilities": [
+    {
+      "id": "go-unit-tests",
+      "name": "Go Unit Tests",
+      "description": "Unit tests for Go backend code",
+      "layerId": "unit-testing",
+      "categoryId": "backend",
+      "status": "operational",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "go test", "type": "built-in", "status": "deployed" },
+        { "name": "testify", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-go-coverage"]
+      }
+    },
+    {
+      "id": "react-unit-tests",
+      "name": "React Unit Tests",
+      "description": "Unit tests for React frontend components",
+      "layerId": "unit-testing",
+      "categoryId": "frontend",
+      "status": "operational",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "Jest", "type": "open-source", "status": "deployed" },
+        { "name": "React Testing Library", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-react-coverage"]
+      }
+    },
+    {
+      "id": "api-integration-tests",
+      "name": "API Integration Tests",
+      "description": "Integration tests for REST API endpoints",
+      "layerId": "integration-testing",
+      "categoryId": "api",
+      "status": "operational",
+      "owner": "Quality Team",
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-api-test-coverage"]
+      }
+    },
+    {
+      "id": "database-tests",
+      "name": "Database Tests",
+      "description": "Database integration and migration tests",
+      "layerId": "integration-testing",
+      "categoryId": "backend",
+      "status": "operational",
+      "owner": "Quality Team"
+    },
+    {
+      "id": "plugin-tests",
+      "name": "Plugin Tests",
+      "description": "Plugin SDK and integration tests",
+      "layerId": "integration-testing",
+      "categoryId": "backend",
+      "status": "operational",
+      "owner": "Quality Team"
+    },
+    {
+      "id": "playwright-e2e",
+      "name": "Playwright E2E Tests",
+      "description": "End-to-end browser automation tests",
+      "layerId": "e2e-testing",
+      "categoryId": "e2e",
+      "status": "operational",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "Playwright", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-e2e-coverage", "sli-e2e-reliability"],
+        "levelCriteria": {
+          "M1": "Manual testing only",
+          "M2": "Basic E2E for critical paths",
+          "M3": "Comprehensive E2E, parallel execution",
+          "M4": "99% reliability, visual regression",
+          "M5": "AI-assisted test generation"
+        }
+      }
+    },
+    {
+      "id": "visual-regression",
+      "name": "Visual Regression Testing",
+      "description": "Screenshot-based visual regression detection",
+      "layerId": "e2e-testing",
+      "categoryId": "e2e",
+      "status": "operational",
+      "owner": "Quality Team",
+      "dependencies": ["playwright-e2e"]
+    },
+    {
+      "id": "accessibility-testing",
+      "name": "Accessibility Testing",
+      "description": "Automated accessibility compliance testing",
+      "layerId": "e2e-testing",
+      "categoryId": "e2e",
+      "status": "implemented",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "axe-core", "type": "open-source", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "load-testing",
+      "name": "Load Testing",
+      "description": "Performance and load testing",
+      "layerId": "e2e-testing",
+      "categoryId": "performance",
+      "status": "implemented",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "k6", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-perf-test-coverage"]
+      }
+    },
+    {
+      "id": "github-actions",
+      "name": "GitHub Actions CI",
+      "description": "CI/CD pipeline on GitHub Actions",
+      "layerId": "infrastructure",
+      "categoryId": "ci",
+      "status": "operational",
+      "owner": "Platform Team",
+      "tooling": [
+        { "name": "GitHub Actions", "vendor": "GitHub", "type": "managed-service", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "quality",
+        "sliIds": ["sli-ci-duration", "sli-ci-success-rate"]
+      }
+    },
+    {
+      "id": "test-sharding",
+      "name": "Test Sharding",
+      "description": "Parallel test execution across workers",
+      "layerId": "infrastructure",
+      "categoryId": "ci",
+      "status": "operational",
+      "owner": "Platform Team",
+      "dependencies": ["github-actions"]
+    },
+    {
+      "id": "flaky-test-detection",
+      "name": "Flaky Test Detection",
+      "description": "Automated detection and quarantine of flaky tests",
+      "layerId": "infrastructure",
+      "categoryId": "ci",
+      "status": "implemented",
+      "owner": "Quality Team"
+    },
+    {
+      "id": "coverage-reporting",
+      "name": "Coverage Reporting",
+      "description": "Code coverage collection and reporting",
+      "layerId": "infrastructure",
+      "categoryId": "ci",
+      "status": "operational",
+      "owner": "Quality Team",
+      "tooling": [
+        { "name": "Codecov", "vendor": "Codecov", "type": "managed-service", "status": "deployed" }
+      ]
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../../maturity/domains/quality/model.json",
+    "stateRef": "../../maturity/domains/quality/state.json",
+    "defaultDomain": "quality"
+  }
+}

@@ -1,0 +1,263 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "grafana-operations-capability",
+    "version": "1.0.0",
+    "title": "Grafana Operations Capability Stack",
+    "description": "Operations and reliability capabilities for Grafana",
+    "domain": "operations",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["Operations Team"]
+  },
+  "layers": [
+    {
+      "id": "alerting",
+      "name": "Alerting",
+      "description": "Alert rules, evaluation, and notifications",
+      "order": 1,
+      "phase": "runtime"
+    },
+    {
+      "id": "deployment",
+      "name": "Deployment",
+      "description": "Deployment and infrastructure management",
+      "order": 2,
+      "phase": "deploy"
+    },
+    {
+      "id": "reliability",
+      "name": "Reliability",
+      "description": "High availability and disaster recovery",
+      "order": 3,
+      "phase": "runtime"
+    },
+    {
+      "id": "observability",
+      "name": "Self-Observability",
+      "description": "Monitoring Grafana itself",
+      "order": 4,
+      "phase": "monitor"
+    }
+  ],
+  "categories": [
+    { "id": "alerting", "name": "Alerting", "color": "#ef4444" },
+    { "id": "notifications", "name": "Notifications", "color": "#f59e0b" },
+    { "id": "iac", "name": "Infrastructure as Code", "color": "#3b82f6" },
+    { "id": "ha", "name": "High Availability", "color": "#10b981" },
+    { "id": "monitoring", "name": "Monitoring", "color": "#8b5cf6" }
+  ],
+  "capabilities": [
+    {
+      "id": "unified-alerting",
+      "name": "Unified Alerting",
+      "description": "Next-generation alerting engine",
+      "layerId": "alerting",
+      "categoryId": "alerting",
+      "status": "operational",
+      "owner": "Alerting Team",
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-alert-eval-latency", "sli-alert-cardinality"],
+        "levelCriteria": {
+          "M1": "Basic threshold alerts",
+          "M2": "Multi-condition, query-based alerts",
+          "M3": "Recording rules, alert routing",
+          "M4": "High-cardinality, 1M+ series",
+          "M5": "AIOps, anomaly detection"
+        }
+      }
+    },
+    {
+      "id": "alert-rules",
+      "name": "Alert Rules",
+      "description": "Alert rule definition and management",
+      "layerId": "alerting",
+      "categoryId": "alerting",
+      "status": "operational",
+      "owner": "Alerting Team",
+      "dependencies": ["unified-alerting"]
+    },
+    {
+      "id": "recording-rules",
+      "name": "Recording Rules",
+      "description": "Pre-computed query recording rules",
+      "layerId": "alerting",
+      "categoryId": "alerting",
+      "status": "operational",
+      "owner": "Alerting Team",
+      "dependencies": ["unified-alerting"]
+    },
+    {
+      "id": "silences",
+      "name": "Alert Silences",
+      "description": "Temporary alert suppression",
+      "layerId": "alerting",
+      "categoryId": "alerting",
+      "status": "operational",
+      "owner": "Alerting Team"
+    },
+    {
+      "id": "notification-policies",
+      "name": "Notification Policies",
+      "description": "Alert routing and escalation policies",
+      "layerId": "alerting",
+      "categoryId": "notifications",
+      "status": "operational",
+      "owner": "Alerting Team"
+    },
+    {
+      "id": "contact-points",
+      "name": "Contact Points",
+      "description": "Notification channel integrations",
+      "layerId": "alerting",
+      "categoryId": "notifications",
+      "status": "operational",
+      "owner": "Alerting Team",
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-alerting-channels"]
+      },
+      "tooling": [
+        { "name": "Email", "type": "built-in", "status": "deployed" },
+        { "name": "Slack", "type": "integration", "status": "deployed" },
+        { "name": "PagerDuty", "type": "integration", "status": "deployed" },
+        { "name": "OpsGenie", "type": "integration", "status": "deployed" },
+        { "name": "Webhook", "type": "built-in", "status": "deployed" },
+        { "name": "Microsoft Teams", "type": "integration", "status": "deployed" },
+        { "name": "Telegram", "type": "integration", "status": "deployed" },
+        { "name": "Discord", "type": "integration", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "terraform-provider",
+      "name": "Terraform Provider",
+      "description": "Official Terraform provider for Grafana",
+      "layerId": "deployment",
+      "categoryId": "iac",
+      "status": "operational",
+      "owner": "Platform Team",
+      "tooling": [
+        { "name": "grafana/grafana", "vendor": "Grafana Labs", "type": "terraform-provider", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-terraform-coverage"]
+      }
+    },
+    {
+      "id": "helm-charts",
+      "name": "Helm Charts",
+      "description": "Official Helm charts for Kubernetes deployment",
+      "layerId": "deployment",
+      "categoryId": "iac",
+      "status": "operational",
+      "owner": "Platform Team",
+      "tooling": [
+        { "name": "grafana/grafana", "type": "helm-chart", "status": "deployed" },
+        { "name": "grafana/loki-stack", "type": "helm-chart", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "grafonnet",
+      "name": "Grafonnet",
+      "description": "Jsonnet library for dashboard-as-code",
+      "layerId": "deployment",
+      "categoryId": "iac",
+      "status": "operational",
+      "owner": "Platform Team",
+      "tooling": [
+        { "name": "grafonnet", "type": "jsonnet-library", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "yaml-provisioning",
+      "name": "YAML Provisioning",
+      "description": "File-based provisioning via YAML",
+      "layerId": "deployment",
+      "categoryId": "iac",
+      "status": "operational",
+      "owner": "Platform Team"
+    },
+    {
+      "id": "ha-mode",
+      "name": "High Availability Mode",
+      "description": "Multi-instance HA deployment",
+      "layerId": "reliability",
+      "categoryId": "ha",
+      "status": "operational",
+      "owner": "Platform Team",
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-ha-adoption", "sli-failover-time"],
+        "levelCriteria": {
+          "M1": "Single instance only",
+          "M2": "Manual failover, shared DB",
+          "M3": "Active-passive, Redis session",
+          "M4": "Active-active, auto-failover",
+          "M5": "Multi-region, zero-downtime"
+        }
+      }
+    },
+    {
+      "id": "session-clustering",
+      "name": "Session Clustering",
+      "description": "Distributed session management",
+      "layerId": "reliability",
+      "categoryId": "ha",
+      "status": "operational",
+      "owner": "Platform Team",
+      "dependencies": ["ha-mode"],
+      "tooling": [
+        { "name": "Redis", "type": "database", "status": "supported" },
+        { "name": "Memcached", "type": "database", "status": "supported" }
+      ]
+    },
+    {
+      "id": "database-ha",
+      "name": "Database HA",
+      "description": "High availability database configurations",
+      "layerId": "reliability",
+      "categoryId": "ha",
+      "status": "operational",
+      "owner": "Platform Team"
+    },
+    {
+      "id": "self-monitoring",
+      "name": "Self-Monitoring Metrics",
+      "description": "Internal metrics for monitoring Grafana",
+      "layerId": "observability",
+      "categoryId": "monitoring",
+      "status": "operational",
+      "owner": "Platform Team",
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-self-monitoring-coverage"]
+      }
+    },
+    {
+      "id": "ops-dashboards",
+      "name": "Operations Dashboards",
+      "description": "Pre-built dashboards for Grafana operators",
+      "layerId": "observability",
+      "categoryId": "monitoring",
+      "status": "operational",
+      "owner": "Platform Team",
+      "dependencies": ["self-monitoring"]
+    },
+    {
+      "id": "health-endpoints",
+      "name": "Health Endpoints",
+      "description": "Health check and readiness endpoints",
+      "layerId": "observability",
+      "categoryId": "monitoring",
+      "status": "operational",
+      "owner": "Platform Team"
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../../maturity/domains/operations/model.json",
+    "stateRef": "../../maturity/domains/operations/state.json",
+    "defaultDomain": "operations"
+  }
+}

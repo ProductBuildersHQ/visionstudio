@@ -1,0 +1,107 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-state.schema.json",
+  "metadata": {
+    "name": "Grafana Core Platform Maturity State",
+    "description": "Current core platform maturity state",
+    "maturityModelRef": "./model.json",
+    "assessedAt": "2026-07-15",
+    "assessedBy": "Core Platform Team"
+  },
+
+  "sloWindows": ["30d", "quarterly"],
+
+  "sliState": {
+    "sli-dashboard-load-time": {
+      "sliId": "sli-dashboard-load-time",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 2.1, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 1.5, "maturityLevel": 4 },
+        "Q2_2027": { "value": 1.0, "maturityLevel": 5 }
+      }
+    },
+    "sli-plugin-count": {
+      "sliId": "sli-plugin-count",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 380, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 500, "maturityLevel": 5 }
+      }
+    },
+    "sli-datasource-count": {
+      "sliId": "sli-datasource-count",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 88, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 100, "maturityLevel": 5 }
+      }
+    },
+    "sli-query-latency": {
+      "sliId": "sli-query-latency",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 280, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    },
+    "sli-panel-types": {
+      "sliId": "sli-panel-types",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 42, "timestamp": "2026-07-15T00:00:00Z" }
+      }
+    }
+  },
+
+  "maturityState": {
+    "visualization": {
+      "domainId": "visualization",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-06-01",
+        "assessedBy": "Visualization Team",
+        "note": "Rich panel library, working on sub-second performance"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "Industry-leading visualization"
+      }
+    },
+    "data-layer": {
+      "domainId": "data-layer",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-03-01",
+        "assessedBy": "Data Sources Team",
+        "note": "88 data sources, fast queries"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "Universal data platform"
+      }
+    },
+    "extensibility": {
+      "domainId": "extensibility",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-09-01",
+        "assessedBy": "Plugin Team",
+        "note": "380 plugins, mature SDK"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "500+ plugin milestone"
+      }
+    }
+  },
+
+  "enablerState": {}
+}

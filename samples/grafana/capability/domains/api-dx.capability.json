@@ -1,0 +1,301 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "grafana-api-dx-capability",
+    "version": "1.0.0",
+    "title": "Grafana API & Developer Experience Capability Stack",
+    "description": "API and developer experience capabilities for Grafana",
+    "domain": "api-dx",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["API/DX Team"]
+  },
+  "layers": [
+    {
+      "id": "rest-api",
+      "name": "REST API",
+      "description": "HTTP REST API layer",
+      "order": 1,
+      "phase": "runtime"
+    },
+    {
+      "id": "graphql-api",
+      "name": "GraphQL API",
+      "description": "GraphQL API layer",
+      "order": 2,
+      "phase": "runtime"
+    },
+    {
+      "id": "sdk",
+      "name": "SDKs",
+      "description": "Client SDKs and libraries",
+      "order": 3,
+      "phase": "build"
+    },
+    {
+      "id": "documentation",
+      "name": "Documentation",
+      "description": "API documentation and developer portal",
+      "order": 4,
+      "phase": "build"
+    }
+  ],
+  "categories": [
+    { "id": "crud", "name": "CRUD Operations", "color": "#3b82f6" },
+    { "id": "query", "name": "Query APIs", "color": "#10b981" },
+    { "id": "admin", "name": "Admin APIs", "color": "#f59e0b" },
+    { "id": "client", "name": "Client Libraries", "color": "#8b5cf6" },
+    { "id": "docs", "name": "Documentation", "color": "#06b6d4" }
+  ],
+  "capabilities": [
+    {
+      "id": "dashboard-api",
+      "name": "Dashboard API",
+      "description": "CRUD operations for dashboards",
+      "layerId": "rest-api",
+      "categoryId": "crud",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-api-coverage"],
+        "levelCriteria": {
+          "M1": "Basic GET/POST",
+          "M2": "Full CRUD, versioning",
+          "M3": "Bulk operations, filtering",
+          "M4": "OpenAPI spec, pagination",
+          "M5": "GraphQL alternative, streaming"
+        }
+      }
+    },
+    {
+      "id": "datasource-api",
+      "name": "Data Source API",
+      "description": "CRUD operations for data sources",
+      "layerId": "rest-api",
+      "categoryId": "crud",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "folder-api",
+      "name": "Folder API",
+      "description": "CRUD operations for folders",
+      "layerId": "rest-api",
+      "categoryId": "crud",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "alert-api",
+      "name": "Alerting API",
+      "description": "Alert rules and notification management",
+      "layerId": "rest-api",
+      "categoryId": "crud",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "annotation-api",
+      "name": "Annotation API",
+      "description": "Create and query annotations",
+      "layerId": "rest-api",
+      "categoryId": "crud",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "query-api",
+      "name": "Query API",
+      "description": "Execute data source queries via API",
+      "layerId": "rest-api",
+      "categoryId": "query",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-api-latency"]
+      }
+    },
+    {
+      "id": "frontend-api",
+      "name": "Frontend Data API",
+      "description": "API for frontend data fetching",
+      "layerId": "rest-api",
+      "categoryId": "query",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "user-api",
+      "name": "User Management API",
+      "description": "User CRUD and preferences",
+      "layerId": "rest-api",
+      "categoryId": "admin",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "org-api",
+      "name": "Organization API",
+      "description": "Organization management",
+      "layerId": "rest-api",
+      "categoryId": "admin",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "team-api",
+      "name": "Team API",
+      "description": "Team management and membership",
+      "layerId": "rest-api",
+      "categoryId": "admin",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "rbac-api",
+      "name": "RBAC API",
+      "description": "Role-based access control management",
+      "layerId": "rest-api",
+      "categoryId": "admin",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "service-account-api",
+      "name": "Service Account API",
+      "description": "Service account management",
+      "layerId": "rest-api",
+      "categoryId": "admin",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "graphql-schema",
+      "name": "GraphQL Schema",
+      "description": "GraphQL schema and types",
+      "layerId": "graphql-api",
+      "categoryId": "query",
+      "status": "planned",
+      "owner": "API/DX Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-graphql-adoption"],
+        "levelCriteria": {
+          "M1": "No GraphQL",
+          "M2": "Read-only queries",
+          "M3": "Full CRUD mutations",
+          "M4": "Subscriptions, federation",
+          "M5": "Schema stitching, real-time"
+        }
+      }
+    },
+    {
+      "id": "graphql-playground",
+      "name": "GraphQL Playground",
+      "description": "Interactive GraphQL explorer",
+      "layerId": "graphql-api",
+      "categoryId": "query",
+      "status": "planned",
+      "owner": "API/DX Team",
+      "dependencies": ["graphql-schema"]
+    },
+    {
+      "id": "go-sdk",
+      "name": "Go SDK",
+      "description": "Official Go client library",
+      "layerId": "sdk",
+      "categoryId": "client",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "tooling": [
+        { "name": "grafana/grafana-api-golang-client", "type": "library", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-sdk-coverage"]
+      }
+    },
+    {
+      "id": "python-sdk",
+      "name": "Python SDK",
+      "description": "Official Python client library",
+      "layerId": "sdk",
+      "categoryId": "client",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "tooling": [
+        { "name": "grafana-client", "type": "library", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "typescript-sdk",
+      "name": "TypeScript SDK",
+      "description": "Official TypeScript client library",
+      "layerId": "sdk",
+      "categoryId": "client",
+      "status": "implemented",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "openapi-spec",
+      "name": "OpenAPI Specification",
+      "description": "OpenAPI 3.0 spec for all APIs",
+      "layerId": "documentation",
+      "categoryId": "docs",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-api-coverage"]
+      }
+    },
+    {
+      "id": "api-docs",
+      "name": "API Documentation",
+      "description": "Interactive API reference documentation",
+      "layerId": "documentation",
+      "categoryId": "docs",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "dependencies": ["openapi-spec"]
+    },
+    {
+      "id": "developer-portal",
+      "name": "Developer Portal",
+      "description": "Unified developer documentation portal",
+      "layerId": "documentation",
+      "categoryId": "docs",
+      "status": "operational",
+      "owner": "API/DX Team",
+      "prismRef": {
+        "domainId": "api-dx",
+        "sliIds": ["sli-docs-coverage"]
+      }
+    },
+    {
+      "id": "api-changelog",
+      "name": "API Changelog",
+      "description": "Versioned API changelog",
+      "layerId": "documentation",
+      "categoryId": "docs",
+      "status": "operational",
+      "owner": "API/DX Team"
+    },
+    {
+      "id": "code-samples",
+      "name": "Code Samples",
+      "description": "Example code for common use cases",
+      "layerId": "documentation",
+      "categoryId": "docs",
+      "status": "operational",
+      "owner": "API/DX Team"
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../../maturity/domains/api-dx/model.json",
+    "stateRef": "../../maturity/domains/api-dx/state.json",
+    "defaultDomain": "api-dx"
+  }
+}

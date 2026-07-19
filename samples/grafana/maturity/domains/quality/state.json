@@ -1,0 +1,135 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-state.schema.json",
+  "metadata": {
+    "name": "Grafana Quality Engineering Maturity State",
+    "description": "Current quality engineering maturity state",
+    "maturityModelRef": "./model.json",
+    "assessedAt": "2026-07-15",
+    "assessedBy": "Quality Team"
+  },
+
+  "sloWindows": ["30d", "quarterly"],
+
+  "sliState": {
+    "sli-go-coverage": {
+      "sliId": "sli-go-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 72, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 80, "maturityLevel": 4 },
+        "Q4_2027": { "value": 85, "maturityLevel": 5 }
+      }
+    },
+    "sli-react-coverage": {
+      "sliId": "sli-react-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 68, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 75, "maturityLevel": 4 },
+        "Q4_2027": { "value": 85, "maturityLevel": 5 }
+      }
+    },
+    "sli-e2e-coverage": {
+      "sliId": "sli-e2e-coverage",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 78, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 95, "maturityLevel": 5 }
+      }
+    },
+    "sli-e2e-reliability": {
+      "sliId": "sli-e2e-reliability",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 96.5, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 99, "maturityLevel": 5 }
+      }
+    },
+    "sli-ci-duration": {
+      "sliId": "sli-ci-duration",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 22, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2026": { "value": 18, "maturityLevel": 4 },
+        "Q4_2027": { "value": 15, "maturityLevel": 5 }
+      }
+    },
+    "sli-ci-success-rate": {
+      "sliId": "sli-ci-success-rate",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 91, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 98, "maturityLevel": 5 }
+      }
+    },
+    "sli-flaky-test-rate": {
+      "sliId": "sli-flaky-test-rate",
+      "qualitativeState": "measured",
+      "windows": {
+        "30d": { "value": 2.8, "timestamp": "2026-07-15T00:00:00Z" }
+      },
+      "targets": {
+        "Q4_2027": { "value": 1, "maturityLevel": 5 }
+      }
+    }
+  },
+
+  "maturityState": {
+    "unit-testing": {
+      "domainId": "unit-testing",
+      "current": {
+        "level": 3,
+        "achievedAt": "2025-06-01",
+        "assessedBy": "Quality Team",
+        "note": "Good coverage, working toward 85% target"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "Industry-leading test coverage"
+      }
+    },
+    "e2e-testing": {
+      "domainId": "e2e-testing",
+      "current": {
+        "level": 4,
+        "achievedAt": "2026-01-01",
+        "assessedBy": "Quality Team",
+        "note": "High coverage and reliability with Playwright"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-12-31",
+        "rationale": "99% reliability target"
+      }
+    },
+    "ci-infrastructure": {
+      "domainId": "ci-infrastructure",
+      "current": {
+        "level": 4,
+        "achievedAt": "2025-09-01",
+        "assessedBy": "Platform Team",
+        "note": "Fast CI with low flaky rate"
+      },
+      "target": {
+        "level": 5,
+        "targetDate": "2027-06-30",
+        "rationale": "Sub-15 minute CI with 98% success"
+      }
+    }
+  },
+
+  "enablerState": {}
+}

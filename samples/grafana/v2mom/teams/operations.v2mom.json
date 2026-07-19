@@ -1,0 +1,294 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "grafana-operations-fy2027",
+    "name": "Operations & Reliability Team FY2027",
+    "author": "Operations Team Lead",
+    "team": "Operations & Reliability",
+    "fiscalYear": "FY2027",
+    "quarter": "Annual",
+    "version": "1.0.0",
+    "status": "Active",
+    "parentId": "grafana-fy2027",
+    "structure": "nested",
+    "terminology": "v2mom"
+  },
+  "vision": "Enable Grafana to run reliably at any scale, from single-node deployments to enterprise clusters handling millions of metrics.",
+  "values": [
+    {
+      "name": "Reliability First",
+      "description": "Grafana must be as reliable as the systems it monitors",
+      "priority": 1
+    },
+    {
+      "name": "Operational Simplicity",
+      "description": "Make deployment and operations simple and predictable",
+      "priority": 2
+    },
+    {
+      "name": "Scale Gracefully",
+      "description": "Performance should degrade gracefully under load",
+      "priority": 3
+    },
+    {
+      "name": "Observable Itself",
+      "description": "Grafana should be easy to monitor and debug",
+      "priority": 4
+    }
+  ],
+  "methods": [
+    {
+      "id": "ops-method-1",
+      "name": "Alerting Engine v2",
+      "description": "Build next-generation alerting with better scalability and features",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Alerting Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "alert-kr1",
+          "name": "Alert Notification Channels",
+          "baseline": "35",
+          "target": "50",
+          "current": "38",
+          "unit": "channels",
+          "progress": 0.2,
+          "status": "On Track"
+        },
+        {
+          "id": "alert-kr2",
+          "name": "Alert Evaluation Latency P99",
+          "baseline": "5s",
+          "target": "< 1s",
+          "current": "3s",
+          "unit": "seconds",
+          "progress": 0.5,
+          "status": "On Track"
+        },
+        {
+          "id": "alert-kr3",
+          "name": "High-Cardinality Alert Support",
+          "baseline": "10K series",
+          "target": "1M series",
+          "current": "50K series",
+          "unit": "series",
+          "progress": 0.04,
+          "status": "At Risk"
+        }
+      ],
+      "projects": ["proj-alerting-v2", "proj-alert-high-cardinality"]
+    },
+    {
+      "id": "ops-method-2",
+      "name": "High Availability Excellence",
+      "description": "Improve HA deployment experience and capabilities",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Platform Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-09-30",
+      "measures": [
+        {
+          "id": "ha-kr1",
+          "name": "HA Adoption",
+          "baseline": "40%",
+          "target": "70%",
+          "current": "48%",
+          "unit": "percent",
+          "progress": 0.27,
+          "status": "On Track"
+        },
+        {
+          "id": "ha-kr2",
+          "name": "Failover Time",
+          "baseline": "30s",
+          "target": "< 5s",
+          "current": "15s",
+          "unit": "seconds",
+          "progress": 0.6,
+          "status": "On Track"
+        },
+        {
+          "id": "ha-kr3",
+          "name": "HA Setup Complexity",
+          "baseline": "High",
+          "target": "Low",
+          "current": "Medium",
+          "progress": 0.5,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-ha-improvements", "proj-ha-docs"]
+    },
+    {
+      "id": "ops-method-3",
+      "name": "Infrastructure as Code",
+      "description": "Best-in-class IaC support for Grafana deployments",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Platform Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "iac-kr1",
+          "name": "Terraform Provider Coverage",
+          "baseline": "75%",
+          "target": "95%",
+          "current": "82%",
+          "unit": "percent",
+          "progress": 0.35,
+          "status": "On Track"
+        },
+        {
+          "id": "iac-kr2",
+          "name": "Helm Chart Adoption",
+          "baseline": "55%",
+          "target": "80%",
+          "current": "62%",
+          "unit": "percent",
+          "progress": 0.28,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-terraform-provider", "proj-helm-v2"]
+    },
+    {
+      "id": "ops-method-4",
+      "name": "Self-Monitoring",
+      "description": "Comprehensive self-monitoring and observability for Grafana itself",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Operations Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-06-30",
+      "measures": [
+        {
+          "id": "selfmon-kr1",
+          "name": "Built-in Metrics Coverage",
+          "baseline": "60%",
+          "target": "90%",
+          "current": "72%",
+          "unit": "percent",
+          "progress": 0.4,
+          "status": "On Track"
+        },
+        {
+          "id": "selfmon-kr2",
+          "name": "Pre-built Dashboard Adoption",
+          "baseline": "30%",
+          "target": "60%",
+          "current": "38%",
+          "unit": "percent",
+          "progress": 0.27,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-self-monitoring", "proj-ops-dashboards"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "ops-obs-1",
+      "name": "Database Dependencies",
+      "description": "HA requires external database which adds complexity",
+      "severity": "High",
+      "likelihood": "High",
+      "mitigation": "Improve SQLite HA, better database documentation",
+      "status": "Mitigating"
+    },
+    {
+      "id": "ops-obs-2",
+      "name": "Legacy Alerting",
+      "description": "Migration from legacy to unified alerting",
+      "severity": "Medium",
+      "likelihood": "High",
+      "mitigation": "Migration tools, gradual deprecation",
+      "status": "Mitigating"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-alerting-v2",
+      "name": "Alerting Engine v2",
+      "description": "Next-generation alerting engine",
+      "category": "Alerting",
+      "methodId": "ops-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q4"
+    },
+    {
+      "id": "proj-alert-high-cardinality",
+      "name": "High-Cardinality Alerting",
+      "description": "Support for high-cardinality alert rules",
+      "category": "Alerting",
+      "methodId": "ops-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q2-Q4"
+    },
+    {
+      "id": "proj-ha-improvements",
+      "name": "HA Improvements",
+      "description": "Improve HA setup and failover",
+      "category": "Infrastructure",
+      "methodId": "ops-method-2",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-ha-docs",
+      "name": "HA Documentation",
+      "description": "Comprehensive HA deployment documentation",
+      "category": "Documentation",
+      "methodId": "ops-method-2",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-terraform-provider",
+      "name": "Terraform Provider Improvements",
+      "description": "Expand Terraform provider coverage",
+      "category": "Infrastructure",
+      "methodId": "ops-method-3",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-helm-v2",
+      "name": "Helm Chart v2",
+      "description": "Next-generation Helm chart with better defaults",
+      "category": "Infrastructure",
+      "methodId": "ops-method-3",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-self-monitoring",
+      "name": "Self-Monitoring Enhancement",
+      "description": "Improve built-in metrics and traces",
+      "category": "Observability",
+      "methodId": "ops-method-4",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-ops-dashboards",
+      "name": "Operations Dashboards",
+      "description": "Pre-built dashboards for Grafana operators",
+      "category": "Observability",
+      "methodId": "ops-method-4",
+      "priority": "P2",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    }
+  ]
+}

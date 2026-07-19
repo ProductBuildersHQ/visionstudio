@@ -1,0 +1,194 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Simple Project Maturity Model",
+    "description": "A simplified maturity model for learning the PRISM framework",
+    "version": "1.0.0",
+    "organization": "Sample Org",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-render-time": {
+      "id": "sli-render-time",
+      "name": "Page Render Time",
+      "description": "Time to render the main page",
+      "metricName": "Render time",
+      "unit": "milliseconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "performance"
+    },
+    "sli-api-latency": {
+      "id": "sli-api-latency",
+      "name": "API Latency P99",
+      "description": "99th percentile API response time",
+      "metricName": "API latency",
+      "unit": "milliseconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "performance"
+    },
+    "sli-test-coverage": {
+      "id": "sli-test-coverage",
+      "name": "Test Coverage",
+      "description": "Percentage of code covered by tests",
+      "metricName": "Test coverage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "build",
+      "category": "quality"
+    },
+    "sli-deploy-frequency": {
+      "id": "sli-deploy-frequency",
+      "name": "Deploy Frequency",
+      "description": "Number of deployments per week",
+      "metricName": "Deploys per week",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "deploy",
+      "category": "operations"
+    }
+  },
+  "domains": {
+    "frontend": {
+      "name": "Frontend",
+      "description": "User interface quality and performance",
+      "owner": "Frontend Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Basic static pages", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Interactive UI",
+          "criteria": [
+            { "id": "fe-m2-render", "name": "Acceptable Render", "sliId": "sli-render-time", "operator": "lte", "target": 3000, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Responsive and accessible",
+          "criteria": [
+            { "id": "fe-m3-render", "name": "Good Render", "sliId": "sli-render-time", "operator": "lte", "target": 1500, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Optimized performance",
+          "criteria": [
+            { "id": "fe-m4-render", "name": "Fast Render", "sliId": "sli-render-time", "operator": "lte", "target": 500, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading UX",
+          "criteria": [
+            { "id": "fe-m5-render", "name": "Instant Render", "sliId": "sli-render-time", "operator": "lte", "target": 200, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "backend": {
+      "name": "Backend",
+      "description": "API quality and performance",
+      "owner": "Backend Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Basic endpoints", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "RESTful API",
+          "criteria": [
+            { "id": "be-m2-lat", "name": "Acceptable Latency", "sliId": "sli-api-latency", "operator": "lte", "target": 1000, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Documented API",
+          "criteria": [
+            { "id": "be-m3-lat", "name": "Good Latency", "sliId": "sli-api-latency", "operator": "lte", "target": 500, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "High-performance API",
+          "criteria": [
+            { "id": "be-m4-lat", "name": "Fast Latency", "sliId": "sli-api-latency", "operator": "lte", "target": 200, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Ultra-low latency",
+          "criteria": [
+            { "id": "be-m5-lat", "name": "Instant Latency", "sliId": "sli-api-latency", "operator": "lte", "target": 100, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "operations": {
+      "name": "Operations",
+      "description": "Deployment and reliability",
+      "owner": "Platform Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Manual deployments", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Automated builds",
+          "criteria": [
+            { "id": "ops-m2-cov", "name": "Basic Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 40, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "CI/CD pipeline",
+          "criteria": [
+            { "id": "ops-m3-cov", "name": "Good Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 60, "required": true },
+            { "id": "ops-m3-freq", "name": "Weekly Deploys", "sliId": "sli-deploy-frequency", "operator": "gte", "target": 1, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Continuous deployment",
+          "criteria": [
+            { "id": "ops-m4-cov", "name": "High Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 80, "required": true },
+            { "id": "ops-m4-freq", "name": "Daily Deploys", "sliId": "sli-deploy-frequency", "operator": "gte", "target": 5, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "On-demand deployments",
+          "criteria": [
+            { "id": "ops-m5-cov", "name": "Full Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 90, "required": true },
+            { "id": "ops-m5-freq", "name": "Continuous Deploys", "sliId": "sli-deploy-frequency", "operator": "gte", "target": 20, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

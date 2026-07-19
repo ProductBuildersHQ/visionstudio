@@ -1,0 +1,238 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Grafana Quality Engineering Maturity Model",
+    "description": "Detailed maturity model for Grafana quality engineering",
+    "version": "1.0.0",
+    "organization": "Grafana Labs",
+    "domain": "quality",
+    "parentRef": "../../grafana.model.json",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-go-coverage": {
+      "id": "sli-go-coverage",
+      "name": "Go Code Coverage",
+      "description": "Unit test coverage for Go backend code",
+      "metricName": "Go coverage percentage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "build",
+      "category": "testing"
+    },
+    "sli-react-coverage": {
+      "id": "sli-react-coverage",
+      "name": "React Code Coverage",
+      "description": "Unit test coverage for React frontend code",
+      "metricName": "React coverage percentage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "build",
+      "category": "testing"
+    },
+    "sli-e2e-coverage": {
+      "id": "sli-e2e-coverage",
+      "name": "E2E Test Coverage",
+      "description": "End-to-end test coverage of critical user flows",
+      "metricName": "E2E coverage percentage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "build",
+      "category": "testing"
+    },
+    "sli-e2e-reliability": {
+      "id": "sli-e2e-reliability",
+      "name": "E2E Test Reliability",
+      "description": "E2E test pass rate excluding flakes",
+      "metricName": "E2E reliability percentage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "reliability",
+      "layer": "build",
+      "category": "testing"
+    },
+    "sli-ci-duration": {
+      "id": "sli-ci-duration",
+      "name": "CI Pipeline Duration",
+      "description": "Average CI pipeline completion time",
+      "metricName": "CI duration",
+      "unit": "minutes",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "build",
+      "category": "ci"
+    },
+    "sli-ci-success-rate": {
+      "id": "sli-ci-success-rate",
+      "name": "CI Success Rate",
+      "description": "Percentage of CI runs that pass on first attempt",
+      "metricName": "CI success rate",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "reliability",
+      "layer": "build",
+      "category": "ci"
+    },
+    "sli-flaky-test-rate": {
+      "id": "sli-flaky-test-rate",
+      "name": "Flaky Test Rate",
+      "description": "Percentage of tests flagged as flaky",
+      "metricName": "Flaky test rate",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "reliability",
+      "layer": "build",
+      "category": "testing"
+    }
+  },
+  "domains": {
+    "unit-testing": {
+      "name": "Unit Testing",
+      "description": "Unit test coverage and quality",
+      "owner": "Quality Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Ad-hoc unit tests", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic unit test coverage",
+          "criteria": [
+            { "id": "unit-m2-go", "name": "Go Coverage", "sliId": "sli-go-coverage", "operator": "gte", "target": 40, "required": true },
+            { "id": "unit-m2-react", "name": "React Coverage", "sliId": "sli-react-coverage", "operator": "gte", "target": 40, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Good unit test coverage",
+          "criteria": [
+            { "id": "unit-m3-go", "name": "Go Coverage", "sliId": "sli-go-coverage", "operator": "gte", "target": 60, "required": true },
+            { "id": "unit-m3-react", "name": "React Coverage", "sliId": "sli-react-coverage", "operator": "gte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "High unit test coverage",
+          "criteria": [
+            { "id": "unit-m4-go", "name": "Go Coverage", "sliId": "sli-go-coverage", "operator": "gte", "target": 75, "required": true },
+            { "id": "unit-m4-react", "name": "React Coverage", "sliId": "sli-react-coverage", "operator": "gte", "target": 75, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading unit test coverage",
+          "criteria": [
+            { "id": "unit-m5-go", "name": "Go Coverage", "sliId": "sli-go-coverage", "operator": "gte", "target": 85, "required": true },
+            { "id": "unit-m5-react", "name": "React Coverage", "sliId": "sli-react-coverage", "operator": "gte", "target": 85, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "e2e-testing": {
+      "name": "E2E Testing",
+      "description": "End-to-end test coverage and reliability",
+      "owner": "Quality Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Manual testing only", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic E2E automation",
+          "criteria": [
+            { "id": "e2e-m2-cov", "name": "E2E Coverage", "sliId": "sli-e2e-coverage", "operator": "gte", "target": 30, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Comprehensive E2E",
+          "criteria": [
+            { "id": "e2e-m3-cov", "name": "E2E Coverage", "sliId": "sli-e2e-coverage", "operator": "gte", "target": 60, "required": true },
+            { "id": "e2e-m3-rel", "name": "E2E Reliability", "sliId": "sli-e2e-reliability", "operator": "gte", "target": 90, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "High-quality E2E",
+          "criteria": [
+            { "id": "e2e-m4-cov", "name": "E2E Coverage", "sliId": "sli-e2e-coverage", "operator": "gte", "target": 80, "required": true },
+            { "id": "e2e-m4-rel", "name": "E2E Reliability", "sliId": "sli-e2e-reliability", "operator": "gte", "target": 97, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading E2E",
+          "criteria": [
+            { "id": "e2e-m5-cov", "name": "E2E Coverage", "sliId": "sli-e2e-coverage", "operator": "gte", "target": 95, "required": true },
+            { "id": "e2e-m5-rel", "name": "E2E Reliability", "sliId": "sli-e2e-reliability", "operator": "gte", "target": 99, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "ci-infrastructure": {
+      "name": "CI Infrastructure",
+      "description": "CI/CD pipeline quality and speed",
+      "owner": "Platform Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Manual builds", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic CI pipeline",
+          "criteria": [
+            { "id": "ci-m2-dur", "name": "CI Duration", "sliId": "sli-ci-duration", "operator": "lte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Optimized CI",
+          "criteria": [
+            { "id": "ci-m3-dur", "name": "CI Duration", "sliId": "sli-ci-duration", "operator": "lte", "target": 30, "required": true },
+            { "id": "ci-m3-rate", "name": "CI Success Rate", "sliId": "sli-ci-success-rate", "operator": "gte", "target": 85, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Fast CI",
+          "criteria": [
+            { "id": "ci-m4-dur", "name": "CI Duration", "sliId": "sli-ci-duration", "operator": "lte", "target": 20, "required": true },
+            { "id": "ci-m4-rate", "name": "CI Success Rate", "sliId": "sli-ci-success-rate", "operator": "gte", "target": 92, "required": true },
+            { "id": "ci-m4-flaky", "name": "Low Flaky Rate", "sliId": "sli-flaky-test-rate", "operator": "lte", "target": 3, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading CI",
+          "criteria": [
+            { "id": "ci-m5-dur", "name": "CI Duration", "sliId": "sli-ci-duration", "operator": "lte", "target": 15, "required": true },
+            { "id": "ci-m5-rate", "name": "CI Success Rate", "sliId": "sli-ci-success-rate", "operator": "gte", "target": 98, "required": true },
+            { "id": "ci-m5-flaky", "name": "Minimal Flaky Rate", "sliId": "sli-flaky-test-rate", "operator": "lte", "target": 1, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Grafana Operations Maturity Model",
+    "description": "Detailed maturity model for Grafana operations",
+    "version": "1.0.0",
+    "organization": "Grafana Labs",
+    "domain": "operations",
+    "parentRef": "../../grafana.model.json",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-alert-eval-latency": {
+      "id": "sli-alert-eval-latency",
+      "name": "Alert Evaluation Latency",
+      "description": "P95 latency for alert rule evaluation",
+      "metricName": "Alert evaluation latency",
+      "unit": "milliseconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "alerting"
+    },
+    "sli-alert-cardinality": {
+      "id": "sli-alert-cardinality",
+      "name": "Alert Series Cardinality",
+      "description": "Maximum supported alert series cardinality",
+      "metricName": "Alert cardinality",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "alerting"
+    },
+    "sli-alerting-channels": {
+      "id": "sli-alerting-channels",
+      "name": "Alerting Channels",
+      "description": "Number of supported notification channels",
+      "metricName": "Alerting channels",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "alerting"
+    },
+    "sli-terraform-coverage": {
+      "id": "sli-terraform-coverage",
+      "name": "Terraform Resource Coverage",
+      "description": "Percentage of Grafana resources manageable via Terraform",
+      "metricName": "Terraform coverage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "deploy",
+      "category": "iac"
+    },
+    "sli-ha-adoption": {
+      "id": "sli-ha-adoption",
+      "name": "HA Deployment Adoption",
+      "description": "Percentage of enterprise deployments using HA mode",
+      "metricName": "HA adoption",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "adoption",
+      "layer": "runtime",
+      "category": "reliability"
+    },
+    "sli-failover-time": {
+      "id": "sli-failover-time",
+      "name": "Failover Time",
+      "description": "Time to failover to standby instance",
+      "metricName": "Failover time",
+      "unit": "seconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "reliability"
+    },
+    "sli-self-monitoring-coverage": {
+      "id": "sli-self-monitoring-coverage",
+      "name": "Self-Monitoring Coverage",
+      "description": "Percentage of internal metrics exposed",
+      "metricName": "Self-monitoring coverage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "monitor",
+      "category": "observability"
+    }
+  },
+  "domains": {
+    "alerting": {
+      "name": "Alerting",
+      "description": "Alert evaluation and notification",
+      "owner": "Alerting Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Basic threshold alerts", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Multi-condition alerts",
+          "criteria": [
+            { "id": "alert-m2-channels", "name": "Basic Channels", "sliId": "sli-alerting-channels", "operator": "gte", "target": 5, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Advanced alerting",
+          "criteria": [
+            { "id": "alert-m3-channels", "name": "Many Channels", "sliId": "sli-alerting-channels", "operator": "gte", "target": 10, "required": true },
+            { "id": "alert-m3-latency", "name": "Fast Evaluation", "sliId": "sli-alert-eval-latency", "operator": "lte", "target": 500, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise alerting",
+          "criteria": [
+            { "id": "alert-m4-channels", "name": "Full Channels", "sliId": "sli-alerting-channels", "operator": "gte", "target": 15, "required": true },
+            { "id": "alert-m4-latency", "name": "Very Fast Evaluation", "sliId": "sli-alert-eval-latency", "operator": "lte", "target": 200, "required": true },
+            { "id": "alert-m4-card", "name": "High Cardinality", "sliId": "sli-alert-cardinality", "operator": "gte", "target": 500000, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading alerting",
+          "criteria": [
+            { "id": "alert-m5-channels", "name": "Complete Channels", "sliId": "sli-alerting-channels", "operator": "gte", "target": 20, "required": true },
+            { "id": "alert-m5-latency", "name": "Instant Evaluation", "sliId": "sli-alert-eval-latency", "operator": "lte", "target": 100, "required": true },
+            { "id": "alert-m5-card", "name": "Massive Cardinality", "sliId": "sli-alert-cardinality", "operator": "gte", "target": 1000000, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "infrastructure-as-code": {
+      "name": "Infrastructure as Code",
+      "description": "Terraform, Helm, and provisioning",
+      "owner": "Platform Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Manual configuration", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic IaC support",
+          "criteria": [
+            { "id": "iac-m2-tf", "name": "Basic Terraform", "sliId": "sli-terraform-coverage", "operator": "gte", "target": 30, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Good IaC coverage",
+          "criteria": [
+            { "id": "iac-m3-tf", "name": "Good Terraform", "sliId": "sli-terraform-coverage", "operator": "gte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Comprehensive IaC",
+          "criteria": [
+            { "id": "iac-m4-tf", "name": "High Terraform", "sliId": "sli-terraform-coverage", "operator": "gte", "target": 85, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Complete IaC",
+          "criteria": [
+            { "id": "iac-m5-tf", "name": "Full Terraform", "sliId": "sli-terraform-coverage", "operator": "gte", "target": 95, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "high-availability": {
+      "name": "High Availability",
+      "description": "HA deployment and failover",
+      "owner": "Platform Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Single instance", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Manual failover",
+          "criteria": [
+            { "id": "ha-m2-adopt", "name": "Basic HA Adoption", "sliId": "sli-ha-adoption", "operator": "gte", "target": 20, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Active-passive HA",
+          "criteria": [
+            { "id": "ha-m3-adopt", "name": "Good HA Adoption", "sliId": "sli-ha-adoption", "operator": "gte", "target": 50, "required": true },
+            { "id": "ha-m3-fo", "name": "Fast Failover", "sliId": "sli-failover-time", "operator": "lte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Active-active HA",
+          "criteria": [
+            { "id": "ha-m4-adopt", "name": "High HA Adoption", "sliId": "sli-ha-adoption", "operator": "gte", "target": 75, "required": true },
+            { "id": "ha-m4-fo", "name": "Very Fast Failover", "sliId": "sli-failover-time", "operator": "lte", "target": 30, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Zero-downtime HA",
+          "criteria": [
+            { "id": "ha-m5-adopt", "name": "Universal HA Adoption", "sliId": "sli-ha-adoption", "operator": "gte", "target": 90, "required": true },
+            { "id": "ha-m5-fo", "name": "Instant Failover", "sliId": "sli-failover-time", "operator": "lte", "target": 10, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

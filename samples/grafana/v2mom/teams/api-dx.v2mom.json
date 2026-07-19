@@ -1,0 +1,303 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "grafana-api-dx-fy2027",
+    "name": "API & Developer Experience Team FY2027",
+    "author": "API/DX Team Lead",
+    "team": "API & Developer Experience",
+    "fiscalYear": "FY2027",
+    "quarter": "Annual",
+    "version": "1.0.0",
+    "status": "Active",
+    "parentId": "grafana-fy2027",
+    "structure": "nested",
+    "terminology": "v2mom"
+  },
+  "vision": "Make Grafana the most developer-friendly observability platform with world-class APIs, SDKs, and documentation that developers love to use.",
+  "values": [
+    {
+      "name": "Developer First",
+      "description": "Design APIs from the developer's perspective",
+      "priority": 1
+    },
+    {
+      "name": "Self-Service",
+      "description": "Developers should be able to accomplish tasks without support",
+      "priority": 2
+    },
+    {
+      "name": "Consistency",
+      "description": "APIs should be consistent, predictable, and intuitive",
+      "priority": 3
+    },
+    {
+      "name": "Documentation Excellence",
+      "description": "Great docs are as important as great code",
+      "priority": 4
+    }
+  ],
+  "methods": [
+    {
+      "id": "api-method-1",
+      "name": "100% API Coverage",
+      "description": "Ensure all Grafana features are accessible via API",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "API Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "api-kr1",
+          "name": "REST API Coverage",
+          "baseline": "92%",
+          "target": "100%",
+          "current": "95%",
+          "unit": "percent",
+          "progress": 0.4,
+          "status": "On Track"
+        },
+        {
+          "id": "api-kr2",
+          "name": "API Documentation Coverage",
+          "baseline": "88%",
+          "target": "100%",
+          "current": "92%",
+          "unit": "percent",
+          "progress": 0.33,
+          "status": "On Track"
+        },
+        {
+          "id": "api-kr3",
+          "name": "OpenAPI Spec Completeness",
+          "baseline": "85%",
+          "target": "100%",
+          "current": "90%",
+          "unit": "percent",
+          "progress": 0.33,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-api-gaps", "proj-openapi-complete"]
+    },
+    {
+      "id": "api-method-2",
+      "name": "Launch GraphQL API",
+      "description": "Introduce GraphQL API for efficient client queries",
+      "priority": "P1",
+      "status": "Planning",
+      "owner": "API Team",
+      "startDate": "2027-04-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "gql-kr1",
+          "name": "GraphQL Schema Coverage",
+          "baseline": "0%",
+          "target": "80%",
+          "current": "0%",
+          "unit": "percent",
+          "progress": 0,
+          "status": "Not Started"
+        },
+        {
+          "id": "gql-kr2",
+          "name": "GraphQL Adoption",
+          "baseline": "0%",
+          "target": "20%",
+          "current": "0%",
+          "unit": "percent",
+          "progress": 0,
+          "status": "Not Started"
+        }
+      ],
+      "projects": ["proj-graphql-api", "proj-graphql-docs"]
+    },
+    {
+      "id": "api-method-3",
+      "name": "SDK Excellence",
+      "description": "Refresh official SDKs with modern patterns and better DX",
+      "priority": "P1",
+      "status": "Planning",
+      "owner": "SDK Team",
+      "startDate": "2027-04-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "sdk-kr1",
+          "name": "SDK Languages",
+          "baseline": "3",
+          "target": "5",
+          "current": "3",
+          "unit": "languages",
+          "progress": 0,
+          "status": "Not Started"
+        },
+        {
+          "id": "sdk-kr2",
+          "name": "SDK NPS",
+          "baseline": "38",
+          "target": "60",
+          "current": "38",
+          "progress": 0,
+          "status": "Not Started"
+        }
+      ],
+      "projects": ["proj-sdk-go-v2", "proj-sdk-python", "proj-sdk-js"]
+    },
+    {
+      "id": "api-method-4",
+      "name": "Documentation Excellence",
+      "description": "Achieve industry-leading documentation quality",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Docs Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "doc-kr1",
+          "name": "Documentation NPS",
+          "baseline": "45",
+          "target": "70",
+          "current": "52",
+          "progress": 0.28,
+          "status": "On Track"
+        },
+        {
+          "id": "doc-kr2",
+          "name": "Time to First Success",
+          "baseline": "45 min",
+          "target": "< 15 min",
+          "current": "28 min",
+          "unit": "minutes",
+          "progress": 0.57,
+          "status": "On Track"
+        },
+        {
+          "id": "doc-kr3",
+          "name": "Documentation Freshness",
+          "baseline": "75%",
+          "target": "95%",
+          "current": "82%",
+          "unit": "percent",
+          "progress": 0.35,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-docs-refresh", "proj-interactive-tutorials"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "api-obs-1",
+      "name": "API Versioning",
+      "description": "Managing breaking changes while maintaining backwards compatibility",
+      "severity": "High",
+      "likelihood": "Medium",
+      "mitigation": "Clear versioning policy, deprecation warnings, migration guides",
+      "status": "Mitigating"
+    },
+    {
+      "id": "api-obs-2",
+      "name": "Internal vs External APIs",
+      "description": "Some internal APIs exposed without proper design review",
+      "severity": "Medium",
+      "likelihood": "High",
+      "mitigation": "API review process, clear internal/external boundaries",
+      "status": "Mitigating"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-api-gaps",
+      "name": "API Coverage Gaps",
+      "description": "Identify and fill REST API coverage gaps",
+      "category": "API",
+      "methodId": "api-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-openapi-complete",
+      "name": "Complete OpenAPI Spec",
+      "description": "Ensure 100% OpenAPI specification coverage",
+      "category": "API",
+      "methodId": "api-method-1",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-graphql-api",
+      "name": "GraphQL API Implementation",
+      "description": "Build GraphQL API layer",
+      "category": "API",
+      "methodId": "api-method-2",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q4"
+    },
+    {
+      "id": "proj-graphql-docs",
+      "name": "GraphQL Documentation",
+      "description": "GraphQL schema documentation and playground",
+      "category": "Documentation",
+      "methodId": "api-method-2",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3-Q4"
+    },
+    {
+      "id": "proj-sdk-go-v2",
+      "name": "Go SDK v2",
+      "description": "Refresh Go SDK with modern patterns",
+      "category": "SDK",
+      "methodId": "api-method-3",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-sdk-python",
+      "name": "Python SDK",
+      "description": "Official Python SDK",
+      "category": "SDK",
+      "methodId": "api-method-3",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3-Q4"
+    },
+    {
+      "id": "proj-sdk-js",
+      "name": "JavaScript SDK Refresh",
+      "description": "Refresh JavaScript/TypeScript SDK",
+      "category": "SDK",
+      "methodId": "api-method-3",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3-Q4"
+    },
+    {
+      "id": "proj-docs-refresh",
+      "name": "Documentation Refresh",
+      "description": "Refresh and reorganize documentation",
+      "category": "Documentation",
+      "methodId": "api-method-4",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-interactive-tutorials",
+      "name": "Interactive Tutorials",
+      "description": "Build interactive getting started tutorials",
+      "category": "Documentation",
+      "methodId": "api-method-4",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    }
+  ]
+}

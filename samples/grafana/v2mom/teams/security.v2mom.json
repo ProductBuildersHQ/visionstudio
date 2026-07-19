@@ -1,0 +1,300 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "grafana-security-fy2027",
+    "name": "Security Team FY2027",
+    "author": "Security Team Lead",
+    "team": "Security",
+    "fiscalYear": "FY2027",
+    "quarter": "Annual",
+    "version": "1.0.0",
+    "status": "Active",
+    "parentId": "grafana-fy2027",
+    "structure": "nested",
+    "terminology": "v2mom"
+  },
+  "vision": "Make Grafana the most secure observability platform, trusted by enterprises and governments worldwide to handle their most sensitive operational data.",
+  "values": [
+    {
+      "name": "Security by Design",
+      "description": "Security is built in from the start, not bolted on after",
+      "priority": 1
+    },
+    {
+      "name": "Transparency",
+      "description": "Open about vulnerabilities, fixes, and security practices",
+      "priority": 2
+    },
+    {
+      "name": "Defense in Depth",
+      "description": "Multiple layers of security controls, no single point of failure",
+      "priority": 3
+    },
+    {
+      "name": "Community Partnership",
+      "description": "Work with security researchers through bug bounty and responsible disclosure",
+      "priority": 4
+    }
+  ],
+  "methods": [
+    {
+      "id": "sec-method-1",
+      "name": "Achieve M5 Security Maturity",
+      "description": "Progress from M4 to M5 security maturity across all domains",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Security Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "sec-kr1",
+          "name": "SAST Coverage",
+          "baseline": "92%",
+          "target": "100%",
+          "current": "95%",
+          "unit": "percent",
+          "progress": 0.4,
+          "status": "On Track"
+        },
+        {
+          "id": "sec-kr2",
+          "name": "SCA Coverage",
+          "baseline": "88%",
+          "target": "100%",
+          "current": "93%",
+          "unit": "percent",
+          "progress": 0.42,
+          "status": "On Track"
+        },
+        {
+          "id": "sec-kr3",
+          "name": "Critical Vuln MTTR",
+          "baseline": "7 days",
+          "target": "< 24 hours",
+          "current": "3 days",
+          "unit": "days",
+          "progress": 0.57,
+          "status": "At Risk"
+        }
+      ],
+      "projects": ["proj-security-automation", "proj-vuln-mgmt"]
+    },
+    {
+      "id": "sec-method-2",
+      "name": "Expand Bug Bounty Program",
+      "description": "Expand Intigriti bug bounty program scope and improve researcher experience",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Security Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-06-30",
+      "measures": [
+        {
+          "id": "bb-kr1",
+          "name": "Average Response Time",
+          "baseline": "72 hours",
+          "target": "< 24 hours",
+          "current": "36 hours",
+          "unit": "hours",
+          "progress": 0.6,
+          "status": "On Track"
+        },
+        {
+          "id": "bb-kr2",
+          "name": "Researcher Satisfaction",
+          "baseline": "3.8/5",
+          "target": "4.5/5",
+          "current": "4.1/5",
+          "progress": 0.43,
+          "status": "On Track"
+        },
+        {
+          "id": "bb-kr3",
+          "name": "Valid Submissions",
+          "baseline": "45/quarter",
+          "target": "75/quarter",
+          "current": "52/quarter",
+          "progress": 0.23,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-bb-scope-expansion", "proj-bb-automation"]
+    },
+    {
+      "id": "sec-method-3",
+      "name": "Enhanced Authentication & Authorization",
+      "description": "Expand authentication methods and implement fine-grained RBAC",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Security Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-09-30",
+      "measures": [
+        {
+          "id": "auth-kr1",
+          "name": "Auth Methods Supported",
+          "baseline": "12",
+          "target": "15",
+          "current": "12",
+          "unit": "methods",
+          "progress": 0,
+          "status": "Not Started"
+        },
+        {
+          "id": "auth-kr2",
+          "name": "RBAC Adoption",
+          "baseline": "45%",
+          "target": "80%",
+          "current": "52%",
+          "unit": "percent",
+          "progress": 0.2,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-passkey-auth", "proj-rbac-v2"]
+    },
+    {
+      "id": "sec-method-4",
+      "name": "Compliance Certifications",
+      "description": "Achieve and maintain key compliance certifications",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Security Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "compliance-kr1",
+          "name": "SOC 2 Type II",
+          "baseline": "In Progress",
+          "target": "Certified",
+          "current": "Audit Phase",
+          "progress": 0.7,
+          "status": "On Track"
+        },
+        {
+          "id": "compliance-kr2",
+          "name": "ISO 27001",
+          "baseline": "Planning",
+          "target": "Certified",
+          "current": "Implementation",
+          "progress": 0.4,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-soc2-type2", "proj-iso27001"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "sec-obs-1",
+      "name": "Vulnerability Disclosure Timing",
+      "description": "Balancing responsible disclosure with patch release timing",
+      "severity": "High",
+      "likelihood": "High",
+      "mitigation": "Established disclosure policy, coordinated release process",
+      "status": "Mitigating"
+    },
+    {
+      "id": "sec-obs-2",
+      "name": "Plugin Security",
+      "description": "Third-party plugins may introduce security vulnerabilities",
+      "severity": "High",
+      "likelihood": "Medium",
+      "mitigation": "Plugin signing, sandbox environment, security review process",
+      "status": "Mitigating"
+    },
+    {
+      "id": "sec-obs-3",
+      "name": "Supply Chain Risk",
+      "description": "Dependencies may contain vulnerabilities",
+      "severity": "Medium",
+      "likelihood": "High",
+      "mitigation": "Automated SCA, dependency pinning, SBOM generation",
+      "status": "Mitigating"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-security-automation",
+      "name": "Security Automation Pipeline",
+      "description": "Automated security scanning in CI/CD with blocking gates",
+      "category": "Security",
+      "methodId": "sec-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-vuln-mgmt",
+      "name": "Vulnerability Management System",
+      "description": "Centralized vulnerability tracking and remediation workflow",
+      "category": "Security",
+      "methodId": "sec-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1"
+    },
+    {
+      "id": "proj-bb-scope-expansion",
+      "name": "Bug Bounty Scope Expansion",
+      "description": "Expand bug bounty to cover all Grafana products",
+      "category": "Security",
+      "methodId": "sec-method-2",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-bb-automation",
+      "name": "Bug Bounty Automation",
+      "description": "Automate triage, response, and payment workflows",
+      "category": "Security",
+      "methodId": "sec-method-2",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q2"
+    },
+    {
+      "id": "proj-passkey-auth",
+      "name": "Passkey Authentication",
+      "description": "Support FIDO2/WebAuthn passkey authentication",
+      "category": "Security",
+      "methodId": "sec-method-3",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2-Q3"
+    },
+    {
+      "id": "proj-rbac-v2",
+      "name": "RBAC v2",
+      "description": "Enhanced RBAC with custom roles and attribute-based access",
+      "category": "Security",
+      "methodId": "sec-method-3",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-soc2-type2",
+      "name": "SOC 2 Type II Certification",
+      "description": "Complete SOC 2 Type II audit and certification",
+      "category": "Compliance",
+      "methodId": "sec-method-4",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-iso27001",
+      "name": "ISO 27001 Certification",
+      "description": "Implement ISMS and achieve ISO 27001 certification",
+      "category": "Compliance",
+      "methodId": "sec-method-4",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q2-Q4"
+    }
+  ]
+}

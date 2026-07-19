@@ -1,0 +1,210 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Grafana Core Platform Maturity Model",
+    "description": "Detailed maturity model for Grafana core platform",
+    "version": "1.0.0",
+    "organization": "Grafana Labs",
+    "domain": "core-platform",
+    "parentRef": "../../grafana.model.json",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-dashboard-load-time": {
+      "id": "sli-dashboard-load-time",
+      "name": "Dashboard Load Time P99",
+      "description": "99th percentile dashboard load time",
+      "metricName": "Dashboard load time",
+      "unit": "seconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "performance"
+    },
+    "sli-plugin-count": {
+      "id": "sli-plugin-count",
+      "name": "Plugin Count",
+      "description": "Total plugins in ecosystem",
+      "metricName": "Plugin count",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "extensibility"
+    },
+    "sli-datasource-count": {
+      "id": "sli-datasource-count",
+      "name": "Data Source Count",
+      "description": "Supported data source backends",
+      "metricName": "Data source count",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "integration"
+    },
+    "sli-query-latency": {
+      "id": "sli-query-latency",
+      "name": "Query Latency P95",
+      "description": "95th percentile query execution time",
+      "metricName": "Query latency",
+      "unit": "milliseconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "performance"
+    },
+    "sli-panel-types": {
+      "id": "sli-panel-types",
+      "name": "Panel Types",
+      "description": "Number of built-in panel types",
+      "metricName": "Panel types",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "visualization"
+    }
+  },
+  "domains": {
+    "visualization": {
+      "name": "Visualization",
+      "description": "Dashboard and panel rendering capabilities",
+      "owner": "Visualization Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Basic graphs only", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Multiple panel types",
+          "criteria": [
+            { "id": "viz-m2-panels", "name": "Panel Variety", "sliId": "sli-panel-types", "operator": "gte", "target": 10, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Rich visualization library",
+          "criteria": [
+            { "id": "viz-m3-panels", "name": "Rich Panels", "sliId": "sli-panel-types", "operator": "gte", "target": 25, "required": true },
+            { "id": "viz-m3-perf", "name": "Good Performance", "sliId": "sli-dashboard-load-time", "operator": "lte", "target": 3, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise visualization",
+          "criteria": [
+            { "id": "viz-m4-panels", "name": "Full Panels", "sliId": "sli-panel-types", "operator": "gte", "target": 40, "required": true },
+            { "id": "viz-m4-perf", "name": "Fast Performance", "sliId": "sli-dashboard-load-time", "operator": "lte", "target": 2, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading visualization",
+          "criteria": [
+            { "id": "viz-m5-panels", "name": "Complete Panels", "sliId": "sli-panel-types", "operator": "gte", "target": 50, "required": true },
+            { "id": "viz-m5-perf", "name": "Sub-second", "sliId": "sli-dashboard-load-time", "operator": "lte", "target": 1, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "data-layer": {
+      "name": "Data Layer",
+      "description": "Data sources and query capabilities",
+      "owner": "Data Sources Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Single data source", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Multiple built-in sources",
+          "criteria": [
+            { "id": "data-m2-ds", "name": "Basic Sources", "sliId": "sli-datasource-count", "operator": "gte", "target": 20, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Extensive data source support",
+          "criteria": [
+            { "id": "data-m3-ds", "name": "Many Sources", "sliId": "sli-datasource-count", "operator": "gte", "target": 50, "required": true },
+            { "id": "data-m3-latency", "name": "Good Query Speed", "sliId": "sli-query-latency", "operator": "lte", "target": 500, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise data connectivity",
+          "criteria": [
+            { "id": "data-m4-ds", "name": "Full Sources", "sliId": "sli-datasource-count", "operator": "gte", "target": 75, "required": true },
+            { "id": "data-m4-latency", "name": "Fast Queries", "sliId": "sli-query-latency", "operator": "lte", "target": 300, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Universal data platform",
+          "criteria": [
+            { "id": "data-m5-ds", "name": "Complete Sources", "sliId": "sli-datasource-count", "operator": "gte", "target": 100, "required": true },
+            { "id": "data-m5-latency", "name": "Instant Queries", "sliId": "sli-query-latency", "operator": "lte", "target": 150, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "extensibility": {
+      "name": "Extensibility",
+      "description": "Plugin system and SDK",
+      "owner": "Plugin Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "No plugins", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic plugin support",
+          "criteria": [
+            { "id": "ext-m2-plugins", "name": "Basic Plugins", "sliId": "sli-plugin-count", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Growing ecosystem",
+          "criteria": [
+            { "id": "ext-m3-plugins", "name": "Growing Ecosystem", "sliId": "sli-plugin-count", "operator": "gte", "target": 150, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Mature ecosystem",
+          "criteria": [
+            { "id": "ext-m4-plugins", "name": "Mature Ecosystem", "sliId": "sli-plugin-count", "operator": "gte", "target": 300, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading ecosystem",
+          "criteria": [
+            { "id": "ext-m5-plugins", "name": "Leading Ecosystem", "sliId": "sli-plugin-count", "operator": "gte", "target": 500, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

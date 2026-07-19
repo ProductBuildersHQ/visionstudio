@@ -1,0 +1,148 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "simple-capability",
+    "version": "1.0.0",
+    "title": "Simple Project Capability Stack",
+    "description": "A simplified capability stack for learning",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["Product Team"]
+  },
+  "layers": [
+    {
+      "id": "frontend",
+      "name": "Frontend",
+      "description": "User interface and experience",
+      "order": 1,
+      "phase": "runtime"
+    },
+    {
+      "id": "backend",
+      "name": "Backend",
+      "description": "API and business logic",
+      "order": 2,
+      "phase": "runtime"
+    },
+    {
+      "id": "infrastructure",
+      "name": "Infrastructure",
+      "description": "Deployment and operations",
+      "order": 3,
+      "phase": "deploy"
+    }
+  ],
+  "categories": [
+    { "id": "ui", "name": "User Interface", "color": "#3b82f6" },
+    { "id": "api", "name": "API", "color": "#10b981" },
+    { "id": "data", "name": "Data", "color": "#f59e0b" },
+    { "id": "ops", "name": "Operations", "color": "#8b5cf6" }
+  ],
+  "capabilities": [
+    {
+      "id": "widget-ui",
+      "name": "Widget UI",
+      "description": "Core widget user interface components",
+      "layerId": "frontend",
+      "categoryId": "ui",
+      "status": "operational",
+      "owner": "Frontend Team",
+      "prismRef": {
+        "domainId": "frontend",
+        "sliIds": ["sli-render-time"],
+        "levelCriteria": {
+          "M1": "Basic HTML forms",
+          "M2": "Interactive components",
+          "M3": "Responsive design",
+          "M4": "Accessibility compliant",
+          "M5": "Real-time updates"
+        }
+      }
+    },
+    {
+      "id": "dashboard",
+      "name": "Dashboard",
+      "description": "User dashboard and analytics",
+      "layerId": "frontend",
+      "categoryId": "ui",
+      "status": "operational",
+      "owner": "Frontend Team",
+      "dependencies": ["widget-ui"]
+    },
+    {
+      "id": "rest-api",
+      "name": "REST API",
+      "description": "RESTful API endpoints",
+      "layerId": "backend",
+      "categoryId": "api",
+      "status": "operational",
+      "owner": "Backend Team",
+      "prismRef": {
+        "domainId": "backend",
+        "sliIds": ["sli-api-latency"]
+      }
+    },
+    {
+      "id": "auth",
+      "name": "Authentication",
+      "description": "User authentication and authorization",
+      "layerId": "backend",
+      "categoryId": "api",
+      "status": "operational",
+      "owner": "Backend Team"
+    },
+    {
+      "id": "database",
+      "name": "Database",
+      "description": "Data persistence layer",
+      "layerId": "backend",
+      "categoryId": "data",
+      "status": "operational",
+      "owner": "Backend Team",
+      "tooling": [
+        { "name": "PostgreSQL", "type": "database", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "caching",
+      "name": "Caching",
+      "description": "Response caching layer",
+      "layerId": "backend",
+      "categoryId": "data",
+      "status": "implemented",
+      "owner": "Backend Team",
+      "tooling": [
+        { "name": "Redis", "type": "cache", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "ci-cd",
+      "name": "CI/CD Pipeline",
+      "description": "Continuous integration and deployment",
+      "layerId": "infrastructure",
+      "categoryId": "ops",
+      "status": "operational",
+      "owner": "Platform Team",
+      "tooling": [
+        { "name": "GitHub Actions", "type": "ci", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "operations",
+        "sliIds": ["sli-deploy-frequency"]
+      }
+    },
+    {
+      "id": "monitoring",
+      "name": "Monitoring",
+      "description": "Application monitoring and alerting",
+      "layerId": "infrastructure",
+      "categoryId": "ops",
+      "status": "operational",
+      "owner": "Platform Team"
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../maturity/simple.model.json",
+    "stateRef": "../maturity/simple.state.json"
+  }
+}

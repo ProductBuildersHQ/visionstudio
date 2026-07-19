@@ -1,0 +1,390 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Grafana Maturity Model",
+    "description": "Multi-domain maturity model for Grafana observability platform",
+    "version": "1.0.0",
+    "organization": "Grafana Labs",
+    "projectUrl": "https://github.com/grafana/grafana",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-dashboard-load-time": {
+      "id": "sli-dashboard-load-time",
+      "name": "Dashboard Load Time P99",
+      "description": "99th percentile dashboard load time",
+      "metricName": "Dashboard load time",
+      "unit": "seconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "performance"
+    },
+    "sli-plugin-count": {
+      "id": "sli-plugin-count",
+      "name": "Plugin Count",
+      "description": "Total plugins in ecosystem",
+      "metricName": "Plugin count",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "extensibility"
+    },
+    "sli-datasource-count": {
+      "id": "sli-datasource-count",
+      "name": "Data Source Count",
+      "description": "Supported data source backends",
+      "metricName": "Data source count",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "integration"
+    },
+    "sli-auth-methods": {
+      "id": "sli-auth-methods",
+      "name": "Authentication Methods",
+      "description": "Supported authentication methods",
+      "metricName": "Auth methods",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "security"
+    },
+    "sli-sast-coverage": {
+      "id": "sli-sast-coverage",
+      "name": "SAST Coverage",
+      "description": "Code covered by static analysis",
+      "metricName": "SAST coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "security"
+    },
+    "sli-test-coverage": {
+      "id": "sli-test-coverage",
+      "name": "Test Coverage",
+      "description": "Code covered by automated tests",
+      "metricName": "Test coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "quality"
+    },
+    "sli-e2e-coverage": {
+      "id": "sli-e2e-coverage",
+      "name": "E2E Test Coverage",
+      "description": "Critical paths covered by E2E tests",
+      "metricName": "E2E coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "quality"
+    },
+    "sli-api-coverage": {
+      "id": "sli-api-coverage",
+      "name": "API Coverage",
+      "description": "Features accessible via API",
+      "metricName": "API coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "api"
+    },
+    "sli-doc-coverage": {
+      "id": "sli-doc-coverage",
+      "name": "Documentation Coverage",
+      "description": "Features with documentation",
+      "metricName": "Doc coverage",
+      "unit": "%",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "code",
+      "category": "documentation"
+    },
+    "sli-alerting-channels": {
+      "id": "sli-alerting-channels",
+      "name": "Alert Channels",
+      "description": "Supported notification channels",
+      "metricName": "Alert channels",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "throughput",
+      "layer": "runtime",
+      "category": "alerting"
+    }
+  },
+  "domains": {
+    "core-platform": {
+      "name": "Core Platform",
+      "description": "Dashboard engine, visualization, and plugin framework",
+      "owner": "Core Platform Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "Basic dashboard functionality",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Standard dashboard with basic plugins",
+          "criteria": [
+            { "id": "core-m2-plugins", "name": "Basic Plugin Support", "sliId": "sli-plugin-count", "operator": "gte", "target": 50, "required": true },
+            { "id": "core-m2-ds", "name": "Basic Data Sources", "sliId": "sli-datasource-count", "operator": "gte", "target": 20, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Rich ecosystem with good performance",
+          "criteria": [
+            { "id": "core-m3-plugins", "name": "Growing Ecosystem", "sliId": "sli-plugin-count", "operator": "gte", "target": 150, "required": true },
+            { "id": "core-m3-ds", "name": "Comprehensive Data Sources", "sliId": "sli-datasource-count", "operator": "gte", "target": 50, "required": true },
+            { "id": "core-m3-perf", "name": "Good Performance", "sliId": "sli-dashboard-load-time", "operator": "lte", "target": 3, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise-grade with extensive ecosystem",
+          "criteria": [
+            { "id": "core-m4-plugins", "name": "Mature Ecosystem", "sliId": "sli-plugin-count", "operator": "gte", "target": 300, "required": true },
+            { "id": "core-m4-ds", "name": "Full Data Source Coverage", "sliId": "sli-datasource-count", "operator": "gte", "target": 75, "required": true },
+            { "id": "core-m4-perf", "name": "Excellent Performance", "sliId": "sli-dashboard-load-time", "operator": "lte", "target": 2, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading platform",
+          "criteria": [
+            { "id": "core-m5-plugins", "name": "Leading Ecosystem", "sliId": "sli-plugin-count", "operator": "gte", "target": 500, "required": true },
+            { "id": "core-m5-perf", "name": "Sub-second Performance", "sliId": "sli-dashboard-load-time", "operator": "lte", "target": 1, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "security": {
+      "name": "Security",
+      "description": "Authentication, authorization, and security controls",
+      "owner": "Security Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "Basic authentication",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Multiple auth methods, basic scanning",
+          "criteria": [
+            { "id": "sec-m2-auth", "name": "Basic Auth Options", "sliId": "sli-auth-methods", "operator": "gte", "target": 3, "required": true },
+            { "id": "sec-m2-sast", "name": "SAST Enabled", "sliId": "sli-sast-coverage", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Enterprise auth, full scanning",
+          "criteria": [
+            { "id": "sec-m3-auth", "name": "Enterprise Auth", "sliId": "sli-auth-methods", "operator": "gte", "target": 8, "required": true },
+            { "id": "sec-m3-sast", "name": "Full SAST", "sliId": "sli-sast-coverage", "operator": "gte", "target": 90, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Comprehensive security with bug bounty",
+          "criteria": [
+            { "id": "sec-m4-auth", "name": "Comprehensive Auth", "sliId": "sli-auth-methods", "operator": "gte", "target": 10, "required": true },
+            { "id": "sec-m4-sast", "name": "Complete SAST", "sliId": "sli-sast-coverage", "operator": "gte", "target": 95, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Security-first culture",
+          "criteria": [
+            { "id": "sec-m5-auth", "name": "All Auth Methods", "sliId": "sli-auth-methods", "operator": "gte", "target": 12, "required": true },
+            { "id": "sec-m5-sast", "name": "100% SAST", "sliId": "sli-sast-coverage", "operator": "eq", "target": 100, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "quality": {
+      "name": "Quality Engineering",
+      "description": "Testing, quality assurance, and reliability",
+      "owner": "Quality Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "Ad-hoc testing",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic test coverage",
+          "criteria": [
+            { "id": "qual-m2-unit", "name": "Basic Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 40, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Comprehensive testing",
+          "criteria": [
+            { "id": "qual-m3-unit", "name": "Good Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 60, "required": true },
+            { "id": "qual-m3-e2e", "name": "E2E Coverage", "sliId": "sli-e2e-coverage", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "High quality with metrics",
+          "criteria": [
+            { "id": "qual-m4-unit", "name": "High Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 75, "required": true },
+            { "id": "qual-m4-e2e", "name": "High E2E", "sliId": "sli-e2e-coverage", "operator": "gte", "target": 70, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading quality",
+          "criteria": [
+            { "id": "qual-m5-unit", "name": "Excellent Coverage", "sliId": "sli-test-coverage", "operator": "gte", "target": 85, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "api-dx": {
+      "name": "API & Developer Experience",
+      "description": "APIs, SDKs, documentation, and developer tools",
+      "owner": "API/DX Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "Minimal API",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic REST API",
+          "criteria": [
+            { "id": "api-m2-coverage", "name": "Basic API", "sliId": "sli-api-coverage", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Full API with docs",
+          "criteria": [
+            { "id": "api-m3-coverage", "name": "Good API", "sliId": "sli-api-coverage", "operator": "gte", "target": 80, "required": true },
+            { "id": "api-m3-docs", "name": "Good Docs", "sliId": "sli-doc-coverage", "operator": "gte", "target": 70, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise API",
+          "criteria": [
+            { "id": "api-m4-coverage", "name": "Full API", "sliId": "sli-api-coverage", "operator": "gte", "target": 95, "required": true },
+            { "id": "api-m4-docs", "name": "Full Docs", "sliId": "sli-doc-coverage", "operator": "gte", "target": 90, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Developer-first",
+          "criteria": [
+            { "id": "api-m5-coverage", "name": "100% API", "sliId": "sli-api-coverage", "operator": "eq", "target": 100, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "operations": {
+      "name": "Operations & Reliability",
+      "description": "Deployment, HA, alerting, and operational capabilities",
+      "owner": "Operations Team",
+      "levels": [
+        {
+          "level": 1,
+          "name": "Reactive",
+          "description": "Manual operations",
+          "criteria": [],
+          "enablers": []
+        },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Basic alerting",
+          "criteria": [
+            { "id": "ops-m2-alerts", "name": "Basic Alerting", "sliId": "sli-alerting-channels", "operator": "gte", "target": 10, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Rich alerting with IaC",
+          "criteria": [
+            { "id": "ops-m3-alerts", "name": "Rich Alerting", "sliId": "sli-alerting-channels", "operator": "gte", "target": 25, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise operations",
+          "criteria": [
+            { "id": "ops-m4-alerts", "name": "Enterprise Alerting", "sliId": "sli-alerting-channels", "operator": "gte", "target": 35, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "World-class ops",
+          "criteria": [
+            { "id": "ops-m5-alerts", "name": "Full Alerting", "sliId": "sli-alerting-channels", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

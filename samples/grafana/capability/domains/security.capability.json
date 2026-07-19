@@ -1,0 +1,304 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "grafana-security-capability",
+    "version": "1.0.0",
+    "title": "Grafana Security Capability Stack",
+    "description": "Security domain capabilities for Grafana",
+    "domain": "security",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["Security Team"]
+  },
+  "layers": [
+    {
+      "id": "identity",
+      "name": "Identity & Access",
+      "description": "Authentication, authorization, and identity management",
+      "order": 1,
+      "phase": "runtime",
+      "nistCsfFunction": "protect"
+    },
+    {
+      "id": "application",
+      "name": "Application Security",
+      "description": "Code security, vulnerability management, and secure development",
+      "order": 2,
+      "phase": "build",
+      "nistCsfFunction": "protect"
+    },
+    {
+      "id": "detection",
+      "name": "Detection & Response",
+      "description": "Security monitoring, incident response, and threat detection",
+      "order": 3,
+      "phase": "monitor",
+      "nistCsfFunction": "detect"
+    },
+    {
+      "id": "compliance",
+      "name": "Compliance & Governance",
+      "description": "Compliance frameworks, auditing, and security governance",
+      "order": 4,
+      "phase": "govern",
+      "nistCsfFunction": "govern"
+    }
+  ],
+  "categories": [
+    { "id": "authentication", "name": "Authentication", "color": "#3b82f6" },
+    { "id": "authorization", "name": "Authorization", "color": "#8b5cf6" },
+    { "id": "scanning", "name": "Security Scanning", "color": "#ef4444" },
+    { "id": "vulnerability", "name": "Vulnerability Management", "color": "#f59e0b" },
+    { "id": "compliance", "name": "Compliance", "color": "#10b981" },
+    { "id": "monitoring", "name": "Security Monitoring", "color": "#06b6d4" }
+  ],
+  "capabilities": [
+    {
+      "id": "basic-auth",
+      "name": "Basic Authentication",
+      "description": "Username/password authentication",
+      "layerId": "identity",
+      "categoryId": "authentication",
+      "status": "operational",
+      "owner": "Security Team",
+      "prismRef": {
+        "domainId": "security",
+        "levelCriteria": {
+          "M1": "Username/password only",
+          "M2": "Password policies enforced",
+          "M3": "Account lockout, password history",
+          "M4": "Breach detection integration",
+          "M5": "Passwordless option available"
+        }
+      }
+    },
+    {
+      "id": "oauth-integration",
+      "name": "OAuth Integration",
+      "description": "OAuth 2.0 / OIDC authentication providers",
+      "layerId": "identity",
+      "categoryId": "authentication",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "GitHub OAuth", "type": "integration", "status": "deployed" },
+        { "name": "Google OAuth", "type": "integration", "status": "deployed" },
+        { "name": "Azure AD", "vendor": "Microsoft", "type": "integration", "status": "deployed" },
+        { "name": "Okta", "vendor": "Okta", "type": "integration", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-oauth-providers"]
+      }
+    },
+    {
+      "id": "saml-integration",
+      "name": "SAML Integration",
+      "description": "SAML 2.0 SSO integration",
+      "layerId": "identity",
+      "categoryId": "authentication",
+      "status": "operational",
+      "owner": "Security Team",
+      "prismRef": {
+        "domainId": "security"
+      }
+    },
+    {
+      "id": "ldap-integration",
+      "name": "LDAP Integration",
+      "description": "LDAP/Active Directory authentication",
+      "layerId": "identity",
+      "categoryId": "authentication",
+      "status": "operational",
+      "owner": "Security Team"
+    },
+    {
+      "id": "api-keys",
+      "name": "API Keys",
+      "description": "API key authentication for programmatic access",
+      "layerId": "identity",
+      "categoryId": "authentication",
+      "status": "operational",
+      "owner": "Security Team"
+    },
+    {
+      "id": "service-accounts",
+      "name": "Service Accounts",
+      "description": "Non-human identity management",
+      "layerId": "identity",
+      "categoryId": "authentication",
+      "status": "operational",
+      "owner": "Security Team"
+    },
+    {
+      "id": "rbac",
+      "name": "Role-Based Access Control",
+      "description": "Fine-grained RBAC with custom roles",
+      "layerId": "identity",
+      "categoryId": "authorization",
+      "status": "operational",
+      "owner": "Security Team",
+      "dependencies": ["basic-auth", "oauth-integration"],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-rbac-coverage"],
+        "levelCriteria": {
+          "M1": "Admin/Viewer only",
+          "M2": "Org-level roles",
+          "M3": "Folder/dashboard permissions",
+          "M4": "Custom roles, ABAC",
+          "M5": "Data-level row security"
+        }
+      }
+    },
+    {
+      "id": "team-sync",
+      "name": "Team Sync",
+      "description": "Sync teams from identity providers",
+      "layerId": "identity",
+      "categoryId": "authorization",
+      "status": "operational",
+      "owner": "Security Team",
+      "dependencies": ["oauth-integration", "ldap-integration"]
+    },
+    {
+      "id": "sast",
+      "name": "Static Analysis",
+      "description": "Static application security testing",
+      "layerId": "application",
+      "categoryId": "scanning",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "CodeQL", "vendor": "GitHub", "type": "managed-service", "status": "deployed" },
+        { "name": "Semgrep", "type": "open-source", "status": "deployed" },
+        { "name": "gosec", "type": "open-source", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-sast-coverage"]
+      }
+    },
+    {
+      "id": "sca",
+      "name": "Dependency Scanning",
+      "description": "Software composition analysis",
+      "layerId": "application",
+      "categoryId": "scanning",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "Dependabot", "vendor": "GitHub", "type": "managed-service", "status": "deployed" },
+        { "name": "Snyk", "vendor": "Snyk", "type": "commercial", "status": "deployed" }
+      ],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-sca-coverage"]
+      }
+    },
+    {
+      "id": "secrets-detection",
+      "name": "Secrets Detection",
+      "description": "Detect secrets in code and config",
+      "layerId": "application",
+      "categoryId": "scanning",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "GitHub Secret Scanning", "vendor": "GitHub", "type": "managed-service", "status": "deployed" },
+        { "name": "gitleaks", "type": "open-source", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "container-scanning",
+      "name": "Container Scanning",
+      "description": "Container image vulnerability scanning",
+      "layerId": "application",
+      "categoryId": "scanning",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "Trivy", "type": "open-source", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "vulnerability-management",
+      "name": "Vulnerability Management",
+      "description": "Centralized vulnerability tracking and remediation",
+      "layerId": "application",
+      "categoryId": "vulnerability",
+      "status": "operational",
+      "owner": "Security Team",
+      "dependencies": ["sast", "sca", "container-scanning"],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-vuln-mttr"]
+      }
+    },
+    {
+      "id": "bug-bounty",
+      "name": "Bug Bounty Program",
+      "description": "External security researcher program",
+      "layerId": "detection",
+      "categoryId": "vulnerability",
+      "status": "operational",
+      "owner": "Security Team",
+      "tooling": [
+        { "name": "Intigriti", "vendor": "Intigriti", "type": "commercial", "status": "deployed", "url": "https://www.intigriti.com/programs/grafana" }
+      ],
+      "prismRef": {
+        "domainId": "security",
+        "sliIds": ["sli-bb-response-time", "sli-bb-submissions"],
+        "levelCriteria": {
+          "M1": "No bug bounty",
+          "M2": "Private program, limited scope",
+          "M3": "Public program, core scope",
+          "M4": "Full scope, fast response",
+          "M5": "Industry-leading program, VDP"
+        }
+      }
+    },
+    {
+      "id": "security-logging",
+      "name": "Security Logging",
+      "description": "Security event logging and audit trails",
+      "layerId": "detection",
+      "categoryId": "monitoring",
+      "status": "operational",
+      "owner": "Security Team"
+    },
+    {
+      "id": "soc2",
+      "name": "SOC 2 Compliance",
+      "description": "SOC 2 Type II certification",
+      "layerId": "compliance",
+      "categoryId": "compliance",
+      "status": "in-progress",
+      "priority": "high",
+      "targetDate": "2027-06-30",
+      "owner": "Security Team",
+      "frameworkMappings": [
+        { "framework": "SOC_2", "controls": ["CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9"] }
+      ]
+    },
+    {
+      "id": "iso27001",
+      "name": "ISO 27001 Compliance",
+      "description": "ISO 27001 certification",
+      "layerId": "compliance",
+      "categoryId": "compliance",
+      "status": "in-progress",
+      "priority": "medium",
+      "targetDate": "2027-12-31",
+      "owner": "Security Team",
+      "frameworkMappings": [
+        { "framework": "ISO_27001", "controls": ["A.5", "A.6", "A.7", "A.8", "A.9"] }
+      ]
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../../maturity/domains/security/model.json",
+    "stateRef": "../../maturity/domains/security/state.json",
+    "defaultDomain": "security"
+  }
+}

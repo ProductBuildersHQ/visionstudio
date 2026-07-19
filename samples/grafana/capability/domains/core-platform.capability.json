@@ -1,0 +1,314 @@
+{
+  "$schema": "https://github.com/grokify/prism-capability/schema/capability-stack.schema.json",
+  "metadata": {
+    "name": "grafana-core-platform-capability",
+    "version": "1.0.0",
+    "title": "Grafana Core Platform Capability Stack",
+    "description": "Core platform capabilities for Grafana",
+    "domain": "core-platform",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15",
+    "authors": ["Core Platform Team"]
+  },
+  "layers": [
+    {
+      "id": "visualization",
+      "name": "Visualization",
+      "description": "Dashboard rendering, panels, and visualization components",
+      "order": 1,
+      "phase": "runtime"
+    },
+    {
+      "id": "data",
+      "name": "Data Layer",
+      "description": "Data sources, queries, and transformations",
+      "order": 2,
+      "phase": "runtime"
+    },
+    {
+      "id": "extensibility",
+      "name": "Extensibility",
+      "description": "Plugin system, SDK, and extension points",
+      "order": 3,
+      "phase": "build"
+    },
+    {
+      "id": "core",
+      "name": "Core Services",
+      "description": "Configuration, storage, and core infrastructure",
+      "order": 4,
+      "phase": "runtime"
+    }
+  ],
+  "categories": [
+    { "id": "dashboard", "name": "Dashboard", "color": "#3b82f6" },
+    { "id": "panels", "name": "Panels", "color": "#8b5cf6" },
+    { "id": "datasource", "name": "Data Sources", "color": "#10b981" },
+    { "id": "query", "name": "Query", "color": "#f59e0b" },
+    { "id": "plugin", "name": "Plugin", "color": "#ef4444" },
+    { "id": "storage", "name": "Storage", "color": "#06b6d4" }
+  ],
+  "capabilities": [
+    {
+      "id": "dashboard-engine",
+      "name": "Dashboard Engine",
+      "fullName": "Dashboard Rendering Engine",
+      "description": "Core dashboard layout, rendering, and state management",
+      "layerId": "visualization",
+      "categoryId": "dashboard",
+      "status": "operational",
+      "owner": "Dashboard Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-dashboard-load-time", "sli-dashboard-render-time"],
+        "levelCriteria": {
+          "M1": "Basic static dashboards",
+          "M2": "Dynamic layouts, basic templating",
+          "M3": "Variables, annotations, links",
+          "M4": "Sub-second rendering, virtual scrolling",
+          "M5": "Real-time streaming, predictive loading"
+        }
+      }
+    },
+    {
+      "id": "dashboard-variables",
+      "name": "Dashboard Variables",
+      "description": "Template variables for dynamic dashboards",
+      "layerId": "visualization",
+      "categoryId": "dashboard",
+      "status": "operational",
+      "owner": "Dashboard Team",
+      "dependencies": ["dashboard-engine"]
+    },
+    {
+      "id": "dashboard-annotations",
+      "name": "Annotations",
+      "description": "Time-based event annotations on graphs",
+      "layerId": "visualization",
+      "categoryId": "dashboard",
+      "status": "operational",
+      "owner": "Dashboard Team"
+    },
+    {
+      "id": "time-series-panel",
+      "name": "Time Series Panel",
+      "description": "Core time series visualization",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-panel-render-time"]
+      }
+    },
+    {
+      "id": "stat-panel",
+      "name": "Stat Panel",
+      "description": "Single value statistics display",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team"
+    },
+    {
+      "id": "table-panel",
+      "name": "Table Panel",
+      "description": "Tabular data display with sorting and filtering",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team"
+    },
+    {
+      "id": "gauge-panel",
+      "name": "Gauge Panel",
+      "description": "Gauge and bar gauge visualizations",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team"
+    },
+    {
+      "id": "heatmap-panel",
+      "name": "Heatmap Panel",
+      "description": "Heatmap visualization for distributions",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team"
+    },
+    {
+      "id": "geomap-panel",
+      "name": "Geomap Panel",
+      "description": "Geographic map visualization",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team"
+    },
+    {
+      "id": "canvas-panel",
+      "name": "Canvas Panel",
+      "description": "Freeform canvas with custom elements",
+      "layerId": "visualization",
+      "categoryId": "panels",
+      "status": "operational",
+      "owner": "Visualization Team"
+    },
+    {
+      "id": "datasource-framework",
+      "name": "Data Source Framework",
+      "description": "Framework for connecting to data backends",
+      "layerId": "data",
+      "categoryId": "datasource",
+      "status": "operational",
+      "owner": "Data Sources Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-datasource-count"],
+        "levelCriteria": {
+          "M1": "Single data source type",
+          "M2": "Multiple built-in sources",
+          "M3": "Plugin data sources, unified query",
+          "M4": "50+ data sources, query federation",
+          "M5": "100+ sources, AI-assisted queries"
+        }
+      }
+    },
+    {
+      "id": "prometheus-datasource",
+      "name": "Prometheus Data Source",
+      "description": "Native Prometheus/PromQL support",
+      "layerId": "data",
+      "categoryId": "datasource",
+      "status": "operational",
+      "owner": "Data Sources Team",
+      "dependencies": ["datasource-framework"]
+    },
+    {
+      "id": "loki-datasource",
+      "name": "Loki Data Source",
+      "description": "Native Loki/LogQL support",
+      "layerId": "data",
+      "categoryId": "datasource",
+      "status": "operational",
+      "owner": "Data Sources Team",
+      "dependencies": ["datasource-framework"]
+    },
+    {
+      "id": "tempo-datasource",
+      "name": "Tempo Data Source",
+      "description": "Native Tempo tracing support",
+      "layerId": "data",
+      "categoryId": "datasource",
+      "status": "operational",
+      "owner": "Data Sources Team",
+      "dependencies": ["datasource-framework"]
+    },
+    {
+      "id": "query-engine",
+      "name": "Query Engine",
+      "description": "Query execution, caching, and optimization",
+      "layerId": "data",
+      "categoryId": "query",
+      "status": "operational",
+      "owner": "Query Team",
+      "dependencies": ["datasource-framework"],
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-query-latency", "sli-cache-hit-rate"]
+      }
+    },
+    {
+      "id": "query-caching",
+      "name": "Query Caching",
+      "description": "Query result caching layer",
+      "layerId": "data",
+      "categoryId": "query",
+      "status": "operational",
+      "owner": "Query Team",
+      "dependencies": ["query-engine"]
+    },
+    {
+      "id": "transformations",
+      "name": "Data Transformations",
+      "description": "Client-side data transformations",
+      "layerId": "data",
+      "categoryId": "query",
+      "status": "operational",
+      "owner": "Query Team"
+    },
+    {
+      "id": "plugin-system",
+      "name": "Plugin System",
+      "description": "Plugin loading, sandboxing, and lifecycle",
+      "layerId": "extensibility",
+      "categoryId": "plugin",
+      "status": "operational",
+      "owner": "Plugin Team",
+      "prismRef": {
+        "domainId": "core-platform",
+        "sliIds": ["sli-plugin-count", "sli-plugin-load-time"],
+        "levelCriteria": {
+          "M1": "Basic plugin loading",
+          "M2": "Plugin marketplace, basic SDK",
+          "M3": "Signed plugins, TypeScript SDK",
+          "M4": "Sandboxing, hot reload, 300+ plugins",
+          "M5": "Plugin certification, 500+ plugins"
+        }
+      }
+    },
+    {
+      "id": "plugin-sdk",
+      "name": "Plugin SDK",
+      "description": "SDK for building Grafana plugins",
+      "layerId": "extensibility",
+      "categoryId": "plugin",
+      "status": "operational",
+      "owner": "Plugin Team",
+      "tooling": [
+        { "name": "@grafana/toolkit", "type": "npm-package", "status": "deprecated" },
+        { "name": "create-plugin", "type": "npm-package", "status": "deployed" }
+      ]
+    },
+    {
+      "id": "plugin-marketplace",
+      "name": "Plugin Marketplace",
+      "description": "Plugin discovery and installation",
+      "layerId": "extensibility",
+      "categoryId": "plugin",
+      "status": "operational",
+      "owner": "Plugin Team",
+      "dependencies": ["plugin-system"]
+    },
+    {
+      "id": "configuration-db",
+      "name": "Configuration Database",
+      "description": "Dashboard and settings storage",
+      "layerId": "core",
+      "categoryId": "storage",
+      "status": "operational",
+      "owner": "Platform Team",
+      "tooling": [
+        { "name": "SQLite", "type": "embedded", "status": "deployed" },
+        { "name": "PostgreSQL", "type": "database", "status": "supported" },
+        { "name": "MySQL", "type": "database", "status": "supported" }
+      ]
+    },
+    {
+      "id": "provisioning",
+      "name": "Provisioning",
+      "description": "File-based dashboard and datasource provisioning",
+      "layerId": "core",
+      "categoryId": "storage",
+      "status": "operational",
+      "owner": "Platform Team"
+    }
+  ],
+  "prismIntegration": {
+    "modelRef": "../../maturity/domains/core-platform/model.json",
+    "stateRef": "../../maturity/domains/core-platform/state.json",
+    "defaultDomain": "core-platform"
+  }
+}

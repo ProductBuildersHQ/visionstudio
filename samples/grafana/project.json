@@ -1,0 +1,72 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/project.schema.json",
+  "metadata": {
+    "id": "grafana",
+    "name": "Grafana",
+    "description": "Open source observability and visualization platform",
+    "version": "1.0.0",
+    "type": "reference-implementation",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "project": {
+    "url": "https://github.com/grafana/grafana",
+    "license": "AGPL-3.0",
+    "language": ["Go", "TypeScript"],
+    "framework": {
+      "backend": "Go",
+      "frontend": "React"
+    },
+    "bugBounty": {
+      "provider": "Intigriti",
+      "url": "https://www.intigriti.com/programs/grafana"
+    }
+  },
+  "structure": {
+    "v2mom": {
+      "root": "./v2mom/grafana.v2mom.json",
+      "teams": "./v2mom/teams/"
+    },
+    "capability": {
+      "root": "./capability/grafana.capability.json",
+      "domains": "./capability/domains/"
+    },
+    "maturity": {
+      "root": {
+        "model": "./maturity/grafana.model.json",
+        "state": "./maturity/grafana.state.json"
+      },
+      "domains": "./maturity/domains/"
+    },
+    "roadmap": {
+      "root": "./roadmap/grafana.roadmap.json"
+    }
+  },
+  "teams": [
+    {
+      "id": "core-platform",
+      "name": "Core Platform",
+      "description": "Dashboard engine, visualization, and plugin framework"
+    },
+    {
+      "id": "security",
+      "name": "Security",
+      "description": "Authentication, authorization, and security controls"
+    },
+    {
+      "id": "quality",
+      "name": "Quality Engineering",
+      "description": "Testing, quality assurance, and reliability"
+    },
+    {
+      "id": "api-dx",
+      "name": "API & Developer Experience",
+      "description": "APIs, SDKs, documentation, and developer tools"
+    },
+    {
+      "id": "operations",
+      "name": "Operations & Reliability",
+      "description": "Deployment, HA, alerting, and operational capabilities"
+    }
+  ]
+}

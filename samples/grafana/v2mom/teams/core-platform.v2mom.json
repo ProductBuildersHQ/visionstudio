@@ -1,0 +1,294 @@
+{
+  "$schema": "https://github.com/grokify/prism-roadmap/schema/v2mom.schema.json",
+  "metadata": {
+    "id": "grafana-core-platform-fy2027",
+    "name": "Core Platform Team FY2027",
+    "author": "Core Platform Lead",
+    "team": "Core Platform",
+    "fiscalYear": "FY2027",
+    "quarter": "Annual",
+    "version": "1.0.0",
+    "status": "Active",
+    "parentId": "grafana-fy2027",
+    "structure": "nested",
+    "terminology": "v2mom"
+  },
+  "vision": "Build the most powerful, performant, and extensible observability visualization platform that delights millions of users daily.",
+  "values": [
+    {
+      "name": "Performance First",
+      "description": "Every feature must be fast; performance is a feature",
+      "priority": 1
+    },
+    {
+      "name": "Extensibility",
+      "description": "Make it easy for anyone to extend Grafana through plugins",
+      "priority": 2
+    },
+    {
+      "name": "User Delight",
+      "description": "Create intuitive, beautiful experiences that users love",
+      "priority": 3
+    },
+    {
+      "name": "Backward Compatibility",
+      "description": "Don't break existing dashboards or workflows",
+      "priority": 4
+    }
+  ],
+  "methods": [
+    {
+      "id": "core-method-1",
+      "name": "Dashboard Performance Excellence",
+      "description": "Achieve sub-second dashboard load times for 99th percentile",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Dashboard Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-06-30",
+      "measures": [
+        {
+          "id": "perf-kr1",
+          "name": "Dashboard Load P99",
+          "baseline": "3.2s",
+          "target": "< 1s",
+          "current": "2.1s",
+          "unit": "seconds",
+          "progress": 0.5,
+          "status": "On Track"
+        },
+        {
+          "id": "perf-kr2",
+          "name": "Query Execution P95",
+          "baseline": "800ms",
+          "target": "< 300ms",
+          "current": "520ms",
+          "unit": "milliseconds",
+          "progress": 0.56,
+          "status": "On Track"
+        },
+        {
+          "id": "perf-kr3",
+          "name": "Memory Usage",
+          "baseline": "2.1GB",
+          "target": "< 1.5GB",
+          "current": "1.8GB",
+          "unit": "GB",
+          "progress": 0.5,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-query-cache", "proj-virtual-scrolling"]
+    },
+    {
+      "id": "core-method-2",
+      "name": "Plugin Ecosystem Growth",
+      "description": "Grow the plugin ecosystem through better SDK and developer experience",
+      "priority": "P0",
+      "status": "In Progress",
+      "owner": "Plugin Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "plugin-kr1",
+          "name": "Total Plugins",
+          "baseline": "350",
+          "target": "500",
+          "current": "380",
+          "unit": "plugins",
+          "progress": 0.2,
+          "status": "On Track"
+        },
+        {
+          "id": "plugin-kr2",
+          "name": "SDK Developer NPS",
+          "baseline": "35",
+          "target": "60",
+          "current": "42",
+          "progress": 0.28,
+          "status": "On Track"
+        },
+        {
+          "id": "plugin-kr3",
+          "name": "Plugin Build Time",
+          "baseline": "45s",
+          "target": "< 15s",
+          "current": "28s",
+          "unit": "seconds",
+          "progress": 0.57,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-plugin-sdk-v2", "proj-plugin-marketplace"]
+    },
+    {
+      "id": "core-method-3",
+      "name": "Data Source Expansion",
+      "description": "Expand data source support to cover all major observability backends",
+      "priority": "P1",
+      "status": "In Progress",
+      "owner": "Data Sources Team",
+      "startDate": "2027-01-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "ds-kr1",
+          "name": "Official Data Sources",
+          "baseline": "85",
+          "target": "100",
+          "current": "88",
+          "unit": "data sources",
+          "progress": 0.2,
+          "status": "On Track"
+        },
+        {
+          "id": "ds-kr2",
+          "name": "Query Language Coverage",
+          "baseline": "15",
+          "target": "20",
+          "current": "16",
+          "unit": "languages",
+          "progress": 0.2,
+          "status": "On Track"
+        }
+      ],
+      "projects": ["proj-unified-query", "proj-new-datasources"]
+    },
+    {
+      "id": "core-method-4",
+      "name": "Visualization Innovation",
+      "description": "Introduce new visualization types and improve existing ones",
+      "priority": "P1",
+      "status": "Planning",
+      "owner": "Visualization Team",
+      "startDate": "2027-04-01",
+      "endDate": "2027-12-31",
+      "measures": [
+        {
+          "id": "viz-kr1",
+          "name": "New Panel Types",
+          "baseline": "42",
+          "target": "50",
+          "current": "42",
+          "unit": "panel types",
+          "progress": 0,
+          "status": "Not Started"
+        },
+        {
+          "id": "viz-kr2",
+          "name": "Visualization Rendering Time",
+          "baseline": "180ms",
+          "target": "< 100ms",
+          "current": "180ms",
+          "unit": "milliseconds",
+          "progress": 0,
+          "status": "Not Started"
+        }
+      ],
+      "projects": ["proj-canvas-panels", "proj-3d-viz"]
+    }
+  ],
+  "obstacles": [
+    {
+      "id": "core-obs-1",
+      "name": "Legacy Code",
+      "description": "Legacy AngularJS code limits performance and modern features",
+      "severity": "High",
+      "likelihood": "High",
+      "mitigation": "Gradual migration to React, prioritize high-impact areas",
+      "status": "Mitigating"
+    },
+    {
+      "id": "core-obs-2",
+      "name": "Browser Compatibility",
+      "description": "Supporting older browsers limits use of modern web APIs",
+      "severity": "Medium",
+      "likelihood": "Medium",
+      "mitigation": "Define clear browser support policy, use polyfills where needed",
+      "status": "Accepted"
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-query-cache",
+      "name": "Query Result Caching",
+      "description": "Implement intelligent query result caching",
+      "category": "Performance",
+      "methodId": "core-method-1",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-virtual-scrolling",
+      "name": "Virtual Scrolling for Large Dashboards",
+      "description": "Implement virtual scrolling for dashboards with many panels",
+      "category": "Performance",
+      "methodId": "core-method-1",
+      "priority": "P1",
+      "status": "Planning",
+      "quarter": "Q2"
+    },
+    {
+      "id": "proj-plugin-sdk-v2",
+      "name": "Plugin SDK v2",
+      "description": "Next-generation plugin SDK with TypeScript-first DX",
+      "category": "Platform",
+      "methodId": "core-method-2",
+      "priority": "P0",
+      "status": "In Progress",
+      "quarter": "Q1-Q3"
+    },
+    {
+      "id": "proj-plugin-marketplace",
+      "name": "Plugin Marketplace Improvements",
+      "description": "Improve plugin discovery, ratings, and installation UX",
+      "category": "Platform",
+      "methodId": "core-method-2",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3-Q4"
+    },
+    {
+      "id": "proj-unified-query",
+      "name": "Unified Query Interface",
+      "description": "Common query interface across all data sources",
+      "category": "Data Sources",
+      "methodId": "core-method-3",
+      "priority": "P1",
+      "status": "In Progress",
+      "quarter": "Q1-Q2"
+    },
+    {
+      "id": "proj-new-datasources",
+      "name": "New Data Source Connectors",
+      "description": "Add support for ClickHouse, QuestDB, and others",
+      "category": "Data Sources",
+      "methodId": "core-method-3",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q2-Q4"
+    },
+    {
+      "id": "proj-canvas-panels",
+      "name": "Canvas Panel Enhancements",
+      "description": "Enhanced canvas panel with more shapes and interactivity",
+      "category": "Visualization",
+      "methodId": "core-method-4",
+      "priority": "P2",
+      "status": "Planning",
+      "quarter": "Q3"
+    },
+    {
+      "id": "proj-3d-viz",
+      "name": "3D Visualization Panel",
+      "description": "WebGL-based 3D visualization for infrastructure topology",
+      "category": "Visualization",
+      "methodId": "core-method-4",
+      "priority": "P3",
+      "status": "Research",
+      "quarter": "Q4"
+    }
+  ]
+}

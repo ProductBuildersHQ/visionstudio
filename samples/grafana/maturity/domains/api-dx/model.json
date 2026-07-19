@@ -1,0 +1,220 @@
+{
+  "$schema": "https://github.com/grokify/prism/schema/prism-maturity-model.schema.json",
+  "metadata": {
+    "name": "Grafana API & Developer Experience Maturity Model",
+    "description": "Detailed maturity model for Grafana API and developer experience",
+    "version": "1.0.0",
+    "organization": "Grafana Labs",
+    "domain": "api-dx",
+    "parentRef": "../../grafana.model.json",
+    "createdAt": "2026-07-15",
+    "updatedAt": "2026-07-15"
+  },
+  "slis": {
+    "sli-api-coverage": {
+      "id": "sli-api-coverage",
+      "name": "API Coverage",
+      "description": "Percentage of features accessible via API",
+      "metricName": "API coverage percentage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "runtime",
+      "category": "api"
+    },
+    "sli-api-latency": {
+      "id": "sli-api-latency",
+      "name": "API Latency P99",
+      "description": "99th percentile API response time",
+      "metricName": "API latency",
+      "unit": "milliseconds",
+      "type": "quantitative",
+      "sliType": "latency",
+      "layer": "runtime",
+      "category": "api"
+    },
+    "sli-graphql-adoption": {
+      "id": "sli-graphql-adoption",
+      "name": "GraphQL Adoption",
+      "description": "Percentage of API calls using GraphQL",
+      "metricName": "GraphQL adoption",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "adoption",
+      "layer": "runtime",
+      "category": "api"
+    },
+    "sli-sdk-coverage": {
+      "id": "sli-sdk-coverage",
+      "name": "SDK API Coverage",
+      "description": "Percentage of API endpoints covered by SDKs",
+      "metricName": "SDK coverage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "build",
+      "category": "sdk"
+    },
+    "sli-docs-coverage": {
+      "id": "sli-docs-coverage",
+      "name": "Documentation Coverage",
+      "description": "Percentage of API endpoints documented",
+      "metricName": "Docs coverage",
+      "unit": "percent",
+      "type": "quantitative",
+      "sliType": "coverage",
+      "layer": "build",
+      "category": "documentation"
+    },
+    "sli-breaking-changes": {
+      "id": "sli-breaking-changes",
+      "name": "Breaking Changes",
+      "description": "Number of breaking API changes per release",
+      "metricName": "Breaking changes",
+      "unit": "count",
+      "type": "quantitative",
+      "sliType": "quality",
+      "layer": "runtime",
+      "category": "api"
+    }
+  },
+  "domains": {
+    "rest-api": {
+      "name": "REST API",
+      "description": "REST API quality and coverage",
+      "owner": "API/DX Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "Ad-hoc endpoints", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Consistent REST patterns",
+          "criteria": [
+            { "id": "rest-m2-cov", "name": "Basic Coverage", "sliId": "sli-api-coverage", "operator": "gte", "target": 50, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "OpenAPI documented",
+          "criteria": [
+            { "id": "rest-m3-cov", "name": "Good Coverage", "sliId": "sli-api-coverage", "operator": "gte", "target": 75, "required": true },
+            { "id": "rest-m3-docs", "name": "Good Docs", "sliId": "sli-docs-coverage", "operator": "gte", "target": 80, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Enterprise-grade API",
+          "criteria": [
+            { "id": "rest-m4-cov", "name": "High Coverage", "sliId": "sli-api-coverage", "operator": "gte", "target": 90, "required": true },
+            { "id": "rest-m4-lat", "name": "Fast API", "sliId": "sli-api-latency", "operator": "lte", "target": 200, "required": true },
+            { "id": "rest-m4-docs", "name": "Full Docs", "sliId": "sli-docs-coverage", "operator": "gte", "target": 95, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Industry-leading API",
+          "criteria": [
+            { "id": "rest-m5-cov", "name": "Complete Coverage", "sliId": "sli-api-coverage", "operator": "gte", "target": 100, "required": true },
+            { "id": "rest-m5-lat", "name": "Ultra-fast API", "sliId": "sli-api-latency", "operator": "lte", "target": 100, "required": true },
+            { "id": "rest-m5-break", "name": "Zero Breaking", "sliId": "sli-breaking-changes", "operator": "lte", "target": 0, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "graphql-api": {
+      "name": "GraphQL API",
+      "description": "GraphQL implementation maturity",
+      "owner": "API/DX Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "No GraphQL", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Experimental GraphQL",
+          "criteria": [
+            { "id": "gql-m2-adopt", "name": "Initial Adoption", "sliId": "sli-graphql-adoption", "operator": "gte", "target": 5, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Production GraphQL",
+          "criteria": [
+            { "id": "gql-m3-adopt", "name": "Growing Adoption", "sliId": "sli-graphql-adoption", "operator": "gte", "target": 20, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "GraphQL preferred",
+          "criteria": [
+            { "id": "gql-m4-adopt", "name": "High Adoption", "sliId": "sli-graphql-adoption", "operator": "gte", "target": 40, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "GraphQL-first",
+          "criteria": [
+            { "id": "gql-m5-adopt", "name": "Majority Adoption", "sliId": "sli-graphql-adoption", "operator": "gte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    },
+    "sdk-ecosystem": {
+      "name": "SDK Ecosystem",
+      "description": "Client SDK quality and coverage",
+      "owner": "API/DX Team",
+      "levels": [
+        { "level": 1, "name": "Reactive", "description": "No official SDKs", "criteria": [], "enablers": [] },
+        {
+          "level": 2,
+          "name": "Basic",
+          "description": "Single SDK",
+          "criteria": [
+            { "id": "sdk-m2-cov", "name": "Basic SDK Coverage", "sliId": "sli-sdk-coverage", "operator": "gte", "target": 30, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 3,
+          "name": "Defined",
+          "description": "Multiple SDKs",
+          "criteria": [
+            { "id": "sdk-m3-cov", "name": "Good SDK Coverage", "sliId": "sli-sdk-coverage", "operator": "gte", "target": 60, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 4,
+          "name": "Managed",
+          "description": "Comprehensive SDKs",
+          "criteria": [
+            { "id": "sdk-m4-cov", "name": "High SDK Coverage", "sliId": "sli-sdk-coverage", "operator": "gte", "target": 85, "required": true }
+          ],
+          "enablers": []
+        },
+        {
+          "level": 5,
+          "name": "Optimizing",
+          "description": "Auto-generated SDKs",
+          "criteria": [
+            { "id": "sdk-m5-cov", "name": "Full SDK Coverage", "sliId": "sli-sdk-coverage", "operator": "gte", "target": 95, "required": true }
+          ],
+          "enablers": []
+        }
+      ]
+    }
+  }
+}

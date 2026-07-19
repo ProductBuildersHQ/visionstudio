@@ -7,6 +7,63 @@
   "maintainers": ["ProductBuildersHQ"],
   "releases": [
     {
+      "version": "v0.2.0",
+      "date": "2026-07-19",
+      "highlights": [
+        { "description": "AIDLC workflow integration with document generation and phase transitions" },
+        { "description": "V2MOM cascade management from Organization to Team to Project" },
+        { "description": "Strategic planning suite with capability stack, roadmap, and maturity model" },
+        { "description": "Dual methodology selection separating requirements and implementation approaches" },
+        { "description": "Sample projects with Grafana (comprehensive) and Simple (minimal) examples" },
+        { "description": "60+ REST API endpoints for comprehensive feature coverage" }
+      ],
+      "added": [
+        { "description": "AIDLC workflow API handlers with phases, transitions, sync, and generation", "commit": "b754bf3" },
+        { "description": "V2MOM cascade API handlers for organization, team, and project V2MOMs", "commit": "c8ecdd5" },
+        { "description": "Capability stack API handlers with CRUD operations", "commit": "5cef34f" },
+        { "description": "Roadmap API handlers for initiative management", "commit": "30d3752" },
+        { "description": "Organization API handlers with team management", "commit": "585a0c2" },
+        { "description": "Methodology selection API handlers for requirements and implementation", "commit": "1a8c915" },
+        { "description": "Sample projects API handlers with import capability", "commit": "c0c0831" },
+        { "description": "Wire up all new API routes in main router", "commit": "9ded3bc" },
+        { "description": "API types for AIDLC, V2MOM, roadmap, capability, maturity, and methodology", "commit": "d602e0a" },
+        { "description": "Organization config and project methodology fields", "commit": "d9154d2" },
+        { "description": "AIDLC workflow UI components with workflow, document, and sync views", "commit": "2306b21" },
+        { "description": "V2MOM cascade UI components with cascade and individual views", "commit": "6e53622" },
+        { "description": "Capability stack view component", "commit": "6bb6863" },
+        { "description": "Organization view component with team hierarchy", "commit": "3bdd264" },
+        { "description": "Roadmap view component with timeline visualization", "commit": "785af7a" },
+        { "description": "Maturity model view component with assessments", "commit": "a3d49b9" },
+        { "description": "Sample picker component with Grafana and Simple examples", "commit": "2f64cd5" },
+        { "description": "Evaluation display component with dimension scores", "commit": "a96fbfa" },
+        { "description": "Methodology selector modal for requirements and implementation", "commit": "f50fd3d" },
+        { "description": "Export new components from component index", "commit": "fd52b6a" },
+        { "description": "Methodology menu and enhanced sidebar navigation", "commit": "f132672" },
+        { "description": "Spec editor enhancements with AIDLC integration", "commit": "25a6141" },
+        { "description": "Wire up new views in App.tsx routing", "commit": "09b67b6" },
+        { "description": "TypeScript types for all new features", "commit": "bc351eb" },
+        { "description": "API service methods for all new feature endpoints", "commit": "c084992" }
+      ],
+      "fixed": [
+        { "description": "Resolve golangci-lint issues (errcheck, gosec, unparam, dupl)", "commit": "0635c08" }
+      ],
+      "documentation": [
+        { "description": "Add user guide pages for AIDLC, V2MOM, capabilities, roadmap, maturity, methodology, samples, organization", "commit": "5b34ffa" },
+        { "description": "Update architecture documentation with 60+ API endpoints", "commit": "1217ece" },
+        { "description": "Update README and homepage for v0.13.0 features", "commit": "3cdc892" },
+        { "description": "Update mkdocs navigation for new guides", "commit": "4e01e3c" },
+        { "description": "Add AIDLC API guide and feature specs", "commit": "ca62c5c" }
+      ],
+      "dependencies": [
+        { "description": "Upgrade visionspec from v0.12.0 to v0.13.0 with AIDLC support", "commit": "69f0383" },
+        { "description": "Bump github.com/go-chi/chi/v5 from 5.3.0 to 5.3.1", "commit": "049b1ce" }
+      ],
+      "maintenance": [
+        { "description": "Add daemon binary to gitignore", "commit": "61aeaea" },
+        { "description": "Update go.mod dependencies", "commit": "34e89c7" }
+      ]
+    },
+    {
       "version": "v0.1.0",
       "date": "2026-07-06",
       "highlights": [

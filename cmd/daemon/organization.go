@@ -312,7 +312,7 @@ func (s *Server) loadOrganizationV2MOMs(v2momPath string) ([]api.OrganizationV2M
 		}
 
 		// Load and parse the V2MOM
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(path) //nolint:gosec // G122: Path from Walk in trusted project directory
 		if err != nil {
 			s.logger.Warn("Failed to read V2MOM file", "path", path, "error", err)
 			return nil
@@ -383,8 +383,8 @@ func (s *Server) parseOrganizationV2MOM(raw map[string]any, path string, modTime
 		for i, v := range values {
 			if val, ok := v.(map[string]any); ok {
 				value := api.V2MOMValue{
-					ID:       getString(val, "id", ""),
-					Name:     getString(val, "name", ""),
+					ID:       getString(val, "id"),
+					Name:     getString(val, "name"),
 					Priority: i + 1,
 				}
 				if desc, ok := val["description"].(string); ok {
@@ -400,8 +400,8 @@ func (s *Server) parseOrganizationV2MOM(raw map[string]any, path string, modTime
 		for i, m := range methods {
 			if meth, ok := m.(map[string]any); ok {
 				method := api.V2MOMMethod{
-					ID:       getString(meth, "id", ""),
-					Name:     getString(meth, "name", ""),
+					ID:       getString(meth, "id"),
+					Name:     getString(meth, "name"),
 					Priority: i + 1,
 				}
 				if desc, ok := meth["description"].(string); ok {
@@ -423,8 +423,8 @@ func (s *Server) parseOrganizationV2MOM(raw map[string]any, path string, modTime
 		for _, o := range obstacles {
 			if obs, ok := o.(map[string]any); ok {
 				obstacle := api.V2MOMItem{
-					ID:   getString(obs, "id", ""),
-					Name: getString(obs, "name", ""),
+					ID:   getString(obs, "id"),
+					Name: getString(obs, "name"),
 				}
 				if desc, ok := obs["description"].(string); ok {
 					obstacle.Description = desc
@@ -442,8 +442,8 @@ func (s *Server) parseOrganizationV2MOM(raw map[string]any, path string, modTime
 		for _, m := range measures {
 			if meas, ok := m.(map[string]any); ok {
 				measure := api.V2MOMMeasure{
-					ID:   getString(meas, "id", ""),
-					Name: getString(meas, "name", ""),
+					ID:   getString(meas, "id"),
+					Name: getString(meas, "name"),
 				}
 				if desc, ok := meas["description"].(string); ok {
 					measure.Description = desc
@@ -483,7 +483,7 @@ func (s *Server) loadProjectV2MOMSummaries(projectPath string) []api.V2MOMSummar
 			return nil
 		}
 
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(path) //nolint:gosec // G122: Path from Walk in trusted project directory
 		if err != nil {
 			return nil
 		}
@@ -530,9 +530,9 @@ func (s *Server) loadProjectV2MOMSummaries(projectPath string) []api.V2MOMSummar
 }
 
 // getString safely gets a string from a map
-func getString(m map[string]any, key, defaultVal string) string {
+func getString(m map[string]any, key string) string {
 	if v, ok := m[key].(string); ok {
 		return v
 	}
-	return defaultVal
+	return ""
 }

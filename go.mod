@@ -14,8 +14,8 @@ require (
 	github.com/grokify/pidl v0.5.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
 	github.com/plexusone/structured-evaluation v0.9.0 // indirect
-	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
+	golang.org/x/exp v0.0.0-20260718201538-764159d718ef // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import type { Profile } from '../../types'
+import type { SampleSummary } from '../../services/api'
 import { api } from '../../services/api'
+import { SamplePicker } from '../samples'
 
 interface AddProjectModalProps {
   onClose: () => void
@@ -15,6 +17,8 @@ export function AddProjectModal({ onClose, onAdd }: AddProjectModalProps) {
   const [initialize, setInitialize] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedSample, setSelectedSample] = useState<SampleSummary | null>(null)
+  const [showSamples, setShowSamples] = useState(false)
 
   // Load available profiles on mount
   useEffect(() => {
@@ -181,7 +185,13 @@ export function AddProjectModal({ onClose, onAdd }: AddProjectModalProps) {
                 type="checkbox"
                 id="initialize"
                 checked={initialize}
-                onChange={(e) => setInitialize(e.target.checked)}
+                onChange={(e) => {
+                  setInitialize(e.target.checked)
+                  if (!e.target.checked) {
+                    setSelectedSample(null)
+                    setShowSamples(false)
+                  }
+                }}
                 className="mt-1 w-4 h-4 rounded border-va-border bg-va-panel text-va-accent focus:ring-va-accent"
               />
               <div>
@@ -193,6 +203,41 @@ export function AddProjectModal({ onClose, onAdd }: AddProjectModalProps) {
                 </p>
               </div>
             </div>
+
+            {/* Sample selection */}
+            {initialize && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowSamples(!showSamples)}
+                  className="flex items-center gap-2 text-sm text-va-accent hover:text-va-accent/80 transition-colors"
+                >
+                  <span>{showSamples ? '▼' : '►'}</span>
+                  <span>
+                    {selectedSample
+                      ? `Using sample: ${selectedSample.name}`
+                      : 'Initialize from sample (optional)'}
+                  </span>
+                </button>
+
+                {showSamples && (
+                  <div className="mt-3">
+                    <SamplePicker
+                      selectedSampleId={selectedSample?.id || null}
+                      onSelectSample={(sample) => {
+                        setSelectedSample(sample)
+                        if (sample) {
+                          // Auto-fill name from sample if empty
+                          if (!name) {
+                            setName(sample.name.toLowerCase().replace(/\s+/g, '-'))
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Footer */}

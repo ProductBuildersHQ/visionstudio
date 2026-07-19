@@ -1,4 +1,5 @@
 import type { Project, Spec, Finding } from '../../types'
+import { getScoreLabel, needsHumanReview } from '../../types'
 
 interface FindingsViewProps {
   project: Project
@@ -160,7 +161,14 @@ function SpecFindingsCard({
 }) {
   if (!spec.evalResult) return null
 
-  const { decision, score, findings } = spec.evalResult
+  const evalResult = spec.evalResult
+  const { decision, findings } = evalResult
+
+  // Determine if this is v2 format
+  const isV2 = evalResult.schemaVersion === 'v2' || evalResult.scoreV2 !== undefined
+  const displayScore = isV2 && evalResult.scoreV2
+    ? `${evalResult.scoreV2}/5 (${getScoreLabel(evalResult.scoreV2)})`
+    : evalResult.score.toFixed(1)
 
   const decisionStyles = {
     pass: { bg: 'bg-va-success/10', border: 'border-va-success/30', badge: 'bg-va-success' },
@@ -168,6 +176,9 @@ function SpecFindingsCard({
     fail: { bg: 'bg-va-error/10', border: 'border-va-error/30', badge: 'bg-va-error' },
   }
   const style = decisionStyles[decision] || decisionStyles.fail
+
+  // Check if needs human review (low confidence)
+  const needsReview = needsHumanReview(evalResult)
 
   return (
     <div className={`rounded-lg border ${style.border} overflow-hidden`}>
@@ -180,17 +191,39 @@ function SpecFindingsCard({
           <span className={`w-2 h-2 rounded-full ${style.badge}`} />
           <span className="font-semibold text-va-text">{spec.name}</span>
           <span className="text-xs text-va-text-muted">({spec.type})</span>
+          {needsReview && (
+            <span className="text-[10px] px-1.5 py-0.5 bg-va-warning/20 text-va-warning rounded">
+              Needs Review
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-va-text-muted">
-            Score: <span className="font-semibold text-va-text">{score.toFixed(1)}</span>
+            Score: <span className="font-semibold text-va-text">{displayScore}</span>
           </span>
+          {isV2 && evalResult.confidence !== undefined && (
+            <span className="text-sm text-va-text-muted">
+              Conf: <span className="font-semibold text-va-text">{Math.round(evalResult.confidence * 100)}%</span>
+            </span>
+          )}
           <span className="text-sm text-va-text-muted">
             {findings.length} finding{findings.length !== 1 ? 's' : ''}
           </span>
           <span className="text-xs text-va-accent">View spec →</span>
         </div>
       </button>
+
+      {/* Blocking reason codes (v2) */}
+      {isV2 && evalResult.blocking && evalResult.blocking.length > 0 && (
+        <div className="bg-va-error/5 px-4 py-2 border-b border-va-border">
+          <span className="text-xs text-va-error font-semibold">Blocking: </span>
+          {evalResult.blocking.map((code, idx) => (
+            <span key={idx} className="text-xs text-va-error bg-va-error/10 px-1.5 py-0.5 rounded mr-1">
+              {code}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Findings list */}
       <div className="bg-va-bg divide-y divide-va-border">
@@ -219,7 +252,21 @@ function FindingRow({ finding }: { finding: Finding }) {
           {finding.severity.toUpperCase()}
         </span>
         <div className="flex-1 min-w-0">
-          <span className="text-xs text-va-text-muted capitalize">{finding.category}</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-va-text-muted capitalize">{finding.category}</span>
+            {/* V2: Reason code badge */}
+            {finding.code && (
+              <span className="text-[10px] px-1.5 py-0.5 bg-va-panel border border-va-border rounded font-mono">
+                {finding.code}
+              </span>
+            )}
+            {/* V2: Location reference */}
+            {finding.location && (
+              <span className="text-[10px] text-va-text-muted">
+                @ {finding.location}
+              </span>
+            )}
+          </div>
           <p className="text-sm text-va-text mt-0.5">{finding.message}</p>
         </div>
       </div>

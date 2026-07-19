@@ -183,7 +183,13 @@ function SpecNode({ spec, onClick }: { spec: Spec; onClick: () => void }) {
       <div className="text-sm font-medium text-va-text">{spec.name}</div>
       {spec.evalResult && (
         <div className="text-xs text-va-text-muted mt-1">
-          Score: {spec.evalResult.score.toFixed(1)}
+          {(() => {
+            const isV2 = spec.evalResult.schemaVersion === 'v2' || spec.evalResult.scoreV2 !== undefined
+            if (isV2 && spec.evalResult.scoreV2) {
+              return `Score: ${spec.evalResult.scoreV2}/5`
+            }
+            return `Score: ${spec.evalResult.score.toFixed(1)}`
+          })()}
         </div>
       )}
       {spec.status === 'not_started' && (

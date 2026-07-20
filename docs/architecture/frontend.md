@@ -41,6 +41,8 @@ desktop/
 │       │   │   └── OrganizationView.tsx
 │       │   ├── samples/
 │       │   │   └── SamplePicker.tsx
+│       │   ├── devx/        # DevX usage dashboard (not project-scoped)
+│       │   │   └── DevXDashboardView.tsx
 │       │   ├── eval/        # Evaluation display
 │       │   │   └── DimensionScoreCard.tsx
 │       │   └── llm/         # LLM assistance
@@ -126,6 +128,7 @@ type ActiveView =
   | 'organization'
   | 'methodology-settings'
   | 'samples'
+  | 'devx-dashboard'
 ```
 
 ## State Management

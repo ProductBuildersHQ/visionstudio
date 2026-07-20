@@ -1,6 +1,7 @@
 import type { Project, Spec, EvalResult, Profile, LintResult, ImplementationMethodologySummary, ProjectMethodologyConfig, Organization, OrganizationV2MOM, OrganizationCascade } from '../types'
 import type { V2MOM, V2MOMCascade, V2MOMAlignment } from '../components/v2mom/types'
 import type { MaturityModel, MaturityModelSummary } from '../components/maturity-model/types'
+import type { DashforgeDashboard } from '../components/devx/types'
 
 // Sample types
 export interface SampleSummary {
@@ -830,5 +831,15 @@ export const api = {
     }
 
     return data.document
+  },
+
+  // DevX (OmniDevX dashboard passthrough — not project-scoped)
+  async getDevXDashboard(): Promise<DashforgeDashboard> {
+    const response = await fetch(`${API_BASE}/devx/dashboard`)
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { error?: string } | null
+      throw new Error(body?.error || `HTTP ${response.status}: ${response.statusText}`)
+    }
+    return response.json()
   },
 }

@@ -8,16 +8,21 @@
   "releases": [
     {
       "version": "v0.3.0",
-      "date": "2026-07-19",
+      "date": "2026-07-20",
       "highlights": [
         { "description": "DevX usage dashboard: a new, not-project-scoped sidebar view rendering AI-assisted development activity (sessions, prompts, commits, tool usage, cost) sourced from the OmniDevX ecosystem" },
-        { "description": "Read-only, disclosure-scoped boundary — the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file" }
+        { "description": "Read-only, disclosure-scoped boundary — the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file" },
+        { "description": "visionspec upgraded to v0.14.0 — rubrics now use structured-evaluation's shared RubricSet everywhere, one type across the ecosystem" }
       ],
       "added": [
         { "description": "`GET /api/devx/dashboard`: passthrough handler serving `~/.plexusone/omnidevx/dashboard.json` as-is, with a 404 pointing at the generating command when the file doesn't exist yet", "commit": "7dfcf94" },
         { "description": "`DevXDashboardView` + a dependency-free renderer for the subset of dashforge's `dashboardir.Dashboard` schema devfolio's exporter emits: metric tiles, line charts with hover tooltips, and tables", "commit": "76c1896" },
         { "description": "`api.getDevXDashboard()`, surfacing the daemon's not-found error message (with the generating command) rather than a generic HTTP status", "commit": "76c1896" },
         { "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization — both person/machine-scoped views independent of the active tracked project", "commit": "e71d32d" }
+      ],
+      "dependencies": [
+        { "description": "Upgrade `github.com/ProductBuildersHQ/visionspec` to v0.14.0 (was v0.13.0). Breaking change upstream: `pkg/rubrics` drops its VisionSpec-local `RubricSet`/`Category`/`CategoricalCriteria` types in favor of `structured-evaluation/rubric.RubricSet`, and legacy flat rubric YAML is no longer parsed. VisionStudio doesn't import `pkg/rubrics` directly and ships no custom rubric YAML, so this required no code changes — verified with go vet, golangci-lint, and a live daemon run against the profiles endpoint", "commit": "8414baf" },
+        { "description": "Transitively bumps `github.com/plexusone/structured-evaluation` to v0.10.0 (was v0.9.0) and adds `github.com/grokify/prism-roadmap` v0.16.0, which visionspec profiles now consume canonical canvas templates and rubrics from", "commit": "8414baf" }
       ],
       "documentation": [
         { "description": "New guide page (guide/devx.md) explaining the not-project-scoped model and the read-only consumption boundary" },

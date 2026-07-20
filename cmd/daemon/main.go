@@ -112,6 +112,9 @@ func (s *Server) Router() http.Handler {
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", s.handleHealth)
 
+		// DevX (OmniDevX dashboard passthrough)
+		r.Get("/devx/dashboard", s.handleGetDevXDashboard)
+
 		// Organization
 		r.Get("/organization", s.handleGetOrganization)
 		r.Post("/organization", s.handleCreateOrganization)

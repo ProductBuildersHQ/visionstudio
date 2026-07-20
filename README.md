@@ -64,6 +64,11 @@ VisionStudio provides an integrated workspace for creating, evaluating, and iter
 - 🏢 **Organization Settings** - Configure organization hierarchy and teams
 - 👥 **Team Management** - Manage teams and their V2MOMs
 
+### DevX Usage Dashboard
+
+- 📊 **AI Usage Dashboard** - Sessions, prompts, commits, AI-assisted %, tool calls, cost, and daily activity/cost charts, sourced from [OmniDevX](https://github.com/plexusone/omnidevx-core)
+- 🔒 **Read-only, disclosure-scoped** - VisionStudio never queries the OmniDevX event store directly; it renders whatever [devfolio](https://github.com/plexusone/devfolio) already generated and decided was safe to show
+
 ## Screen Shots
 
 ### Workflow
@@ -96,6 +101,7 @@ A list of all findings is provided for easy scanning of all findings.
 │  │  • Markdown editor + evaluation results               │  │
 │  │  • V2MOM cascade, capability stack, roadmap           │  │
 │  │  • Maturity model dashboard                           │  │
+│  │  • DevX usage dashboard                                │  │
 │  │  • LLM chat panel                                     │  │
 │  └──────────────────────┬────────────────────────────────┘  │
 └─────────────────────────┼───────────────────────────────────┘
@@ -106,6 +112,7 @@ A list of all findings is provided for easy scanning of all findings.
 │  • VisionSpec v0.13.0 integration                           │
 │  • Methodology selection (requirements + implementation)    │
 │  • Organization and team management                         │
+│  • DevX dashboard passthrough (reads devfolio's output)     │
 │  • LLM provider abstraction (omniagent)                     │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -149,7 +156,8 @@ visionstudio/
 │   ├── roadmap.go       # Roadmap handlers
 │   ├── organization.go  # Organization handlers
 │   ├── methodologies.go # Methodology selection handlers
-│   └── samples.go       # Sample projects handlers
+│   ├── samples.go       # Sample projects handlers
+│   └── devx.go          # DevX dashboard passthrough handler
 ├── pkg/
 │   ├── api/             # API types
 │   └── config/          # Configuration (projects, organization)
@@ -163,7 +171,8 @@ visionstudio/
 │   │   │   ├── roadmap/         # Roadmap views
 │   │   │   ├── maturity-model/  # Maturity views
 │   │   │   ├── organization/    # Organization views
-│   │   │   └── samples/         # Sample picker
+│   │   │   ├── samples/         # Sample picker
+│   │   │   └── devx/            # DevX usage dashboard (not project-scoped)
 │   │   ├── services/    # API client
 │   │   └── types/       # TypeScript types
 │   └── package.json
@@ -176,6 +185,9 @@ visionstudio/
 
 - [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) - Spec orchestration library
 - [OmniAgent](https://github.com/plexusone/omniagent) - LLM agent interface
+- [omnidevx-core](https://github.com/plexusone/omnidevx-core) - Canonical developer-experience telemetry model, the source of the DevX dashboard's data
+- [devfolio](https://github.com/plexusone/devfolio) - Generates the DevX dashboard file VisionStudio renders (`devfolio devx dashboard`)
+- [dashforge](https://github.com/plexusone/dashforge) - Dashboard-IR format the DevX dashboard is rendered from
 
 ## License
 

@@ -101,7 +101,7 @@ A list of all findings is provided for easy scanning of all findings.
 │  │  • Markdown editor + evaluation results               │  │
 │  │  • V2MOM cascade, capability stack, roadmap           │  │
 │  │  • Maturity model dashboard                           │  │
-│  │  • DevX usage dashboard                                │  │
+│  │  • DevX usage dashboard                               │  │
 │  │  • LLM chat panel                                     │  │
 │  └──────────────────────┬────────────────────────────────┘  │
 └─────────────────────────┼───────────────────────────────────┘

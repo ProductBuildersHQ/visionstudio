@@ -3,7 +3,7 @@ module github.com/ProductBuildersHQ/visionstudio
 go 1.26.1
 
 require (
-	github.com/ProductBuildersHQ/visionspec v0.13.0
+	github.com/ProductBuildersHQ/visionspec v0.14.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-chi/cors v1.2.2
@@ -12,8 +12,9 @@ require (
 
 require (
 	github.com/grokify/pidl v0.5.0 // indirect
+	github.com/grokify/prism-roadmap v0.16.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
-	github.com/plexusone/structured-evaluation v0.9.0 // indirect
+	github.com/plexusone/structured-evaluation v0.10.0 // indirect
 	golang.org/x/exp v0.0.0-20260718201538-764159d718ef // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect

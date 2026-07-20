@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal, MaturityModelView, CapabilityStackView, RoadmapView } from './components'
+import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal, MaturityModelView, CapabilityStackView, RoadmapView, DevXDashboardView } from './components'
 import { MethodologySelector } from './components/layout/MethodologySelector'
 import { OrganizationView } from './components/organization'
 import { FindingsView } from './components/project/FindingsView'
@@ -9,7 +9,7 @@ import { api } from './services/api'
 import { useProjectEvents, FileEvent } from './hooks/useProjectEvents'
 import type { Project, Spec, ProjectMethodologyConfig } from './types'
 
-type ActiveView = 'workflow' | 'spec' | 'findings' | 'v2mom' | 'maturity-model' | 'capabilities' | 'roadmap' | 'aidlc-workflow' | 'aidlc-sync' | 'organization'
+type ActiveView = 'workflow' | 'spec' | 'findings' | 'v2mom' | 'maturity-model' | 'capabilities' | 'roadmap' | 'aidlc-workflow' | 'aidlc-sync' | 'organization' | 'devx-dashboard'
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -174,6 +174,11 @@ function App() {
     setActiveSpec(null)
   }
 
+  const handleDevXClick = () => {
+    setActiveView('devx-dashboard')
+    setActiveSpec(null)
+  }
+
   const handleMethodologySave = (config: ProjectMethodologyConfig) => {
     // Update the active project with new methodology settings
     if (activeProject) {
@@ -283,6 +288,7 @@ function App() {
             onAIDLCSyncClick={handleAIDLCSyncClick}
             onMethodologyClick={handleMethodologyClick}
             onOrganizationClick={handleOrganizationClick}
+            onDevXClick={handleDevXClick}
             activeSpec={activeSpec}
             onAddProjectClick={() => setShowAddProjectModal(true)}
             onRemoveProject={handleRemoveProject}
@@ -310,6 +316,8 @@ function App() {
       main={
         activeView === 'organization' ? (
           <OrganizationView onClose={() => setActiveView('workflow')} />
+        ) : activeView === 'devx-dashboard' ? (
+          <DevXDashboardView />
         ) : activeProject ? (
           activeView === 'workflow' ? (
             <WorkflowDiagram

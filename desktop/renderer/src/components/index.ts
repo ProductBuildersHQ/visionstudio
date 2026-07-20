@@ -27,3 +27,6 @@ export { RoadmapView } from './roadmap'
 
 // Sample components
 export { SamplePicker } from './samples'
+
+// DevX (OmniDevX dashboard) components
+export { DevXDashboardView } from './devx'

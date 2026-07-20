@@ -17,6 +17,7 @@ interface SidebarProps {
   onAIDLCSyncClick?: () => void
   onMethodologyClick?: () => void
   onOrganizationClick?: () => void
+  onDevXClick?: () => void
   activeSpec: Spec | null
   onAddProjectClick: () => void
   onRemoveProject: (projectName: string) => void
@@ -122,6 +123,7 @@ export function Sidebar({
   onAIDLCSyncClick,
   onMethodologyClick,
   onOrganizationClick,
+  onDevXClick,
   activeSpec,
   onAddProjectClick,
   onRemoveProject,
@@ -173,6 +175,22 @@ export function Sidebar({
           >
             <span>Building</span>
             <span className="flex-1">Strategy & V2MOMs</span>
+          </button>
+        </div>
+      )}
+
+      {/* DevX section (OmniDevX usage dashboard, not project-scoped) */}
+      {onDevXClick && (
+        <div className="mb-4">
+          <div className="text-xs font-semibold text-va-text-muted uppercase tracking-wider mb-2">
+            DevX
+          </div>
+          <button
+            onClick={onDevXClick}
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-sm text-left text-va-text-muted hover:text-va-text hover:bg-va-panel transition-colors"
+          >
+            <span>📊</span>
+            <span className="flex-1">Usage Dashboard</span>
           </button>
         </div>
       )}

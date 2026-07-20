@@ -13,7 +13,8 @@ cmd/daemon/
 ├── roadmap.go        # Roadmap handlers
 ├── organization.go   # Organization handlers
 ├── methodologies.go  # Methodology selection handlers
-└── samples.go        # Sample projects handlers
+├── samples.go        # Sample projects handlers
+└── devx.go           # DevX dashboard passthrough handler
 
 pkg/
 ├── api/types.go      # API request/response types
@@ -123,6 +124,14 @@ pkg/
 | GET | `/api/samples` | List available samples |
 | GET | `/api/samples/{id}` | Get sample details |
 | POST | `/api/samples/{id}/import` | Import sample to workspace |
+
+### DevX
+
+Not project-scoped, unlike the routes above — OmniDevX activity is person/machine-scoped.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/devx/dashboard` | Serve `~/.plexusone/omnidevx/dashboard.json` as-is (404 with a generating-command hint if missing) |
 
 ### Chat
 

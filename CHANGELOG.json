@@ -7,6 +7,25 @@
   "maintainers": ["ProductBuildersHQ"],
   "releases": [
     {
+      "version": "v0.3.0",
+      "date": "2026-07-19",
+      "highlights": [
+        { "description": "DevX usage dashboard: a new, not-project-scoped sidebar view rendering AI-assisted development activity (sessions, prompts, commits, tool usage, cost) sourced from the OmniDevX ecosystem" },
+        { "description": "Read-only, disclosure-scoped boundary — the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file" }
+      ],
+      "added": [
+        { "description": "`GET /api/devx/dashboard`: passthrough handler serving `~/.plexusone/omnidevx/dashboard.json` as-is, with a 404 pointing at the generating command when the file doesn't exist yet", "commit": "7dfcf94" },
+        { "description": "`DevXDashboardView` + a dependency-free renderer for the subset of dashforge's `dashboardir.Dashboard` schema devfolio's exporter emits: metric tiles, line charts with hover tooltips, and tables", "commit": "76c1896" },
+        { "description": "`api.getDevXDashboard()`, surfacing the daemon's not-found error message (with the generating command) rather than a generic HTTP status", "commit": "76c1896" },
+        { "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization — both person/machine-scoped views independent of the active tracked project", "commit": "e71d32d" }
+      ],
+      "documentation": [
+        { "description": "New guide page (guide/devx.md) explaining the not-project-scoped model and the read-only consumption boundary" },
+        { "description": "Architecture docs (daemon.md, frontend.md) updated with the new handler, endpoint, and component" },
+        { "description": "README: DevX Usage Dashboard feature section, daemon/component diagrams, project structure, and related projects (omnidevx-core, devfolio, dashforge)" }
+      ]
+    },
+    {
       "version": "v0.2.0",
       "date": "2026-07-19",
       "highlights": [

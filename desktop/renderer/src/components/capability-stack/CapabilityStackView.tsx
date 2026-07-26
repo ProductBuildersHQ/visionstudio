@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
+import { LoadingState, ErrorState } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 import type { CapabilitySummary, CapabilityStack } from '../../services/api'
 
 interface CapabilityStackViewProps {
-  projectName: string
+  projectName?: string
 }
 
-/**
- * CapabilityStackView displays capability stacks for a project.
- * Shows layers, categories, and individual capabilities with prism integration.
- */
-export function CapabilityStackView({ projectName }: CapabilityStackViewProps) {
+export function CapabilityStackView(props: CapabilityStackViewProps) {
+  const app = useApp()
+  const projectName = props.projectName ?? app.activeProject?.name
   const [capabilities, setCapabilities] = useState<CapabilitySummary[]>([])
   const [selectedCapability, setSelectedCapability] = useState<CapabilityStack | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -18,10 +18,11 @@ export function CapabilityStackView({ projectName }: CapabilityStackViewProps) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadCapabilities()
+    if (projectName) loadCapabilities()
   }, [projectName])
 
   async function loadCapabilities() {
+    if (!projectName) return
     setIsLoading(true)
     setError(null)
     try {
@@ -40,6 +41,7 @@ export function CapabilityStackView({ projectName }: CapabilityStackViewProps) {
   }
 
   async function handleCapabilitySelect(id: string) {
+    if (!projectName) return
     setSelectedId(id)
     setIsLoading(true)
     try {
@@ -53,35 +55,19 @@ export function CapabilityStackView({ projectName }: CapabilityStackViewProps) {
     }
   }
 
-  // Loading state
+  if (!projectName) return null
+
   if (isLoading && !selectedCapability) {
-    return (
-      <div className="flex items-center justify-center h-full bg-va-bg">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-va-accent border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-va-text-muted">Loading capabilities...</p>
-        </div>
-      </div>
-    )
+    return <LoadingState message="Loading capabilities..." />
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-va-bg gap-4">
-        <div className="text-center max-w-md">
-          <div className="text-va-error mb-4">{error}</div>
-          <p className="text-va-text-muted text-sm mb-4">
-            Make sure the project has capability data configured.
-          </p>
-          <button
-            onClick={loadCapabilities}
-            className="px-4 py-2 bg-va-accent text-white rounded hover:bg-va-accent/80 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        message={error}
+        hint="Make sure the project has capability data configured."
+        onRetry={loadCapabilities}
+      />
     )
   }
 

@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api, AIDLCWorkflow, AIDLCWorkflowNode, AIDLCPhase } from '../../services/api'
+import { LoadingState, ErrorState } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 
 interface AIDLCWorkflowViewProps {
-  projectName: string
+  projectName?: string
   onDocumentSelect?: (docType: string) => void
 }
 
@@ -131,7 +133,10 @@ function PhaseColumn({
   )
 }
 
-export function AIDLCWorkflowView({ projectName, onDocumentSelect }: AIDLCWorkflowViewProps) {
+export function AIDLCWorkflowView(props: AIDLCWorkflowViewProps) {
+  const app = useApp()
+  const projectName = props.projectName ?? app.activeProject?.name
+  const onDocumentSelect = props.onDocumentSelect
   const [workflow, setWorkflow] = useState<AIDLCWorkflow | null>(null)
   const [mermaid, setMermaid] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
@@ -159,26 +164,14 @@ export function AIDLCWorkflowView({ projectName, onDocumentSelect }: AIDLCWorkfl
     loadWorkflow()
   }, [loadWorkflow])
 
+  if (!projectName) return null
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-va-accent"></div>
-      </div>
-    )
+    return <LoadingState message="Loading AIDLC workflow..." />
   }
 
   if (error) {
-    return (
-      <div className="p-4 bg-red-900/20 border border-red-500 rounded-lg">
-        <p className="text-red-400">{error}</p>
-        <button
-          onClick={loadWorkflow}
-          className="mt-2 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 rounded text-sm"
-        >
-          Retry
-        </button>
-      </div>
-    )
+    return <ErrorState message={error} onRetry={loadWorkflow} />
   }
 
   if (!workflow) {

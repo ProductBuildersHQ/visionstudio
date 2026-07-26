@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
+import { useApp } from '../../contexts/AppContext'
 import type { Organization, OrganizationV2MOM, OrganizationCascade } from '../../types'
 
 interface OrganizationViewProps {
@@ -8,7 +9,9 @@ interface OrganizationViewProps {
 
 type TabType = 'overview' | 'v2moms' | 'cascade' | 'settings'
 
-export function OrganizationView({ onClose }: OrganizationViewProps) {
+export function OrganizationView(props: OrganizationViewProps) {
+  const { navigateToView } = useApp()
+  const onClose = props.onClose ?? (() => navigateToView('visionstudio.visionspec', 'workflow'))
   const [organization, setOrganization] = useState<Organization | null>(null)
   const [v2moms, setV2MOMs] = useState<OrganizationV2MOM[]>([])
   const [cascade, setCascade] = useState<OrganizationCascade | null>(null)

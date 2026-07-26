@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react'
 import { marked } from 'marked'
-import type { Spec, ViewMode, EvalResult, Finding } from '../../types'
-import { getScoreLabel, needsHumanReview } from '../../types'
+import type { Spec, ViewMode, EvalFinding } from '../../types'
+import type { Rubric } from '@plexusone/structured-evaluation'
+import { needsHumanReview } from '../../types'
 import { DimensionScoreCard } from '../eval/DimensionScoreCard'
 
 // Configure marked for GitHub-flavored markdown with tables
@@ -71,7 +72,7 @@ export function SpecEditor({ spec, onContentChange, onSave, isDirty }: SpecEdito
                   : 'border-va-border text-va-text-muted hover:text-va-text hover:border-va-text-muted'
               }`}
             >
-              <EvalBadge decision={spec.evalResult!.decision} />
+              <EvalBadge decision={spec.evalResult!.overallDecision} />
               Eval
             </button>
           )}
@@ -113,7 +114,7 @@ export function SpecEditor({ spec, onContentChange, onSave, isDirty }: SpecEdito
 }
 
 // Small badge to show eval decision status
-function EvalBadge({ decision }: { decision: string }) {
+function EvalBadge({ decision }: { decision?: string }) {
   const colors = {
     pass: 'bg-va-success',
     conditional: 'bg-va-warning',
@@ -124,31 +125,26 @@ function EvalBadge({ decision }: { decision: string }) {
   )
 }
 
-// Evaluation panel component with v2 support
-function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
+// Evaluation panel component
+function EvalPanel({ evalResult }: { evalResult: Rubric }) {
   const [showAllFindings, setShowAllFindings] = useState(false)
 
-  // Detect v2 format
-  const isV2 = evalResult.schemaVersion === 'v2' || evalResult.scoreV2 !== undefined
-
-  const decisionColors = {
+  const decisionColors: Record<string, { bg: string; border: string; text: string }> = {
     pass: { bg: 'bg-va-success/10', border: 'border-va-success/30', text: 'text-va-success' },
     conditional: { bg: 'bg-va-warning/10', border: 'border-va-warning/30', text: 'text-va-warning' },
     fail: { bg: 'bg-va-danger/10', border: 'border-va-danger/30', text: 'text-va-danger' },
+    human_review: { bg: 'bg-va-warning/10', border: 'border-va-warning/30', text: 'text-va-warning' },
   }
-  const decision = decisionColors[evalResult.decision] || decisionColors.pass
+  const decision = (evalResult.overallDecision && decisionColors[evalResult.overallDecision]) || decisionColors.pass
 
-  // V2 score display
-  const displayScore = isV2 && evalResult.scoreV2
-    ? `${evalResult.scoreV2}/5`
-    : evalResult.score.toFixed(1)
-  const scoreLabel = isV2 && evalResult.scoreV2 ? getScoreLabel(evalResult.scoreV2) : null
+  const displayScore = evalResult.intScore !== undefined ? `${evalResult.intScore}/5` : '—'
 
   // Check if needs human review
   const needsReview = needsHumanReview(evalResult)
 
-  // Has dimensions for v2 display
-  const hasDimensions = evalResult.dimensions && evalResult.dimensions.length > 0
+  const categories = evalResult.categories ?? []
+  const findings = evalResult.findings ?? []
+  const hasCategories = categories.length > 0
 
   return (
     <div className="h-full overflow-y-auto bg-va-bg">
@@ -163,7 +159,7 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
               </span>
             )}
             <span className={`text-xs font-bold px-2 py-0.5 rounded ${decision.text} ${decision.bg}`}>
-              {evalResult.decision.toUpperCase()}
+              {evalResult.overallDecision?.toUpperCase() ?? 'UNKNOWN'}
             </span>
           </div>
         </div>
@@ -171,14 +167,10 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
           <span className={`text-2xl font-bold ${decision.text}`}>
             {displayScore}
           </span>
-          {scoreLabel && (
-            <span className="text-sm text-va-text-muted">({scoreLabel})</span>
-          )}
-          {!isV2 && <span className="text-xs text-va-text-muted">/ 10.0</span>}
         </div>
 
-        {/* V2: Confidence indicator */}
-        {isV2 && evalResult.confidence !== undefined && (
+        {/* Confidence indicator */}
+        {evalResult.confidence !== undefined && (
           <div className="mt-3">
             <div className="flex items-center gap-2">
               <span className="text-xs text-va-text-muted">Confidence:</span>
@@ -196,8 +188,8 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
         )}
       </div>
 
-      {/* V2: Blocking issues */}
-      {isV2 && evalResult.blocking && evalResult.blocking.length > 0 && (
+      {/* Blocking issues */}
+      {evalResult.blocking && evalResult.blocking.length > 0 && (
         <div className="p-3 bg-va-error/5 border-b border-va-error/20">
           <h4 className="text-xs font-semibold text-va-error uppercase tracking-wide mb-2">
             Blocking Issues
@@ -212,15 +204,15 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
         </div>
       )}
 
-      {/* V2: Dimensions grid */}
-      {hasDimensions && (
+      {/* Categories grid */}
+      {hasCategories && (
         <div className="p-4 border-b border-va-border">
           <h4 className="text-xs font-semibold text-va-text-muted uppercase tracking-wide mb-3">
-            Dimensions ({evalResult.dimensions!.length})
+            Categories ({categories.length})
           </h4>
           <div className="space-y-2">
-            {evalResult.dimensions!.map((dim, idx) => (
-              <DimensionScoreCard key={idx} dimension={dim} />
+            {categories.map((cat, idx) => (
+              <DimensionScoreCard key={idx} category={cat} />
             ))}
           </div>
         </div>
@@ -230,9 +222,9 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <h4 className="text-xs font-semibold text-va-text-muted uppercase tracking-wide">
-            {hasDimensions ? 'All Findings' : 'Findings'} ({evalResult.findings.length})
+            {hasCategories ? 'All Findings' : 'Findings'} ({findings.length})
           </h4>
-          {hasDimensions && evalResult.findings.length > 0 && (
+          {hasCategories && findings.length > 0 && (
             <button
               onClick={() => setShowAllFindings(!showAllFindings)}
               className="text-[10px] text-va-accent hover:underline"
@@ -242,29 +234,29 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
           )}
         </div>
 
-        {/* Show findings if no dimensions, or if showAllFindings is true */}
-        {(!hasDimensions || showAllFindings) && (
+        {/* Show findings if no categories, or if showAllFindings is true */}
+        {(!hasCategories || showAllFindings) && (
           <div className="space-y-2">
-            {evalResult.findings.length === 0 ? (
+            {findings.length === 0 ? (
               <p className="text-xs text-va-text-muted italic">No findings</p>
             ) : (
-              evalResult.findings.map((finding, idx) => (
+              findings.map((finding, idx) => (
                 <FindingCard key={idx} finding={finding} />
               ))
             )}
           </div>
         )}
 
-        {/* Quick summary when dimensions present but findings collapsed */}
-        {hasDimensions && !showAllFindings && evalResult.findings.length > 0 && (
+        {/* Quick summary when categories present but findings collapsed */}
+        {hasCategories && !showAllFindings && findings.length > 0 && (
           <div className="text-xs text-va-text-muted">
-            <span className="text-red-400">{evalResult.findings.filter(f => f.severity === 'critical').length} critical</span>
+            <span className="text-red-400">{findings.filter(f => f.severity === 'critical').length} critical</span>
             {' · '}
-            <span className="text-orange-400">{evalResult.findings.filter(f => f.severity === 'high').length} high</span>
+            <span className="text-orange-400">{findings.filter(f => f.severity === 'high').length} high</span>
             {' · '}
-            <span className="text-yellow-400">{evalResult.findings.filter(f => f.severity === 'medium').length} medium</span>
+            <span className="text-yellow-400">{findings.filter(f => f.severity === 'medium').length} medium</span>
             {' · '}
-            <span className="text-blue-400">{evalResult.findings.filter(f => f.severity === 'low').length} low</span>
+            <span className="text-blue-400">{findings.filter(f => f.severity === 'low').length} low</span>
           </div>
         )}
       </div>
@@ -272,9 +264,9 @@ function EvalPanel({ evalResult }: { evalResult: EvalResult }) {
   )
 }
 
-// Individual finding card with color indicators and v2 support
-function FindingCard({ finding }: { finding: Finding }) {
-  const severityStyles = {
+// Individual finding card with color indicators
+function FindingCard({ finding }: { finding: EvalFinding }) {
+  const severityStyles: Record<string, { bg: string; border: string; badge: string; text: string }> = {
     critical: {
       bg: 'bg-red-500/10',
       border: 'border-l-red-500',
@@ -307,29 +299,30 @@ function FindingCard({ finding }: { finding: Finding }) {
     },
   }
 
-  const style = severityStyles[finding.severity] || severityStyles.info
+  const style = (finding.severity && severityStyles[finding.severity]) || severityStyles.info
 
   return (
     <div className={`${style.bg} ${style.border} border-l-2 rounded-r p-3`}>
       <div className="flex items-center gap-2 mb-1 flex-wrap">
         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${style.badge}`}>
-          {finding.severity.toUpperCase()}
+          {finding.severity?.toUpperCase() ?? 'UNKNOWN'}
         </span>
         <span className="text-xs text-va-text-muted capitalize">{finding.category}</span>
-        {/* V2: Reason code badge */}
         {finding.code && (
           <span className="text-[10px] px-1.5 py-0.5 bg-va-panel border border-va-border rounded font-mono">
             {finding.code}
           </span>
         )}
-        {/* V2: Location reference */}
         {finding.location && (
           <span className="text-[10px] text-va-text-muted">
             @ {finding.location}
           </span>
         )}
       </div>
-      <p className="text-xs text-va-text leading-relaxed">{finding.message}</p>
+      <p className="text-xs text-va-text leading-relaxed font-medium">{finding.title}</p>
+      {finding.description && (
+        <p className="text-xs text-va-text-muted leading-relaxed mt-0.5">{finding.description}</p>
+      )}
     </div>
   )
 }

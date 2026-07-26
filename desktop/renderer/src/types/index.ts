@@ -1,47 +1,18 @@
 // Project and spec types
 
-export type SpecStatus = 'not_started' | 'draft' | 'evaluated' | 'approved'
+import type { Rubric } from '@plexusone/structured-evaluation'
 
-export type EvalDecision = 'pass' | 'conditional' | 'fail'
+export type { Rubric, RubricSet } from '@plexusone/structured-evaluation'
+// CategoryResult/Finding aren't exported standalone by the generated
+// package (only the whole-report types are) — index into Rubric instead.
+export type CategoryResult = NonNullable<Rubric['categories']>[number]
+export type EvalFinding = NonNullable<Rubric['findings']>[number]
+
+export type SpecStatus = 'not_started' | 'draft' | 'evaluated' | 'approved'
 
 // Score labels for 1-5 integer scores
 export const SCORE_LABELS = ['', 'Unacceptable', 'Major Revisions', 'Acceptable', 'Good', 'Excellent']
 export const SCORE_COLORS = ['', 'red', 'orange', 'yellow', 'green', 'blue']
-
-export interface Finding {
-  category: string
-  severity: 'critical' | 'high' | 'medium' | 'low' | 'info'
-  message: string
-  // V2 fields
-  code?: string     // Reason code (e.g., "AMBIGUOUS_REQUIREMENT")
-  location?: string // Reference to where issue was found
-}
-
-// V2: Per-dimension score
-export interface DimensionScore {
-  id: string
-  name: string
-  score: number  // 1-5 integer score
-  severity: 'none' | 'minor' | 'major' | 'critical'
-  confidence: number  // 0.0-1.0
-  reasonCodes: string[]
-  findings: Finding[]
-}
-
-export interface EvalResult {
-  // V1 fields (backwards compatibility)
-  score: number
-  decision: EvalDecision
-  findings: Finding[]
-
-  // V2 fields
-  schemaVersion?: string      // "v2" for new format
-  scoreV2?: number            // 1-5 integer score
-  pass?: boolean              // Explicit pass/fail gate
-  confidence?: number         // 0.0-1.0
-  dimensions?: DimensionScore[]  // Per-dimension scores
-  blocking?: string[]         // Blocking reason codes
-}
 
 // Helper to get score label from 1-5 score
 export function getScoreLabel(score: number): string {
@@ -51,13 +22,16 @@ export function getScoreLabel(score: number): string {
   return 'Unknown'
 }
 
-// Helper to check if evaluation needs human review (low confidence)
-export function needsHumanReview(result: EvalResult, threshold = 0.7): boolean {
-  if (result.confidence && result.confidence < threshold) {
+// Helper to check if evaluation needs human review (low confidence).
+// Rubric.confidence / CategoryResult.confidence are the real fields —
+// there is no "dimensions" array; categories carries the per-category
+// scores.
+export function needsHumanReview(result: Rubric, threshold = 0.7): boolean {
+  if (result.confidence !== undefined && result.confidence < threshold) {
     return true
   }
-  if (result.dimensions) {
-    return result.dimensions.some(d => d.confidence < threshold)
+  if (result.categories) {
+    return result.categories.some((c) => c.confidence !== undefined && c.confidence < threshold)
   }
   return false
 }
@@ -67,7 +41,7 @@ export interface Spec {
   name: string
   path: string
   status: SpecStatus
-  evalResult?: EvalResult
+  evalResult?: Rubric
   content?: string
 }
 

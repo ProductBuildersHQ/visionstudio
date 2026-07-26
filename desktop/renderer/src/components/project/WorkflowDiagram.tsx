@@ -1,11 +1,16 @@
 import type { Project, Spec } from '../../types'
+import { useApp } from '../../contexts/AppContext'
 
 interface WorkflowDiagramProps {
-  project: Project
-  onSpecClick: (spec: Spec) => void
+  project?: Project
+  onSpecClick?: (spec: Spec) => void
 }
 
-export function WorkflowDiagram({ project, onSpecClick }: WorkflowDiagramProps) {
+export function WorkflowDiagram(props: WorkflowDiagramProps) {
+  const app = useApp()
+  const project = props.project ?? app.activeProject
+  const onSpecClick = props.onSpecClick ?? app.navigateToSpec
+  if (!project) return null
   // Group specs into rows for visualization
   const sourceSpecs = project.specs.filter((s) =>
     ['mrd', 'opportunity-spec'].includes(s.type)
@@ -163,15 +168,15 @@ function SpecNode({ spec, onClick }: { spec: Spec; onClick: () => void }) {
         ? 'border-va-text-muted'
         : 'border-va-border'
     }
-    if (spec.evalResult.decision === 'pass') return 'border-va-success'
-    if (spec.evalResult.decision === 'conditional') return 'border-va-warning'
+    if (spec.evalResult.overallDecision === 'pass') return 'border-va-success'
+    if (spec.evalResult.overallDecision === 'conditional') return 'border-va-warning'
     return 'border-va-error'
   }
 
   const getStatusBg = () => {
     if (!spec.evalResult) return 'bg-va-sidebar'
-    if (spec.evalResult.decision === 'pass') return 'bg-va-success/10'
-    if (spec.evalResult.decision === 'conditional') return 'bg-va-warning/10'
+    if (spec.evalResult.overallDecision === 'pass') return 'bg-va-success/10'
+    if (spec.evalResult.overallDecision === 'conditional') return 'bg-va-warning/10'
     return 'bg-va-error/10'
   }
 
@@ -181,15 +186,9 @@ function SpecNode({ spec, onClick }: { spec: Spec; onClick: () => void }) {
       className={`px-4 py-3 rounded-lg border-2 ${getStatusColor()} ${getStatusBg()} hover:bg-va-bg transition-colors text-left min-w-[120px]`}
     >
       <div className="text-sm font-medium text-va-text">{spec.name}</div>
-      {spec.evalResult && (
+      {spec.evalResult && spec.evalResult.intScore !== undefined && (
         <div className="text-xs text-va-text-muted mt-1">
-          {(() => {
-            const isV2 = spec.evalResult.schemaVersion === 'v2' || spec.evalResult.scoreV2 !== undefined
-            if (isV2 && spec.evalResult.scoreV2) {
-              return `Score: ${spec.evalResult.scoreV2}/5`
-            }
-            return `Score: ${spec.evalResult.score.toFixed(1)}`
-          })()}
+          Score: {spec.evalResult.intScore}/5
         </div>
       )}
       {spec.status === 'not_started' && (

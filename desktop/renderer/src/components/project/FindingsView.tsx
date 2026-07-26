@@ -1,29 +1,35 @@
-import type { Project, Spec, Finding } from '../../types'
-import { getScoreLabel, needsHumanReview } from '../../types'
+import type { Project, Spec, EvalFinding } from '../../types'
+import { needsHumanReview } from '../../types'
+import { SummaryCard, SeverityDot, IssueCard } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 
 interface FindingsViewProps {
-  project: Project
-  onSpecClick: (spec: Spec) => void
+  project?: Project
+  onSpecClick?: (spec: Spec) => void
 }
 
-interface SpecFinding extends Finding {
+interface SpecFinding extends EvalFinding {
   specType: string
   specName: string
 }
 
-export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
-  // Collect all findings from all specs, preserving spec order from sidebar
+export function FindingsView(props: FindingsViewProps) {
+  const app = useApp()
+  const project = props.project ?? app.activeProject
+  const onSpecClick = props.onSpecClick ?? app.navigateToSpec
+  if (!project) return null
   const allFindings: SpecFinding[] = []
-  const specStats: { spec: Spec; findingCount: number; score: number | null }[] = []
+  const specStats: { spec: Spec; findingCount: number; score: number | undefined }[] = []
 
   for (const spec of project.specs) {
     if (spec.evalResult) {
+      const findings = spec.evalResult.findings ?? []
       specStats.push({
         spec,
-        findingCount: spec.evalResult.findings.length,
-        score: spec.evalResult.score,
+        findingCount: findings.length,
+        score: spec.evalResult.intScore,
       })
-      for (const finding of spec.evalResult.findings) {
+      for (const finding of findings) {
         allFindings.push({
           ...finding,
           specType: spec.type,
@@ -33,7 +39,6 @@ export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
     }
   }
 
-  // Count findings by severity
   const severityCounts = {
     critical: allFindings.filter((f) => f.severity === 'critical').length,
     high: allFindings.filter((f) => f.severity === 'high').length,
@@ -43,7 +48,7 @@ export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
 
   const totalFindings = allFindings.length
   const evaluatedSpecs = specStats.length
-  const passingSpecs = specStats.filter((s) => s.spec.evalResult?.decision === 'pass').length
+  const passingSpecs = specStats.filter((s) => s.spec.evalResult?.overallDecision === 'pass').length
 
   return (
     <div className="h-full overflow-auto p-6">
@@ -60,21 +65,12 @@ export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
 
         {/* Summary cards */}
         <div className="grid grid-cols-4 gap-4 mb-6">
-          <SummaryCard
-            label="Total Findings"
-            value={totalFindings}
-            color="text-va-text"
-          />
+          <SummaryCard label="Total Findings" value={totalFindings} />
           <SummaryCard
             label="Specs Evaluated"
             value={`${evaluatedSpecs} / ${project.specs.length}`}
-            color="text-va-text"
           />
-          <SummaryCard
-            label="Passing"
-            value={passingSpecs}
-            color="text-va-success"
-          />
+          <SummaryCard label="Passing" value={passingSpecs} color="text-va-success" />
           <SummaryCard
             label="Needs Work"
             value={evaluatedSpecs - passingSpecs}
@@ -86,10 +82,10 @@ export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
         <div className="bg-va-panel rounded-lg p-4 border border-va-border mb-6">
           <h2 className="text-sm font-semibold text-va-text mb-3">Findings by Severity</h2>
           <div className="flex gap-6">
-            <SeverityBadge label="Critical" count={severityCounts.critical} color="bg-red-500" />
-            <SeverityBadge label="High" count={severityCounts.high} color="bg-orange-500" />
-            <SeverityBadge label="Medium" count={severityCounts.medium} color="bg-yellow-500" />
-            <SeverityBadge label="Low" count={severityCounts.low} color="bg-blue-500" />
+            <SeverityDot severity="critical" label="Critical" count={severityCounts.critical} />
+            <SeverityDot severity="high" label="High" count={severityCounts.high} />
+            <SeverityDot severity="medium" label="Medium" count={severityCounts.medium} />
+            <SeverityDot severity="low" label="Low" count={severityCounts.low} />
           </div>
         </div>
 
@@ -101,7 +97,7 @@ export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
         ) : (
           <div className="space-y-4">
             {project.specs
-              .filter((spec) => spec.evalResult && spec.evalResult.findings.length > 0)
+              .filter((spec) => spec.evalResult && (spec.evalResult.findings?.length ?? 0) > 0)
               .map((spec) => (
                 <SpecFindingsCard
                   key={spec.type}
@@ -116,42 +112,6 @@ export function FindingsView({ project, onSpecClick }: FindingsViewProps) {
   )
 }
 
-function SummaryCard({
-  label,
-  value,
-  color,
-}: {
-  label: string
-  value: string | number
-  color: string
-}) {
-  return (
-    <div className="bg-va-panel rounded-lg p-4 border border-va-border">
-      <div className="text-xs text-va-text-muted uppercase tracking-wide mb-1">{label}</div>
-      <div className={`text-2xl font-bold ${color}`}>{value}</div>
-    </div>
-  )
-}
-
-function SeverityBadge({
-  label,
-  count,
-  color,
-}: {
-  label: string
-  count: number
-  color: string
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <span className={`w-3 h-3 rounded-full ${color} ${count === 0 ? 'opacity-30' : ''}`} />
-      <span className={`text-sm ${count === 0 ? 'text-va-text-muted' : 'text-va-text'}`}>
-        {label}: <span className="font-semibold">{count}</span>
-      </span>
-    </div>
-  )
-}
-
 function SpecFindingsCard({
   spec,
   onSpecClick,
@@ -162,27 +122,23 @@ function SpecFindingsCard({
   if (!spec.evalResult) return null
 
   const evalResult = spec.evalResult
-  const { decision, findings } = evalResult
+  const findings = evalResult.findings ?? []
+  const overallDecision = evalResult.overallDecision
 
-  // Determine if this is v2 format
-  const isV2 = evalResult.schemaVersion === 'v2' || evalResult.scoreV2 !== undefined
-  const displayScore = isV2 && evalResult.scoreV2
-    ? `${evalResult.scoreV2}/5 (${getScoreLabel(evalResult.scoreV2)})`
-    : evalResult.score.toFixed(1)
+  const displayScore = evalResult.intScore !== undefined ? `${evalResult.intScore}/5` : '—'
 
-  const decisionStyles = {
+  const decisionStyles: Record<string, { bg: string; border: string; badge: string }> = {
     pass: { bg: 'bg-va-success/10', border: 'border-va-success/30', badge: 'bg-va-success' },
     conditional: { bg: 'bg-va-warning/10', border: 'border-va-warning/30', badge: 'bg-va-warning' },
     fail: { bg: 'bg-va-error/10', border: 'border-va-error/30', badge: 'bg-va-error' },
+    human_review: { bg: 'bg-va-warning/10', border: 'border-va-warning/30', badge: 'bg-va-warning' },
   }
-  const style = decisionStyles[decision] || decisionStyles.fail
+  const style = (overallDecision && decisionStyles[overallDecision]) || decisionStyles.fail
 
-  // Check if needs human review (low confidence)
   const needsReview = needsHumanReview(evalResult)
 
   return (
     <div className={`rounded-lg border ${style.border} overflow-hidden`}>
-      {/* Header */}
       <button
         onClick={onSpecClick}
         className={`w-full ${style.bg} px-4 py-3 flex items-center justify-between hover:brightness-110 transition-all`}
@@ -201,7 +157,7 @@ function SpecFindingsCard({
           <span className="text-sm text-va-text-muted">
             Score: <span className="font-semibold text-va-text">{displayScore}</span>
           </span>
-          {isV2 && evalResult.confidence !== undefined && (
+          {evalResult.confidence !== undefined && (
             <span className="text-sm text-va-text-muted">
               Conf: <span className="font-semibold text-va-text">{Math.round(evalResult.confidence * 100)}%</span>
             </span>
@@ -213,8 +169,7 @@ function SpecFindingsCard({
         </div>
       </button>
 
-      {/* Blocking reason codes (v2) */}
-      {isV2 && evalResult.blocking && evalResult.blocking.length > 0 && (
+      {evalResult.blocking && evalResult.blocking.length > 0 && (
         <div className="bg-va-error/5 px-4 py-2 border-b border-va-border">
           <span className="text-xs text-va-error font-semibold">Blocking: </span>
           {evalResult.blocking.map((code, idx) => (
@@ -225,50 +180,10 @@ function SpecFindingsCard({
         </div>
       )}
 
-      {/* Findings list */}
       <div className="bg-va-bg divide-y divide-va-border">
         {findings.map((finding, idx) => (
-          <FindingRow key={idx} finding={finding} />
+          <IssueCard key={idx} issue={finding} />
         ))}
-      </div>
-    </div>
-  )
-}
-
-function FindingRow({ finding }: { finding: Finding }) {
-  const severityStyles: Record<string, { badge: string; border: string }> = {
-    critical: { badge: 'bg-red-500 text-white', border: 'border-l-red-500' },
-    high: { badge: 'bg-orange-500 text-white', border: 'border-l-orange-500' },
-    medium: { badge: 'bg-yellow-500 text-black', border: 'border-l-yellow-500' },
-    low: { badge: 'bg-blue-500 text-white', border: 'border-l-blue-500' },
-    info: { badge: 'bg-gray-500 text-white', border: 'border-l-gray-500' },
-  }
-  const style = severityStyles[finding.severity] || severityStyles.low
-
-  return (
-    <div className={`px-4 py-3 border-l-4 ${style.border}`}>
-      <div className="flex items-start gap-3">
-        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded shrink-0 ${style.badge}`}>
-          {finding.severity.toUpperCase()}
-        </span>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-va-text-muted capitalize">{finding.category}</span>
-            {/* V2: Reason code badge */}
-            {finding.code && (
-              <span className="text-[10px] px-1.5 py-0.5 bg-va-panel border border-va-border rounded font-mono">
-                {finding.code}
-              </span>
-            )}
-            {/* V2: Location reference */}
-            {finding.location && (
-              <span className="text-[10px] text-va-text-muted">
-                @ {finding.location}
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-va-text mt-0.5">{finding.message}</p>
-        </div>
       </div>
     </div>
   )

@@ -109,7 +109,7 @@ A list of all findings is provided for easy scanning of all findings.
 ┌─────────────────────────▼───────────────────────────────────┐
 │                      Go Daemon                              │
 │  • REST API for projects/specs/AIDLC/V2MOM/roadmap          │
-│  • VisionSpec v0.13.0 integration                           │
+│  • VisionSpec v0.14.0 integration                           │
 │  • Methodology selection (requirements + implementation)    │
 │  • Organization and team management                         │
 │  • DevX dashboard passthrough (reads devfolio's output)     │

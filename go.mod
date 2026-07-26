@@ -8,13 +8,13 @@ require (
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-chi/cors v1.2.2
 	github.com/grokify/mogo v0.74.6
+	github.com/plexusone/structured-evaluation v0.11.0
 )
 
 require (
 	github.com/grokify/pidl v0.5.0 // indirect
 	github.com/grokify/prism-roadmap v0.16.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
-	github.com/plexusone/structured-evaluation v0.10.0 // indirect
 	golang.org/x/exp v0.0.0-20260718201538-764159d718ef // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.40.0 // indirect

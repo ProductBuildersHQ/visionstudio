@@ -30,6 +30,7 @@ import (
 	"github.com/ProductBuildersHQ/visionspec/pkg/workflow/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/api"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/config"
+	"github.com/plexusone/structured-evaluation/rubric"
 )
 
 func main() {
@@ -114,6 +115,8 @@ func (s *Server) Router() http.Handler {
 
 		// DevX (OmniDevX dashboard passthrough)
 		r.Get("/devx/dashboard", s.handleGetDevXDashboard)
+		r.Get("/devx/periods", s.handleListDevXPeriods)
+		r.Get("/devx/reports/{periodType}/{label}", s.handleGetDevXPeriodDashboard)
 
 		// Organization
 		r.Get("/organization", s.handleGetOrganization)
@@ -188,6 +191,12 @@ func (s *Server) Router() http.Handler {
 		r.Post("/projects/{project}/aidlc/phase/transition", s.handleAIDLCPhaseTransition)
 		r.Get("/projects/{project}/aidlc/templates", s.handleListAIDLCTemplates)
 		r.Get("/projects/{project}/aidlc/templates/{docType}", s.handleGetAIDLCTemplate)
+
+		// API Style Spec extension
+		r.Post("/extensions/api-style-spec/lint", s.handleAPIStyleLint)
+		r.Get("/extensions/api-style-spec/profiles", s.handleAPIStyleListProfiles)
+		r.Get("/extensions/api-style-spec/profiles/{name}", s.handleAPIStyleGetProfile)
+		r.Post("/extensions/api-style-spec/suggest-fixes", s.handleAPIStyleSuggestFixes)
 	})
 
 	return r
@@ -568,7 +577,7 @@ func buildSpecsFromWorkflow(workflow []string, projectPath string) []api.Spec {
 
 		// Check if spec file exists to determine status
 		status := api.SpecStatusNotStarted
-		var evalResult *api.EvalResult
+		var evalResult *rubric.Rubric
 		specPath := filepath.Join(projectPath, meta.path)
 		if _, err := os.Stat(specPath); err == nil {
 			status = api.SpecStatusDraft
@@ -576,11 +585,12 @@ func buildSpecsFromWorkflow(workflow []string, projectPath string) []api.Spec {
 			// Check for eval result
 			evalPath := filepath.Join(projectPath, "eval", step+".json")
 			if evalData, err := os.ReadFile(evalPath); err == nil {
-				var result api.EvalResult
+				var result rubric.Rubric
 				if json.Unmarshal(evalData, &result) == nil {
 					evalResult = &result
-					// Update status based on eval decision
-					if result.Decision == api.EvalDecisionPass {
+					// Update status based on the explicit pass/fail gate
+					// (Pass), not the score alone.
+					if result.Pass {
 						status = api.SpecStatusApproved
 					} else {
 						status = api.SpecStatusEvaluated
@@ -679,13 +689,15 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for eval result (specType validated above)
-	var evalResult *api.EvalResult
+	var evalResult *rubric.Rubric
 	evalPath := filepath.Join(project.Path, "eval", specType+".json") //nolint:gosec // specType validated above
 	if evalData, err := os.ReadFile(evalPath); err == nil {           //nolint:gosec // specType validated above
-		var result api.EvalResult
+		var result rubric.Rubric
 		if json.Unmarshal(evalData, &result) == nil {
 			evalResult = &result
-			if result.Decision == api.EvalDecisionPass {
+			// Update status based on the explicit pass/fail gate (Pass),
+			// not the score alone.
+			if result.Pass {
 				status = api.SpecStatusApproved
 			} else {
 				status = api.SpecStatusEvaluated
@@ -790,15 +802,31 @@ func (s *Server) handleEvaluateSpec(w http.ResponseWriter, r *http.Request) {
 	specType := chi.URLParam(r, "specType")
 	s.logger.Debug("Evaluating spec", "project", projectName, "type", specType)
 
-	// TODO: Integrate with visionspec evaluation
-	s.writeJSON(w, http.StatusOK, api.EvaluateSpecResponse{
-		Result: api.EvalResult{
-			Score:    7.5,
-			Decision: api.EvalDecisionPass,
-			Findings: []api.Finding{
-				{Category: "clarity", Severity: "medium", Message: "Consider adding more specific user personas"},
+	// TODO: Integrate with visionspec evaluation. This stub uses the real
+	// rubric.Rubric builders (AddCategoryResult/Finalize), not a raw
+	// struct literal, so its shape — and CategoryResult.Severity, which
+	// Finalize computes automatically — matches what real evaluation will
+	// eventually produce.
+	rep := rubric.NewRubric(specType, specType+".md")
+	rep.AddCategoryResult(rubric.CategoryResult{
+		Category:  "clarity",
+		Score:     rubric.ScorePartial,
+		IntScore:  rubric.ScoreAcceptable,
+		Reasoning: "Consider adding more specific user personas",
+		Findings: []rubric.Finding{
+			{
+				ID:          "stub-clarity-1",
+				Category:    "clarity",
+				Severity:    rubric.SeverityMedium,
+				Title:       "Vague user personas",
+				Description: "Consider adding more specific user personas",
 			},
 		},
+	})
+	rep.Finalize(nil, fmt.Sprintf("POST /api/projects/%s/specs/%s/evaluate", projectName, specType))
+
+	s.writeJSON(w, http.StatusOK, api.EvaluateSpecResponse{
+		Result: *rep,
 	})
 }
 

@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-07-21T00:00:00Z",
+  "extensions": [
+    {
+      "id": "plexusone.api-style-spec",
+      "name": "API Style Spec",
+      "description": "Review and improve API style specifications with LLM-as-Judge evaluation, dashboard visualization, and inline linting",
+      "publisher": "PlexusOne",
+      "version": "0.5.0",
+      "repository": "https://github.com/plexusone/api-style-spec",
+      "tags": ["api", "style-guide", "linting", "evaluation", "openapi"],
+      "builtIn": false
+    },
+    {
+      "id": "visionstudio.visionspec",
+      "name": "VisionSpec Workflow",
+      "description": "Product and feature specification workflow with LLM-as-Judge evaluation",
+      "publisher": "ProductBuildersHQ",
+      "version": "1.0.0",
+      "repository": "https://github.com/ProductBuildersHQ/visionstudio",
+      "tags": ["workflow", "specs", "evaluation"],
+      "builtIn": true
+    },
+    {
+      "id": "visionstudio.aidlc",
+      "name": "AI Development Lifecycle",
+      "description": "AWS AI Development Lifecycle workflow with three-phase document management",
+      "publisher": "ProductBuildersHQ",
+      "version": "1.0.0",
+      "repository": "https://github.com/ProductBuildersHQ/visionstudio",
+      "tags": ["workflow", "aidlc", "aws", "lifecycle"],
+      "builtIn": true
+    },
+    {
+      "id": "visionstudio.v2mom",
+      "name": "V2MOM Strategic Alignment",
+      "description": "V2MOM cascade visualization and organizational alignment tracking",
+      "publisher": "ProductBuildersHQ",
+      "version": "1.0.0",
+      "repository": "https://github.com/ProductBuildersHQ/visionstudio",
+      "tags": ["strategy", "v2mom", "alignment"],
+      "builtIn": true
+    },
+    {
+      "id": "visionstudio.analytics",
+      "name": "Analytics & Insights",
+      "description": "Maturity model, capability stack, roadmap, and DevX dashboard",
+      "publisher": "ProductBuildersHQ",
+      "version": "1.0.0",
+      "repository": "https://github.com/ProductBuildersHQ/visionstudio",
+      "tags": ["analytics", "maturity", "roadmap", "devx"],
+      "builtIn": true
+    }
+  ]
+}

@@ -1,7 +1,8 @@
-import type { Project, Spec, EvalResult, Profile, LintResult, ImplementationMethodologySummary, ProjectMethodologyConfig, Organization, OrganizationV2MOM, OrganizationCascade } from '../types'
+import type { Project, Spec, Profile, LintResult, ImplementationMethodologySummary, ProjectMethodologyConfig, Organization, OrganizationV2MOM, OrganizationCascade } from '../types'
+import type { Rubric } from '@plexusone/structured-evaluation'
 import type { V2MOM, V2MOMCascade, V2MOMAlignment } from '../components/v2mom/types'
 import type { MaturityModel, MaturityModelSummary } from '../components/maturity-model/types'
-import type { DashforgeDashboard } from '../components/devx/types'
+import type { DashforgeDashboard, DevXPeriodEntry } from '../components/devx/types'
 
 // Sample types
 export interface SampleSummary {
@@ -462,8 +463,8 @@ export const api = {
     })
   },
 
-  async evaluateSpec(project: string, specType: string): Promise<EvalResult> {
-    const data = await fetchJSON<{ result: EvalResult }>(
+  async evaluateSpec(project: string, specType: string): Promise<Rubric> {
+    const data = await fetchJSON<{ result: Rubric }>(
       `${API_BASE}/projects/${project}/specs/${specType}/evaluate`,
       { method: 'POST' }
     )
@@ -836,6 +837,24 @@ export const api = {
   // DevX (OmniDevX dashboard passthrough — not project-scoped)
   async getDevXDashboard(): Promise<DashforgeDashboard> {
     const response = await fetch(`${API_BASE}/devx/dashboard`)
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { error?: string } | null
+      throw new Error(body?.error || `HTTP ${response.status}: ${response.statusText}`)
+    }
+    return response.json()
+  },
+
+  async getDevXPeriods(): Promise<DevXPeriodEntry[]> {
+    const response = await fetch(`${API_BASE}/devx/periods`)
+    if (!response.ok) {
+      const body = await response.json().catch(() => null) as { error?: string } | null
+      throw new Error(body?.error || `HTTP ${response.status}: ${response.statusText}`)
+    }
+    return response.json()
+  },
+
+  async getDevXPeriodDashboard(periodType: string, label: string): Promise<DashforgeDashboard> {
+    const response = await fetch(`${API_BASE}/devx/reports/${periodType}/${label}`)
     if (!response.ok) {
       const body = await response.json().catch(() => null) as { error?: string } | null
       throw new Error(body?.error || `HTTP ${response.status}: ${response.statusText}`)

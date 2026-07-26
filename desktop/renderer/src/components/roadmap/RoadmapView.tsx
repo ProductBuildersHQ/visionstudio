@@ -1,26 +1,27 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
+import { LoadingState, ErrorState } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 import type { Roadmap, RoadmapItem } from '../../services/api'
 
 interface RoadmapViewProps {
-  projectName: string
+  projectName?: string
 }
 
-/**
- * RoadmapView displays the project roadmap with items organized by quarter.
- * Shows RICE scoring, status, and capability/goal references.
- */
-export function RoadmapView({ projectName }: RoadmapViewProps) {
+export function RoadmapView(props: RoadmapViewProps) {
+  const app = useApp()
+  const projectName = props.projectName ?? app.activeProject?.name
   const [roadmap, setRoadmap] = useState<Roadmap | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board')
 
   useEffect(() => {
-    loadRoadmap()
+    if (projectName) loadRoadmap()
   }, [projectName])
 
   async function loadRoadmap() {
+    if (!projectName) return
     setIsLoading(true)
     setError(null)
     try {
@@ -34,35 +35,19 @@ export function RoadmapView({ projectName }: RoadmapViewProps) {
     }
   }
 
-  // Loading state
+  if (!projectName) return null
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full bg-va-bg">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-va-accent border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-va-text-muted">Loading roadmap...</p>
-        </div>
-      </div>
-    )
+    return <LoadingState message="Loading roadmap..." />
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-va-bg gap-4">
-        <div className="text-center max-w-md">
-          <div className="text-va-error mb-4">{error}</div>
-          <p className="text-va-text-muted text-sm mb-4">
-            Make sure the project has roadmap data configured.
-          </p>
-          <button
-            onClick={loadRoadmap}
-            className="px-4 py-2 bg-va-accent text-white rounded hover:bg-va-accent/80 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        message={error}
+        hint="Make sure the project has roadmap data configured."
+        onRetry={loadRoadmap}
+      />
     )
   }
 

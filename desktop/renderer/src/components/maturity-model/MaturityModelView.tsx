@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../../services/api'
+import { LoadingState, ErrorState } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 import type { MaturityModelSummary } from './types'
 
 interface MaturityModelViewProps {
-  projectName: string
+  projectName?: string
 }
 
-/**
- * MaturityModelView displays the prism-maturity HTML dashboard
- * embedded in an iframe for the selected project.
- */
-export function MaturityModelView({ projectName }: MaturityModelViewProps) {
+export function MaturityModelView(props: MaturityModelViewProps) {
+  const app = useApp()
+  const projectName = props.projectName ?? app.activeProject?.name
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dashboardHtml, setDashboardHtml] = useState<string>('')
@@ -18,19 +18,18 @@ export function MaturityModelView({ projectName }: MaturityModelViewProps) {
   const [selectedModelId, setSelectedModelId] = useState<string | null>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Load available models on mount
   useEffect(() => {
-    loadModels()
+    if (projectName) loadModels()
   }, [projectName])
 
-  // Load dashboard when model is selected
   useEffect(() => {
-    if (selectedModelId) {
+    if (selectedModelId && projectName) {
       loadDashboard(selectedModelId)
     }
   }, [selectedModelId, projectName])
 
   async function loadModels() {
+    if (!projectName) return
     try {
       const modelList = await api.listMaturityModels(projectName)
       setModels(modelList)
@@ -49,6 +48,7 @@ export function MaturityModelView({ projectName }: MaturityModelViewProps) {
   }
 
   async function loadDashboard(modelId: string) {
+    if (!projectName) return
     setIsLoading(true)
     setError(null)
     try {
@@ -77,35 +77,19 @@ export function MaturityModelView({ projectName }: MaturityModelViewProps) {
     setSelectedModelId(modelId)
   }
 
-  // Loading state
+  if (!projectName) return null
+
   if (isLoading && !dashboardHtml) {
-    return (
-      <div className="flex items-center justify-center h-full bg-va-bg">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-va-accent border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-va-text-muted">Loading maturity dashboard...</p>
-        </div>
-      </div>
-    )
+    return <LoadingState message="Loading maturity dashboard..." />
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-va-bg gap-4">
-        <div className="text-center max-w-md">
-          <div className="text-va-error mb-4">{error}</div>
-          <p className="text-va-text-muted text-sm mb-4">
-            Make sure the project has maturity model data configured.
-          </p>
-          <button
-            onClick={handleRefresh}
-            className="px-4 py-2 bg-va-accent text-white rounded hover:bg-va-accent/80 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        message={error}
+        hint="Make sure the project has maturity model data configured."
+        onRetry={handleRefresh}
+      />
     )
   }
 

@@ -1,20 +1,84 @@
-import { useState, useEffect, useCallback } from 'react'
-import { AppLayout, Sidebar, WorkflowDiagram, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal, MaturityModelView, CapabilityStackView, RoadmapView, DevXDashboardView } from './components'
+import { useState, useEffect, useCallback, createElement } from 'react'
+import { AppLayout, Sidebar, SpecEditor, TerminalPanel, DEFAULT_TERMINAL_HEIGHT, AddProjectModal } from './components'
 import { MethodologySelector } from './components/layout/MethodologySelector'
-import { OrganizationView } from './components/organization'
-import { FindingsView } from './components/project/FindingsView'
-import { V2MOMView } from './components/v2mom'
-import { AIDLCWorkflowView, AIDLCSyncPanel } from './components/aidlc'
+import { ExtensionManagerView } from './components/extensions/ExtensionManagerView'
 import { api } from './services/api'
 import { useProjectEvents, FileEvent } from './hooks/useProjectEvents'
+import { extensionRegistry, registerBuiltinExtensions, registerMarketplaceExtensions } from './extensions'
+import { AppProvider } from './contexts/AppContext'
 import type { Project, Spec, ProjectMethodologyConfig } from './types'
+import type { ExtensionContext } from './types/extension'
 
-type ActiveView = 'workflow' | 'spec' | 'findings' | 'v2mom' | 'maturity-model' | 'capabilities' | 'roadmap' | 'aidlc-workflow' | 'aidlc-sync' | 'organization' | 'devx-dashboard'
+interface ActiveView {
+  extensionId: string
+  viewId: string
+}
+
+function buildExtensionContext(extensionId: string, project?: Project | null): ExtensionContext {
+  return {
+    extensionId,
+    projectName: project?.name,
+    projectPath: project?.path,
+    api: {
+      async fetch<T>(path: string, options?: RequestInit): Promise<T> {
+        const url = `http://127.0.0.1:8765/api/extensions/${extensionId}${path}`
+        const response = await fetch(url, {
+          ...options,
+          headers: { 'Content-Type': 'application/json', ...options?.headers },
+        })
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        return response.json()
+      },
+      async fetchText(path: string, options?: RequestInit): Promise<string> {
+        const url = `http://127.0.0.1:8765/api/extensions/${extensionId}${path}`
+        const response = await fetch(url, options)
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+        return response.text()
+      },
+      async getProjectData<T>(key: string): Promise<T | null> {
+        if (!project?.name) return null
+        try {
+          const data = await api.getSpec(project.name, `${extensionId}:${key}`)
+          return JSON.parse(data.content ?? 'null')
+        } catch {
+          return null
+        }
+      },
+      async setProjectData(key: string, value: unknown): Promise<void> {
+        if (!project?.name) return
+        await api.saveSpec(project.name, `${extensionId}:${key}`, JSON.stringify(value))
+      },
+      async evaluate(specType: string, _content: string) {
+        if (!project?.name) throw new Error('No active project')
+        return api.evaluateSpec(project.name, specType)
+      },
+      onFileChanged(_callback) { return () => {} },
+      onEvalComplete(_callback) { return () => {} },
+    },
+    ui: {
+      showNotification(message: string, type = 'info') {
+        console.log(`[${extensionId}] ${type}: ${message}`)
+      },
+      showProgress(title: string) {
+        console.log(`[${extensionId}] progress: ${title}`)
+        return {
+          update(message: string, _percent?: number) { console.log(`[${extensionId}] progress: ${message}`) },
+          done() { console.log(`[${extensionId}] progress done`) },
+        }
+      },
+      openTerminal(command: string) {
+        console.log(`[${extensionId}] terminal: ${command}`)
+      },
+    },
+  }
+}
+
+const DEFAULT_VIEW: ActiveView = { extensionId: 'visionstudio.visionspec', viewId: 'workflow' }
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([])
   const [activeProject, setActiveProject] = useState<Project | null>(null)
-  const [activeView, setActiveView] = useState<ActiveView>('workflow')
+  const [activeView, setActiveView] = useState<ActiveView>(DEFAULT_VIEW)
   const [activeSpec, setActiveSpec] = useState<Spec | null>(null)
   const [specContent, setSpecContent] = useState<string>('')
   const [isDirty, setIsDirty] = useState(false)
@@ -24,23 +88,31 @@ function App() {
   const [showAddProjectModal, setShowAddProjectModal] = useState(false)
   const [showMethodologyModal, setShowMethodologyModal] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
+  const [extensionsReady, setExtensionsReady] = useState(false)
 
-  // Real-time event handling
+  // Register extensions once, then activate based on project
+  useEffect(() => {
+    registerBuiltinExtensions()
+    registerMarketplaceExtensions()
+    setExtensionsReady(true)
+  }, [])
+
+  // Activate/deactivate extensions when the active project changes
+  useEffect(() => {
+    if (!extensionsReady) return
+    extensionRegistry.activateForProject(activeProject)
+  }, [activeProject, extensionsReady])
+
   const handleFileChanged = useCallback((event: FileEvent) => {
     console.log('File changed:', event)
-
-    // If we're viewing a spec that was modified, reload it
     if (activeSpec && event.specType === activeSpec.type && event.type === 'file_modified') {
       if (activeProject && !isDirty) {
-        // Reload spec content if user hasn't made local changes
         api.getSpec(activeProject.name, activeSpec.type).then(fullSpec => {
           setActiveSpec(fullSpec)
           setSpecContent(fullSpec.content || '')
         }).catch(console.error)
       }
     }
-
-    // Refresh project list to update spec statuses
     if (activeProject && event.project === activeProject.name) {
       loadProjects()
     }
@@ -48,13 +120,9 @@ function App() {
 
   const handleEvalComplete = useCallback((event: FileEvent) => {
     console.log('Eval complete:', event)
-
-    // Refresh project to get updated eval results
     if (activeProject && event.project === activeProject.name) {
       loadProjects()
     }
-
-    // Show notification (could add a toast notification system here)
     if (event.data) {
       const score = event.data.score as number
       const decision = event.data.decision as string
@@ -63,13 +131,11 @@ function App() {
   }, [activeProject])
 
   const handleWorkflowChanged = useCallback((_event: FileEvent) => {
-    // Workflow changed - refresh to update the diagram
     if (activeProject) {
       loadProjects()
     }
   }, [activeProject])
 
-  // Subscribe to real-time events
   useProjectEvents(activeProject?.name, {
     onFileChanged: handleFileChanged,
     onEvalComplete: handleEvalComplete,
@@ -79,7 +145,6 @@ function App() {
     enabled: !!activeProject,
   })
 
-  // Load projects on mount
   useEffect(() => {
     loadProjects()
   }, [])
@@ -100,87 +165,33 @@ function App() {
     }
   }
 
-  const handleProjectSelect = (project: Project) => {
-    setActiveProject(project)
-    setActiveView('workflow')
+  const navigateToView = useCallback((extensionId: string, viewId: string) => {
+    setActiveView({ extensionId, viewId })
     setActiveSpec(null)
-  }
+  }, [])
 
-  const handleSpecSelect = async (spec: Spec) => {
+  const navigateToSpec = useCallback(async (spec: Spec) => {
     if (!activeProject) return
-
     try {
       const fullSpec = await api.getSpec(activeProject.name, spec.type)
       setActiveSpec(fullSpec)
       setSpecContent(fullSpec.content || '')
       setIsDirty(false)
-      setActiveView('spec')
     } catch (err) {
       console.error('Failed to load spec:', err)
-      // Fall back to the spec we have
       setActiveSpec(spec)
       setSpecContent(spec.content || '')
       setIsDirty(false)
-      setActiveView('spec')
     }
-  }
+  }, [activeProject])
 
-  const handleWorkflowClick = () => {
-    setActiveView('workflow')
-    setActiveSpec(null)
-  }
-
-  const handleFindingsClick = () => {
-    setActiveView('findings')
-    setActiveSpec(null)
-  }
-
-  const handleV2MOMClick = () => {
-    setActiveView('v2mom')
-    setActiveSpec(null)
-  }
-
-  const handleMaturityModelClick = () => {
-    setActiveView('maturity-model')
-    setActiveSpec(null)
-  }
-
-  const handleCapabilitiesClick = () => {
-    setActiveView('capabilities')
-    setActiveSpec(null)
-  }
-
-  const handleRoadmapClick = () => {
-    setActiveView('roadmap')
-    setActiveSpec(null)
-  }
-
-  const handleAIDLCWorkflowClick = () => {
-    setActiveView('aidlc-workflow')
-    setActiveSpec(null)
-  }
-
-  const handleAIDLCSyncClick = () => {
-    setActiveView('aidlc-sync')
-    setActiveSpec(null)
-  }
-
-  const handleMethodologyClick = () => {
-    setShowMethodologyModal(true)
-  }
-
-  const handleOrganizationClick = () => {
-    setActiveView('organization')
-    setActiveSpec(null)
-  }
-
-  const handleDevXClick = () => {
-    setActiveView('devx-dashboard')
+  const handleProjectSelect = (project: Project) => {
+    setActiveProject(project)
+    setActiveView(DEFAULT_VIEW)
     setActiveSpec(null)
   }
 
   const handleMethodologySave = (config: ProjectMethodologyConfig) => {
-    // Update the active project with new methodology settings
     if (activeProject) {
       const updatedProject = {
         ...activeProject,
@@ -188,8 +199,6 @@ function App() {
         implementationMethodology: config.implementationMethodology,
       }
       setActiveProject(updatedProject)
-
-      // Update the project in the list
       setProjects(prevProjects =>
         prevProjects.map(p =>
           p.name === activeProject.name ? updatedProject : p
@@ -206,7 +215,6 @@ function App() {
 
   const handleSave = async () => {
     if (!activeProject || !activeSpec) return
-
     try {
       await api.saveSpec(activeProject.name, activeSpec.type, specContent)
       setIsDirty(false)
@@ -223,7 +231,7 @@ function App() {
     const newProject = await api.addProject(name, path, profile, initialize)
     setProjects([...projects, newProject])
     setActiveProject(newProject)
-    setActiveView('workflow')
+    setActiveView(DEFAULT_VIEW)
   }
 
   const handleRemoveProject = async (projectName: string) => {
@@ -231,15 +239,45 @@ function App() {
       await api.removeProject(projectName)
       const updatedProjects = projects.filter(p => p.name !== projectName)
       setProjects(updatedProjects)
-      // If the removed project was active, select another one
       if (activeProject?.name === projectName) {
         setActiveProject(updatedProjects.length > 0 ? updatedProjects[0] : null)
-        setActiveView('workflow')
+        setActiveView(DEFAULT_VIEW)
         setActiveSpec(null)
       }
     } catch (err) {
       console.error('Failed to remove project:', err)
     }
+  }
+
+  const renderMain = () => {
+    if (activeSpec) {
+      return (
+        <SpecEditor
+          spec={{ ...activeSpec, content: specContent }}
+          onContentChange={handleContentChange}
+          onSave={handleSave}
+          isDirty={isDirty}
+        />
+      )
+    }
+
+    if (activeView.extensionId === '_system' && activeView.viewId === 'extensions') {
+      return <ExtensionManagerView onViewSelect={navigateToView} />
+    }
+
+    if (extensionsReady) {
+      const ViewComponent = extensionRegistry.getView(activeView.extensionId, activeView.viewId)
+      if (ViewComponent) {
+        const ctx = buildExtensionContext(activeView.extensionId, activeProject)
+        return createElement(ViewComponent, { context: ctx })
+      }
+    }
+
+    if (!activeProject) {
+      return <EmptyState message="Select a project to get started" />
+    }
+
+    return <EmptyState message="View not found" />
   }
 
   if (isLoading) {
@@ -270,100 +308,54 @@ function App() {
   }
 
   return (
-    <AppLayout
-      sidebar={
-        <>
-          <Sidebar
-            projects={projects}
-            activeProject={activeProject}
-            onProjectSelect={handleProjectSelect}
-            onSpecSelect={handleSpecSelect}
-            onWorkflowClick={handleWorkflowClick}
-            onFindingsClick={handleFindingsClick}
-            onV2MOMClick={handleV2MOMClick}
-            onMaturityModelClick={handleMaturityModelClick}
-            onCapabilitiesClick={handleCapabilitiesClick}
-            onRoadmapClick={handleRoadmapClick}
-            onAIDLCWorkflowClick={handleAIDLCWorkflowClick}
-            onAIDLCSyncClick={handleAIDLCSyncClick}
-            onMethodologyClick={handleMethodologyClick}
-            onOrganizationClick={handleOrganizationClick}
-            onDevXClick={handleDevXClick}
-            activeSpec={activeSpec}
-            onAddProjectClick={() => setShowAddProjectModal(true)}
-            onRemoveProject={handleRemoveProject}
-            isConnected={isConnected}
+    <AppProvider value={{ activeProject, navigateToSpec, navigateToView }}>
+      <AppLayout
+        sidebar={
+          <>
+            <Sidebar
+              projects={projects}
+              activeProject={activeProject}
+              onProjectSelect={handleProjectSelect}
+              onSpecSelect={navigateToSpec}
+              onViewSelect={navigateToView}
+              onMethodologyClick={() => setShowMethodologyModal(true)}
+              onExtensionsClick={() => navigateToView('_system', 'extensions')}
+              activeView={activeView}
+              activeSpec={activeSpec}
+              onAddProjectClick={() => setShowAddProjectModal(true)}
+              onRemoveProject={handleRemoveProject}
+              isConnected={isConnected}
+            />
+            {showAddProjectModal && (
+              <AddProjectModal
+                onClose={() => setShowAddProjectModal(false)}
+                onAdd={handleAddProject}
+              />
+            )}
+            {showMethodologyModal && activeProject && (
+              <MethodologySelector
+                projectName={activeProject.name}
+                currentConfig={{
+                  requirementsMethodology: activeProject.requirementsMethodology || activeProject.profile.name,
+                  implementationMethodology: activeProject.implementationMethodology || 'none',
+                }}
+                onClose={() => setShowMethodologyModal(false)}
+                onSave={handleMethodologySave}
+              />
+            )}
+          </>
+        }
+        main={renderMain()}
+        terminal={
+          <TerminalPanel
+            height={terminalHeight}
+            onHeightChange={handleTerminalHeightChange}
+            projectPath={activeProject?.path}
+            projectName={activeProject?.name}
           />
-          {showAddProjectModal && (
-            <AddProjectModal
-              onClose={() => setShowAddProjectModal(false)}
-              onAdd={handleAddProject}
-            />
-          )}
-          {showMethodologyModal && activeProject && (
-            <MethodologySelector
-              projectName={activeProject.name}
-              currentConfig={{
-                requirementsMethodology: activeProject.requirementsMethodology || activeProject.profile.name,
-                implementationMethodology: activeProject.implementationMethodology || 'none',
-              }}
-              onClose={() => setShowMethodologyModal(false)}
-              onSave={handleMethodologySave}
-            />
-          )}
-        </>
-      }
-      main={
-        activeView === 'organization' ? (
-          <OrganizationView onClose={() => setActiveView('workflow')} />
-        ) : activeView === 'devx-dashboard' ? (
-          <DevXDashboardView />
-        ) : activeProject ? (
-          activeView === 'workflow' ? (
-            <WorkflowDiagram
-              project={activeProject}
-              onSpecClick={handleSpecSelect}
-            />
-          ) : activeView === 'findings' ? (
-            <FindingsView
-              project={activeProject}
-              onSpecClick={handleSpecSelect}
-            />
-          ) : activeView === 'v2mom' ? (
-            <V2MOMView projectName={activeProject.name} />
-          ) : activeView === 'maturity-model' ? (
-            <MaturityModelView projectName={activeProject.name} />
-          ) : activeView === 'capabilities' ? (
-            <CapabilityStackView projectName={activeProject.name} />
-          ) : activeView === 'roadmap' ? (
-            <RoadmapView projectName={activeProject.name} />
-          ) : activeView === 'aidlc-workflow' ? (
-            <AIDLCWorkflowView projectName={activeProject.name} />
-          ) : activeView === 'aidlc-sync' ? (
-            <AIDLCSyncPanel projectName={activeProject.name} />
-          ) : activeSpec ? (
-            <SpecEditor
-              spec={{ ...activeSpec, content: specContent }}
-              onContentChange={handleContentChange}
-              onSave={handleSave}
-              isDirty={isDirty}
-            />
-          ) : (
-            <EmptyState message="Select a spec to edit" />
-          )
-        ) : (
-          <EmptyState message="Select a project to get started" />
-        )
-      }
-      terminal={
-        <TerminalPanel
-          height={terminalHeight}
-          onHeightChange={handleTerminalHeightChange}
-          projectPath={activeProject?.path}
-          projectName={activeProject?.name}
-        />
-      }
-    />
+        }
+      />
+    </AppProvider>
   )
 }
 

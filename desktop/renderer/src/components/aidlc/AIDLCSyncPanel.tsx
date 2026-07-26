@@ -6,9 +6,11 @@ import {
   AIDLCSyncAction,
   AIDLCSyncConflict,
 } from '../../services/api'
+import { LoadingState, ErrorState } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 
 interface AIDLCSyncPanelProps {
-  projectName: string
+  projectName?: string
 }
 
 function ActionCard({ action }: { action: AIDLCSyncAction }) {
@@ -112,7 +114,9 @@ function SyncResultCard({ result }: { result: AIDLCSyncResult }) {
   )
 }
 
-export function AIDLCSyncPanel({ projectName }: AIDLCSyncPanelProps) {
+export function AIDLCSyncPanel(props: AIDLCSyncPanelProps) {
+  const app = useApp()
+  const projectName = props.projectName ?? app.activeProject?.name
   const [diff, setDiff] = useState<AIDLCSyncDiff | null>(null)
   const [result, setResult] = useState<AIDLCSyncResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -161,26 +165,14 @@ export function AIDLCSyncPanel({ projectName }: AIDLCSyncPanelProps) {
     loadDiff()
   }, [loadDiff])
 
+  if (!projectName) return null
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-va-accent"></div>
-      </div>
-    )
+    return <LoadingState message="Loading sync status..." />
   }
 
   if (error) {
-    return (
-      <div className="p-4 bg-red-900/20 border border-red-500 rounded-lg">
-        <p className="text-red-400">{error}</p>
-        <button
-          onClick={loadDiff}
-          className="mt-2 px-3 py-1 bg-red-900/50 hover:bg-red-900/70 rounded text-sm"
-        >
-          Retry
-        </button>
-      </div>
-    )
+    return <ErrorState message={error} onRetry={loadDiff} />
   }
 
   const hasChanges = diff && (diff.actions.length > 0 || (diff.conflicts?.length || 0) > 0)

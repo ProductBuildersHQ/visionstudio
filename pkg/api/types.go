@@ -1,5 +1,7 @@
 package api
 
+import "github.com/plexusone/structured-evaluation/rubric"
+
 // SpecStatus represents the status of a spec
 type SpecStatus string
 
@@ -10,61 +12,19 @@ const (
 	SpecStatusApproved   SpecStatus = "approved"
 )
 
-// EvalDecision represents the evaluation decision
-type EvalDecision string
-
-const (
-	EvalDecisionPass        EvalDecision = "pass"
-	EvalDecisionConditional EvalDecision = "conditional"
-	EvalDecisionFail        EvalDecision = "fail"
-)
-
-// Finding represents an evaluation finding
-type Finding struct {
-	Category string `json:"category"`
-	Severity string `json:"severity"`
-	Message  string `json:"message"`
-
-	// V2 fields
-	Code     string `json:"code,omitempty"`     // Reason code (e.g., "AMBIGUOUS_REQUIREMENT")
-	Location string `json:"location,omitempty"` // Reference to where issue was found (e.g., "REQ-12")
-}
-
-// DimensionScore represents a single evaluation dimension (v2)
-type DimensionScore struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Score       int       `json:"score"`      // 1-5 integer score
-	Severity    string    `json:"severity"`   // "none", "minor", "major", "critical"
-	Confidence  float64   `json:"confidence"` // 0.0-1.0
-	ReasonCodes []string  `json:"reasonCodes"`
-	Findings    []Finding `json:"findings"`
-}
-
-// EvalResult represents evaluation results
-type EvalResult struct {
-	// V1 fields (for backwards compatibility)
-	Score    float64      `json:"score"`
-	Decision EvalDecision `json:"decision"`
-	Findings []Finding    `json:"findings"`
-
-	// V2 fields
-	SchemaVersion string           `json:"schemaVersion,omitempty"` // "v2" for new format
-	ScoreV2       int              `json:"scoreV2,omitempty"`       // 1-5 integer score
-	Pass          bool             `json:"pass,omitempty"`          // Explicit pass/fail gate
-	Confidence    float64          `json:"confidence,omitempty"`    // 0.0-1.0
-	Dimensions    []DimensionScore `json:"dimensions,omitempty"`    // Per-dimension scores
-	Blocking      []string         `json:"blocking,omitempty"`      // Blocking reason codes
-}
-
-// Spec represents a specification document
+// Spec represents a specification document.
+//
+// EvalResult is structured-evaluation's own report type, not a local
+// mirror — a hand-maintained parallel type (the previous api.EvalResult)
+// silently drifted from the real shape (wrong field names, wrong types)
+// and was never caught until json.Unmarshal errors were traced by hand.
 type Spec struct {
-	Type       string      `json:"type"`
-	Name       string      `json:"name"`
-	Path       string      `json:"path"`
-	Status     SpecStatus  `json:"status"`
-	EvalResult *EvalResult `json:"evalResult,omitempty"`
-	Content    string      `json:"content,omitempty"`
+	Type       string         `json:"type"`
+	Name       string         `json:"name"`
+	Path       string         `json:"path"`
+	Status     SpecStatus     `json:"status"`
+	EvalResult *rubric.Rubric `json:"evalResult,omitempty"`
+	Content    string         `json:"content,omitempty"`
 }
 
 // Profile represents a workflow profile (requirements methodology)
@@ -112,8 +72,8 @@ type SaveSpecResponse struct {
 }
 
 type EvaluateSpecResponse struct {
-	Result EvalResult `json:"result"`
-	Error  string     `json:"error,omitempty"`
+	Result rubric.Rubric `json:"result"`
+	Error  string        `json:"error,omitempty"`
 }
 
 type ChatRequest struct {

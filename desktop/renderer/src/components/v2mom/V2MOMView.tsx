@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { api } from '../../services/api'
 import { V2MOMCascadeView } from './V2MOMCascadeView'
+import { LoadingState, ErrorState, EmptyState } from '../toolkit'
+import { useApp } from '../../contexts/AppContext'
 import type { V2MOM, V2MOMCascade } from './types'
 
 interface V2MOMViewProps {
-  projectName: string
+  projectName?: string
 }
 
 // Internal type used by V2MOMCascadeView
@@ -42,16 +44,19 @@ interface V2MOMLevel {
  * V2MOMView wraps V2MOMCascadeView with API data fetching.
  * Fetches V2MOM cascade data and transforms it for the visualization.
  */
-export function V2MOMView({ projectName }: V2MOMViewProps) {
+export function V2MOMView(props: V2MOMViewProps) {
+  const app = useApp()
+  const projectName = props.projectName ?? app.activeProject?.name
   const [v2moms, setV2moms] = useState<V2MOMLevel[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadV2MOMs()
+    if (projectName) loadV2MOMs()
   }, [projectName])
 
   async function loadV2MOMs() {
+    if (!projectName) return
     setIsLoading(true)
     setError(null)
     try {
@@ -66,54 +71,30 @@ export function V2MOMView({ projectName }: V2MOMViewProps) {
     }
   }
 
-  // Loading state
+  if (!projectName) return null
+
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full bg-va-bg">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-va-accent border-t-transparent rounded-full mx-auto mb-4" />
-          <p className="text-va-text-muted">Loading V2MOM cascade...</p>
-        </div>
-      </div>
-    )
+    return <LoadingState message="Loading V2MOM cascade..." />
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-va-bg gap-4">
-        <div className="text-center max-w-md">
-          <div className="text-va-error mb-4">{error}</div>
-          <p className="text-va-text-muted text-sm mb-4">
-            Make sure the project has V2MOM data configured.
-          </p>
-          <button
-            onClick={loadV2MOMs}
-            className="px-4 py-2 bg-va-accent text-white rounded hover:bg-va-accent/80 transition-colors"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
+      <ErrorState
+        message={error}
+        hint="Make sure the project has V2MOM data configured."
+        onRetry={loadV2MOMs}
+      />
     )
   }
 
-  // No V2MOMs available
   if (v2moms.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-va-bg">
-        <div className="text-center max-w-md">
-          <div className="text-5xl mb-4">🎯</div>
-          <h2 className="text-xl font-semibold text-va-text mb-2">No V2MOMs</h2>
-          <p className="text-va-text-muted text-sm mb-4">
-            This project doesn't have any V2MOMs configured yet.
-            Add V2MOM documents to visualize strategic alignment.
-          </p>
-          <div className="text-xs text-va-text-muted">
-            <code>v2mom/*.json</code>
-          </div>
-        </div>
-      </div>
+      <EmptyState
+        icon="🎯"
+        title="No V2MOMs"
+        description="This project doesn't have any V2MOMs configured yet. Add V2MOM documents to visualize strategic alignment."
+        hint="v2mom/*.json"
+      />
     )
   }
 

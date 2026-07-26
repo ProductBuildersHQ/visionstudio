@@ -5,6 +5,21 @@
   "versioning": "semver",
   "commitConvention": "conventional",
   "maintainers": ["ProductBuildersHQ"],
+  "unreleased": {
+    "highlights": [
+      { "description": "DevX period reports: browse and view historical weekly/monthly/quarterly dashboards, not just the latest snapshot" },
+      { "description": "New chart types — pie (model breakdown) and stacked bar (period breakdowns) — alongside the existing line chart" },
+      { "description": "Path-traversal-safe period listing and report-serving endpoints in the daemon" }
+    ],
+    "added": [
+      { "description": "`GET /api/devx/periods` to list available period reports and `GET /api/devx/reports/{periodType}/{label}` to serve a specific one, with periodType/label validation against path traversal", "commit": "53a0c49" },
+      { "description": "`api.getDevXPeriods()` and `api.getDevXPeriodDashboard()`, plus `DevXPeriodEntry` type and stack/value/name encode fields on chart marks", "commit": "2374823" },
+      { "description": "Period selector dropdown (weekly/monthly/quarterly) and `PieChart`/`BarChart` renderers, with `ChartWidget` now dispatching by mark geometry", "commit": "2450e1b" }
+    ],
+    "tests": [
+      { "description": "`validPeriodType` and `validPeriodLabel` path-traversal-prevention tests", "commit": "77c973a" }
+    ]
+  },
   "releases": [
     {
       "version": "v0.3.0",

@@ -22,6 +22,7 @@ VisionStudio uses a desktop architecture with Electron frontend and Go backend.
 │  │  • Roadmap timeline                                      ││
 │  │  • Maturity model dashboard                              ││
 │  │  • Organization settings                                 ││
+│  │  • DevX usage dashboard (not project-scoped)             ││
 │  │                                                          ││
 │  │  Services:                                               ││
 │  │  • API client (all backend communication)                ││
@@ -41,10 +42,11 @@ VisionStudio uses a desktop architecture with Electron frontend and Go backend.
 │  │  • organization.go - Organization/teams                  ││
 │  │  • methodologies.go - Methodology selection              ││
 │  │  • samples.go - Sample projects                          ││
+│  │  • devx.go - DevX dashboard passthrough                  ││
 │  └──────────────────────┬──────────────────────────────────┘│
 │  ┌──────────────────────▼──────────────────────────────────┐│
 │  │  Integrations:                                           ││
-│  │  • VisionSpec v0.13.0 (profiles, AIDLC, evaluation)      ││
+│  │  • VisionSpec v0.14.0 (profiles, AIDLC, evaluation)      ││
 │  │  • structured-evaluation (LLM-as-Judge)                  ││
 │  │  • Filesystem (JSON/Markdown storage)                    ││
 │  └─────────────────────────────────────────────────────────┘│

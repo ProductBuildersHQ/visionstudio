@@ -53,34 +53,36 @@ See [Installation](getting-started/installation.md) for detailed setup instructi
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Electron Desktop App                      │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │              React/TypeScript Frontend                   ││
-│  │                                                          ││
-│  │  Layout:                                                 ││
-│  │  • Sidebar (projects, methodology, navigation)          ││
-│  │  • Main content area (views)                             ││
-│  │                                                          ││
-│  │  Views:                                                  ││
-│  │  • Workflow diagram + spec editor                        ││
-│  │  • AIDLC workflow + document generation                  ││
-│  │  • V2MOM cascade editor                                  ││
-│  │  • Capability stack view                                 ││
-│  │  • Roadmap timeline                                      ││
-│  │  • Maturity model dashboard                              ││
-│  │  • Organization settings                                 ││
-│  └──────────────────────┬──────────────────────────────────┘│
-└─────────────────────────┼───────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│                    Electron Desktop App                       │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │              React/TypeScript Frontend                  │  │
+│  │                                                         │  │
+│  │  Layout:                                                │  │
+│  │  • Sidebar (projects, methodology, navigation)          │  │
+│  │  • Main content area (views)                            │  │
+│  │                                                         │  │
+│  │  Views:                                                 │  │
+│  │  • Workflow diagram + spec editor                       │  │
+│  │  • AIDLC workflow + document generation                 │  │
+│  │  • V2MOM cascade editor                                 │  │
+│  │  • Capability stack view                                │  │
+│  │  • Roadmap timeline                                     │  │
+│  │  • Maturity model dashboard                             │  │
+│  │  • Organization settings                                │  │
+│  │  • DevX usage dashboard (not project-scoped)            │  │
+│  └──────────────────────┬──────────────────────────────────┘  │
+└─────────────────────────┼─────────────────────────────────────┘
                           │ HTTP REST
-┌─────────────────────────▼───────────────────────────────────┐
-│                      Go Daemon                               │
-│  • REST API (60+ endpoints)                                  │
-│  • VisionSpec v0.13.0 integration                            │
-│  • AIDLC workflow management                                 │
-│  • V2MOM cascade handling                                    │
-│  • Capability, roadmap, maturity model support               │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────▼─────────────────────────────────────┐
+│                      Go Daemon                                │
+│  • REST API (60+ endpoints)                                   │
+│  • VisionSpec v0.14.0 integration                             │
+│  • AIDLC workflow management                                  │
+│  • V2MOM cascade handling                                     │
+│  • DevX dashboard passthrough (reads devfolio's output)       │
+│  • Capability, roadmap, maturity model support                │
+└───────────────────────────────────────────────────────────────┘
 ```
 
 ## Documentation

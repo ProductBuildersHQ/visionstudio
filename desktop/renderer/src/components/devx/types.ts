@@ -30,8 +30,9 @@ export interface DashforgeMetricConfig {
 export interface DashforgeChartMark {
   id: string
   name?: string
-  geometry: string
-  encode: { x?: string; y?: string }
+  geometry: string // 'line' | 'bar' | 'pie'
+  stack?: string // for stacked bars
+  encode: { x?: string; y?: string; value?: string; name?: string }
   style?: { color?: string }
 }
 
@@ -66,4 +67,10 @@ export interface DashforgeDashboard {
   description?: string
   dataSources: DashforgeDataSource[]
   widgets: DashforgeWidget[]
+}
+
+export interface DevXPeriodEntry {
+  type: 'weekly' | 'monthly' | 'quarterly'
+  label: string
+  path: string
 }

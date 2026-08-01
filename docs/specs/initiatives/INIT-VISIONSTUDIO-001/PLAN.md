@@ -6,7 +6,7 @@ Three principles drive the order:
 
 1. **The frontend talks HTTP, never imports backend Go code.** So the panels
    don't care which repo hosts the daemon. We exploit this: build the web UI
-   against a small JSON API added to prism-control's existing dashboard
+   against a small JSON API added to prism-build's existing dashboard
    server (which already loads execution, token, maturity, and judge data)
    **before** any code migration. UI value lands early, and the API contract
    is proven by real usage before the backend moves behind it.
@@ -24,14 +24,14 @@ Phase order:
 1. **Phase 1 — IR contracts.** Pure library work, no migration risk; forces
    the json-tag cleanups in source repos everything else relies on. Includes
    the `go.work` workspace so cross-repo iteration has no tag/`go get` cycle.
-2. **Phase 2 — Local web foundation.** JSON API on prism-control's server
-   (RMI-PRISMCONTROL-122) + unified SPA shell + shared toolkit/chart
+2. **Phase 2 — Local web foundation.** JSON API on prism-build's server
+   (RMI-PRISMBUILD-101) + unified SPA shell + shared toolkit/chart
    primitives.
 3. **Phase 3 — Unified panels.** Specs, execution, maturity radar, and
    devfolio accomplishments + token costs; composed initiative view replaces
-   the :9400 Go-template dashboard. Absorbs prism-control Phase 4
+   the :9400 Go-template dashboard. Absorbs prism-build Phase 4
    (RMI-PRISMCONTROL-116..119, cancelled/superseded).
-4. **Phase 4 — Backend migration.** Move Ent/store/service from prism-control
+4. **Phase 4 — Backend migration.** Move Ent/store/service from prism-build
    to visionstudio; daemon re-serves the *same* JSON API, so the web app
    re-points via base URL only.
 5. **Phase 5 — Multi-domain schema + ingest.** Schema growth happens in its
@@ -50,26 +50,26 @@ Phase 1 touches source repos (additive only):
 
 | Repo | Change |
 |------|--------|
-| prism-control | json tags on `pkg/store` structs; `prismctl export ir` command |
+| prism-build | json tags on `pkg/store` structs; `prismctl export ir` command |
 | devfolio | none expected (`output/devxdashboard` already IR-first) |
 | prism-maturity | verify root `prism` package types are JSON-clean |
 | prism-roadmap | verify `rmi`/`roadmap`/`goals` types are JSON-clean |
 | all + visionstudio | `go.work` workspace for local dev; CI pins tagged versions |
 
-Phase 2 adds two pieces to prism-control before the move: the JSON API
-(RMI-PRISMCONTROL-122), which migrates verbatim in Phase 4, and
-`prismctl spec sync` (RMI-PRISMCONTROL-123), which reconciles hand-written
+Phase 2 adds two pieces to prism-build before the move: the JSON API
+(RMI-PRISMBUILD-101), which migrates verbatim in Phase 4, and
+`prismctl spec sync` (RMI-PRISMBUILD-102), which reconciles hand-written
 spec files on disk into the `Initiative.Specs` map so the specs panel and
 `/api/specs` reflect reality.
 
-Phase 4 removes code from prism-control (with deprecation release first).
+Phase 4 removes code from prism-build (with deprecation release first).
 
 ## Milestones
 
 | Milestone | Definition of Done |
 |-----------|--------------------|
 | M1: IR composed | `pkg/ir` builds importing all 4 modules; schema generated + linted; go.work in place |
-| M2: Web shell live | Unified SPA at localhost rendering execution data from prism-control's JSON API |
+| M2: Web shell live | Unified SPA at localhost rendering execution data from prism-build's JSON API |
 | M3: Daily driver | Specs + execution + spend/accomplishments + maturity panels composed; :9400 Go dashboard retired |
 | M4: Backend moved | visionstudio daemon serves the same API from Dolt; web app unchanged; prismctl file-mode still green |
 | M5: Multi-domain store | `visionstudio ingest` imports devx/maturity/roadmap IR files into Dolt |
@@ -92,5 +92,5 @@ Remote-mode milestones belong to INIT-VISIONSTUDIO-002.
 
 - Phases 2–3 are purely additive (new API endpoints, new web app); rollback
   is trivial; the Go-template dashboard is retired only at M3 parity.
-- Phase 4 cutover is a git + dolt branch; prism-control's DB code is deleted
+- Phase 4 cutover is a git + dolt branch; prism-build's DB code is deleted
   only after M4 verification, in a separate commit that can be reverted.

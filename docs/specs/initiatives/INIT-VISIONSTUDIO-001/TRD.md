@@ -7,7 +7,7 @@
 │  Per-Repo Tools (standalone, file-based, emit JSON IR)                   │
 │                                                                          │
 │  plexusone/devfolio          grokify/prism-maturity                      │
-│  grokify/prism-roadmap       ProductBuildersHQ/prism-control (slimmed)   │
+│  grokify/prism-roadmap       ProductBuildersHQ/prism-build (slimmed)     │
 │  ProductBuildersHQ/visionspec                                            │
 └──────────────────────────────┬───────────────────────────────────────────┘
                                │ Go module imports (types) + JSON IR files
@@ -16,7 +16,7 @@
 │  ProductBuildersHQ/visionstudio                                          │
 │                                                                          │
 │  pkg/ir/         — composed IR: imports types from source modules        │
-│  pkg/store/      — Store interfaces + memstore (moved from prism-control)│
+│  pkg/store/      — Store interfaces + memstore (moved from prism-build)  │
 │  pkg/store/doltstore/ — Ent-backed Dolt implementation                   │
 │  ent/            — Ent schema (moved, then grown to all domains)         │
 │  pkg/service/    — service layer shared by daemon, CLI, MCP              │
@@ -35,7 +35,7 @@
 All imports flow **into** visionstudio; nothing imports visionstudio:
 
 ```
-visionstudio ──imports──► prism-control/pkg/store   (execution structs)
+visionstudio ──imports──► prism-build/pkg/store   (execution structs)
 visionstudio ──imports──► devfolio/output/devxdashboard (devx dashboard IR)
 visionstudio ──imports──► prism-maturity (root prism pkg: MaturityModel, cells)
 visionstudio ──imports──► prism-roadmap/{rmi,roadmap,goals}
@@ -61,7 +61,7 @@ versions.
 package ir
 
 import (
-    pcstore "github.com/ProductBuildersHQ/prism-control/pkg/store"
+    pcstore "github.com/ProductBuildersHQ/prism-build/pkg/store"
     "github.com/plexusone/devfolio/output/devxdashboard"
     prismmaturity "github.com/grokify/prism-maturity"
     "github.com/grokify/prism-roadmap/roadmap"
@@ -81,12 +81,12 @@ type RepoSnapshot struct {
 ```
 
 Precondition: source-module types must be JSON-clean (json tags, no
-unexported state). Where a source type is not (e.g., prism-control structs
+unexported state). Where a source type is not (e.g., prism-build structs
 lack json tags today), the RMI adds tags **in the source repo**.
 
-### T2 — prism-control split
+### T2 — prism-build split
 
-| Stays in prism-control | Moves to visionstudio |
+| Stays in prism-build | Moves to visionstudio |
 |---|---|
 | `pkg/store` struct definitions (Initiative, RMI, …) with json tags added | `Store`/`UnitOfWork` interfaces + `memstore` |
 | File-mode commands: `spec init/validate`, roadmap sync, `export` | `ent/` schema + generated code |
@@ -94,18 +94,18 @@ lack json tags today), the RMI adds tags **in the source repo**.
 | JSON IR export commands (new) | `pkg/service`, dashboard server, MCP server |
 | | DB-backed prismctl commands (become visionstudio CLI) |
 
-Struct definitions stay in prism-control so per-repo IR export works with zero
+Struct definitions stay in prism-build so per-repo IR export works with zero
 DB dependencies, and visionstudio imports them (T1). Interfaces move because
 only implementations (memstore/doltstore) and the service layer use them.
 
-Transition: prism-control marks DB-backed commands deprecated for one release,
+Transition: prism-build marks DB-backed commands deprecated for one release,
 pointing at the visionstudio CLI equivalent.
 
 ### T3 — Maturity model reconciliation
 
 Two maturity representations exist:
 
-- prism-control `CapabilityModel`/`MaturityAssessment` (dimension × level,
+- prism-build `CapabilityModel`/`MaturityAssessment` (dimension × level,
   agent-assessed, in Dolt) — from INIT-PRISMCONTROL-003 Phase 3
 - prism-maturity `MaturityModel` (domain × stage cells, KPI-oriented, JSON IR)
 
@@ -132,7 +132,7 @@ hosted website (INIT-VISIONSTUDIO-002) serves the same artifact behind auth.
 Browser + hot-reload revs much faster than Electron packaging; desktop
 concerns (IPC, file access, packaging) never touch panel code.
 
-The Go-template dashboard in prism-control remains as-is during transition
+The Go-template dashboard in prism-build remains as-is during transition
 (it still works against the old DSN) but receives no new features; it is
 retired once the composed web UI reaches parity (M3).
 
@@ -170,7 +170,7 @@ org vs shared tables) is decided in Phase 5 after load/UX validation.
 | Risk | Mitigation |
 |------|------------|
 | Source-module type churn breaks pkg/ir | Version pinning; aliases isolate call sites; CI compile check |
-| prism-control structs get json-tag changes that break existing Dolt rows | Tags added additively; Ent schema owns column names independently |
+| prism-build structs get json-tag changes that break existing Dolt rows | Tags added additively; Ent schema owns column names independently |
 | Two maturity models confuse users | T3: explicit naming (capability vs domain/stage) in UI |
 | Electron + hosted web drift | Single component library; web/ is a thin shell over the same panels |
 | Migration breaks existing prismcontrol Dolt data | Phase 2 includes migration script + dolt branch backup before cutover |

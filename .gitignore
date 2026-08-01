@@ -16,3 +16,7 @@ IDEATION_CHAT*.md
 
 # Generated documentation
 site/
+
+# Local multi-repo workspace (CI pins tagged versions)
+go.work
+go.work.sum

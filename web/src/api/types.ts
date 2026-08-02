@@ -57,12 +57,26 @@ export interface APIStatusCount {
   count: number
 }
 
+export interface APIRMIDependency {
+  sourceRmiId: string
+  targetRmiId: string
+  relationship: string
+}
+
+export interface APIInitiativeDependency {
+  sourceInitiativeId: string
+  targetInitiativeId: string
+  relationship: string
+}
+
 export interface ExecutionResponse {
   programs: APIProgram[]
   initiatives: APIInitiative[]
   phases: APIPhase[]
   rmis: APIRMI[]
   statusDistribution: APIStatusCount[]
+  rmiDependencies: APIRMIDependency[]
+  initiativeDependencies: APIInitiativeDependency[]
 }
 
 export interface SpendResponse {

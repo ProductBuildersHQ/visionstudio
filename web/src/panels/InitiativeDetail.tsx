@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type {
   ExecutionResponse,
   SpecsResponse,
@@ -8,7 +8,9 @@ import type {
   APIRMIDependency,
   JudgeResult,
   SpecWorkflow,
+  SpecFile,
 } from '../api/types'
+import { getSpecFiles } from '../api/client'
 import { StatusBadge } from '../components/StatusBadge'
 import { ProgressBar } from '../components/ProgressBar'
 import { PieChart } from '../components/charts'
@@ -40,6 +42,16 @@ export function InitiativeDetail({
 
   const hasExecution = phases.length > 0 || rmis.length > 0
   const [activeTab, setActiveTab] = useState<DetailTab>(hasExecution ? 'execution' : 'definition')
+  const [specFiles, setSpecFiles] = useState<SpecFile[]>([])
+  const [specFilesLoading, setSpecFilesLoading] = useState(true)
+
+  useEffect(() => {
+    setSpecFilesLoading(true)
+    getSpecFiles(initiative.id)
+      .then((resp) => setSpecFiles(resp.files ?? []))
+      .catch(() => setSpecFiles([]))
+      .finally(() => setSpecFilesLoading(false))
+  }, [initiative.id])
 
   const sortedPhases = useMemo(
     () => [...phases].sort((a, b) => a.sequenceNumber - b.sequenceNumber),
@@ -137,6 +149,8 @@ export function InitiativeDetail({
           initiative={initiative}
           execution={execution}
           initDeps={initDeps}
+          specFiles={specFiles}
+          specFilesLoading={specFilesLoading}
         />
       ) : (
         <ExecutionTab
@@ -217,17 +231,24 @@ function DefinitionTab({
   initiative,
   execution,
   initDeps,
+  specFiles,
+  specFilesLoading,
 }: {
   judgeResults: JudgeResult[]
   workflows: SpecWorkflow[]
   initiative: APIInitiative
   execution: ExecutionResponse
   initDeps: { sourceInitiativeId: string; targetInitiativeId: string; relationship: string }[]
+  specFiles: SpecFile[]
+  specFilesLoading: boolean
 }) {
   return (
     <div className="space-y-6">
       {/* Workflow Diagram */}
-      <WorkflowDiagram judgeResults={judgeResults} workflows={workflows} />
+      <WorkflowDiagram judgeResults={judgeResults} workflows={workflows} specFiles={specFiles} />
+
+      {/* Spec Files Viewer */}
+      <SpecFilesViewer specFiles={specFiles} loading={specFilesLoading} />
 
       {/* Judge Results Detail */}
       <JudgeResultsDetail judgeResults={judgeResults} />
@@ -240,6 +261,73 @@ function DefinitionTab({
           execution={execution}
         />
       )}
+    </div>
+  )
+}
+
+function SpecFilesViewer({
+  specFiles,
+  loading,
+}: {
+  specFiles: SpecFile[]
+  loading: boolean
+}) {
+  const [selectedSpec, setSelectedSpec] = useState<string | null>(null)
+
+  if (loading) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 text-center">
+        <div className="text-gray-400">Loading spec files...</div>
+      </div>
+    )
+  }
+
+  if (specFiles.length === 0) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 text-center">
+        <div className="text-gray-400 mb-2">No spec files found on disk</div>
+        <div className="text-sm text-gray-500">
+          Add specs to docs/specs/initiatives/{'{INITIATIVE_ID}'}/
+        </div>
+      </div>
+    )
+  }
+
+  const selected = specFiles.find((f) => f.specType === selectedSpec) ?? specFiles[0]
+
+  return (
+    <div className="bg-gray-800 rounded-lg overflow-hidden">
+      {/* Spec Type Tabs */}
+      <div className="border-b border-gray-700 px-4 flex gap-1">
+        {specFiles.map((f) => (
+          <button
+            key={f.specType}
+            onClick={() => setSelectedSpec(f.specType)}
+            className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+              (selectedSpec ?? specFiles[0]?.specType) === f.specType
+                ? 'border-purple-500 text-purple-400'
+                : 'border-transparent text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            {f.specType}
+          </button>
+        ))}
+      </div>
+
+      {/* Spec Content */}
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs text-gray-500 font-mono">{selected.path.split('/').slice(-3).join('/')}</span>
+          {selected.modTime && (
+            <span className="text-xs text-gray-500">
+              Modified: {new Date(selected.modTime).toLocaleDateString()}
+            </span>
+          )}
+        </div>
+        <div className="bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
+          <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono">{selected.content}</pre>
+        </div>
+      </div>
     </div>
   )
 }
@@ -392,9 +480,11 @@ const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
 function WorkflowDiagram({
   judgeResults,
   workflows,
+  specFiles,
 }: {
   judgeResults: JudgeResult[]
   workflows: SpecWorkflow[]
+  specFiles: SpecFile[]
 }) {
   const resultsByType = useMemo(() => {
     const map: Record<string, JudgeResult> = {}
@@ -407,6 +497,14 @@ function WorkflowDiagram({
     }
     return map
   }, [judgeResults])
+
+  const specFilesByType = useMemo(() => {
+    const map: Record<string, SpecFile> = {}
+    for (const f of specFiles) {
+      map[f.specType] = f
+    }
+    return map
+  }, [specFiles])
 
   const pbhqWorkflow = workflows.find((w) => w.name === 'pbhq-lite')
   const avgScore =
@@ -438,26 +536,41 @@ function WorkflowDiagram({
       <div className="flex items-center justify-center gap-2 py-4">
         {PBHQ_LITE_SPECS.map((spec, i) => {
           const result = resultsByType[spec]
-          const hasSpec = !!result
+          const hasJudgeResult = !!result
+          const hasSpecFile = !!specFilesByType[spec]
           const score = result?.score ?? 0
+
+          // Determine state: evaluated (with score), present (file exists), or missing
+          let stateClass: string
+          let tooltip: string
+          let bottomText: string | null = null
+
+          if (hasJudgeResult) {
+            stateClass = score >= 7
+              ? 'bg-green-500/20 border-green-500 text-green-300'
+              : score >= 4
+              ? 'bg-yellow-500/20 border-yellow-500 text-yellow-300'
+              : 'bg-red-500/20 border-red-500 text-red-300'
+            tooltip = `Score: ${score.toFixed(1)}`
+            bottomText = score.toFixed(1)
+          } else if (hasSpecFile) {
+            stateClass = 'bg-blue-500/20 border-blue-500 text-blue-300'
+            tooltip = 'Spec exists (not evaluated)'
+            bottomText = '✓'
+          } else {
+            stateClass = 'bg-gray-700 border-gray-600 text-gray-400'
+            tooltip = 'Not created'
+          }
 
           return (
             <div key={spec} className="flex items-center">
               <div
-                className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition-all ${
-                  hasSpec
-                    ? score >= 7
-                      ? 'bg-green-500/20 border-green-500 text-green-300'
-                      : score >= 4
-                      ? 'bg-yellow-500/20 border-yellow-500 text-yellow-300'
-                      : 'bg-red-500/20 border-red-500 text-red-300'
-                    : 'bg-gray-700 border-gray-600 text-gray-400'
-                }`}
-                title={hasSpec ? `Score: ${score.toFixed(1)}` : 'Not evaluated'}
+                className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition-all ${stateClass}`}
+                title={tooltip}
               >
                 <div className="text-center">
                   <div>{spec}</div>
-                  {hasSpec && <div className="text-xs opacity-70 mt-1">{score.toFixed(1)}</div>}
+                  {bottomText && <div className="text-xs opacity-70 mt-1">{bottomText}</div>}
                 </div>
               </div>
               {i < PBHQ_LITE_SPECS.length - 1 && (

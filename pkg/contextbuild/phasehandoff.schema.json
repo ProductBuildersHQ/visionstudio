@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ProductBuildersHQ/prism-control/schema/phasehandoff",
+  "$ref": "#/$defs/PhaseHandoffProjection",
+  "$defs": {
+    "EvidenceEntry": {
+      "properties": {
+        "rmi_id": {
+          "type": "string"
+        },
+        "rmi_title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "rmi_id",
+        "rmi_title",
+        "type",
+        "reference"
+      ]
+    },
+    "HandoffData": {
+      "properties": {
+        "completed": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "remaining": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "decisions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "next_action": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "HandoffSummary": {
+      "properties": {
+        "total_rmis": {
+          "type": "integer"
+        },
+        "completed_rmis": {
+          "type": "integer"
+        },
+        "required_rmis": {
+          "type": "integer"
+        },
+        "required_done": {
+          "type": "integer"
+        },
+        "in_progress": {
+          "type": "integer"
+        },
+        "blocked": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "total_rmis",
+        "completed_rmis",
+        "required_rmis",
+        "required_done",
+        "in_progress",
+        "blocked"
+      ]
+    },
+    "PhaseHandoffProjection": {
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "phase_id": {
+          "type": "string"
+        },
+        "phase_title": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "initiative_id": {
+          "type": "string"
+        },
+        "derived_status": {
+          "type": "string"
+        },
+        "build_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "summary": {
+          "$ref": "#/$defs/HandoffSummary"
+        },
+        "rmi_handoffs": {
+          "items": {
+            "$ref": "#/$defs/RMIHandoffEntry"
+          },
+          "type": "array"
+        },
+        "aggregated_decisions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceEntry"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "version",
+        "phase_id",
+        "phase_title",
+        "initiative_id",
+        "derived_status",
+        "build_timestamp",
+        "provenance",
+        "summary",
+        "rmi_handoffs"
+      ]
+    },
+    "Provenance": {
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "source",
+        "revision"
+      ]
+    },
+    "RMIHandoffEntry": {
+      "properties": {
+        "rmi_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "sequence": {
+          "type": "integer"
+        },
+        "repo_id": {
+          "type": "string"
+        },
+        "handoff": {
+          "$ref": "#/$defs/HandoffData"
+        },
+        "evidence_count": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "rmi_id",
+        "title",
+        "status",
+        "required",
+        "sequence",
+        "repo_id",
+        "evidence_count"
+      ]
+    }
+  },
+  "title": "PhaseHandoffProjection",
+  "description": "Phase handoff projection aggregating member-RMI assignment handoffs, evidence, and derived status."
+}

@@ -11,13 +11,17 @@ require (
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-chi/cors v1.2.2
 	github.com/go-sql-driver/mysql v1.10.0
+	github.com/grokify/gogit v0.7.0
 	github.com/grokify/mogo v0.74.6
 	github.com/grokify/prism-maturity v0.14.0
 	github.com/grokify/prism-roadmap v0.16.1
+	github.com/invopop/jsonschema v0.14.0
+	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/plexusone/devfolio v0.2.0
 	github.com/plexusone/omnidevx-core v0.3.0
 	github.com/plexusone/structured-evaluation v0.11.0
 	github.com/plexusone/uiforge v0.4.0
+	github.com/spf13/cobra v1.10.2
 )
 
 // fslock v0.0.5 breaks dolthub/dolt/go — fslock.New signature changed.
@@ -78,8 +82,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.38.3 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.45.3 // indirect
 	github.com/aws/smithy-go v1.27.6 // indirect
+	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/bcicen/jstream v1.0.1 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
+	github.com/buger/jsonparser v1.6.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
@@ -119,6 +125,7 @@ require (
 	github.com/google/go-github/v57 v57.0.0 // indirect
 	github.com/google/go-github/v88 v88.0.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
+	github.com/google/jsonschema-go v0.4.3 // indirect
 	github.com/google/pprof v0.0.0-20260709232956-b9395ee17fa0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
@@ -132,6 +139,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/juju/gnuflag v1.0.0 // indirect
 	github.com/kch42/buzhash v0.0.0-20160816060738-9bdec3dec7c6 // indirect
 	github.com/klauspost/compress v1.19.1 // indirect
@@ -144,6 +152,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mohae/uvarint v0.0.0-20160208145430-c3f9e62bf2b0 // indirect
 	github.com/oracle/oci-go-sdk/v65 v65.122.0 // indirect
+	github.com/pb33f/ordered-map/v2 v2.3.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.27 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -153,11 +162,14 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/segmentio/asm v1.2.1 // indirect
+	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/sergi/go-diff v1.4.0 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/sony/gobreaker/v2 v2.4.0 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spiffe/go-spiffe/v2 v2.8.1 // indirect
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
@@ -168,6 +180,7 @@ require (
 	github.com/xitongsys/parquet-go v1.6.2 // indirect
 	github.com/xitongsys/parquet-go-source v0.0.0-20241021075129-b732d2ac9c9b // indirect
 	github.com/xtaci/smux v1.5.57 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	github.com/zclconf/go-cty v1.19.0 // indirect
 	github.com/zclconf/go-cty-yaml v1.2.0 // indirect
@@ -183,6 +196,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
+	go.yaml.in/yaml/v4 v4.0.0-rc.6 // indirect
 	golang.org/x/crypto v0.54.0 // indirect
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743 // indirect
 	golang.org/x/mod v0.38.0 // indirect

@@ -157,8 +157,8 @@ function ComposedView({
 }) {
   const phases = execution.phases.filter((p) => p.initiativeId === initiative.id)
   const rmis = execution.rmis.filter((r) => r.initiativeId === initiative.id)
-  const judgeResults = specs.judgeResults.filter((r) => r.initiative_id === initiative.id)
-  const assessments = maturity.assessments.filter((a) => a.initiative_id === initiative.id)
+  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiative_id === initiative.id)
+  const assessments = (maturity.assessments ?? []).filter((a) => a.initiative_id === initiative.id)
   const initSpend = spend.byInitiative?.[initiative.id]
 
   return (

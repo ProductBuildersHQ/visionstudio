@@ -15,7 +15,7 @@ export function SpecsPanel() {
       .then(([s, e]) => {
         setSpecs(s)
         setExecution(e)
-        if (s.workflows.length > 0 && !selectedWorkflow) {
+        if ((s.workflows?.length ?? 0) > 0 && !selectedWorkflow) {
           setSelectedWorkflow(s.workflows[0].id)
         }
       })
@@ -42,18 +42,18 @@ export function SpecsPanel() {
 
       {/* Workflows */}
       <WorkflowSection
-        workflows={specs.workflows}
+        workflows={specs.workflows ?? []}
         selectedWorkflow={selectedWorkflow}
         onSelect={setSelectedWorkflow}
         initiatives={execution.initiatives}
-        judgeResults={specs.judgeResults}
+        judgeResults={specs.judgeResults ?? []}
       />
 
       {/* Judge Results by Initiative */}
       <JudgeResultsSection
-        judgeResults={specs.judgeResults}
+        judgeResults={specs.judgeResults ?? []}
         initiatives={execution.initiatives}
-        workflow={specs.workflows.find((w) => w.id === selectedWorkflow)}
+        workflow={(specs.workflows ?? []).find((w) => w.id === selectedWorkflow)}
       />
     </div>
   )

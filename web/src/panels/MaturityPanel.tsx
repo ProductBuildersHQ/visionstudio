@@ -44,7 +44,7 @@ export function MaturityPanel() {
   }
 
   const model = data.models.find((m) => m.id === selectedModel)
-  const modelAssessments = data.assessments.filter((a) => a.model_id === selectedModel)
+  const modelAssessments = (data.assessments ?? []).filter((a) => a.model_id === selectedModel)
 
   return (
     <div className="space-y-6">

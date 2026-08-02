@@ -31,10 +31,16 @@ github.com/grokify/prism-roadmap v0.16.1 h1:rzisNa/DBlbICBpjCtyG0Zte04Ut9lDgSXpJ
 github.com/grokify/prism-roadmap v0.16.1/go.mod h1:jK86J9QiRZZaMfocnjge4c1si6U0YwDZVLVBLIM1MDA=
 github.com/huandu/xstrings v1.5.0 h1:2ag3IFq9ZDANvthTwTiqSSZLjDc+BedvHPAp5tJy2TI=
 github.com/huandu/xstrings v1.5.0/go.mod h1:y5/lhBue+AyNmUVz9RLU9xbLR0o4KIIExikq4ovT0aE=
+github.com/plexusone/dashforge v0.3.0 h1:JmQn3ql38RUAqQYTbM2YOaICrQIu2tMBno810OwbMB0=
+github.com/plexusone/dashforge v0.3.0/go.mod h1:LouJCox1mjpDnET0vGeGWra5cDP4VDRBRB6DZLlqMEs=
 github.com/plexusone/devfolio v0.2.0 h1:KRjurM1eC51ajYZdtR2PsggxvU5GOmYUM/Pe4kRNZ7Y=
 github.com/plexusone/devfolio v0.2.0/go.mod h1:XvZFOP7mSHdt15PvJm6D37yY5A6V7bHuemxXdg4FGZs=
+github.com/plexusone/omnidevx-core v0.3.0 h1:uKSJAjs74fzod5iM3W3opG53eNX1v4J0WHK4mC2QL/0=
+github.com/plexusone/omnidevx-core v0.3.0/go.mod h1:ryBtws1QCxC6eWAtNddW4doPzVDOz9tBZsoA0gC1w/A=
 github.com/plexusone/structured-evaluation v0.11.0 h1:kQCpHEIaysdkVLw2C8OHfkwH+4GEHTuWftyjlIjUzIE=
 github.com/plexusone/structured-evaluation v0.11.0/go.mod h1:/EeH1LVHmGq+O35LQ/VybJNLIGqpoJlR8FqKCOt2KC4=
+github.com/plexusone/uiforge v0.4.0 h1:AzYBAOdj9+uNiVlQpLPgokqw7sxbCLPCXxTHhV+vVuM=
+github.com/plexusone/uiforge v0.4.0/go.mod h1:vYReIfoR8OP9SjC+XauXs2+9f8OiBou1t3oXZ0k8rGQ=
 golang.org/x/exp v0.0.0-20260727155853-b88d891fe743 h1:ex206bKw+v3K0dm3andkrIF+ijyQKJG1pLgwQ2PYdQM=
 golang.org/x/exp v0.0.0-20260727155853-b88d891fe743/go.mod h1:EdfpwwqSu+0Li0mzskwHU6FWDV3t9Q+RZDo3QMUtL3Q=
 golang.org/x/oauth2 v0.36.0 h1:peZ/1z27fi9hUOFCAZaHyrpWG5lwe0RJEEEeH0ThlIs=

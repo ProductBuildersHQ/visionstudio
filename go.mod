@@ -13,6 +13,7 @@ require (
 	github.com/grokify/prism-roadmap v0.16.1
 	github.com/plexusone/devfolio v0.2.0
 	github.com/plexusone/structured-evaluation v0.11.0
+	github.com/plexusone/uiforge v0.4.0
 )
 
 require (
@@ -23,6 +24,8 @@ require (
 	github.com/grokify/pidl v0.5.0 // indirect
 	github.com/grokify/prism-core v0.4.0 // indirect
 	github.com/huandu/xstrings v1.5.0 // indirect
+	github.com/plexusone/dashforge v0.3.0 // indirect
+	github.com/plexusone/omnidevx-core v0.3.0 // indirect
 	golang.org/x/exp v0.0.0-20260727155853-b88d891fe743 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect

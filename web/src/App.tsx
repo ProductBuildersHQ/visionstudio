@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
-import { ExecutionPanel } from './panels/ExecutionPanel'
+import { ProgramsPanel } from './panels/ProgramsPanel'
 import { SpendPanel } from './panels/SpendPanel'
 import { MaturityPanel } from './panels/MaturityPanel'
-import { SpecsPanel } from './panels/SpecsPanel'
-import { InitiativeView } from './panels/InitiativeView'
 
-type Tab = 'initiative' | 'execution' | 'spend' | 'maturity' | 'specs'
+type Tab = 'programs' | 'maturity' | 'spend'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('initiative')
+  const [activeTab, setActiveTab] = useState<Tab>('programs')
   const [apiStatus, setApiStatus] = useState<'loading' | 'connected' | 'error'>('loading')
 
   useEffect(() => {
@@ -24,11 +22,9 @@ export default function App() {
   }, [])
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'initiative', label: 'Initiative' },
-    { id: 'execution', label: 'Execution' },
-    { id: 'spend', label: 'Spend' },
+    { id: 'programs', label: 'Programs / Initiatives' },
     { id: 'maturity', label: 'Maturity' },
-    { id: 'specs', label: 'Specs' },
+    { id: 'spend', label: 'Spend' },
   ]
 
   return (
@@ -72,11 +68,9 @@ export default function App() {
         </nav>
       </header>
       <main className="p-6">
-        {activeTab === 'initiative' && <InitiativeView />}
-        {activeTab === 'execution' && <ExecutionPanel />}
-        {activeTab === 'spend' && <SpendPanel />}
+        {activeTab === 'programs' && <ProgramsPanel />}
         {activeTab === 'maturity' && <MaturityPanel />}
-        {activeTab === 'specs' && <SpecsPanel />}
+        {activeTab === 'spend' && <SpendPanel />}
       </main>
     </div>
   )

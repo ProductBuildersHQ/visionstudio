@@ -20,6 +20,8 @@ interface InitiativeDetailProps {
   onBack: () => void
 }
 
+type DetailTab = 'definition' | 'execution'
+
 export function InitiativeDetail({
   initiative,
   execution,
@@ -35,6 +37,9 @@ export function InitiativeDetail({
     (d) => d.sourceInitiativeId === initiative.id || d.targetInitiativeId === initiative.id
   )
   const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiative_id === initiative.id)
+
+  const hasExecution = phases.length > 0 || rmis.length > 0
+  const [activeTab, setActiveTab] = useState<DetailTab>(hasExecution ? 'execution' : 'definition')
 
   const sortedPhases = useMemo(
     () => [...phases].sort((a, b) => a.sequenceNumber - b.sequenceNumber),
@@ -91,71 +96,202 @@ export function InitiativeDetail({
         </div>
       </div>
 
-      {/* Two-Column Layout: Definition + Execution Stats */}
-      <div className="grid grid-cols-2 gap-6">
-        {/* Definition Section */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-medium text-purple-400">Definition</h2>
-          <SpecsSection judgeResults={judgeResults} workflows={specs.workflows ?? []} />
-        </div>
-
-        {/* Execution Stats */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-medium text-blue-400">Execution</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800 rounded-lg p-4">
-              <div className="text-sm text-gray-400">Phases</div>
-              <div className="text-2xl font-semibold mt-1">{phases.length}</div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-4">
-              <div className="text-sm text-gray-400">RMIs</div>
-              <div className="text-2xl font-semibold mt-1">{rmis.length}</div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-4">
-              <div className="text-sm text-gray-400">Repos</div>
-              <div className="text-2xl font-semibold mt-1">{repoStats.length}</div>
-            </div>
-            <div className="bg-gray-800 rounded-lg p-4">
-              <div className="text-sm text-gray-400">Status</div>
-              <div className="h-12 mt-1 flex items-center justify-center">
-                {statusDist.length > 0 && (
-                  <PieChart data={statusDist} size={48} showLegend={false} />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Summary Cards Row */}
+      <div className="grid grid-cols-4 gap-4">
+        <SummaryCard
+          label="Definition"
+          value={judgeResults.length > 0 ? `${(judgeResults.reduce((s, r) => s + r.score, 0) / judgeResults.length).toFixed(1)} avg` : 'No specs'}
+          color="purple"
+        />
+        <SummaryCard label="Phases" value={phases.length.toString()} color="blue" />
+        <SummaryCard label="RMIs" value={rmis.length.toString()} color="blue" />
+        <SummaryCard label="Repos" value={repoStats.length.toString()} color="gray" />
       </div>
+
+      {/* Tab Navigation */}
+      <div className="border-b border-gray-700">
+        <nav className="flex gap-4">
+          <TabButton
+            active={activeTab === 'definition'}
+            onClick={() => setActiveTab('definition')}
+            color="purple"
+          >
+            Definition Details
+          </TabButton>
+          <TabButton
+            active={activeTab === 'execution'}
+            onClick={() => setActiveTab('execution')}
+            color="blue"
+            badge={hasExecution ? undefined : 'empty'}
+          >
+            Execution Details
+          </TabButton>
+        </nav>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'definition' ? (
+        <DefinitionTab
+          judgeResults={judgeResults}
+          workflows={specs.workflows ?? []}
+          initiative={initiative}
+          execution={execution}
+          initDeps={initDeps}
+        />
+      ) : (
+        <ExecutionTab
+          phases={sortedPhases}
+          rmis={rmis}
+          rmiDeps={rmiDeps}
+          repoStats={repoStats}
+          statusDist={statusDist}
+          initDeps={initDeps}
+          initiative={initiative}
+          execution={execution}
+        />
+      )}
+    </div>
+  )
+}
+
+function SummaryCard({
+  label,
+  value,
+  color,
+}: {
+  label: string
+  value: string
+  color: 'purple' | 'blue' | 'gray'
+}) {
+  const colorClass = {
+    purple: 'text-purple-400',
+    blue: 'text-blue-400',
+    gray: 'text-gray-400',
+  }[color]
+
+  return (
+    <div className="bg-gray-800 rounded-lg p-4">
+      <div className="text-sm text-gray-400">{label}</div>
+      <div className={`text-xl font-semibold mt-1 ${colorClass}`}>{value}</div>
+    </div>
+  )
+}
+
+function TabButton({
+  active,
+  onClick,
+  color,
+  badge,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  color: 'purple' | 'blue'
+  badge?: string
+  children: React.ReactNode
+}) {
+  const activeColor = color === 'purple' ? 'border-purple-500 text-purple-400' : 'border-blue-500 text-blue-400'
+
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+        active
+          ? activeColor
+          : 'border-transparent text-gray-400 hover:text-gray-200'
+      }`}
+    >
+      {children}
+      {badge && (
+        <span className="ml-2 text-xs px-1.5 py-0.5 bg-gray-700 rounded text-gray-500">
+          {badge}
+        </span>
+      )}
+    </button>
+  )
+}
+
+function DefinitionTab({
+  judgeResults,
+  workflows,
+  initiative,
+  execution,
+  initDeps,
+}: {
+  judgeResults: JudgeResult[]
+  workflows: SpecWorkflow[]
+  initiative: APIInitiative
+  execution: ExecutionResponse
+  initDeps: { sourceInitiativeId: string; targetInitiativeId: string; relationship: string }[]
+}) {
+  return (
+    <div className="space-y-6">
+      {/* Workflow Diagram */}
+      <WorkflowDiagram judgeResults={judgeResults} workflows={workflows} />
+
+      {/* Judge Results Detail */}
+      <JudgeResultsDetail judgeResults={judgeResults} />
 
       {/* Initiative Dependencies */}
       {initDeps.length > 0 && (
+        <DependenciesSection
+          initDeps={initDeps}
+          initiative={initiative}
+          execution={execution}
+        />
+      )}
+    </div>
+  )
+}
+
+function ExecutionTab({
+  phases,
+  rmis,
+  rmiDeps,
+  repoStats,
+  statusDist,
+  initDeps,
+  initiative,
+  execution,
+}: {
+  phases: APIPhase[]
+  rmis: APIRMI[]
+  rmiDeps: APIRMIDependency[]
+  repoStats: { name: string; count: number }[]
+  statusDist: { name: string; value: number }[]
+  initDeps: { sourceInitiativeId: string; targetInitiativeId: string; relationship: string }[]
+  initiative: APIInitiative
+  execution: ExecutionResponse
+}) {
+  if (phases.length === 0 && rmis.length === 0) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-8 text-center">
+        <div className="text-gray-400 mb-2">No execution data yet</div>
+        <div className="text-sm text-gray-500">
+          Define phases and RMIs in ROADMAP.md to track execution progress
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Status Distribution */}
+      {statusDist.length > 0 && (
         <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="font-medium mb-2">Initiative Dependencies</h3>
-          <div className="flex flex-wrap gap-2">
-            {initDeps.map((d, i) => {
-              const isSource = d.sourceInitiativeId === initiative.id
-              const otherId = isSource ? d.targetInitiativeId : d.sourceInitiativeId
-              const other = execution.initiatives.find((init) => init.id === otherId)
-              return (
-                <span
-                  key={i}
-                  className="text-xs px-2 py-1 bg-gray-700 rounded flex items-center gap-1"
-                >
-                  {isSource ? (
-                    <>
-                      <span className="text-gray-400">requires</span>
-                      <span className="font-mono">{otherId}</span>
-                      {other && <span className="text-gray-500">({other.title})</span>}
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-mono">{otherId}</span>
-                      <span className="text-gray-400">requires this</span>
-                    </>
-                  )}
-                </span>
-              )
-            })}
+          <h3 className="font-medium mb-4">RMI Status Distribution</h3>
+          <div className="flex items-center gap-6">
+            <div className="w-24 h-24">
+              <PieChart data={statusDist} size={96} showLegend={false} />
+            </div>
+            <div className="flex-1 grid grid-cols-3 gap-2">
+              {statusDist.map((s) => (
+                <div key={s.name} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-400 capitalize">{s.name.replace('_', ' ')}</span>
+                  <span className="text-gray-200 font-medium">{s.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -174,10 +310,19 @@ export function InitiativeDetail({
         </div>
       )}
 
+      {/* Initiative Dependencies */}
+      {initDeps.length > 0 && (
+        <DependenciesSection
+          initDeps={initDeps}
+          initiative={initiative}
+          execution={execution}
+        />
+      )}
+
       {/* Phases */}
       <div className="space-y-4">
         <h2 className="text-lg font-medium">Phases</h2>
-        {sortedPhases.map((phase) => {
+        {phases.map((phase) => {
           const phaseRmis = rmis
             .filter((r) => r.phaseId === phase.id)
             .sort((a, b) => a.sequenceNumber - b.sequenceNumber)
@@ -200,20 +345,57 @@ export function InitiativeDetail({
   )
 }
 
+function DependenciesSection({
+  initDeps,
+  initiative,
+  execution,
+}: {
+  initDeps: { sourceInitiativeId: string; targetInitiativeId: string; relationship: string }[]
+  initiative: APIInitiative
+  execution: ExecutionResponse
+}) {
+  return (
+    <div className="bg-gray-800 rounded-lg p-4">
+      <h3 className="font-medium mb-2">Initiative Dependencies</h3>
+      <div className="flex flex-wrap gap-2">
+        {initDeps.map((d, i) => {
+          const isSource = d.sourceInitiativeId === initiative.id
+          const otherId = isSource ? d.targetInitiativeId : d.sourceInitiativeId
+          const other = execution.initiatives.find((init) => init.id === otherId)
+          return (
+            <span
+              key={i}
+              className="text-xs px-2 py-1 bg-gray-700 rounded flex items-center gap-1"
+            >
+              {isSource ? (
+                <>
+                  <span className="text-gray-400">requires</span>
+                  <span className="font-mono">{otherId}</span>
+                  {other && <span className="text-gray-500">({other.title})</span>}
+                </>
+              ) : (
+                <>
+                  <span className="font-mono">{otherId}</span>
+                  <span className="text-gray-400">requires this</span>
+                </>
+              )}
+            </span>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
 
-function SpecsSection({
+function WorkflowDiagram({
   judgeResults,
   workflows,
 }: {
   judgeResults: JudgeResult[]
   workflows: SpecWorkflow[]
 }) {
-  const avgScore =
-    judgeResults.length > 0
-      ? judgeResults.reduce((sum, r) => sum + r.score, 0) / judgeResults.length
-      : 0
-
   const resultsByType = useMemo(() => {
     const map: Record<string, JudgeResult> = {}
     for (const r of judgeResults) {
@@ -227,13 +409,16 @@ function SpecsSection({
   }, [judgeResults])
 
   const pbhqWorkflow = workflows.find((w) => w.name === 'pbhq-lite')
+  const avgScore =
+    judgeResults.length > 0
+      ? judgeResults.reduce((sum, r) => sum + r.score, 0) / judgeResults.length
+      : 0
 
   return (
     <div className="bg-gray-800 rounded-lg p-4 space-y-4">
-      {/* Workflow Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-purple-400">PBHQ Lite</span>
+          <span className="text-sm font-medium text-purple-400">PBHQ Lite Workflow</span>
           {pbhqWorkflow && (
             <span className="text-xs text-gray-500">PRD → TRD → PLAN → ROADMAP</span>
           )}
@@ -250,7 +435,7 @@ function SpecsSection({
       </div>
 
       {/* Workflow Diagram */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center justify-center gap-2 py-4">
         {PBHQ_LITE_SPECS.map((spec, i) => {
           const result = resultsByType[spec]
           const hasSpec = !!result
@@ -259,58 +444,96 @@ function SpecsSection({
           return (
             <div key={spec} className="flex items-center">
               <div
-                className={`px-3 py-2 rounded text-xs font-medium border ${
+                className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition-all ${
                   hasSpec
                     ? score >= 7
-                      ? 'bg-green-500/20 border-green-500/50 text-green-300'
+                      ? 'bg-green-500/20 border-green-500 text-green-300'
                       : score >= 4
-                      ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-300'
-                      : 'bg-red-500/20 border-red-500/50 text-red-300'
+                      ? 'bg-yellow-500/20 border-yellow-500 text-yellow-300'
+                      : 'bg-red-500/20 border-red-500 text-red-300'
                     : 'bg-gray-700 border-gray-600 text-gray-400'
                 }`}
                 title={hasSpec ? `Score: ${score.toFixed(1)}` : 'Not evaluated'}
               >
-                {spec}
-                {hasSpec && <span className="ml-1 opacity-70">{score.toFixed(1)}</span>}
+                <div className="text-center">
+                  <div>{spec}</div>
+                  {hasSpec && <div className="text-xs opacity-70 mt-1">{score.toFixed(1)}</div>}
+                </div>
               </div>
               {i < PBHQ_LITE_SPECS.length - 1 && (
-                <span className="text-gray-600 px-1">→</span>
+                <span className="text-gray-500 px-2 text-lg">→</span>
               )}
             </div>
           )
         })}
       </div>
+    </div>
+  )
+}
 
-      {/* Detailed Results */}
-      {judgeResults.length > 0 && (
-        <div className="space-y-2 max-h-32 overflow-y-auto border-t border-gray-700 pt-3">
-          {judgeResults
-            .sort((a, b) => new Date(b.evaluated_at).getTime() - new Date(a.evaluated_at).getTime())
-            .map((r) => (
-              <div key={r.id} className="flex justify-between text-sm">
-                <span className="text-gray-300 truncate" title={r.spec_path}>
-                  {r.spec_path.split('/').pop()}
-                </span>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs text-gray-500">
-                    {new Date(r.evaluated_at).toLocaleDateString()}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded ${
-                      r.score >= 7
-                        ? 'bg-green-500/30 text-green-300'
-                        : r.score >= 4
-                        ? 'bg-yellow-500/30 text-yellow-300'
-                        : 'bg-red-500/30 text-red-300'
-                    }`}
-                  >
-                    {r.score.toFixed(1)}
-                  </span>
-                </div>
-              </div>
-            ))}
+function JudgeResultsDetail({ judgeResults }: { judgeResults: JudgeResult[] }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  if (judgeResults.length === 0) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 text-center">
+        <div className="text-gray-400 mb-2">No spec evaluations yet</div>
+        <div className="text-sm text-gray-500">
+          Run LLM-as-a-Judge on your specs to see quality scores
         </div>
-      )}
+      </div>
+    )
+  }
+
+  const sorted = [...judgeResults].sort(
+    (a, b) => new Date(b.evaluated_at).getTime() - new Date(a.evaluated_at).getTime()
+  )
+
+  return (
+    <div className="bg-gray-800 rounded-lg overflow-hidden">
+      <div className="p-4 border-b border-gray-700">
+        <h3 className="font-medium">LLM-as-a-Judge Results</h3>
+      </div>
+      <div className="divide-y divide-gray-700">
+        {sorted.map((r) => (
+          <div key={r.id}>
+            <button
+              onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+              className="w-full flex items-center justify-between p-4 hover:bg-gray-750 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-gray-500">{expandedId === r.id ? '▼' : '▶'}</span>
+                <span className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
+                  {specType(r.spec_path)}
+                </span>
+                <span className="text-sm text-gray-300">{r.spec_path.split('/').pop()}</span>
+                {r.model && <span className="text-xs text-gray-500">{r.model}</span>}
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-500">
+                  {new Date(r.evaluated_at).toLocaleDateString()}
+                </span>
+                <span
+                  className={`px-2 py-1 rounded text-sm font-medium ${
+                    r.score >= 7
+                      ? 'bg-green-500/30 text-green-300'
+                      : r.score >= 4
+                      ? 'bg-yellow-500/30 text-yellow-300'
+                      : 'bg-red-500/30 text-red-300'
+                  }`}
+                >
+                  {r.score.toFixed(1)}
+                </span>
+              </div>
+            </button>
+            {expandedId === r.id && r.rationale && (
+              <div className="px-4 pb-4 pt-0 ml-8 text-sm text-gray-400 whitespace-pre-wrap">
+                {r.rationale}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

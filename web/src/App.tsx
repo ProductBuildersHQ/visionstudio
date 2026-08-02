@@ -1,77 +1,151 @@
 import { useState, useEffect } from 'react'
-import { ProgramsPanel } from './panels/ProgramsPanel'
-import { SpendPanel } from './panels/SpendPanel'
+import { getExecution, getSpecs, getMaturity, getSpend } from './api/client'
+import type { ExecutionResponse, SpecsResponse, MaturityResponse, SpendResponse } from './api/types'
+import { Sidebar } from './components/Sidebar'
+import { InitiativesOverview } from './panels/InitiativesOverview'
+import { InitiativeDetail } from './panels/InitiativeDetail'
 import { MaturityPanel } from './panels/MaturityPanel'
+import { SpendPanel } from './panels/SpendPanel'
+import { LoadingState, ErrorState } from './components'
 
-type Tab = 'programs' | 'maturity' | 'spend'
+export type NavSection = 'initiatives' | 'maturity' | 'spend'
+export type NavTarget =
+  | { section: 'initiatives'; view: 'all' }
+  | { section: 'initiatives'; view: 'program'; programId: string }
+  | { section: 'initiatives'; view: 'standalone' }
+  | { section: 'initiatives'; view: 'initiative'; initiativeId: string }
+  | { section: 'maturity' }
+  | { section: 'spend' }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('programs')
-  const [apiStatus, setApiStatus] = useState<'loading' | 'connected' | 'error'>('loading')
+  const [execution, setExecution] = useState<ExecutionResponse | null>(null)
+  const [specs, setSpecs] = useState<SpecsResponse | null>(null)
+  const [maturity, setMaturity] = useState<MaturityResponse | null>(null)
+  const [spend, setSpend] = useState<SpendResponse | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [navTarget, setNavTarget] = useState<NavTarget>({ section: 'initiatives', view: 'all' })
+
+  const reload = () => {
+    setError(null)
+    Promise.all([getExecution(), getSpecs(), getMaturity(), getSpend()])
+      .then(([e, s, m, sp]) => {
+        setExecution(e)
+        setSpecs(s)
+        setMaturity(m)
+        setSpend(sp)
+      })
+      .catch((err: Error) => setError(err.message))
+  }
 
   useEffect(() => {
-    fetch('/api/execution')
-      .then((res) => {
-        if (res.ok) {
-          setApiStatus('connected')
-        } else {
-          setApiStatus('error')
-        }
-      })
-      .catch(() => setApiStatus('error'))
+    reload()
   }, [])
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: 'programs', label: 'Programs / Initiatives' },
-    { id: 'maturity', label: 'Maturity' },
-    { id: 'spend', label: 'Spend' },
-  ]
+  const apiStatus = execution ? 'connected' : error ? 'error' : 'loading'
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
+        <ErrorState message={error} onRetry={reload} />
+      </div>
+    )
+  }
+
+  if (!execution || !specs || !maturity || !spend) {
+    return (
+      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
+        <LoadingState message="Loading data..." />
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
-      <header className="border-b border-gray-700 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">VisionStudio</h1>
-          <div className="flex items-center gap-2">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                apiStatus === 'connected'
-                  ? 'bg-green-500'
-                  : apiStatus === 'error'
-                  ? 'bg-red-500'
-                  : 'bg-yellow-500'
-              }`}
-            />
-            <span className="text-sm text-gray-400">
-              {apiStatus === 'connected'
-                ? 'API Connected'
-                : apiStatus === 'error'
-                ? 'API Error'
-                : 'Connecting...'}
-            </span>
-          </div>
+    <div className="min-h-screen bg-gray-900 text-gray-100 flex">
+      {/* Sidebar */}
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        execution={execution}
+        navTarget={navTarget}
+        onNavigate={setNavTarget}
+        apiStatus={apiStatus}
+      />
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        <div className="p-6">
+          <MainContent
+            navTarget={navTarget}
+            execution={execution}
+            specs={specs}
+            maturity={maturity}
+            spend={spend}
+            onNavigate={setNavTarget}
+          />
         </div>
-        <nav className="mt-4 flex gap-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'bg-gray-800 text-white'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800/50'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </nav>
-      </header>
-      <main className="p-6">
-        {activeTab === 'programs' && <ProgramsPanel />}
-        {activeTab === 'maturity' && <MaturityPanel />}
-        {activeTab === 'spend' && <SpendPanel />}
       </main>
     </div>
+  )
+}
+
+function MainContent({
+  navTarget,
+  execution,
+  specs,
+  onNavigate,
+}: {
+  navTarget: NavTarget
+  execution: ExecutionResponse
+  specs: SpecsResponse
+  maturity: MaturityResponse
+  spend: SpendResponse
+  onNavigate: (target: NavTarget) => void
+}) {
+  if (navTarget.section === 'maturity') {
+    return <MaturityPanel />
+  }
+
+  if (navTarget.section === 'spend') {
+    return <SpendPanel />
+  }
+
+  // Initiatives section
+  if (navTarget.view === 'initiative') {
+    const initiative = execution.initiatives.find((i) => i.id === navTarget.initiativeId)
+    if (initiative) {
+      return (
+        <InitiativeDetail
+          initiative={initiative}
+          execution={execution}
+          specs={specs}
+          onBack={() => onNavigate({ section: 'initiatives', view: 'all' })}
+        />
+      )
+    }
+  }
+
+  // Filter initiatives based on view
+  let filteredInitiatives = execution.initiatives
+  let title = 'All Initiatives'
+
+  if (navTarget.view === 'program') {
+    const program = execution.programs.find((p) => p.id === navTarget.programId)
+    filteredInitiatives = execution.initiatives.filter((i) => i.programId === navTarget.programId)
+    title = program?.name ?? navTarget.programId
+  } else if (navTarget.view === 'standalone') {
+    filteredInitiatives = execution.initiatives.filter((i) => !i.programId)
+    title = 'Standalone Initiatives'
+  }
+
+  return (
+    <InitiativesOverview
+      title={title}
+      initiatives={filteredInitiatives}
+      programs={execution.programs}
+      rmis={execution.rmis}
+      onInitiativeClick={(id) => onNavigate({ section: 'initiatives', view: 'initiative', initiativeId: id })}
+      showProgramGroups={navTarget.view === 'all'}
+    />
   )
 }

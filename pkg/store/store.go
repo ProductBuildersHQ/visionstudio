@@ -1,0 +1,350 @@
+// Package store defines the storage interface for VisionStudio.
+// The in-memory fake in this package enables unit testing of all domain
+// logic without a running Dolt instance; the doltstore subpackage provides
+// the Ent-backed production implementation.
+package store
+
+import (
+	"context"
+	"time"
+)
+
+// Store is the persistence interface shared by all service-layer operations.
+// Every mutating method runs inside a UnitOfWork; reads may be called directly.
+type Store interface {
+	InitiativeStore
+	ProgramStore
+	PhaseStore
+	RMIStore
+	AssignmentStore
+	EvidenceStore
+	RepositoryStore
+	SpecWorkflowStore
+	JudgeStore
+	MaturityStore
+}
+
+// UnitOfWork groups a SQL transaction with a subsequent Dolt commit.
+// The production implementation wraps an Ent transaction and issues
+// CALL DOLT_COMMIT on success; the in-memory fake is a no-op.
+type UnitOfWork interface {
+	// Execute runs fn inside a transaction. If fn returns nil the
+	// transaction and Dolt commit are applied; otherwise both roll back.
+	Execute(ctx context.Context, fn func(ctx context.Context, s Store) error) error
+}
+
+// Initiative represents a cross-repository initiative.
+type Initiative struct {
+	ID                 string            `json:"id"`
+	Organization       string            `json:"organization"`
+	Title              string            `json:"title"`
+	Description        string            `json:"description,omitempty"`
+	Status             string            `json:"status"`
+	InitType           string            `json:"init_type,omitempty"`
+	WorkflowID         string            `json:"workflow_id,omitempty"`
+	Priority           string            `json:"priority,omitempty"`
+	HomeRepo           string            `json:"home_repo,omitempty"`
+	Workspace          string            `json:"workspace,omitempty"`
+	ProgramID          string            `json:"program_id,omitempty"`
+	Specs              map[string]string `json:"specs,omitempty"`
+	CreatedAt          time.Time         `json:"created_at"`
+	PlannedAt          *time.Time        `json:"planned_at,omitempty"`
+	ExecutingAt        *time.Time        `json:"executing_at,omitempty"`
+	DeliveryCompleteAt *time.Time        `json:"delivery_complete_at,omitempty"`
+	ReleasedAt         *time.Time        `json:"released_at,omitempty"`
+	ClosedAt           *time.Time        `json:"closed_at,omitempty"`
+	UpdatedAt          time.Time         `json:"updated_at"`
+}
+
+// Phase is a themed grouping of RMIs within an initiative.
+// Phase status is always derived from member RMIs — never stored.
+type Phase struct {
+	ID             string `json:"id"`
+	InitiativeID   string `json:"initiative_id"`
+	SequenceNumber int    `json:"sequence_number"`
+	Title          string `json:"title"`
+	Theme          string `json:"theme,omitempty"`
+}
+
+// RoadmapItem (RMI) is a deliverable within a single repository.
+type RoadmapItem struct {
+	ID                 string       `json:"id"`
+	RepositoryID       string       `json:"repository_id"`
+	InitiativeID       string       `json:"initiative_id,omitempty"`
+	PhaseID            string       `json:"phase_id,omitempty"`
+	Title              string       `json:"title"`
+	Description        string       `json:"description,omitempty"`
+	ItemType           string       `json:"item_type"`
+	Status             string       `json:"status"`
+	Priority           string       `json:"priority,omitempty"`
+	Required           bool         `json:"required"`
+	SequenceNumber     int          `json:"sequence_number"`
+	AcceptanceCriteria []string     `json:"acceptance_criteria,omitempty"`
+	ContextSpec        *ContextSpec `json:"context_spec,omitempty"`
+	CreatedAt          time.Time    `json:"created_at"`
+	CompletedAt        *time.Time   `json:"completed_at,omitempty"`
+	UpdatedAt          time.Time    `json:"updated_at"`
+}
+
+// ContextSpec contains explicit overrides for context assembly.
+type ContextSpec struct {
+	ExtraRepos   []string `json:"extra_repos,omitempty"`
+	IncludeSpecs []string `json:"include_specs,omitempty"`
+	ExcludeSpecs []string `json:"exclude_specs,omitempty"`
+}
+
+// RMIDependency is a directed edge between two RMIs.
+type RMIDependency struct {
+	SourceRMIID  string `json:"source_rmi_id"`
+	TargetRMIID  string `json:"target_rmi_id"`
+	Relationship string `json:"relationship"`
+}
+
+// InitiativeDependency is a directed edge between two initiatives.
+type InitiativeDependency struct {
+	SourceInitiativeID string `json:"source_initiative_id"`
+	TargetInitiativeID string `json:"target_initiative_id"`
+	Relationship       string `json:"relationship"`
+}
+
+// Assignment is a lease-based work claim by an agent session.
+type Assignment struct {
+	ID             string     `json:"id"`
+	RMIID          string     `json:"rmi_id"`
+	Worker         string     `json:"worker,omitempty"`
+	Status         string     `json:"status"`
+	LeaseExpiresAt time.Time  `json:"lease_expires_at"`
+	Workspace      string     `json:"workspace,omitempty"`
+	Handoff        *Handoff   `json:"handoff,omitempty"`
+	CreatedAt      time.Time  `json:"created_at"`
+	CompletedAt    *time.Time `json:"completed_at,omitempty"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+}
+
+// Handoff carries compact state for session continuity.
+type Handoff struct {
+	Completed  []string `json:"completed"`
+	Remaining  []string `json:"remaining"`
+	Decisions  []string `json:"decisions"`
+	NextAction string   `json:"next_action"`
+}
+
+// DeliveryEvidence links a commit, PR, release, or changelog entry to an RMI.
+type DeliveryEvidence struct {
+	ID           string     `json:"id"`
+	RMIID        string     `json:"rmi_id"`
+	EvidenceType string     `json:"evidence_type"`
+	Reference    string     `json:"reference"`
+	CommitType   string     `json:"commit_type,omitempty"`
+	CommitScope  string     `json:"commit_scope,omitempty"`
+	OccurredAt   *time.Time `json:"occurred_at,omitempty"`
+	CreatedAt    time.Time  `json:"created_at"`
+}
+
+// Repository is a catalog entry for a participating repository.
+type Repository struct {
+	ID              string `json:"id"`
+	Organization    string `json:"organization"`
+	RepositoryName  string `json:"repository_name"`
+	DefaultBranch   string `json:"default_branch,omitempty"`
+	LocalPath       string `json:"local_path,omitempty"`
+	GoModule        string `json:"go_module,omitempty"`
+	Domain          string `json:"domain,omitempty"`
+	Status          string `json:"status"`
+	IngestHighWater string `json:"ingest_high_water,omitempty"`
+}
+
+// Program is an organizational grouping of related initiatives.
+type Program struct {
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Organization string    `json:"organization"`
+	Description  string    `json:"description,omitempty"`
+	Hidden       bool      `json:"hidden,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// RepositoryDependency is a directed edge between two repositories
+// derived from go.mod dependency analysis.
+type RepositoryDependency struct {
+	SourceRepositoryID string `json:"source_repository_id"`
+	TargetRepositoryID string `json:"target_repository_id"`
+	DependencyType     string `json:"dependency_type"`
+}
+
+// ProgramStore defines persistence for programs.
+type ProgramStore interface {
+	CreateProgram(ctx context.Context, prog *Program) error
+	GetProgram(ctx context.Context, id string) (*Program, error)
+	ListPrograms(ctx context.Context) ([]*Program, error)
+	UpdateProgram(ctx context.Context, prog *Program) error
+}
+
+// InitiativeStore defines persistence for initiatives.
+type InitiativeStore interface {
+	CreateInitiative(ctx context.Context, init *Initiative) error
+	GetInitiative(ctx context.Context, id string) (*Initiative, error)
+	ListInitiatives(ctx context.Context) ([]*Initiative, error)
+	UpdateInitiative(ctx context.Context, init *Initiative) error
+	CreateInitiativeDependency(ctx context.Context, dep *InitiativeDependency) error
+	ListInitiativeDependencies(ctx context.Context, initiativeID string) ([]*InitiativeDependency, error)
+	ListAllInitiativeDependencies(ctx context.Context) ([]*InitiativeDependency, error)
+}
+
+// PhaseStore defines persistence for phases.
+type PhaseStore interface {
+	CreatePhase(ctx context.Context, phase *Phase) error
+	ListPhases(ctx context.Context, initiativeID string) ([]*Phase, error)
+	DeletePhase(ctx context.Context, id string) error
+}
+
+// RMIStore defines persistence for roadmap items and dependencies.
+type RMIStore interface {
+	CreateRMI(ctx context.Context, rmi *RoadmapItem) error
+	GetRMI(ctx context.Context, id string) (*RoadmapItem, error)
+	ListRMIs(ctx context.Context, initiativeID string) ([]*RoadmapItem, error)
+	ListAllRMIs(ctx context.Context) ([]*RoadmapItem, error)
+	ListRMIsByRepo(ctx context.Context, repoID string) ([]*RoadmapItem, error)
+	ListRMIsByStatus(ctx context.Context, status string) ([]*RoadmapItem, error)
+	UpdateRMI(ctx context.Context, rmi *RoadmapItem) error
+	CreateDependency(ctx context.Context, dep *RMIDependency) error
+	ListDependencies(ctx context.Context, rmiID string) ([]*RMIDependency, error)
+	ListAllDependencies(ctx context.Context) ([]*RMIDependency, error)
+}
+
+// AssignmentStore defines persistence for lease-based work claims.
+type AssignmentStore interface {
+	CreateAssignment(ctx context.Context, a *Assignment) error
+	GetAssignment(ctx context.Context, id string) (*Assignment, error)
+	GetActiveAssignment(ctx context.Context, rmiID string) (*Assignment, error)
+	ListActiveAssignments(ctx context.Context) ([]*Assignment, error)
+	ListAllAssignments(ctx context.Context) ([]*Assignment, error)
+	UpdateAssignment(ctx context.Context, a *Assignment) error
+}
+
+// EvidenceStore defines persistence for delivery evidence.
+type EvidenceStore interface {
+	CreateEvidence(ctx context.Context, ev *DeliveryEvidence) error
+	ListEvidenceByRMI(ctx context.Context, rmiID string) ([]*DeliveryEvidence, error)
+	ListEvidenceByInitiative(ctx context.Context, initiativeID string) ([]*DeliveryEvidence, error)
+	ListAllEvidence(ctx context.Context) ([]*DeliveryEvidence, error)
+}
+
+// RepositoryStore defines persistence for the repository catalog.
+type RepositoryStore interface {
+	CreateRepository(ctx context.Context, repo *Repository) error
+	GetRepository(ctx context.Context, id string) (*Repository, error)
+	ListRepositories(ctx context.Context) ([]*Repository, error)
+	ListRepositoriesByOrg(ctx context.Context, org string) ([]*Repository, error)
+	UpdateRepository(ctx context.Context, repo *Repository) error
+	CreateRepoDependency(ctx context.Context, dep *RepositoryDependency) error
+	ListRepoDependencies(ctx context.Context, repoID string) ([]*RepositoryDependency, error)
+	ListAllRepoDependencies(ctx context.Context) ([]*RepositoryDependency, error)
+}
+
+// SpecWorkflow defines a specification workflow template.
+type SpecWorkflow struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	Description   string   `json:"description,omitempty"`
+	SpecsRequired []string `json:"specs_required,omitempty"`
+	SpecsOptional []string `json:"specs_optional,omitempty"`
+	InitTypes     []string `json:"init_types,omitempty"`
+}
+
+// JudgeRubric defines scoring criteria for evaluating a spec type.
+type JudgeRubric struct {
+	ID             string         `json:"id"`
+	WorkflowID     string         `json:"workflow_id"`
+	SpecType       string         `json:"spec_type"`
+	Criteria       map[string]any `json:"criteria,omitempty"`
+	PromptTemplate string         `json:"prompt_template,omitempty"`
+}
+
+// JudgeResult stores an LLM-as-a-Judge evaluation result.
+type JudgeResult struct {
+	ID           string    `json:"id"`
+	InitiativeID string    `json:"initiative_id"`
+	SpecPath     string    `json:"spec_path"`
+	RubricID     string    `json:"rubric_id"`
+	Score        float64   `json:"score"`
+	Rationale    string    `json:"rationale,omitempty"`
+	Model        string    `json:"model,omitempty"`
+	EvaluatedAt  time.Time `json:"evaluated_at"`
+}
+
+// SpecWorkflowStore defines persistence for spec workflows.
+type SpecWorkflowStore interface {
+	CreateSpecWorkflow(ctx context.Context, wf *SpecWorkflow) error
+	GetSpecWorkflow(ctx context.Context, id string) (*SpecWorkflow, error)
+	ListSpecWorkflows(ctx context.Context) ([]*SpecWorkflow, error)
+	UpdateSpecWorkflow(ctx context.Context, wf *SpecWorkflow) error
+}
+
+// JudgeStore defines persistence for judge rubrics and results.
+type JudgeStore interface {
+	CreateJudgeRubric(ctx context.Context, rubric *JudgeRubric) error
+	GetJudgeRubric(ctx context.Context, id string) (*JudgeRubric, error)
+	ListJudgeRubrics(ctx context.Context, workflowID string) ([]*JudgeRubric, error)
+	CreateJudgeResult(ctx context.Context, result *JudgeResult) error
+	ListJudgeResults(ctx context.Context, initiativeID string) ([]*JudgeResult, error)
+}
+
+// Dimension is a capability area within a maturity model.
+type Dimension struct {
+	Key         string   `json:"key"`
+	Name        string   `json:"name"`
+	Description string   `json:"description,omitempty"`
+	Levels      []Level  `json:"levels,omitempty"`
+	Sources     []string `json:"sources,omitempty"`
+}
+
+// Level describes a maturity level within a dimension.
+type Level struct {
+	Level       int    `json:"level"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+}
+
+// CapabilityModel defines a capability maturity framework.
+type CapabilityModel struct {
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Description string      `json:"description,omitempty"`
+	Dimensions  []Dimension `json:"dimensions,omitempty"`
+	MaxLevel    int         `json:"max_level"`
+}
+
+// DimensionScore captures the assessment for a single dimension.
+type DimensionScore struct {
+	Level     int    `json:"level"`
+	Rationale string `json:"rationale,omitempty"`
+	Evidence  string `json:"evidence,omitempty"`
+}
+
+// MaturityAssessment captures a point-in-time capability assessment.
+type MaturityAssessment struct {
+	ID           string                    `json:"id"`
+	ModelID      string                    `json:"model_id"`
+	InitiativeID string                    `json:"initiative_id,omitempty"`
+	Organization string                    `json:"organization,omitempty"`
+	Scores       map[string]DimensionScore `json:"scores,omitempty"`
+	OverallScore *float64                  `json:"overall_score,omitempty"`
+	Summary      string                    `json:"summary,omitempty"`
+	AssessedBy   string                    `json:"assessed_by,omitempty"`
+	Model        string                    `json:"model,omitempty"`
+	AssessedAt   time.Time                 `json:"assessed_at"`
+}
+
+// MaturityStore defines persistence for capability models and assessments.
+type MaturityStore interface {
+	CreateCapabilityModel(ctx context.Context, model *CapabilityModel) error
+	GetCapabilityModel(ctx context.Context, id string) (*CapabilityModel, error)
+	ListCapabilityModels(ctx context.Context) ([]*CapabilityModel, error)
+	UpdateCapabilityModel(ctx context.Context, model *CapabilityModel) error
+	CreateMaturityAssessment(ctx context.Context, assessment *MaturityAssessment) error
+	GetMaturityAssessment(ctx context.Context, id string) (*MaturityAssessment, error)
+	ListMaturityAssessments(ctx context.Context, initiativeID string) ([]*MaturityAssessment, error)
+	ListMaturityAssessmentsByOrg(ctx context.Context, org string) ([]*MaturityAssessment, error)
+}

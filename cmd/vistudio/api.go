@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
@@ -115,6 +117,21 @@ type SpecsResponse struct {
 	JudgeResults []*store.JudgeResult  `json:"judgeResults"`
 }
 
+// SpecFile represents a spec document read from disk.
+type SpecFile struct {
+	InitiativeID string `json:"initiativeId"`
+	SpecType     string `json:"specType"`
+	Path         string `json:"path"`
+	Content      string `json:"content"`
+	ModTime      string `json:"modTime,omitempty"`
+	EvalJSON     string `json:"evalJson,omitempty"`
+}
+
+// SpecFilesResponse is the response for /api/spec-files.
+type SpecFilesResponse struct {
+	Files []SpecFile `json:"files"`
+}
+
 // registerAPIRoutes adds JSON API endpoints to the dashboard mux.
 func registerAPIRoutes(mux *http.ServeMux, connectSvc func() (*service.Service, func(), error), dataDir string) {
 	// CORS middleware for local development
@@ -197,6 +214,29 @@ func registerAPIRoutes(mux *http.ServeMux, connectSvc func() (*service.Service, 
 		defer cleanup()
 
 		resp, err := buildSpecsResponse(r.Context(), svc)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, resp)
+	}))
+
+	// Spec files endpoint - reads spec markdown and eval JSON from disk
+	mux.HandleFunc("/api/spec-files/", cors(func(w http.ResponseWriter, r *http.Request) {
+		initID := strings.TrimPrefix(r.URL.Path, "/api/spec-files/")
+		if initID == "" {
+			http.Error(w, "initiative ID required", http.StatusBadRequest)
+			return
+		}
+
+		svc, cleanup, err := connectSvc()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer cleanup()
+
+		resp, err := buildSpecFilesResponse(r.Context(), svc, initID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -491,4 +531,157 @@ func buildSpecsResponse(ctx context.Context, svc *service.Service) (*SpecsRespon
 		Workflows:    workflows,
 		JudgeResults: allResults,
 	}, nil
+}
+
+func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {
+	init, err := svc.Store.GetInitiative(ctx, initiativeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var specDir string
+
+	// Try to find specs directory via HomeRepo -> Repository.LocalPath
+	if init.HomeRepo != "" {
+		repo, err := svc.Store.GetRepository(ctx, init.HomeRepo)
+		if err == nil && repo.LocalPath != "" {
+			specDir = filepath.Join(repo.LocalPath, "docs", "specs", "initiatives", initiativeID)
+		}
+	}
+
+	// If no specDir from HomeRepo, try current working directory
+	if specDir == "" {
+		cwd, err := os.Getwd()
+		if err == nil {
+			candidate := filepath.Join(cwd, "docs", "specs", "initiatives", initiativeID)
+			if _, statErr := os.Stat(candidate); statErr == nil {
+				specDir = candidate
+			}
+		}
+	}
+
+	if specDir == "" {
+		return &SpecFilesResponse{Files: []SpecFile{}}, nil
+	}
+
+	files, err := readSpecFiles(specDir, initiativeID)
+	if err != nil {
+		return &SpecFilesResponse{Files: []SpecFile{}}, nil
+	}
+
+	return &SpecFilesResponse{Files: files}, nil
+}
+
+// readSpecFiles reads spec files from a directory, supporting both:
+// 1. Flat structure: PRD.md, TRD.md, etc. directly in the directory
+// 2. VisionSpec structure: source/*.md + eval/*.json
+func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
+	var files []SpecFile
+
+	// Check for VisionSpec structure (source/ subdirectory)
+	sourceDir := filepath.Join(specDir, "source")
+	evalDir := filepath.Join(specDir, "eval")
+
+	if _, err := os.Stat(sourceDir); err == nil {
+		// VisionSpec structure: read from source/ and eval/
+		entries, err := os.ReadDir(sourceDir)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+				continue
+			}
+
+			specPath := filepath.Join(sourceDir, entry.Name())
+			content, err := os.ReadFile(specPath)
+			if err != nil {
+				continue
+			}
+
+			info, _ := entry.Info()
+			modTime := ""
+			if info != nil {
+				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
+			}
+
+			specType := deriveSpecType(entry.Name())
+
+			sf := SpecFile{
+				InitiativeID: initiativeID,
+				SpecType:     specType,
+				Path:         specPath,
+				Content:      string(content),
+				ModTime:      modTime,
+			}
+
+			// Check for corresponding eval JSON
+			evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
+			evalPath := filepath.Join(evalDir, evalName)
+			if evalContent, err := os.ReadFile(evalPath); err == nil {
+				sf.EvalJSON = string(evalContent)
+			}
+
+			files = append(files, sf)
+		}
+	} else {
+		// Flat structure: read .md files directly from specDir
+		entries, err := os.ReadDir(specDir)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+				continue
+			}
+
+			specPath := filepath.Join(specDir, entry.Name())
+			content, err := os.ReadFile(specPath)
+			if err != nil {
+				continue
+			}
+
+			info, _ := entry.Info()
+			modTime := ""
+			if info != nil {
+				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
+			}
+
+			files = append(files, SpecFile{
+				InitiativeID: initiativeID,
+				SpecType:     deriveSpecType(entry.Name()),
+				Path:         specPath,
+				Content:      string(content),
+				ModTime:      modTime,
+			})
+		}
+	}
+
+	return files, nil
+}
+
+func deriveSpecType(filename string) string {
+	name := strings.ToLower(filename)
+	name = strings.TrimSuffix(name, ".md")
+
+	switch {
+	case strings.Contains(name, "prd"):
+		return "PRD"
+	case strings.Contains(name, "trd"):
+		return "TRD"
+	case strings.Contains(name, "plan"):
+		return "PLAN"
+	case strings.Contains(name, "roadmap"):
+		return "ROADMAP"
+	case strings.Contains(name, "mrd"):
+		return "MRD"
+	case strings.Contains(name, "uxd"):
+		return "UXD"
+	case strings.Contains(name, "opportunity"):
+		return "OPPORTUNITY"
+	default:
+		return strings.ToUpper(name)
+	}
 }

@@ -73,7 +73,7 @@ function buildExtensionContext(extensionId: string, project?: Project | null): E
   }
 }
 
-const DEFAULT_VIEW: ActiveView = { extensionId: 'visionstudio.visionspec', viewId: 'workflow' }
+const DEFAULT_VIEW: ActiveView = { extensionId: 'visionstudio.unified-dashboard', viewId: 'initiative' }
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([])

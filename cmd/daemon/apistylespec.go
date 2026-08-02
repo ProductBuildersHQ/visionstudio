@@ -22,17 +22,17 @@ type apiStyleLintRequest struct {
 }
 
 type apiStyleViolation struct {
-	RuleID    string `json:"ruleId"`
-	Severity  string `json:"severity"`
-	Message   string `json:"message"`
-	Path      string `json:"path"`
-	Line      int    `json:"line,omitempty"`
-	Column    int    `json:"column,omitempty"`
-	EndLine   int    `json:"endLine,omitempty"`
-	EndColumn int    `json:"endColumn,omitempty"`
+	RuleID     string `json:"ruleId"`
+	Severity   string `json:"severity"`
+	Message    string `json:"message"`
+	Path       string `json:"path"`
+	Line       int    `json:"line,omitempty"`
+	Column     int    `json:"column,omitempty"`
+	EndLine    int    `json:"endLine,omitempty"`
+	EndColumn  int    `json:"endColumn,omitempty"`
 	Suggestion string `json:"suggestion,omitempty"`
-	Category  string `json:"category,omitempty"`
-	RuleTitle string `json:"ruleTitle,omitempty"`
+	Category   string `json:"category,omitempty"`
+	RuleTitle  string `json:"ruleTitle,omitempty"`
 }
 
 type apiStyleViolationSummary struct {
@@ -73,9 +73,9 @@ type apiStyleFixSuggestion struct {
 }
 
 type apiStyleFixResponse struct {
-	Suggestions []apiStyleFixSuggestion `json:"suggestions"`
-	FixedCount  int                     `json:"fixedCount"`
-	UnfixedCount int                    `json:"unfixedCount"`
+	Suggestions  []apiStyleFixSuggestion `json:"suggestions"`
+	FixedCount   int                     `json:"fixedCount"`
+	UnfixedCount int                     `json:"unfixedCount"`
 }
 
 // ---------------------------------------------------------------------------

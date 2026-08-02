@@ -4,7 +4,8 @@
 package ir
 
 import (
-	"github.com/ProductBuildersHQ/prism-build/pkg/store"
+	pbstore "github.com/ProductBuildersHQ/prism-build/pkg/store"
+	vsstore "github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	prismmaturity "github.com/grokify/prism-maturity"
 	"github.com/grokify/prism-roadmap/goals"
 	"github.com/grokify/prism-roadmap/goals/okr"
@@ -17,36 +18,36 @@ import (
 // These represent the core execution tracking entities.
 
 type (
-	Program              = store.Program
-	Initiative           = store.Initiative
-	Phase                = store.Phase
-	RoadmapItem          = store.RoadmapItem
-	Assignment           = store.Assignment
-	DeliveryEvidence     = store.DeliveryEvidence
-	Repository           = store.Repository
-	ContextSpec          = store.ContextSpec
-	Handoff              = store.Handoff
-	RMIDependency        = store.RMIDependency
-	InitiativeDependency = store.InitiativeDependency
-	RepositoryDependency = store.RepositoryDependency
+	Program              = pbstore.Program
+	Initiative           = pbstore.Initiative
+	Phase                = pbstore.Phase
+	RoadmapItem          = pbstore.RoadmapItem
+	Assignment           = pbstore.Assignment
+	DeliveryEvidence     = pbstore.DeliveryEvidence
+	Repository           = pbstore.Repository
+	ContextSpec          = pbstore.ContextSpec
+	Handoff              = pbstore.Handoff
+	RMIDependency        = pbstore.RMIDependency
+	InitiativeDependency = pbstore.InitiativeDependency
+	RepositoryDependency = pbstore.RepositoryDependency
 )
 
 // Spec workflow and judging types.
 
 type (
-	SpecWorkflow = store.SpecWorkflow
-	JudgeRubric  = store.JudgeRubric
-	JudgeResult  = store.JudgeResult
+	SpecWorkflow = pbstore.SpecWorkflow
+	JudgeRubric  = pbstore.JudgeRubric
+	JudgeResult  = pbstore.JudgeResult
 )
 
 // Maturity model types from prism-build (Dolt-backed).
 
 type (
-	CapabilityModel    = store.CapabilityModel
-	MaturityAssessment = store.MaturityAssessment
-	Dimension          = store.Dimension
-	Level              = store.Level
-	DimensionScore     = store.DimensionScore
+	CapabilityModel    = pbstore.CapabilityModel
+	MaturityAssessment = pbstore.MaturityAssessment
+	Dimension          = pbstore.Dimension
+	Level              = pbstore.Level
+	DimensionScore     = pbstore.DimensionScore
 )
 
 // PRISM maturity framework types from prism-maturity (JSON IR).
@@ -98,4 +99,14 @@ type (
 	PeriodType       = devxdashboard.PeriodType
 	DailyPoint       = devxdashboard.DailyPoint
 	ModelPeriodPoint = devxdashboard.ModelPeriodPoint
+)
+
+// Phase 5 store types — aliases to visionstudio/pkg/store for the new domains.
+
+type (
+	DevXPeriodReport = vsstore.DevXPeriodReport
+	PRISMRoadmapDB   = vsstore.PRISMRoadmap
+	PRISMGoalDB      = vsstore.PRISMGoal
+	PRISMDocumentDB  = vsstore.PRISMDocument
+	SpecDocumentDB   = vsstore.SpecDocument
 )

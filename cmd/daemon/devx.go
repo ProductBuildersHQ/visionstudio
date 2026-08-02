@@ -187,6 +187,7 @@ func (s *Server) handleGetDevXPeriodDashboard(w http.ResponseWriter, r *http.Req
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	//nolint:gosec // G705: data is from a trusted local JSON file, not user input
 	if _, err := w.Write(data); err != nil {
 		s.logger.Error("Failed to write period report response", "error", err)
 	}

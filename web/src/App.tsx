@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import { getExecution, getSpecs, getMaturity, getSpend } from './api/client'
 import type { ExecutionResponse, SpecsResponse, MaturityResponse, SpendResponse } from './api/types'
 import { Sidebar } from './components/Sidebar'
@@ -18,13 +19,21 @@ export type NavTarget =
   | { section: 'spend' }
 
 export default function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  )
+}
+
+function AppContent() {
   const [execution, setExecution] = useState<ExecutionResponse | null>(null)
   const [specs, setSpecs] = useState<SpecsResponse | null>(null)
   const [maturity, setMaturity] = useState<MaturityResponse | null>(null)
   const [spend, setSpend] = useState<SpendResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [navTarget, setNavTarget] = useState<NavTarget>({ section: 'initiatives', view: 'all' })
+  const navigate = useNavigate()
 
   const reload = () => {
     setError(null)
@@ -44,6 +53,22 @@ export default function App() {
 
   const apiStatus = execution ? 'connected' : error ? 'error' : 'loading'
 
+  const handleNavigate = (target: NavTarget) => {
+    if (target.section === 'maturity') {
+      navigate('/maturity')
+    } else if (target.section === 'spend') {
+      navigate('/spend')
+    } else if (target.view === 'all') {
+      navigate('/')
+    } else if (target.view === 'program') {
+      navigate(`/program/${target.programId}`)
+    } else if (target.view === 'standalone') {
+      navigate('/standalone')
+    } else if (target.view === 'initiative') {
+      navigate(`/initiative/${target.initiativeId}`)
+    }
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
@@ -62,90 +87,120 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex">
-      {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
         execution={execution}
-        navTarget={navTarget}
-        onNavigate={setNavTarget}
+        onNavigate={handleNavigate}
         apiStatus={apiStatus}
       />
 
-      {/* Main Content */}
       <main className="flex-1 overflow-auto">
         <div className="p-6">
-          <MainContent
-            navTarget={navTarget}
-            execution={execution}
-            specs={specs}
-            maturity={maturity}
-            spend={spend}
-            onNavigate={setNavTarget}
-          />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <InitiativesOverview
+                  title="All Initiatives"
+                  initiatives={execution.initiatives}
+                  programs={execution.programs}
+                  rmis={execution.rmis}
+                  onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                  showProgramGroups={true}
+                />
+              }
+            />
+            <Route
+              path="/program/:programId"
+              element={
+                <ProgramView
+                  execution={execution}
+                  onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                />
+              }
+            />
+            <Route
+              path="/standalone"
+              element={
+                <InitiativesOverview
+                  title="Standalone Initiatives"
+                  initiatives={execution.initiatives.filter((i) => !i.programId)}
+                  programs={execution.programs}
+                  rmis={execution.rmis}
+                  onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                  showProgramGroups={false}
+                />
+              }
+            />
+            <Route
+              path="/initiative/:initiativeId"
+              element={
+                <InitiativeView
+                  execution={execution}
+                  specs={specs}
+                  onBack={() => navigate('/')}
+                />
+              }
+            />
+            <Route path="/maturity" element={<MaturityPanel />} />
+            <Route path="/spend" element={<SpendPanel />} />
+          </Routes>
         </div>
       </main>
     </div>
   )
 }
 
-function MainContent({
-  navTarget,
+function ProgramView({
   execution,
-  specs,
-  onNavigate,
+  onInitiativeClick,
 }: {
-  navTarget: NavTarget
   execution: ExecutionResponse
-  specs: SpecsResponse
-  maturity: MaturityResponse
-  spend: SpendResponse
-  onNavigate: (target: NavTarget) => void
+  onInitiativeClick: (id: string) => void
 }) {
-  if (navTarget.section === 'maturity') {
-    return <MaturityPanel />
-  }
-
-  if (navTarget.section === 'spend') {
-    return <SpendPanel />
-  }
-
-  // Initiatives section
-  if (navTarget.view === 'initiative') {
-    const initiative = execution.initiatives.find((i) => i.id === navTarget.initiativeId)
-    if (initiative) {
-      return (
-        <InitiativeDetail
-          initiative={initiative}
-          execution={execution}
-          specs={specs}
-          onBack={() => onNavigate({ section: 'initiatives', view: 'all' })}
-        />
-      )
-    }
-  }
-
-  // Filter initiatives based on view
-  let filteredInitiatives = execution.initiatives
-  let title = 'All Initiatives'
-
-  if (navTarget.view === 'program') {
-    const program = execution.programs.find((p) => p.id === navTarget.programId)
-    filteredInitiatives = execution.initiatives.filter((i) => i.programId === navTarget.programId)
-    title = program?.name ?? navTarget.programId
-  } else if (navTarget.view === 'standalone') {
-    filteredInitiatives = execution.initiatives.filter((i) => !i.programId)
-    title = 'Standalone Initiatives'
-  }
+  const { programId } = useParams<{ programId: string }>()
+  const program = execution.programs.find((p) => p.id === programId)
+  const initiatives = execution.initiatives.filter((i) => i.programId === programId)
 
   return (
     <InitiativesOverview
-      title={title}
-      initiatives={filteredInitiatives}
+      title={program?.name ?? programId ?? 'Program'}
+      initiatives={initiatives}
       programs={execution.programs}
       rmis={execution.rmis}
-      onInitiativeClick={(id) => onNavigate({ section: 'initiatives', view: 'initiative', initiativeId: id })}
-      showProgramGroups={navTarget.view === 'all'}
+      onInitiativeClick={onInitiativeClick}
+      showProgramGroups={false}
+    />
+  )
+}
+
+function InitiativeView({
+  execution,
+  specs,
+  onBack,
+}: {
+  execution: ExecutionResponse
+  specs: SpecsResponse
+  onBack: () => void
+}) {
+  const { initiativeId } = useParams<{ initiativeId: string }>()
+  const initiative = execution.initiatives.find((i) => i.id === initiativeId)
+
+  if (!initiative) {
+    return (
+      <div className="text-center text-gray-400 py-12">
+        <p>Initiative not found: {initiativeId}</p>
+      </div>
+    )
+  }
+
+  return (
+    <InitiativeDetail
+      initiative={initiative}
+      execution={execution}
+      specs={specs}
+      onBack={onBack}
     />
   )
 }

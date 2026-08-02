@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import type { ExecutionResponse } from '../api/types'
 import type { NavTarget } from '../App'
 
@@ -6,7 +7,6 @@ interface SidebarProps {
   collapsed: boolean
   onToggleCollapse: () => void
   execution: ExecutionResponse
-  navTarget: NavTarget
   onNavigate: (target: NavTarget) => void
   apiStatus: 'loading' | 'connected' | 'error'
 }
@@ -15,10 +15,10 @@ export function Sidebar({
   collapsed,
   onToggleCollapse,
   execution,
-  navTarget,
   onNavigate,
   apiStatus,
 }: SidebarProps) {
+  const location = useLocation()
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['initiatives']))
   const [expandedPrograms, setExpandedPrograms] = useState<Set<string>>(new Set())
 
@@ -45,20 +45,22 @@ export function Sidebar({
   const visiblePrograms = execution.programs.filter((p) => !p.hidden)
   const standaloneInitiatives = execution.initiatives.filter((i) => !i.programId)
 
-  const isActive = (target: NavTarget): boolean => {
-    if (target.section !== navTarget.section) return false
-    if (target.section === 'maturity' || target.section === 'spend') return true
-    if (target.section === 'initiatives' && navTarget.section === 'initiatives') {
-      if (target.view === 'all' && navTarget.view === 'all') return true
-      if (target.view === 'program' && navTarget.view === 'program') {
-        return target.programId === navTarget.programId
-      }
-      if (target.view === 'standalone' && navTarget.view === 'standalone') return true
-      if (target.view === 'initiative' && navTarget.view === 'initiative') {
-        return target.initiativeId === navTarget.initiativeId
-      }
-    }
-    return false
+  const currentSection = (): 'initiatives' | 'maturity' | 'spend' => {
+    if (location.pathname === '/maturity') return 'maturity'
+    if (location.pathname === '/spend') return 'spend'
+    return 'initiatives'
+  }
+
+  const isActivePath = (path: string): boolean => {
+    return location.pathname === path
+  }
+
+  const isInitiativeActive = (initiativeId: string): boolean => {
+    return location.pathname === `/initiative/${initiativeId}`
+  }
+
+  const isProgramActive = (programId: string): boolean => {
+    return location.pathname === `/program/${programId}`
   }
 
   return (
@@ -96,7 +98,7 @@ export function Sidebar({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-2">
         {collapsed ? (
-          <CollapsedNav navTarget={navTarget} onNavigate={onNavigate} />
+          <CollapsedNav currentSection={currentSection()} onNavigate={onNavigate} />
         ) : (
           <>
             {/* Initiatives Section */}
@@ -105,7 +107,7 @@ export function Sidebar({
               icon="📋"
               expanded={expandedSections.has('initiatives')}
               onToggle={() => toggleSection('initiatives')}
-              active={navTarget.section === 'initiatives'}
+              active={currentSection() === 'initiatives'}
               onClick={() => onNavigate({ section: 'initiatives', view: 'all' })}
             >
               {/* Programs */}
@@ -118,11 +120,7 @@ export function Sidebar({
                     count={programInits.length}
                     expanded={expandedPrograms.has(program.id)}
                     onToggle={() => toggleProgram(program.id)}
-                    active={
-                      navTarget.section === 'initiatives' &&
-                      navTarget.view === 'program' &&
-                      navTarget.programId === program.id
-                    }
+                    active={isProgramActive(program.id)}
                     onClick={() => onNavigate({ section: 'initiatives', view: 'program', programId: program.id })}
                   >
                     {programInits.map((init) => (
@@ -131,7 +129,7 @@ export function Sidebar({
                         label={init.id}
                         sublabel={init.title}
                         progress={init.progress}
-                        active={isActive({ section: 'initiatives', view: 'initiative', initiativeId: init.id })}
+                        active={isInitiativeActive(init.id)}
                         onClick={() =>
                           onNavigate({ section: 'initiatives', view: 'initiative', initiativeId: init.id })
                         }
@@ -148,7 +146,7 @@ export function Sidebar({
                   count={standaloneInitiatives.length}
                   expanded={expandedPrograms.has('_standalone')}
                   onToggle={() => toggleProgram('_standalone')}
-                  active={navTarget.section === 'initiatives' && navTarget.view === 'standalone'}
+                  active={isActivePath('/standalone')}
                   onClick={() => onNavigate({ section: 'initiatives', view: 'standalone' })}
                 >
                   {standaloneInitiatives.map((init) => (
@@ -157,7 +155,7 @@ export function Sidebar({
                       label={init.id}
                       sublabel={init.title}
                       progress={init.progress}
-                      active={isActive({ section: 'initiatives', view: 'initiative', initiativeId: init.id })}
+                      active={isInitiativeActive(init.id)}
                       onClick={() =>
                         onNavigate({ section: 'initiatives', view: 'initiative', initiativeId: init.id })
                       }
@@ -172,7 +170,7 @@ export function Sidebar({
               label="Maturity"
               icon="📈"
               expanded={false}
-              active={navTarget.section === 'maturity'}
+              active={isActivePath('/maturity')}
               onClick={() => onNavigate({ section: 'maturity' })}
             />
 
@@ -181,7 +179,7 @@ export function Sidebar({
               label="Spend"
               icon="💰"
               expanded={false}
-              active={navTarget.section === 'spend'}
+              active={isActivePath('/spend')}
               onClick={() => onNavigate({ section: 'spend' })}
             />
           </>
@@ -192,10 +190,10 @@ export function Sidebar({
 }
 
 function CollapsedNav({
-  navTarget,
+  currentSection,
   onNavigate,
 }: {
-  navTarget: NavTarget
+  currentSection: 'initiatives' | 'maturity' | 'spend'
   onNavigate: (target: NavTarget) => void
 }) {
   return (
@@ -203,7 +201,7 @@ function CollapsedNav({
       <button
         onClick={() => onNavigate({ section: 'initiatives', view: 'all' })}
         className={`p-2 rounded hover:bg-gray-700 ${
-          navTarget.section === 'initiatives' ? 'bg-gray-700' : ''
+          currentSection === 'initiatives' ? 'bg-gray-700' : ''
         }`}
         title="Initiatives"
       >
@@ -212,7 +210,7 @@ function CollapsedNav({
       <button
         onClick={() => onNavigate({ section: 'maturity' })}
         className={`p-2 rounded hover:bg-gray-700 ${
-          navTarget.section === 'maturity' ? 'bg-gray-700' : ''
+          currentSection === 'maturity' ? 'bg-gray-700' : ''
         }`}
         title="Maturity"
       >
@@ -221,7 +219,7 @@ function CollapsedNav({
       <button
         onClick={() => onNavigate({ section: 'spend' })}
         className={`p-2 rounded hover:bg-gray-700 ${
-          navTarget.section === 'spend' ? 'bg-gray-700' : ''
+          currentSection === 'spend' ? 'bg-gray-700' : ''
         }`}
         title="Spend"
       >

@@ -3,6 +3,7 @@ import type {
   SpendResponse,
   MaturityResponse,
   SpecsResponse,
+  SpecFilesResponse,
 } from './types'
 
 const BASE_URL = '/api'
@@ -29,4 +30,8 @@ export async function getMaturity(): Promise<MaturityResponse> {
 
 export async function getSpecs(): Promise<SpecsResponse> {
   return fetchJSON<SpecsResponse>('/specs')
+}
+
+export async function getSpecFiles(initiativeId: string): Promise<SpecFilesResponse> {
+  return fetchJSON<SpecFilesResponse>(`/spec-files/${encodeURIComponent(initiativeId)}`)
 }

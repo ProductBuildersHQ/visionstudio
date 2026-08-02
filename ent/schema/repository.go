@@ -28,5 +28,6 @@ func (Repository) Fields() []ent.Field {
 func (Repository) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("roadmap_items", RoadmapItem.Type),
+		edge.To("spec_documents", SpecDocument.Type),
 	}
 }

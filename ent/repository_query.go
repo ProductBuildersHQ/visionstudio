@@ -15,16 +15,18 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
 // RepositoryQuery is the builder for querying Repository entities.
 type RepositoryQuery struct {
 	config
-	ctx              *QueryContext
-	order            []repository.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.Repository
-	withRoadmapItems *RoadmapItemQuery
+	ctx               *QueryContext
+	order             []repository.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.Repository
+	withRoadmapItems  *RoadmapItemQuery
+	withSpecDocuments *SpecDocumentQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +78,28 @@ func (_q *RepositoryQuery) QueryRoadmapItems() *RoadmapItemQuery {
 			sqlgraph.From(repository.Table, repository.FieldID, selector),
 			sqlgraph.To(roadmapitem.Table, roadmapitem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, repository.RoadmapItemsTable, repository.RoadmapItemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpecDocuments chains the current query on the "spec_documents" edge.
+func (_q *RepositoryQuery) QuerySpecDocuments() *SpecDocumentQuery {
+	query := (&SpecDocumentClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repository.Table, repository.FieldID, selector),
+			sqlgraph.To(specdocument.Table, specdocument.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, repository.SpecDocumentsTable, repository.SpecDocumentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -270,12 +294,13 @@ func (_q *RepositoryQuery) Clone() *RepositoryQuery {
 		return nil
 	}
 	return &RepositoryQuery{
-		config:           _q.config,
-		ctx:              _q.ctx.Clone(),
-		order:            append([]repository.OrderOption{}, _q.order...),
-		inters:           append([]Interceptor{}, _q.inters...),
-		predicates:       append([]predicate.Repository{}, _q.predicates...),
-		withRoadmapItems: _q.withRoadmapItems.Clone(),
+		config:            _q.config,
+		ctx:               _q.ctx.Clone(),
+		order:             append([]repository.OrderOption{}, _q.order...),
+		inters:            append([]Interceptor{}, _q.inters...),
+		predicates:        append([]predicate.Repository{}, _q.predicates...),
+		withRoadmapItems:  _q.withRoadmapItems.Clone(),
+		withSpecDocuments: _q.withSpecDocuments.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -290,6 +315,17 @@ func (_q *RepositoryQuery) WithRoadmapItems(opts ...func(*RoadmapItemQuery)) *Re
 		opt(query)
 	}
 	_q.withRoadmapItems = query
+	return _q
+}
+
+// WithSpecDocuments tells the query-builder to eager-load the nodes that are connected to
+// the "spec_documents" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RepositoryQuery) WithSpecDocuments(opts ...func(*SpecDocumentQuery)) *RepositoryQuery {
+	query := (&SpecDocumentClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpecDocuments = query
 	return _q
 }
 
@@ -371,8 +407,9 @@ func (_q *RepositoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 	var (
 		nodes       = []*Repository{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withRoadmapItems != nil,
+			_q.withSpecDocuments != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -397,6 +434,13 @@ func (_q *RepositoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 		if err := _q.loadRoadmapItems(ctx, query, nodes,
 			func(n *Repository) { n.Edges.RoadmapItems = []*RoadmapItem{} },
 			func(n *Repository, e *RoadmapItem) { n.Edges.RoadmapItems = append(n.Edges.RoadmapItems, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpecDocuments; query != nil {
+		if err := _q.loadSpecDocuments(ctx, query, nodes,
+			func(n *Repository) { n.Edges.SpecDocuments = []*SpecDocument{} },
+			func(n *Repository, e *SpecDocument) { n.Edges.SpecDocuments = append(n.Edges.SpecDocuments, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -429,6 +473,36 @@ func (_q *RepositoryQuery) loadRoadmapItems(ctx context.Context, query *RoadmapI
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "repository_roadmap_items" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *RepositoryQuery) loadSpecDocuments(ctx context.Context, query *SpecDocumentQuery, nodes []*Repository, init func(*Repository), assign func(*Repository, *SpecDocument)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Repository)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(specdocument.FieldRepositoryID)
+	}
+	query.Where(predicate.SpecDocument(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(repository.SpecDocumentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RepositoryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "repository_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 )
 
@@ -807,6 +808,52 @@ func UpdatedAtLT(v time.Time) predicate.SpecDocument {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// HasInitiative applies the HasEdge predicate on the "initiative" edge.
+func HasInitiative() predicate.SpecDocument {
+	return predicate.SpecDocument(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, InitiativeTable, InitiativeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasInitiativeWith applies the HasEdge predicate on the "initiative" edge with a given conditions (other predicates).
+func HasInitiativeWith(preds ...predicate.Initiative) predicate.SpecDocument {
+	return predicate.SpecDocument(func(s *sql.Selector) {
+		step := newInitiativeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRepository applies the HasEdge predicate on the "repository" edge.
+func HasRepository() predicate.SpecDocument {
+	return predicate.SpecDocument(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, RepositoryTable, RepositoryColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRepositoryWith applies the HasEdge predicate on the "repository" edge with a given conditions (other predicates).
+func HasRepositoryWith(preds ...predicate.Repository) predicate.SpecDocument {
+	return predicate.SpecDocument(func(s *sql.Selector) {
+		step := newRepositoryStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -1085,6 +1085,38 @@ func (c *InitiativeClient) QueryRoadmapItems(_m *Initiative) *RoadmapItemQuery {
 	return query
 }
 
+// QueryJudgeResults queries the judge_results edge of a Initiative.
+func (c *InitiativeClient) QueryJudgeResults(_m *Initiative) *JudgeResultQuery {
+	query := (&JudgeResultClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(initiative.Table, initiative.FieldID, id),
+			sqlgraph.To(judgeresult.Table, judgeresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, initiative.JudgeResultsTable, initiative.JudgeResultsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QuerySpecDocuments queries the spec_documents edge of a Initiative.
+func (c *InitiativeClient) QuerySpecDocuments(_m *Initiative) *SpecDocumentQuery {
+	query := (&SpecDocumentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(initiative.Table, initiative.FieldID, id),
+			sqlgraph.To(specdocument.Table, specdocument.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, initiative.SpecDocumentsTable, initiative.SpecDocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryProgram queries the program edge of a Initiative.
 func (c *InitiativeClient) QueryProgram(_m *Initiative) *ProgramQuery {
 	query := (&ProgramClient{config: c.config}).Query()
@@ -1392,6 +1424,22 @@ func (c *JudgeResultClient) QueryRubric(_m *JudgeResult) *JudgeRubricQuery {
 			sqlgraph.From(judgeresult.Table, judgeresult.FieldID, id),
 			sqlgraph.To(judgerubric.Table, judgerubric.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, judgeresult.RubricTable, judgeresult.RubricColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryInitiative queries the initiative edge of a JudgeResult.
+func (c *JudgeResultClient) QueryInitiative(_m *JudgeResult) *InitiativeQuery {
+	query := (&InitiativeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(judgeresult.Table, judgeresult.FieldID, id),
+			sqlgraph.To(initiative.Table, initiative.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, judgeresult.InitiativeTable, judgeresult.InitiativeColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -2708,6 +2756,22 @@ func (c *RepositoryClient) QueryRoadmapItems(_m *Repository) *RoadmapItemQuery {
 	return query
 }
 
+// QuerySpecDocuments queries the spec_documents edge of a Repository.
+func (c *RepositoryClient) QuerySpecDocuments(_m *Repository) *SpecDocumentQuery {
+	query := (&SpecDocumentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repository.Table, repository.FieldID, id),
+			sqlgraph.To(specdocument.Table, specdocument.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, repository.SpecDocumentsTable, repository.SpecDocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *RepositoryClient) Hooks() []Hook {
 	return c.hooks.Repository
@@ -3185,6 +3249,38 @@ func (c *SpecDocumentClient) GetX(ctx context.Context, id string) *SpecDocument 
 		panic(err)
 	}
 	return obj
+}
+
+// QueryInitiative queries the initiative edge of a SpecDocument.
+func (c *SpecDocumentClient) QueryInitiative(_m *SpecDocument) *InitiativeQuery {
+	query := (&InitiativeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specdocument.Table, specdocument.FieldID, id),
+			sqlgraph.To(initiative.Table, initiative.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.InitiativeTable, specdocument.InitiativeColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRepository queries the repository edge of a SpecDocument.
+func (c *SpecDocumentClient) QueryRepository(_m *SpecDocument) *RepositoryQuery {
+	query := (&RepositoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specdocument.Table, specdocument.FieldID, id),
+			sqlgraph.To(repository.Table, repository.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.RepositoryTable, specdocument.RepositoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

@@ -10,6 +10,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
+	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
@@ -132,6 +134,16 @@ func (_c *SpecDocumentCreate) SetID(v string) *SpecDocumentCreate {
 	return _c
 }
 
+// SetInitiative sets the "initiative" edge to the Initiative entity.
+func (_c *SpecDocumentCreate) SetInitiative(v *Initiative) *SpecDocumentCreate {
+	return _c.SetInitiativeID(v.ID)
+}
+
+// SetRepository sets the "repository" edge to the Repository entity.
+func (_c *SpecDocumentCreate) SetRepository(v *Repository) *SpecDocumentCreate {
+	return _c.SetRepositoryID(v.ID)
+}
+
 // Mutation returns the SpecDocumentMutation object of the builder.
 func (_c *SpecDocumentCreate) Mutation() *SpecDocumentMutation {
 	return _c.mutation
@@ -184,6 +196,9 @@ func (_c *SpecDocumentCreate) check() error {
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "SpecDocument.updated_at"`)}
 	}
+	if len(_c.mutation.RepositoryIDs()) == 0 {
+		return &ValidationError{Name: "repository", err: errors.New(`ent: missing required edge "SpecDocument.repository"`)}
+	}
 	return nil
 }
 
@@ -223,14 +238,6 @@ func (_c *SpecDocumentCreate) createSpec() (*SpecDocument, *sqlgraph.CreateSpec)
 		_spec.SetField(specdocument.FieldOrganization, field.TypeString, value)
 		_node.Organization = value
 	}
-	if value, ok := _c.mutation.RepositoryID(); ok {
-		_spec.SetField(specdocument.FieldRepositoryID, field.TypeString, value)
-		_node.RepositoryID = value
-	}
-	if value, ok := _c.mutation.InitiativeID(); ok {
-		_spec.SetField(specdocument.FieldInitiativeID, field.TypeString, value)
-		_node.InitiativeID = value
-	}
 	if value, ok := _c.mutation.SpecType(); ok {
 		_spec.SetField(specdocument.FieldSpecType, field.TypeString, value)
 		_node.SpecType = value
@@ -262,6 +269,40 @@ func (_c *SpecDocumentCreate) createSpec() (*SpecDocument, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.UpdatedAt(); ok {
 		_spec.SetField(specdocument.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if nodes := _c.mutation.InitiativeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.InitiativeTable,
+			Columns: []string{specdocument.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.InitiativeID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.RepositoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.RepositoryTable,
+			Columns: []string{specdocument.RepositoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.RepositoryID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

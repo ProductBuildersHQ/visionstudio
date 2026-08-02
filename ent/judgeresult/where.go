@@ -488,6 +488,29 @@ func HasRubricWith(preds ...predicate.JudgeRubric) predicate.JudgeResult {
 	})
 }
 
+// HasInitiative applies the HasEdge predicate on the "initiative" edge.
+func HasInitiative() predicate.JudgeResult {
+	return predicate.JudgeResult(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, InitiativeTable, InitiativeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasInitiativeWith applies the HasEdge predicate on the "initiative" edge with a given conditions (other predicates).
+func HasInitiativeWith(preds ...predicate.Initiative) predicate.JudgeResult {
+	return predicate.JudgeResult(func(s *sql.Selector) {
+		step := newInitiativeStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.JudgeResult) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.AndPredicates(predicates...))

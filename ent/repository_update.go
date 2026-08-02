@@ -13,6 +13,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
 // RepositoryUpdate is the builder for updating Repository entities.
@@ -179,6 +180,21 @@ func (_u *RepositoryUpdate) AddRoadmapItems(v ...*RoadmapItem) *RepositoryUpdate
 	return _u.AddRoadmapItemIDs(ids...)
 }
 
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_u *RepositoryUpdate) AddSpecDocumentIDs(ids ...string) *RepositoryUpdate {
+	_u.mutation.AddSpecDocumentIDs(ids...)
+	return _u
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_u *RepositoryUpdate) AddSpecDocuments(v ...*SpecDocument) *RepositoryUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpecDocumentIDs(ids...)
+}
+
 // Mutation returns the RepositoryMutation object of the builder.
 func (_u *RepositoryUpdate) Mutation() *RepositoryMutation {
 	return _u.mutation
@@ -203,6 +219,27 @@ func (_u *RepositoryUpdate) RemoveRoadmapItems(v ...*RoadmapItem) *RepositoryUpd
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRoadmapItemIDs(ids...)
+}
+
+// ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
+func (_u *RepositoryUpdate) ClearSpecDocuments() *RepositoryUpdate {
+	_u.mutation.ClearSpecDocuments()
+	return _u
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to SpecDocument entities by IDs.
+func (_u *RepositoryUpdate) RemoveSpecDocumentIDs(ids ...string) *RepositoryUpdate {
+	_u.mutation.RemoveSpecDocumentIDs(ids...)
+	return _u
+}
+
+// RemoveSpecDocuments removes "spec_documents" edges to SpecDocument entities.
+func (_u *RepositoryUpdate) RemoveSpecDocuments(v ...*SpecDocument) *RepositoryUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpecDocumentIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -363,6 +400,51 @@ func (_u *RepositoryUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(roadmapitem.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpecDocumentsIDs(); len(nodes) > 0 && !_u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -541,6 +623,21 @@ func (_u *RepositoryUpdateOne) AddRoadmapItems(v ...*RoadmapItem) *RepositoryUpd
 	return _u.AddRoadmapItemIDs(ids...)
 }
 
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_u *RepositoryUpdateOne) AddSpecDocumentIDs(ids ...string) *RepositoryUpdateOne {
+	_u.mutation.AddSpecDocumentIDs(ids...)
+	return _u
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_u *RepositoryUpdateOne) AddSpecDocuments(v ...*SpecDocument) *RepositoryUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpecDocumentIDs(ids...)
+}
+
 // Mutation returns the RepositoryMutation object of the builder.
 func (_u *RepositoryUpdateOne) Mutation() *RepositoryMutation {
 	return _u.mutation
@@ -565,6 +662,27 @@ func (_u *RepositoryUpdateOne) RemoveRoadmapItems(v ...*RoadmapItem) *Repository
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRoadmapItemIDs(ids...)
+}
+
+// ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
+func (_u *RepositoryUpdateOne) ClearSpecDocuments() *RepositoryUpdateOne {
+	_u.mutation.ClearSpecDocuments()
+	return _u
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to SpecDocument entities by IDs.
+func (_u *RepositoryUpdateOne) RemoveSpecDocumentIDs(ids ...string) *RepositoryUpdateOne {
+	_u.mutation.RemoveSpecDocumentIDs(ids...)
+	return _u
+}
+
+// RemoveSpecDocuments removes "spec_documents" edges to SpecDocument entities.
+func (_u *RepositoryUpdateOne) RemoveSpecDocuments(v ...*SpecDocument) *RepositoryUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpecDocumentIDs(ids...)
 }
 
 // Where appends a list predicates to the RepositoryUpdate builder.
@@ -755,6 +873,51 @@ func (_u *RepositoryUpdateOne) sqlSave(ctx context.Context) (_node *Repository, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(roadmapitem.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpecDocumentsIDs(); len(nodes) > 0 && !_u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

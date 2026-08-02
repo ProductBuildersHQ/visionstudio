@@ -3323,39 +3323,45 @@ func (m *DevXPeriodReportMutation) ResetEdge(name string) error {
 // InitiativeMutation represents an operation that mutates the Initiative nodes in the graph.
 type InitiativeMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *string
-	organization         *string
-	title                *string
-	description          *string
-	status               *string
-	init_type            *string
-	priority             *string
-	home_repo            *string
-	workspace            *string
-	specs                *map[string]string
-	created_at           *time.Time
-	planned_at           *time.Time
-	executing_at         *time.Time
-	delivery_complete_at *time.Time
-	released_at          *time.Time
-	closed_at            *time.Time
-	updated_at           *time.Time
-	clearedFields        map[string]struct{}
-	phases               map[string]struct{}
-	removedphases        map[string]struct{}
-	clearedphases        bool
-	roadmap_items        map[string]struct{}
-	removedroadmap_items map[string]struct{}
-	clearedroadmap_items bool
-	program              *string
-	clearedprogram       bool
-	workflow             *string
-	clearedworkflow      bool
-	done                 bool
-	oldValue             func(context.Context) (*Initiative, error)
-	predicates           []predicate.Initiative
+	op                    Op
+	typ                   string
+	id                    *string
+	organization          *string
+	title                 *string
+	description           *string
+	status                *string
+	init_type             *string
+	priority              *string
+	home_repo             *string
+	workspace             *string
+	specs                 *map[string]string
+	created_at            *time.Time
+	planned_at            *time.Time
+	executing_at          *time.Time
+	delivery_complete_at  *time.Time
+	released_at           *time.Time
+	closed_at             *time.Time
+	updated_at            *time.Time
+	clearedFields         map[string]struct{}
+	phases                map[string]struct{}
+	removedphases         map[string]struct{}
+	clearedphases         bool
+	roadmap_items         map[string]struct{}
+	removedroadmap_items  map[string]struct{}
+	clearedroadmap_items  bool
+	judge_results         map[string]struct{}
+	removedjudge_results  map[string]struct{}
+	clearedjudge_results  bool
+	spec_documents        map[string]struct{}
+	removedspec_documents map[string]struct{}
+	clearedspec_documents bool
+	program               *string
+	clearedprogram        bool
+	workflow              *string
+	clearedworkflow       bool
+	done                  bool
+	oldValue              func(context.Context) (*Initiative, error)
+	predicates            []predicate.Initiative
 }
 
 var _ ent.Mutation = (*InitiativeMutation)(nil)
@@ -4276,6 +4282,114 @@ func (m *InitiativeMutation) ResetRoadmapItems() {
 	m.removedroadmap_items = nil
 }
 
+// AddJudgeResultIDs adds the "judge_results" edge to the JudgeResult entity by ids.
+func (m *InitiativeMutation) AddJudgeResultIDs(ids ...string) {
+	if m.judge_results == nil {
+		m.judge_results = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.judge_results[ids[i]] = struct{}{}
+	}
+}
+
+// ClearJudgeResults clears the "judge_results" edge to the JudgeResult entity.
+func (m *InitiativeMutation) ClearJudgeResults() {
+	m.clearedjudge_results = true
+}
+
+// JudgeResultsCleared reports if the "judge_results" edge to the JudgeResult entity was cleared.
+func (m *InitiativeMutation) JudgeResultsCleared() bool {
+	return m.clearedjudge_results
+}
+
+// RemoveJudgeResultIDs removes the "judge_results" edge to the JudgeResult entity by IDs.
+func (m *InitiativeMutation) RemoveJudgeResultIDs(ids ...string) {
+	if m.removedjudge_results == nil {
+		m.removedjudge_results = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.judge_results, ids[i])
+		m.removedjudge_results[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedJudgeResults returns the removed IDs of the "judge_results" edge to the JudgeResult entity.
+func (m *InitiativeMutation) RemovedJudgeResultsIDs() (ids []string) {
+	for id := range m.removedjudge_results {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// JudgeResultsIDs returns the "judge_results" edge IDs in the mutation.
+func (m *InitiativeMutation) JudgeResultsIDs() (ids []string) {
+	for id := range m.judge_results {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetJudgeResults resets all changes to the "judge_results" edge.
+func (m *InitiativeMutation) ResetJudgeResults() {
+	m.judge_results = nil
+	m.clearedjudge_results = false
+	m.removedjudge_results = nil
+}
+
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by ids.
+func (m *InitiativeMutation) AddSpecDocumentIDs(ids ...string) {
+	if m.spec_documents == nil {
+		m.spec_documents = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.spec_documents[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSpecDocuments clears the "spec_documents" edge to the SpecDocument entity.
+func (m *InitiativeMutation) ClearSpecDocuments() {
+	m.clearedspec_documents = true
+}
+
+// SpecDocumentsCleared reports if the "spec_documents" edge to the SpecDocument entity was cleared.
+func (m *InitiativeMutation) SpecDocumentsCleared() bool {
+	return m.clearedspec_documents
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to the SpecDocument entity by IDs.
+func (m *InitiativeMutation) RemoveSpecDocumentIDs(ids ...string) {
+	if m.removedspec_documents == nil {
+		m.removedspec_documents = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.spec_documents, ids[i])
+		m.removedspec_documents[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSpecDocuments returns the removed IDs of the "spec_documents" edge to the SpecDocument entity.
+func (m *InitiativeMutation) RemovedSpecDocumentsIDs() (ids []string) {
+	for id := range m.removedspec_documents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SpecDocumentsIDs returns the "spec_documents" edge IDs in the mutation.
+func (m *InitiativeMutation) SpecDocumentsIDs() (ids []string) {
+	for id := range m.spec_documents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSpecDocuments resets all changes to the "spec_documents" edge.
+func (m *InitiativeMutation) ResetSpecDocuments() {
+	m.spec_documents = nil
+	m.clearedspec_documents = false
+	m.removedspec_documents = nil
+}
+
 // SetProgramID sets the "program" edge to the Program entity by id.
 func (m *InitiativeMutation) SetProgramID(id string) {
 	m.program = &id
@@ -4805,12 +4919,18 @@ func (m *InitiativeMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *InitiativeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 6)
 	if m.phases != nil {
 		edges = append(edges, initiative.EdgePhases)
 	}
 	if m.roadmap_items != nil {
 		edges = append(edges, initiative.EdgeRoadmapItems)
+	}
+	if m.judge_results != nil {
+		edges = append(edges, initiative.EdgeJudgeResults)
+	}
+	if m.spec_documents != nil {
+		edges = append(edges, initiative.EdgeSpecDocuments)
 	}
 	if m.program != nil {
 		edges = append(edges, initiative.EdgeProgram)
@@ -4837,6 +4957,18 @@ func (m *InitiativeMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case initiative.EdgeJudgeResults:
+		ids := make([]ent.Value, 0, len(m.judge_results))
+		for id := range m.judge_results {
+			ids = append(ids, id)
+		}
+		return ids
+	case initiative.EdgeSpecDocuments:
+		ids := make([]ent.Value, 0, len(m.spec_documents))
+		for id := range m.spec_documents {
+			ids = append(ids, id)
+		}
+		return ids
 	case initiative.EdgeProgram:
 		if id := m.program; id != nil {
 			return []ent.Value{*id}
@@ -4851,12 +4983,18 @@ func (m *InitiativeMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *InitiativeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 6)
 	if m.removedphases != nil {
 		edges = append(edges, initiative.EdgePhases)
 	}
 	if m.removedroadmap_items != nil {
 		edges = append(edges, initiative.EdgeRoadmapItems)
+	}
+	if m.removedjudge_results != nil {
+		edges = append(edges, initiative.EdgeJudgeResults)
+	}
+	if m.removedspec_documents != nil {
+		edges = append(edges, initiative.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -4877,18 +5015,36 @@ func (m *InitiativeMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case initiative.EdgeJudgeResults:
+		ids := make([]ent.Value, 0, len(m.removedjudge_results))
+		for id := range m.removedjudge_results {
+			ids = append(ids, id)
+		}
+		return ids
+	case initiative.EdgeSpecDocuments:
+		ids := make([]ent.Value, 0, len(m.removedspec_documents))
+		for id := range m.removedspec_documents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *InitiativeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 4)
+	edges := make([]string, 0, 6)
 	if m.clearedphases {
 		edges = append(edges, initiative.EdgePhases)
 	}
 	if m.clearedroadmap_items {
 		edges = append(edges, initiative.EdgeRoadmapItems)
+	}
+	if m.clearedjudge_results {
+		edges = append(edges, initiative.EdgeJudgeResults)
+	}
+	if m.clearedspec_documents {
+		edges = append(edges, initiative.EdgeSpecDocuments)
 	}
 	if m.clearedprogram {
 		edges = append(edges, initiative.EdgeProgram)
@@ -4907,6 +5063,10 @@ func (m *InitiativeMutation) EdgeCleared(name string) bool {
 		return m.clearedphases
 	case initiative.EdgeRoadmapItems:
 		return m.clearedroadmap_items
+	case initiative.EdgeJudgeResults:
+		return m.clearedjudge_results
+	case initiative.EdgeSpecDocuments:
+		return m.clearedspec_documents
 	case initiative.EdgeProgram:
 		return m.clearedprogram
 	case initiative.EdgeWorkflow:
@@ -4938,6 +5098,12 @@ func (m *InitiativeMutation) ResetEdge(name string) error {
 		return nil
 	case initiative.EdgeRoadmapItems:
 		m.ResetRoadmapItems()
+		return nil
+	case initiative.EdgeJudgeResults:
+		m.ResetJudgeResults()
+		return nil
+	case initiative.EdgeSpecDocuments:
+		m.ResetSpecDocuments()
 		return nil
 	case initiative.EdgeProgram:
 		m.ResetProgram()
@@ -5386,22 +5552,23 @@ func (m *InitiativeDependencyMutation) ResetEdge(name string) error {
 // JudgeResultMutation represents an operation that mutates the JudgeResult nodes in the graph.
 type JudgeResultMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *string
-	initiative_id *string
-	spec_path     *string
-	score         *float64
-	addscore      *float64
-	rationale     *string
-	model         *string
-	evaluated_at  *time.Time
-	clearedFields map[string]struct{}
-	rubric        *string
-	clearedrubric bool
-	done          bool
-	oldValue      func(context.Context) (*JudgeResult, error)
-	predicates    []predicate.JudgeResult
+	op                Op
+	typ               string
+	id                *string
+	spec_path         *string
+	score             *float64
+	addscore          *float64
+	rationale         *string
+	model             *string
+	evaluated_at      *time.Time
+	clearedFields     map[string]struct{}
+	rubric            *string
+	clearedrubric     bool
+	initiative        *string
+	clearedinitiative bool
+	done              bool
+	oldValue          func(context.Context) (*JudgeResult, error)
+	predicates        []predicate.JudgeResult
 }
 
 var _ ent.Mutation = (*JudgeResultMutation)(nil)
@@ -5510,12 +5677,12 @@ func (m *JudgeResultMutation) IDs(ctx context.Context) ([]string, error) {
 
 // SetInitiativeID sets the "initiative_id" field.
 func (m *JudgeResultMutation) SetInitiativeID(s string) {
-	m.initiative_id = &s
+	m.initiative = &s
 }
 
 // InitiativeID returns the value of the "initiative_id" field in the mutation.
 func (m *JudgeResultMutation) InitiativeID() (r string, exists bool) {
-	v := m.initiative_id
+	v := m.initiative
 	if v == nil {
 		return
 	}
@@ -5541,7 +5708,7 @@ func (m *JudgeResultMutation) OldInitiativeID(ctx context.Context) (v string, er
 
 // ResetInitiativeID resets all changes to the "initiative_id" field.
 func (m *JudgeResultMutation) ResetInitiativeID() {
-	m.initiative_id = nil
+	m.initiative = nil
 }
 
 // SetSpecPath sets the "spec_path" field.
@@ -5823,6 +5990,33 @@ func (m *JudgeResultMutation) ResetRubric() {
 	m.clearedrubric = false
 }
 
+// ClearInitiative clears the "initiative" edge to the Initiative entity.
+func (m *JudgeResultMutation) ClearInitiative() {
+	m.clearedinitiative = true
+	m.clearedFields[judgeresult.FieldInitiativeID] = struct{}{}
+}
+
+// InitiativeCleared reports if the "initiative" edge to the Initiative entity was cleared.
+func (m *JudgeResultMutation) InitiativeCleared() bool {
+	return m.clearedinitiative
+}
+
+// InitiativeIDs returns the "initiative" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// InitiativeID instead. It exists only for internal usage by the builders.
+func (m *JudgeResultMutation) InitiativeIDs() (ids []string) {
+	if id := m.initiative; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetInitiative resets all changes to the "initiative" edge.
+func (m *JudgeResultMutation) ResetInitiative() {
+	m.initiative = nil
+	m.clearedinitiative = false
+}
+
 // Where appends a list predicates to the JudgeResultMutation builder.
 func (m *JudgeResultMutation) Where(ps ...predicate.JudgeResult) {
 	m.predicates = append(m.predicates, ps...)
@@ -5858,7 +6052,7 @@ func (m *JudgeResultMutation) Type() string {
 // AddedFields().
 func (m *JudgeResultMutation) Fields() []string {
 	fields := make([]string, 0, 6)
-	if m.initiative_id != nil {
+	if m.initiative != nil {
 		fields = append(fields, judgeresult.FieldInitiativeID)
 	}
 	if m.spec_path != nil {
@@ -6077,9 +6271,12 @@ func (m *JudgeResultMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *JudgeResultMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.rubric != nil {
 		edges = append(edges, judgeresult.EdgeRubric)
+	}
+	if m.initiative != nil {
+		edges = append(edges, judgeresult.EdgeInitiative)
 	}
 	return edges
 }
@@ -6092,13 +6289,17 @@ func (m *JudgeResultMutation) AddedIDs(name string) []ent.Value {
 		if id := m.rubric; id != nil {
 			return []ent.Value{*id}
 		}
+	case judgeresult.EdgeInitiative:
+		if id := m.initiative; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *JudgeResultMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -6110,9 +6311,12 @@ func (m *JudgeResultMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *JudgeResultMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedrubric {
 		edges = append(edges, judgeresult.EdgeRubric)
+	}
+	if m.clearedinitiative {
+		edges = append(edges, judgeresult.EdgeInitiative)
 	}
 	return edges
 }
@@ -6123,6 +6327,8 @@ func (m *JudgeResultMutation) EdgeCleared(name string) bool {
 	switch name {
 	case judgeresult.EdgeRubric:
 		return m.clearedrubric
+	case judgeresult.EdgeInitiative:
+		return m.clearedinitiative
 	}
 	return false
 }
@@ -6134,6 +6340,9 @@ func (m *JudgeResultMutation) ClearEdge(name string) error {
 	case judgeresult.EdgeRubric:
 		m.ClearRubric()
 		return nil
+	case judgeresult.EdgeInitiative:
+		m.ClearInitiative()
+		return nil
 	}
 	return fmt.Errorf("unknown JudgeResult unique edge %s", name)
 }
@@ -6144,6 +6353,9 @@ func (m *JudgeResultMutation) ResetEdge(name string) error {
 	switch name {
 	case judgeresult.EdgeRubric:
 		m.ResetRubric()
+		return nil
+	case judgeresult.EdgeInitiative:
+		m.ResetInitiative()
 		return nil
 	}
 	return fmt.Errorf("unknown JudgeResult edge %s", name)
@@ -12082,24 +12294,27 @@ func (m *RMIDependencyMutation) ResetEdge(name string) error {
 // RepositoryMutation represents an operation that mutates the Repository nodes in the graph.
 type RepositoryMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *string
-	organization         *string
-	repository_name      *string
-	default_branch       *string
-	local_path           *string
-	go_module            *string
-	domain               *string
-	status               *string
-	ingest_high_water    *string
-	clearedFields        map[string]struct{}
-	roadmap_items        map[string]struct{}
-	removedroadmap_items map[string]struct{}
-	clearedroadmap_items bool
-	done                 bool
-	oldValue             func(context.Context) (*Repository, error)
-	predicates           []predicate.Repository
+	op                    Op
+	typ                   string
+	id                    *string
+	organization          *string
+	repository_name       *string
+	default_branch        *string
+	local_path            *string
+	go_module             *string
+	domain                *string
+	status                *string
+	ingest_high_water     *string
+	clearedFields         map[string]struct{}
+	roadmap_items         map[string]struct{}
+	removedroadmap_items  map[string]struct{}
+	clearedroadmap_items  bool
+	spec_documents        map[string]struct{}
+	removedspec_documents map[string]struct{}
+	clearedspec_documents bool
+	done                  bool
+	oldValue              func(context.Context) (*Repository, error)
+	predicates            []predicate.Repository
 }
 
 var _ ent.Mutation = (*RepositoryMutation)(nil)
@@ -12600,6 +12815,60 @@ func (m *RepositoryMutation) ResetRoadmapItems() {
 	m.removedroadmap_items = nil
 }
 
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by ids.
+func (m *RepositoryMutation) AddSpecDocumentIDs(ids ...string) {
+	if m.spec_documents == nil {
+		m.spec_documents = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.spec_documents[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSpecDocuments clears the "spec_documents" edge to the SpecDocument entity.
+func (m *RepositoryMutation) ClearSpecDocuments() {
+	m.clearedspec_documents = true
+}
+
+// SpecDocumentsCleared reports if the "spec_documents" edge to the SpecDocument entity was cleared.
+func (m *RepositoryMutation) SpecDocumentsCleared() bool {
+	return m.clearedspec_documents
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to the SpecDocument entity by IDs.
+func (m *RepositoryMutation) RemoveSpecDocumentIDs(ids ...string) {
+	if m.removedspec_documents == nil {
+		m.removedspec_documents = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.spec_documents, ids[i])
+		m.removedspec_documents[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSpecDocuments returns the removed IDs of the "spec_documents" edge to the SpecDocument entity.
+func (m *RepositoryMutation) RemovedSpecDocumentsIDs() (ids []string) {
+	for id := range m.removedspec_documents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SpecDocumentsIDs returns the "spec_documents" edge IDs in the mutation.
+func (m *RepositoryMutation) SpecDocumentsIDs() (ids []string) {
+	for id := range m.spec_documents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSpecDocuments resets all changes to the "spec_documents" edge.
+func (m *RepositoryMutation) ResetSpecDocuments() {
+	m.spec_documents = nil
+	m.clearedspec_documents = false
+	m.removedspec_documents = nil
+}
+
 // Where appends a list predicates to the RepositoryMutation builder.
 func (m *RepositoryMutation) Where(ps ...predicate.Repository) {
 	m.predicates = append(m.predicates, ps...)
@@ -12879,9 +13148,12 @@ func (m *RepositoryMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RepositoryMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.roadmap_items != nil {
 		edges = append(edges, repository.EdgeRoadmapItems)
+	}
+	if m.spec_documents != nil {
+		edges = append(edges, repository.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -12896,15 +13168,24 @@ func (m *RepositoryMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case repository.EdgeSpecDocuments:
+		ids := make([]ent.Value, 0, len(m.spec_documents))
+		for id := range m.spec_documents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RepositoryMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedroadmap_items != nil {
 		edges = append(edges, repository.EdgeRoadmapItems)
+	}
+	if m.removedspec_documents != nil {
+		edges = append(edges, repository.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -12919,15 +13200,24 @@ func (m *RepositoryMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case repository.EdgeSpecDocuments:
+		ids := make([]ent.Value, 0, len(m.removedspec_documents))
+		for id := range m.removedspec_documents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RepositoryMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedroadmap_items {
 		edges = append(edges, repository.EdgeRoadmapItems)
+	}
+	if m.clearedspec_documents {
+		edges = append(edges, repository.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -12938,6 +13228,8 @@ func (m *RepositoryMutation) EdgeCleared(name string) bool {
 	switch name {
 	case repository.EdgeRoadmapItems:
 		return m.clearedroadmap_items
+	case repository.EdgeSpecDocuments:
+		return m.clearedspec_documents
 	}
 	return false
 }
@@ -12956,6 +13248,9 @@ func (m *RepositoryMutation) ResetEdge(name string) error {
 	switch name {
 	case repository.EdgeRoadmapItems:
 		m.ResetRoadmapItems()
+		return nil
+	case repository.EdgeSpecDocuments:
+		m.ResetSpecDocuments()
 		return nil
 	}
 	return fmt.Errorf("unknown Repository edge %s", name)
@@ -14775,24 +15070,26 @@ func (m *RoadmapItemMutation) ResetEdge(name string) error {
 // SpecDocumentMutation represents an operation that mutates the SpecDocument nodes in the graph.
 type SpecDocumentMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *string
-	organization  *string
-	repository_id *string
-	initiative_id *string
-	spec_type     *string
-	file_path     *string
-	title         *string
-	status        *string
-	content_hash  *string
-	synced_at     *time.Time
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*SpecDocument, error)
-	predicates    []predicate.SpecDocument
+	op                Op
+	typ               string
+	id                *string
+	organization      *string
+	spec_type         *string
+	file_path         *string
+	title             *string
+	status            *string
+	content_hash      *string
+	synced_at         *time.Time
+	created_at        *time.Time
+	updated_at        *time.Time
+	clearedFields     map[string]struct{}
+	initiative        *string
+	clearedinitiative bool
+	repository        *string
+	clearedrepository bool
+	done              bool
+	oldValue          func(context.Context) (*SpecDocument, error)
+	predicates        []predicate.SpecDocument
 }
 
 var _ ent.Mutation = (*SpecDocumentMutation)(nil)
@@ -14950,12 +15247,12 @@ func (m *SpecDocumentMutation) ResetOrganization() {
 
 // SetRepositoryID sets the "repository_id" field.
 func (m *SpecDocumentMutation) SetRepositoryID(s string) {
-	m.repository_id = &s
+	m.repository = &s
 }
 
 // RepositoryID returns the value of the "repository_id" field in the mutation.
 func (m *SpecDocumentMutation) RepositoryID() (r string, exists bool) {
-	v := m.repository_id
+	v := m.repository
 	if v == nil {
 		return
 	}
@@ -14981,17 +15278,17 @@ func (m *SpecDocumentMutation) OldRepositoryID(ctx context.Context) (v string, e
 
 // ResetRepositoryID resets all changes to the "repository_id" field.
 func (m *SpecDocumentMutation) ResetRepositoryID() {
-	m.repository_id = nil
+	m.repository = nil
 }
 
 // SetInitiativeID sets the "initiative_id" field.
 func (m *SpecDocumentMutation) SetInitiativeID(s string) {
-	m.initiative_id = &s
+	m.initiative = &s
 }
 
 // InitiativeID returns the value of the "initiative_id" field in the mutation.
 func (m *SpecDocumentMutation) InitiativeID() (r string, exists bool) {
-	v := m.initiative_id
+	v := m.initiative
 	if v == nil {
 		return
 	}
@@ -15017,7 +15314,7 @@ func (m *SpecDocumentMutation) OldInitiativeID(ctx context.Context) (v string, e
 
 // ClearInitiativeID clears the value of the "initiative_id" field.
 func (m *SpecDocumentMutation) ClearInitiativeID() {
-	m.initiative_id = nil
+	m.initiative = nil
 	m.clearedFields[specdocument.FieldInitiativeID] = struct{}{}
 }
 
@@ -15029,7 +15326,7 @@ func (m *SpecDocumentMutation) InitiativeIDCleared() bool {
 
 // ResetInitiativeID resets all changes to the "initiative_id" field.
 func (m *SpecDocumentMutation) ResetInitiativeID() {
-	m.initiative_id = nil
+	m.initiative = nil
 	delete(m.clearedFields, specdocument.FieldInitiativeID)
 }
 
@@ -15360,6 +15657,60 @@ func (m *SpecDocumentMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// ClearInitiative clears the "initiative" edge to the Initiative entity.
+func (m *SpecDocumentMutation) ClearInitiative() {
+	m.clearedinitiative = true
+	m.clearedFields[specdocument.FieldInitiativeID] = struct{}{}
+}
+
+// InitiativeCleared reports if the "initiative" edge to the Initiative entity was cleared.
+func (m *SpecDocumentMutation) InitiativeCleared() bool {
+	return m.InitiativeIDCleared() || m.clearedinitiative
+}
+
+// InitiativeIDs returns the "initiative" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// InitiativeID instead. It exists only for internal usage by the builders.
+func (m *SpecDocumentMutation) InitiativeIDs() (ids []string) {
+	if id := m.initiative; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetInitiative resets all changes to the "initiative" edge.
+func (m *SpecDocumentMutation) ResetInitiative() {
+	m.initiative = nil
+	m.clearedinitiative = false
+}
+
+// ClearRepository clears the "repository" edge to the Repository entity.
+func (m *SpecDocumentMutation) ClearRepository() {
+	m.clearedrepository = true
+	m.clearedFields[specdocument.FieldRepositoryID] = struct{}{}
+}
+
+// RepositoryCleared reports if the "repository" edge to the Repository entity was cleared.
+func (m *SpecDocumentMutation) RepositoryCleared() bool {
+	return m.clearedrepository
+}
+
+// RepositoryIDs returns the "repository" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RepositoryID instead. It exists only for internal usage by the builders.
+func (m *SpecDocumentMutation) RepositoryIDs() (ids []string) {
+	if id := m.repository; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRepository resets all changes to the "repository" edge.
+func (m *SpecDocumentMutation) ResetRepository() {
+	m.repository = nil
+	m.clearedrepository = false
+}
+
 // Where appends a list predicates to the SpecDocumentMutation builder.
 func (m *SpecDocumentMutation) Where(ps ...predicate.SpecDocument) {
 	m.predicates = append(m.predicates, ps...)
@@ -15398,10 +15749,10 @@ func (m *SpecDocumentMutation) Fields() []string {
 	if m.organization != nil {
 		fields = append(fields, specdocument.FieldOrganization)
 	}
-	if m.repository_id != nil {
+	if m.repository != nil {
 		fields = append(fields, specdocument.FieldRepositoryID)
 	}
-	if m.initiative_id != nil {
+	if m.initiative != nil {
 		fields = append(fields, specdocument.FieldInitiativeID)
 	}
 	if m.spec_type != nil {
@@ -15696,19 +16047,35 @@ func (m *SpecDocumentMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SpecDocumentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.initiative != nil {
+		edges = append(edges, specdocument.EdgeInitiative)
+	}
+	if m.repository != nil {
+		edges = append(edges, specdocument.EdgeRepository)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *SpecDocumentMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case specdocument.EdgeInitiative:
+		if id := m.initiative; id != nil {
+			return []ent.Value{*id}
+		}
+	case specdocument.EdgeRepository:
+		if id := m.repository; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SpecDocumentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -15720,25 +16087,53 @@ func (m *SpecDocumentMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SpecDocumentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 2)
+	if m.clearedinitiative {
+		edges = append(edges, specdocument.EdgeInitiative)
+	}
+	if m.clearedrepository {
+		edges = append(edges, specdocument.EdgeRepository)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *SpecDocumentMutation) EdgeCleared(name string) bool {
+	switch name {
+	case specdocument.EdgeInitiative:
+		return m.clearedinitiative
+	case specdocument.EdgeRepository:
+		return m.clearedrepository
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *SpecDocumentMutation) ClearEdge(name string) error {
+	switch name {
+	case specdocument.EdgeInitiative:
+		m.ClearInitiative()
+		return nil
+	case specdocument.EdgeRepository:
+		m.ClearRepository()
+		return nil
+	}
 	return fmt.Errorf("unknown SpecDocument unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *SpecDocumentMutation) ResetEdge(name string) error {
+	switch name {
+	case specdocument.EdgeInitiative:
+		m.ResetInitiative()
+		return nil
+	case specdocument.EdgeRepository:
+		m.ResetRepository()
+		return nil
+	}
 	return fmt.Errorf("unknown SpecDocument edge %s", name)
 }
 

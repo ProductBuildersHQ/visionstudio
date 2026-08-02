@@ -35,8 +35,13 @@ func (Initiative) Fields() []ent.Field {
 
 func (Initiative) Edges() []ent.Edge {
 	return []ent.Edge{
+		// Execution edges
 		edge.To("phases", Phase.Type),
 		edge.To("roadmap_items", RoadmapItem.Type),
+		// Definition edges
+		edge.To("judge_results", JudgeResult.Type),
+		edge.To("spec_documents", SpecDocument.Type),
+		// Container edges
 		edge.From("program", Program.Type).Ref("initiatives").Unique(),
 		edge.From("workflow", SpecWorkflow.Type).Ref("initiatives").Unique(),
 	}

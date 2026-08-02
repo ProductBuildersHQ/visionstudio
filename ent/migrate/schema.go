@@ -160,12 +160,12 @@ var (
 	// JudgeResultsColumns holds the columns for the "judge_results" table.
 	JudgeResultsColumns = []*schema.Column{
 		{Name: "result_id", Type: field.TypeString, Size: 64},
-		{Name: "initiative_id", Type: field.TypeString, Size: 64},
 		{Name: "spec_path", Type: field.TypeString, Size: 512},
 		{Name: "score", Type: field.TypeFloat64, Nullable: true},
 		{Name: "rationale", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "model", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "evaluated_at", Type: field.TypeTime},
+		{Name: "initiative_id", Type: field.TypeString, Size: 64},
 		{Name: "judge_rubric_results", Type: field.TypeString, Nullable: true, Size: 64},
 	}
 	// JudgeResultsTable holds the schema information for the "judge_results" table.
@@ -174,6 +174,12 @@ var (
 		Columns:    JudgeResultsColumns,
 		PrimaryKey: []*schema.Column{JudgeResultsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "judge_results_initiatives_judge_results",
+				Columns:    []*schema.Column{JudgeResultsColumns[6]},
+				RefColumns: []*schema.Column{InitiativesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
 			{
 				Symbol:     "judge_results_judge_rubrics_results",
 				Columns:    []*schema.Column{JudgeResultsColumns[7]},
@@ -430,8 +436,6 @@ var (
 	SpecDocumentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
 		{Name: "organization", Type: field.TypeString, Nullable: true},
-		{Name: "repository_id", Type: field.TypeString},
-		{Name: "initiative_id", Type: field.TypeString, Nullable: true},
 		{Name: "spec_type", Type: field.TypeString},
 		{Name: "file_path", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString, Nullable: true},
@@ -440,12 +444,28 @@ var (
 		{Name: "synced_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "initiative_id", Type: field.TypeString, Nullable: true, Size: 64},
+		{Name: "repository_id", Type: field.TypeString, Size: 128},
 	}
 	// SpecDocumentsTable holds the schema information for the "spec_documents" table.
 	SpecDocumentsTable = &schema.Table{
 		Name:       "spec_documents",
 		Columns:    SpecDocumentsColumns,
 		PrimaryKey: []*schema.Column{SpecDocumentsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "spec_documents_initiatives_spec_documents",
+				Columns:    []*schema.Column{SpecDocumentsColumns[10]},
+				RefColumns: []*schema.Column{InitiativesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "spec_documents_repositories_spec_documents",
+				Columns:    []*schema.Column{SpecDocumentsColumns[11]},
+				RefColumns: []*schema.Column{RepositoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// SpecWorkflowsColumns holds the columns for the "spec_workflows" table.
 	SpecWorkflowsColumns = []*schema.Column{
@@ -492,11 +512,14 @@ func init() {
 	DeliveryEvidencesTable.ForeignKeys[0].RefTable = RoadmapItemsTable
 	InitiativesTable.ForeignKeys[0].RefTable = ProgramsTable
 	InitiativesTable.ForeignKeys[1].RefTable = SpecWorkflowsTable
-	JudgeResultsTable.ForeignKeys[0].RefTable = JudgeRubricsTable
+	JudgeResultsTable.ForeignKeys[0].RefTable = InitiativesTable
+	JudgeResultsTable.ForeignKeys[1].RefTable = JudgeRubricsTable
 	JudgeRubricsTable.ForeignKeys[0].RefTable = SpecWorkflowsTable
 	MaturityAssessmentsTable.ForeignKeys[0].RefTable = CapabilityModelsTable
 	PhasesTable.ForeignKeys[0].RefTable = InitiativesTable
 	RoadmapItemsTable.ForeignKeys[0].RefTable = InitiativesTable
 	RoadmapItemsTable.ForeignKeys[1].RefTable = PhasesTable
 	RoadmapItemsTable.ForeignKeys[2].RefTable = RepositoriesTable
+	SpecDocumentsTable.ForeignKeys[0].RefTable = InitiativesTable
+	SpecDocumentsTable.ForeignKeys[1].RefTable = RepositoriesTable
 }

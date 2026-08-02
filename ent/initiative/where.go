@@ -1086,6 +1086,52 @@ func HasRoadmapItemsWith(preds ...predicate.RoadmapItem) predicate.Initiative {
 	})
 }
 
+// HasJudgeResults applies the HasEdge predicate on the "judge_results" edge.
+func HasJudgeResults() predicate.Initiative {
+	return predicate.Initiative(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, JudgeResultsTable, JudgeResultsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasJudgeResultsWith applies the HasEdge predicate on the "judge_results" edge with a given conditions (other predicates).
+func HasJudgeResultsWith(preds ...predicate.JudgeResult) predicate.Initiative {
+	return predicate.Initiative(func(s *sql.Selector) {
+		step := newJudgeResultsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasSpecDocuments applies the HasEdge predicate on the "spec_documents" edge.
+func HasSpecDocuments() predicate.Initiative {
+	return predicate.Initiative(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SpecDocumentsTable, SpecDocumentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSpecDocumentsWith applies the HasEdge predicate on the "spec_documents" edge with a given conditions (other predicates).
+func HasSpecDocumentsWith(preds ...predicate.SpecDocument) predicate.Initiative {
+	return predicate.Initiative(func(s *sql.Selector) {
+		step := newSpecDocumentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasProgram applies the HasEdge predicate on the "program" edge.
 func HasProgram() predicate.Initiative {
 	return predicate.Initiative(func(s *sql.Selector) {

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
@@ -157,6 +158,11 @@ func (_u *JudgeResultUpdate) SetRubric(v *JudgeRubric) *JudgeResultUpdate {
 	return _u.SetRubricID(v.ID)
 }
 
+// SetInitiative sets the "initiative" edge to the Initiative entity.
+func (_u *JudgeResultUpdate) SetInitiative(v *Initiative) *JudgeResultUpdate {
+	return _u.SetInitiativeID(v.ID)
+}
+
 // Mutation returns the JudgeResultMutation object of the builder.
 func (_u *JudgeResultUpdate) Mutation() *JudgeResultMutation {
 	return _u.mutation
@@ -165,6 +171,12 @@ func (_u *JudgeResultUpdate) Mutation() *JudgeResultMutation {
 // ClearRubric clears the "rubric" edge to the JudgeRubric entity.
 func (_u *JudgeResultUpdate) ClearRubric() *JudgeResultUpdate {
 	_u.mutation.ClearRubric()
+	return _u
+}
+
+// ClearInitiative clears the "initiative" edge to the Initiative entity.
+func (_u *JudgeResultUpdate) ClearInitiative() *JudgeResultUpdate {
+	_u.mutation.ClearInitiative()
 	return _u
 }
 
@@ -212,6 +224,9 @@ func (_u *JudgeResultUpdate) check() error {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
 		}
 	}
+	if _u.mutation.InitiativeCleared() && len(_u.mutation.InitiativeIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "JudgeResult.initiative"`)
+	}
 	return nil
 }
 
@@ -226,9 +241,6 @@ func (_u *JudgeResultUpdate) sqlSave(ctx context.Context) (_node int, err error)
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := _u.mutation.InitiativeID(); ok {
-		_spec.SetField(judgeresult.FieldInitiativeID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
@@ -279,6 +291,35 @@ func (_u *JudgeResultUpdate) sqlSave(ctx context.Context) (_node int, err error)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.InitiativeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   judgeresult.InitiativeTable,
+			Columns: []string{judgeresult.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InitiativeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   judgeresult.InitiativeTable,
+			Columns: []string{judgeresult.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -434,6 +475,11 @@ func (_u *JudgeResultUpdateOne) SetRubric(v *JudgeRubric) *JudgeResultUpdateOne 
 	return _u.SetRubricID(v.ID)
 }
 
+// SetInitiative sets the "initiative" edge to the Initiative entity.
+func (_u *JudgeResultUpdateOne) SetInitiative(v *Initiative) *JudgeResultUpdateOne {
+	return _u.SetInitiativeID(v.ID)
+}
+
 // Mutation returns the JudgeResultMutation object of the builder.
 func (_u *JudgeResultUpdateOne) Mutation() *JudgeResultMutation {
 	return _u.mutation
@@ -442,6 +488,12 @@ func (_u *JudgeResultUpdateOne) Mutation() *JudgeResultMutation {
 // ClearRubric clears the "rubric" edge to the JudgeRubric entity.
 func (_u *JudgeResultUpdateOne) ClearRubric() *JudgeResultUpdateOne {
 	_u.mutation.ClearRubric()
+	return _u
+}
+
+// ClearInitiative clears the "initiative" edge to the Initiative entity.
+func (_u *JudgeResultUpdateOne) ClearInitiative() *JudgeResultUpdateOne {
+	_u.mutation.ClearInitiative()
 	return _u
 }
 
@@ -502,6 +554,9 @@ func (_u *JudgeResultUpdateOne) check() error {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
 		}
 	}
+	if _u.mutation.InitiativeCleared() && len(_u.mutation.InitiativeIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "JudgeResult.initiative"`)
+	}
 	return nil
 }
 
@@ -533,9 +588,6 @@ func (_u *JudgeResultUpdateOne) sqlSave(ctx context.Context) (_node *JudgeResult
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := _u.mutation.InitiativeID(); ok {
-		_spec.SetField(judgeresult.FieldInitiativeID, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
@@ -586,6 +638,35 @@ func (_u *JudgeResultUpdateOne) sqlSave(ctx context.Context) (_node *JudgeResult
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.InitiativeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   judgeresult.InitiativeTable,
+			Columns: []string{judgeresult.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InitiativeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   judgeresult.InitiativeTable,
+			Columns: []string{judgeresult.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

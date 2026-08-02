@@ -9,6 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
+	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
@@ -38,8 +40,44 @@ type SpecDocument struct {
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the SpecDocumentQuery when eager-loading is set.
+	Edges        SpecDocumentEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// SpecDocumentEdges holds the relations/edges for other nodes in the graph.
+type SpecDocumentEdges struct {
+	// Initiative holds the value of the initiative edge.
+	Initiative *Initiative `json:"initiative,omitempty"`
+	// Repository holds the value of the repository edge.
+	Repository *Repository `json:"repository,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [2]bool
+}
+
+// InitiativeOrErr returns the Initiative value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpecDocumentEdges) InitiativeOrErr() (*Initiative, error) {
+	if e.Initiative != nil {
+		return e.Initiative, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: initiative.Label}
+	}
+	return nil, &NotLoadedError{edge: "initiative"}
+}
+
+// RepositoryOrErr returns the Repository value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpecDocumentEdges) RepositoryOrErr() (*Repository, error) {
+	if e.Repository != nil {
+		return e.Repository, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: repository.Label}
+	}
+	return nil, &NotLoadedError{edge: "repository"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -149,6 +187,16 @@ func (_m *SpecDocument) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *SpecDocument) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryInitiative queries the "initiative" edge of the SpecDocument entity.
+func (_m *SpecDocument) QueryInitiative() *InitiativeQuery {
+	return NewSpecDocumentClient(_m.config).QueryInitiative(_m)
+}
+
+// QueryRepository queries the "repository" edge of the SpecDocument entity.
+func (_m *SpecDocument) QueryRepository() *RepositoryQuery {
+	return NewSpecDocumentClient(_m.config).QueryRepository(_m)
 }
 
 // Update returns a builder for updating this SpecDocument.

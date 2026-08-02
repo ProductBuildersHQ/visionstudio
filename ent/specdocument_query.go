@@ -11,17 +11,21 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
 // SpecDocumentQuery is the builder for querying SpecDocument entities.
 type SpecDocumentQuery struct {
 	config
-	ctx        *QueryContext
-	order      []specdocument.OrderOption
-	inters     []Interceptor
-	predicates []predicate.SpecDocument
+	ctx            *QueryContext
+	order          []specdocument.OrderOption
+	inters         []Interceptor
+	predicates     []predicate.SpecDocument
+	withInitiative *InitiativeQuery
+	withRepository *RepositoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -56,6 +60,50 @@ func (_q *SpecDocumentQuery) Unique(unique bool) *SpecDocumentQuery {
 func (_q *SpecDocumentQuery) Order(o ...specdocument.OrderOption) *SpecDocumentQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryInitiative chains the current query on the "initiative" edge.
+func (_q *SpecDocumentQuery) QueryInitiative() *InitiativeQuery {
+	query := (&InitiativeClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specdocument.Table, specdocument.FieldID, selector),
+			sqlgraph.To(initiative.Table, initiative.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.InitiativeTable, specdocument.InitiativeColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryRepository chains the current query on the "repository" edge.
+func (_q *SpecDocumentQuery) QueryRepository() *RepositoryQuery {
+	query := (&RepositoryClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specdocument.Table, specdocument.FieldID, selector),
+			sqlgraph.To(repository.Table, repository.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.RepositoryTable, specdocument.RepositoryColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first SpecDocument entity from the query.
@@ -245,15 +293,39 @@ func (_q *SpecDocumentQuery) Clone() *SpecDocumentQuery {
 		return nil
 	}
 	return &SpecDocumentQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]specdocument.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.SpecDocument{}, _q.predicates...),
+		config:         _q.config,
+		ctx:            _q.ctx.Clone(),
+		order:          append([]specdocument.OrderOption{}, _q.order...),
+		inters:         append([]Interceptor{}, _q.inters...),
+		predicates:     append([]predicate.SpecDocument{}, _q.predicates...),
+		withInitiative: _q.withInitiative.Clone(),
+		withRepository: _q.withRepository.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithInitiative tells the query-builder to eager-load the nodes that are connected to
+// the "initiative" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpecDocumentQuery) WithInitiative(opts ...func(*InitiativeQuery)) *SpecDocumentQuery {
+	query := (&InitiativeClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withInitiative = query
+	return _q
+}
+
+// WithRepository tells the query-builder to eager-load the nodes that are connected to
+// the "repository" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpecDocumentQuery) WithRepository(opts ...func(*RepositoryQuery)) *SpecDocumentQuery {
+	query := (&RepositoryClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withRepository = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -332,8 +404,12 @@ func (_q *SpecDocumentQuery) prepareQuery(ctx context.Context) error {
 
 func (_q *SpecDocumentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SpecDocument, error) {
 	var (
-		nodes = []*SpecDocument{}
-		_spec = _q.querySpec()
+		nodes       = []*SpecDocument{}
+		_spec       = _q.querySpec()
+		loadedTypes = [2]bool{
+			_q.withInitiative != nil,
+			_q.withRepository != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*SpecDocument).scanValues(nil, columns)
@@ -341,6 +417,7 @@ func (_q *SpecDocumentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &SpecDocument{config: _q.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -352,7 +429,78 @@ func (_q *SpecDocumentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := _q.withInitiative; query != nil {
+		if err := _q.loadInitiative(ctx, query, nodes, nil,
+			func(n *SpecDocument, e *Initiative) { n.Edges.Initiative = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withRepository; query != nil {
+		if err := _q.loadRepository(ctx, query, nodes, nil,
+			func(n *SpecDocument, e *Repository) { n.Edges.Repository = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (_q *SpecDocumentQuery) loadInitiative(ctx context.Context, query *InitiativeQuery, nodes []*SpecDocument, init func(*SpecDocument), assign func(*SpecDocument, *Initiative)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*SpecDocument)
+	for i := range nodes {
+		fk := nodes[i].InitiativeID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(initiative.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "initiative_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *SpecDocumentQuery) loadRepository(ctx context.Context, query *RepositoryQuery, nodes []*SpecDocument, init func(*SpecDocument), assign func(*SpecDocument, *Repository)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*SpecDocument)
+	for i := range nodes {
+		fk := nodes[i].RepositoryID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(repository.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "repository_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (_q *SpecDocumentQuery) sqlCount(ctx context.Context) (int, error) {
@@ -379,6 +527,12 @@ func (_q *SpecDocumentQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != specdocument.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withInitiative != nil {
+			_spec.Node.AddColumnOnce(specdocument.FieldInitiativeID)
+		}
+		if _q.withRepository != nil {
+			_spec.Node.AddColumnOnce(specdocument.FieldRepositoryID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

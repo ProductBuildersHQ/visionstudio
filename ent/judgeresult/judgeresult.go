@@ -26,8 +26,12 @@ const (
 	FieldEvaluatedAt = "evaluated_at"
 	// EdgeRubric holds the string denoting the rubric edge name in mutations.
 	EdgeRubric = "rubric"
+	// EdgeInitiative holds the string denoting the initiative edge name in mutations.
+	EdgeInitiative = "initiative"
 	// JudgeRubricFieldID holds the string denoting the ID field of the JudgeRubric.
 	JudgeRubricFieldID = "rubric_id"
+	// InitiativeFieldID holds the string denoting the ID field of the Initiative.
+	InitiativeFieldID = "initiative_id"
 	// Table holds the table name of the judgeresult in the database.
 	Table = "judge_results"
 	// RubricTable is the table that holds the rubric relation/edge.
@@ -37,6 +41,13 @@ const (
 	RubricInverseTable = "judge_rubrics"
 	// RubricColumn is the table column denoting the rubric relation/edge.
 	RubricColumn = "judge_rubric_results"
+	// InitiativeTable is the table that holds the initiative relation/edge.
+	InitiativeTable = "judge_results"
+	// InitiativeInverseTable is the table name for the Initiative entity.
+	// It exists in this package in order to avoid circular dependency with the "initiative" package.
+	InitiativeInverseTable = "initiatives"
+	// InitiativeColumn is the table column denoting the initiative relation/edge.
+	InitiativeColumn = "initiative_id"
 )
 
 // Columns holds all SQL columns for judgeresult fields.
@@ -126,10 +137,24 @@ func ByRubricField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRubricStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByInitiativeField orders the results by initiative field.
+func ByInitiativeField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newInitiativeStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newRubricStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RubricInverseTable, JudgeRubricFieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, RubricTable, RubricColumn),
+	)
+}
+func newInitiativeStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(InitiativeInverseTable, InitiativeFieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, InitiativeTable, InitiativeColumn),
 	)
 }

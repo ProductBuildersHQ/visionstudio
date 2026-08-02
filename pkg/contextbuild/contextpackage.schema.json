@@ -1,0 +1,547 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ProductBuildersHQ/prism-control/schema/contextpackage",
+  "$ref": "#/$defs/ContextPackage",
+  "$defs": {
+    "AssignmentSection": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "id": {
+          "type": "string"
+        },
+        "rmi_id": {
+          "type": "string"
+        },
+        "worker": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "lease_expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "workspace": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "handoff": {
+          "$ref": "#/$defs/HandoffData"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "id",
+        "rmi_id",
+        "worker",
+        "status",
+        "lease_expires_at",
+        "created_at"
+      ]
+    },
+    "ContextPackage": {
+      "properties": {
+        "version": {
+          "type": "string"
+        },
+        "target_type": {
+          "type": "string"
+        },
+        "target_id": {
+          "type": "string"
+        },
+        "build_timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sections": {
+          "$ref": "#/$defs/Sections"
+        },
+        "derived_repos": {
+          "items": {
+            "$ref": "#/$defs/DerivedRepo"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "version",
+        "target_type",
+        "target_id",
+        "build_timestamp",
+        "sections",
+        "derived_repos"
+      ]
+    },
+    "DependencyEdge": {
+      "properties": {
+        "source_id": {
+          "type": "string"
+        },
+        "target_id": {
+          "type": "string"
+        },
+        "relationship": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "source_id",
+        "target_id",
+        "relationship"
+      ]
+    },
+    "DerivedRepo": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "local_path": {
+          "type": "string"
+        },
+        "default_branch": {
+          "type": "string"
+        },
+        "source_rmi": {
+          "type": "string"
+        },
+        "source_repo": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "role",
+        "default_branch"
+      ]
+    },
+    "EvidenceRef": {
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type",
+        "reference"
+      ]
+    },
+    "HandoffData": {
+      "properties": {
+        "completed": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "remaining": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "decisions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "next_action": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "InitiativeSection": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "home_repo": {
+          "type": "string"
+        },
+        "specs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "decisions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "id",
+        "title",
+        "status"
+      ]
+    },
+    "PhaseHandoff": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "phase_id": {
+          "type": "string"
+        },
+        "phase_title": {
+          "type": "string"
+        },
+        "derived_status": {
+          "type": "string"
+        },
+        "completed": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "decisions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "phase_id",
+        "phase_title",
+        "derived_status"
+      ]
+    },
+    "PhaseSection": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "sequence_number": {
+          "type": "integer"
+        },
+        "derived_status": {
+          "type": "string"
+        },
+        "member_rmis": {
+          "items": {
+            "$ref": "#/$defs/RMISummary"
+          },
+          "type": "array"
+        },
+        "dependency_edges": {
+          "items": {
+            "$ref": "#/$defs/DependencyEdge"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "id",
+        "title",
+        "sequence_number",
+        "derived_status",
+        "member_rmis"
+      ]
+    },
+    "ProgramSection": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "id",
+        "name"
+      ]
+    },
+    "Provenance": {
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "source",
+        "revision"
+      ]
+    },
+    "RMISection": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "item_type": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "sequence_number": {
+          "type": "integer"
+        },
+        "acceptance_criteria": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "repository_id": {
+          "type": "string"
+        },
+        "dependencies": {
+          "items": {
+            "$ref": "#/$defs/DependencyEdge"
+          },
+          "type": "array"
+        },
+        "dependents": {
+          "items": {
+            "$ref": "#/$defs/DependencyEdge"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "id",
+        "title",
+        "item_type",
+        "status",
+        "required",
+        "sequence_number",
+        "repository_id"
+      ]
+    },
+    "RMISummary": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "sequence": {
+          "type": "integer"
+        },
+        "repo_id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "status",
+        "required",
+        "sequence",
+        "repo_id"
+      ]
+    },
+    "Sections": {
+      "properties": {
+        "program": {
+          "$ref": "#/$defs/ProgramSection"
+        },
+        "initiative": {
+          "$ref": "#/$defs/InitiativeSection"
+        },
+        "phase": {
+          "$ref": "#/$defs/PhaseSection"
+        },
+        "prerequisite_handoffs": {
+          "items": {
+            "$ref": "#/$defs/PhaseHandoff"
+          },
+          "type": "array"
+        },
+        "current_rmi": {
+          "$ref": "#/$defs/RMISection"
+        },
+        "spec_references": {
+          "items": {
+            "$ref": "#/$defs/SpecReference"
+          },
+          "type": "array"
+        },
+        "assignment": {
+          "$ref": "#/$defs/AssignmentSection"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "initiative",
+        "phase"
+      ]
+    },
+    "SpecReference": {
+      "properties": {
+        "stability": {
+          "type": "string"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "path": {
+          "type": "string"
+        },
+        "repo_id": {
+          "type": "string"
+        },
+        "local_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "stability",
+        "provenance",
+        "path",
+        "repo_id"
+      ]
+    }
+  },
+  "title": "ContextPackage",
+  "description": "Deterministic context package for agent sessions, assembled from the PRISM execution graph and repository specs."
+}

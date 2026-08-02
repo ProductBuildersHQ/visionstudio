@@ -151,3 +151,16 @@ export interface SpecsResponse {
   workflows: SpecWorkflow[]
   judgeResults: JudgeResult[]
 }
+
+export interface SpecFile {
+  initiativeId: string
+  specType: string
+  path: string
+  content: string
+  modTime?: string
+  evalJson?: string
+}
+
+export interface SpecFilesResponse {
+  files: SpecFile[]
+}

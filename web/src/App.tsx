@@ -3,11 +3,12 @@ import { ExecutionPanel } from './panels/ExecutionPanel'
 import { SpendPanel } from './panels/SpendPanel'
 import { MaturityPanel } from './panels/MaturityPanel'
 import { SpecsPanel } from './panels/SpecsPanel'
+import { InitiativeView } from './panels/InitiativeView'
 
-type Tab = 'execution' | 'spend' | 'maturity' | 'specs'
+type Tab = 'initiative' | 'execution' | 'spend' | 'maturity' | 'specs'
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('execution')
+  const [activeTab, setActiveTab] = useState<Tab>('initiative')
   const [apiStatus, setApiStatus] = useState<'loading' | 'connected' | 'error'>('loading')
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function App() {
   }, [])
 
   const tabs: { id: Tab; label: string }[] = [
+    { id: 'initiative', label: 'Initiative' },
     { id: 'execution', label: 'Execution' },
     { id: 'spend', label: 'Spend' },
     { id: 'maturity', label: 'Maturity' },
@@ -70,6 +72,7 @@ export default function App() {
         </nav>
       </header>
       <main className="p-6">
+        {activeTab === 'initiative' && <InitiativeView />}
         {activeTab === 'execution' && <ExecutionPanel />}
         {activeTab === 'spend' && <SpendPanel />}
         {activeTab === 'maturity' && <MaturityPanel />}

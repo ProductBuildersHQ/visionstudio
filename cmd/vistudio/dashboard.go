@@ -36,18 +36,24 @@ to drill down into phase/RMI detail.
 
 By default, starts a local HTTP server that re-queries the database on
 every page load, so the dashboard always shows current data.
-Use --static to write a one-shot HTML file instead (summary only).`,
+Use --static to write a one-shot HTML file instead (summary only).
+Use --unified to serve the React SPA from web/dist/ instead of Go templates.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			static, _ := cmd.Flags().GetBool("static")
+			unified, _ := cmd.Flags().GetBool("unified")
 			port, _ := cmd.Flags().GetInt("port")
 
 			if static {
 				return runDashboardStatic(cmd)
 			}
+			if unified {
+				return runUnifiedDashboardServer(cmd, port)
+			}
 			return runDashboardServer(cmd, port)
 		},
 	}
 	cmd.Flags().Bool("static", false, "Write a static HTML file instead of running a server")
+	cmd.Flags().Bool("unified", false, "Serve the unified React SPA from web/dist/")
 	cmd.Flags().Int("port", 9400, "Port for the dashboard server")
 	cmd.Flags().String("data-dir", "", "Path to omnidevx data directory (default: ~/.plexusone/omnidevx/data)")
 	return cmd
@@ -79,6 +85,101 @@ func runDashboardStatic(cmd *cobra.Command) error {
 
 	cmd.Printf("Dashboard written to %s\n", outPath)
 	return openBrowser(outPath)
+}
+
+func runUnifiedDashboardServer(cmd *cobra.Command, port int) error {
+	mux := http.NewServeMux()
+	dataDir, _ := cmd.Flags().GetString("data-dir")
+
+	connectSvc := func() (*service.Service, func(), error) {
+		return connectService(cmd)
+	}
+	registerAPIRoutes(mux, connectSvc, dataDir)
+
+	// Find web/dist directory relative to the executable or working directory
+	webDistPath := findWebDistPath()
+	if webDistPath == "" {
+		return fmt.Errorf("web/dist not found; run 'npm run build' in the web directory first")
+	}
+
+	// Serve the React SPA with fallback to index.html for client-side routing
+	fs := http.FileServer(http.Dir(webDistPath))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Clean the path to prevent directory traversal
+		cleanPath := filepath.Clean(r.URL.Path)
+		if cleanPath == "." {
+			cleanPath = "/"
+		}
+		fullPath := filepath.Join(webDistPath, cleanPath) //nolint:gosec // G703: path is cleaned and webDistPath is trusted
+		if _, err := os.Stat(fullPath); err == nil {
+			fs.ServeHTTP(w, r)
+			return
+		}
+		// Fall back to index.html for SPA routing
+		http.ServeFile(w, r, filepath.Join(webDistPath, "index.html"))
+	})
+
+	addr := fmt.Sprintf("127.0.0.1:%d", port)
+	listener, err := net.Listen("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("listen %s: %w", addr, err)
+	}
+
+	dashURL := fmt.Sprintf("http://%s", addr)
+	cmd.Printf("Unified dashboard server running at %s (Ctrl-C to stop)\n", dashURL)
+	if err := openBrowser(dashURL); err != nil {
+		cmd.Printf("Open %s in your browser\n", dashURL)
+	}
+
+	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt)
+	defer stop()
+
+	srv := &http.Server{
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+	go func() {
+		<-ctx.Done()
+		srv.Close()
+	}()
+
+	if err := srv.Serve(listener); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("serve: %w", err)
+	}
+	return nil
+}
+
+func findWebDistPath() string {
+	// Try relative to working directory
+	candidates := []string{
+		"web/dist",
+		"../web/dist",
+		"../../web/dist",
+	}
+
+	// Also try relative to executable
+	if exe, err := os.Executable(); err == nil {
+		exeDir := filepath.Dir(exe)
+		candidates = append(candidates,
+			filepath.Join(exeDir, "web/dist"),
+			filepath.Join(exeDir, "../web/dist"),
+			filepath.Join(exeDir, "../../web/dist"),
+		)
+	}
+
+	for _, candidate := range candidates {
+		absPath, err := filepath.Abs(candidate)
+		if err != nil {
+			continue
+		}
+		if info, err := os.Stat(absPath); err == nil && info.IsDir() {
+			indexPath := filepath.Join(absPath, "index.html")
+			if _, err := os.Stat(indexPath); err == nil {
+				return absPath
+			}
+		}
+	}
+	return ""
 }
 
 func runDashboardServer(cmd *cobra.Command, port int) error {

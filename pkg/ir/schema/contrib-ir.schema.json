@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ProductBuildersHQ/visionstudio/pkg/ir/contrib-ir",
+  "properties": {
+    "profiles": {
+      "items": {
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string"
+          },
+          "bio": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "blog": {
+            "type": "string"
+          },
+          "repositories": {
+            "items": {
+              "properties": {
+                "owner": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "commits": {
+                  "type": "integer"
+                },
+                "prs": {
+                  "type": "integer"
+                },
+                "prsMerged": {
+                  "type": "integer"
+                },
+                "issues": {
+                  "type": "integer"
+                },
+                "reviews": {
+                  "type": "integer"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "stars": {
+                  "type": "integer"
+                },
+                "isOwner": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "owner",
+                "name",
+                "url",
+                "commits",
+                "prs",
+                "prsMerged",
+                "issues",
+                "reviews",
+                "stars",
+                "isOwner"
+              ]
+            },
+            "type": "array"
+          },
+          "stats": {
+            "properties": {
+              "totalCommits": {
+                "type": "integer"
+              },
+              "totalPRs": {
+                "type": "integer"
+              },
+              "totalPRsMerged": {
+                "type": "integer"
+              },
+              "totalIssues": {
+                "type": "integer"
+              },
+              "totalReviews": {
+                "type": "integer"
+              },
+              "totalRepositories": {
+                "type": "integer"
+              },
+              "ownedRepos": {
+                "type": "integer"
+              },
+              "contributedRepos": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "totalCommits",
+              "totalPRs",
+              "totalPRsMerged",
+              "totalIssues",
+              "totalReviews",
+              "totalRepositories",
+              "ownedRepos",
+              "contributedRepos"
+            ]
+          },
+          "aiStats": {
+            "properties": {
+              "totalAiCommits": {
+                "type": "integer"
+              },
+              "aiCommitPercent": {
+                "type": "number"
+              },
+              "byTool": {
+                "additionalProperties": {
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "commits": {
+                      "type": "integer"
+                    },
+                    "firstUsed": {
+                      "type": "string"
+                    },
+                    "lastUsed": {
+                      "type": "string"
+                    },
+                    "recognized": {
+                      "type": "boolean"
+                    },
+                    "byModel": {
+                      "additionalProperties": {
+                        "properties": {
+                          "model": {
+                            "type": "string"
+                          },
+                          "commits": {
+                            "type": "integer"
+                          },
+                          "firstUsed": {
+                            "type": "string"
+                          },
+                          "lastUsed": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": [
+                          "model",
+                          "commits"
+                        ]
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "commits",
+                    "recognized"
+                  ]
+                },
+                "type": "object"
+              },
+              "mostUsedTool": {
+                "type": "string"
+              },
+              "mostUsedModel": {
+                "type": "string"
+              },
+              "firstAiCommit": {
+                "type": "string"
+              },
+              "recentTrend": {
+                "type": "string"
+              },
+              "aiActivity": {
+                "items": {
+                  "properties": {
+                    "date": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "date",
+                    "count"
+                  ]
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "totalAiCommits",
+              "aiCommitPercent",
+              "byTool"
+            ]
+          },
+          "activity": {
+            "items": {
+              "properties": {
+                "date": {
+                  "type": "string"
+                },
+                "count": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "date",
+                "count"
+              ]
+            },
+            "type": "array"
+          },
+          "languages": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "dateRange": {
+            "properties": {
+              "start": {
+                "type": "string"
+              },
+              "end": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "start",
+              "end"
+            ]
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "username",
+          "repositories",
+          "stats",
+          "aiStats",
+          "activity",
+          "languages",
+          "dateRange",
+          "generatedAt"
+        ]
+      },
+      "type": "array"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

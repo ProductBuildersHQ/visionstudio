@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ProductBuildersHQ/visionstudio/pkg/ir/execution-ir",
+  "properties": {
+    "initiatives": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "init_type": {
+            "type": "string"
+          },
+          "workflow_id": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "home_repo": {
+            "type": "string"
+          },
+          "workspace": {
+            "type": "string"
+          },
+          "program_id": {
+            "type": "string"
+          },
+          "specs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "planned_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "executing_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "delivery_complete_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "released_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "organization",
+          "title",
+          "status",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "type": "array"
+    },
+    "phases": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "initiative_id": {
+            "type": "string"
+          },
+          "sequence_number": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "initiative_id",
+          "sequence_number",
+          "title"
+        ]
+      },
+      "type": "array"
+    },
+    "rmis": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "repository_id": {
+            "type": "string"
+          },
+          "initiative_id": {
+            "type": "string"
+          },
+          "phase_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "item_type": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "sequence_number": {
+            "type": "integer"
+          },
+          "acceptance_criteria": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "context_spec": {
+            "properties": {
+              "extra_repos": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "include_specs": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "exclude_specs": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "repository_id",
+          "title",
+          "item_type",
+          "status",
+          "required",
+          "sequence_number",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "type": "array"
+    },
+    "assignments": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "rmi_id": {
+            "type": "string"
+          },
+          "worker": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "lease_expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "workspace": {
+            "type": "string"
+          },
+          "handoff": {
+            "properties": {
+              "completed": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "remaining": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "decisions": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "next_action": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "completed",
+              "remaining",
+              "decisions",
+              "next_action"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "rmi_id",
+          "status",
+          "lease_expires_at",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "type": "array"
+    },
+    "evidence": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "rmi_id": {
+            "type": "string"
+          },
+          "evidence_type": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "commit_type": {
+            "type": "string"
+          },
+          "commit_scope": {
+            "type": "string"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "rmi_id",
+          "evidence_type",
+          "reference",
+          "created_at"
+        ]
+      },
+      "type": "array"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

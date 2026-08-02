@@ -1,0 +1,1269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ProductBuildersHQ/visionstudio/pkg/ir/maturity-ir",
+  "properties": {
+    "capabilityModels": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "dimensions": {
+            "items": {
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "levels": {
+                  "items": {
+                    "properties": {
+                      "level": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "level",
+                      "name"
+                    ]
+                  },
+                  "type": "array"
+                },
+                "sources": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "key",
+                "name"
+              ]
+            },
+            "type": "array"
+          },
+          "max_level": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "max_level"
+        ]
+      },
+      "type": "array"
+    },
+    "assessments": {
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "initiative_id": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "scores": {
+            "additionalProperties": {
+              "properties": {
+                "level": {
+                  "type": "integer"
+                },
+                "rationale": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "level"
+              ]
+            },
+            "type": "object"
+          },
+          "overall_score": {
+            "type": "number"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "assessed_by": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "assessed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "model_id",
+          "assessed_at"
+        ]
+      },
+      "type": "array"
+    },
+    "prismDocument": {
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "metadata": {
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            },
+            "author": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "updated": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "domains": {
+          "items": {
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "weight": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "name"
+            ]
+          },
+          "type": "array"
+        },
+        "layers": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "weight": {
+                "type": "number"
+              },
+              "signals": {
+                "properties": {
+                  "latency": {
+                    "type": "string"
+                  },
+                  "traffic": {
+                    "type": "string"
+                  },
+                  "errors": {
+                    "type": "string"
+                  },
+                  "saturation": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "type": "array"
+        },
+        "teams": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "layerAccountability": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "serviceIds": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "slack": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "type"
+            ]
+          },
+          "type": "array"
+        },
+        "services": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "ownerTeamId": {
+                "type": "string"
+              },
+              "layerId": {
+                "type": "string"
+              },
+              "metricIds": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "repository": {
+                "type": "string"
+              },
+              "tier": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "type": "array"
+        },
+        "metrics": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "domain": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "layer": {
+                "type": "string"
+              },
+              "qualityVertical": {
+                "type": "string"
+              },
+              "metricType": {
+                "type": "string"
+              },
+              "trendDirection": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "baseline": {
+                "type": "number"
+              },
+              "current": {
+                "type": "number"
+              },
+              "target": {
+                "type": "number"
+              },
+              "sli": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "formula": {
+                    "type": "string"
+                  },
+                  "sliType": {
+                    "type": "string"
+                  },
+                  "scaleAspect": {
+                    "type": "string"
+                  },
+                  "scaleConsumptionKind": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object"
+              },
+              "slo": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "target": {
+                    "type": "string"
+                  },
+                  "operator": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "number"
+                  },
+                  "window": {
+                    "type": "string"
+                  },
+                  "thresholds": {
+                    "properties": {
+                      "green": {
+                        "type": "number"
+                      },
+                      "yellow": {
+                        "type": "number"
+                      },
+                      "red": {
+                        "type": "number"
+                      }
+                    },
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": [
+                      "green",
+                      "yellow",
+                      "red"
+                    ]
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "frameworkMappings": {
+                    "items": {
+                      "properties": {
+                        "framework": {
+                          "type": "string"
+                        },
+                        "reference": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "baseline": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "string"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "framework",
+                        "reference"
+                      ]
+                    },
+                    "type": "array"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "target"
+                ]
+              },
+              "thresholds": {
+                "properties": {
+                  "green": {
+                    "type": "number"
+                  },
+                  "yellow": {
+                    "type": "number"
+                  },
+                  "red": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "green",
+                  "yellow",
+                  "red"
+                ]
+              },
+              "status": {
+                "type": "string"
+              },
+              "maturityMapping": {
+                "properties": {
+                  "level1": {
+                    "type": "string"
+                  },
+                  "level2": {
+                    "type": "string"
+                  },
+                  "level3": {
+                    "type": "string"
+                  },
+                  "level4": {
+                    "type": "string"
+                  },
+                  "level5": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object"
+              },
+              "dmaic": {
+                "properties": {
+                  "define": {
+                    "type": "string"
+                  },
+                  "measure": {
+                    "type": "string"
+                  },
+                  "analyze": {
+                    "type": "string"
+                  },
+                  "improve": {
+                    "type": "string"
+                  },
+                  "control": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object"
+              },
+              "customerAwareness": {
+                "properties": {
+                  "enabled": {
+                    "type": "boolean"
+                  },
+                  "states": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "enabled"
+                ]
+              },
+              "frameworkMappings": {
+                "items": {
+                  "properties": {
+                    "framework": {
+                      "type": "string"
+                    },
+                    "reference": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "baseline": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "framework",
+                    "reference"
+                  ]
+                },
+                "type": "array"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "dataSource": {
+                "type": "string"
+              },
+              "serviceId": {
+                "type": "string"
+              },
+              "dataPoints": {
+                "items": {
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "timestamp",
+                    "value"
+                  ]
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "name",
+              "domain",
+              "stage",
+              "category",
+              "metricType",
+              "baseline",
+              "current",
+              "target"
+            ]
+          },
+          "type": "array"
+        },
+        "maturity": {
+          "properties": {
+            "levels": {
+              "items": {
+                "properties": {
+                  "level": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "level",
+                  "name"
+                ]
+              },
+              "type": "array"
+            },
+            "cells": {
+              "items": {
+                "properties": {
+                  "domain": {
+                    "type": "string"
+                  },
+                  "stage": {
+                    "type": "string"
+                  },
+                  "currentLevel": {
+                    "type": "integer"
+                  },
+                  "targetLevel": {
+                    "type": "integer"
+                  },
+                  "primaryKPI": {
+                    "type": "string"
+                  },
+                  "kpiTarget": {
+                    "type": "string"
+                  },
+                  "maturityScore": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "domain",
+                  "stage",
+                  "currentLevel"
+                ]
+              },
+              "type": "array"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "okrs": {
+          "items": {
+            "properties": {
+              "objectiveId": {
+                "type": "string"
+              },
+              "objectiveName": {
+                "type": "string"
+              },
+              "keyResultId": {
+                "type": "string"
+              },
+              "keyResultName": {
+                "type": "string"
+              },
+              "metricIds": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "objectiveName"
+            ]
+          },
+          "type": "array"
+        },
+        "initiatives": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "integer"
+              },
+              "metricIds": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "team": {
+                "type": "string"
+              },
+              "dependentTeams": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "goalIds": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "phaseId": {
+                "type": "string"
+              },
+              "devCompletionPercent": {
+                "type": "number"
+              },
+              "deploymentStatus": {
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  },
+                  "totalCustomers": {
+                    "type": "integer"
+                  },
+                  "deployedCustomers": {
+                    "type": "integer"
+                  },
+                  "adoptionPercent": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "status"
+                ]
+              },
+              "serviceId": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "name"
+            ]
+          },
+          "type": "array"
+        },
+        "goals": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "priority": {
+                "type": "integer"
+              },
+              "status": {
+                "type": "string"
+              },
+              "startDate": {
+                "type": "string"
+              },
+              "targetDate": {
+                "type": "string"
+              },
+              "maturityModel": {
+                "properties": {
+                  "levels": {
+                    "items": {
+                      "properties": {
+                        "level": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "requiredSLOs": {
+                          "items": {
+                            "properties": {
+                              "metricId": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                              "metricId"
+                            ]
+                          },
+                          "type": "array"
+                        },
+                        "metricCriteria": {
+                          "items": {
+                            "properties": {
+                              "metricId": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "type": "string"
+                              },
+                              "value": {
+                                "type": "number"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "type": "object",
+                            "required": [
+                              "metricId",
+                              "operator",
+                              "value"
+                            ]
+                          },
+                          "type": "array"
+                        }
+                      },
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "level",
+                        "name"
+                      ]
+                    },
+                    "type": "array"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "levels"
+                ]
+              },
+              "currentLevel": {
+                "type": "integer"
+              },
+              "targetLevel": {
+                "type": "integer"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "name"
+            ]
+          },
+          "type": "array"
+        },
+        "phases": {
+          "items": {
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "quarter": {
+                "type": "string"
+              },
+              "year": {
+                "type": "integer"
+              },
+              "startDate": {
+                "type": "string"
+              },
+              "endDate": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "goalTargets": {
+                "items": {
+                  "properties": {
+                    "goalId": {
+                      "type": "string"
+                    },
+                    "enterLevel": {
+                      "type": "integer"
+                    },
+                    "exitLevel": {
+                      "type": "integer"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "goalId",
+                    "enterLevel",
+                    "exitLevel"
+                  ]
+                },
+                "type": "array"
+              },
+              "swimlanes": {
+                "items": {
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "domain": {
+                      "type": "string"
+                    },
+                    "stage": {
+                      "type": "string"
+                    },
+                    "initiativeIds": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "initiativeIds"
+                  ]
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "name",
+              "startDate",
+              "endDate"
+            ]
+          },
+          "type": "array"
+        },
+        "roadmap": {
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "fiscalYearStart": {
+              "type": "integer"
+            }
+          },
+          "additionalProperties": false,
+          "type": "object"
+        },
+        "maturityModelRef": {
+          "type": "string"
+        },
+        "sloWindows": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sliState": {
+          "additionalProperties": {
+            "properties": {
+              "sliId": {
+                "type": "string"
+              },
+              "qualitativeState": {
+                "type": "string"
+              },
+              "windows": {
+                "additionalProperties": {
+                  "properties": {
+                    "value": {
+                      "type": "number"
+                    },
+                    "target": {
+                      "type": "number"
+                    },
+                    "met": {
+                      "type": "boolean"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "value"
+                  ]
+                },
+                "type": "object"
+              },
+              "history": {
+                "items": {
+                  "properties": {
+                    "window": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "number"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "window",
+                    "value",
+                    "timestamp"
+                  ]
+                },
+                "type": "array"
+              },
+              "targets": {
+                "additionalProperties": {
+                  "properties": {
+                    "value": {
+                      "type": "number"
+                    },
+                    "maturityLevel": {
+                      "type": "integer"
+                    },
+                    "targetDate": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "value"
+                  ]
+                },
+                "type": "object"
+              },
+              "priority": {
+                "type": "string"
+              },
+              "priorityRationale": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "sliId"
+            ]
+          },
+          "type": "object"
+        },
+        "maturityState": {
+          "additionalProperties": {
+            "properties": {
+              "domainId": {
+                "type": "string"
+              },
+              "current": {
+                "properties": {
+                  "level": {
+                    "type": "integer"
+                  },
+                  "achievedAt": {
+                    "type": "string"
+                  },
+                  "assessedBy": {
+                    "type": "string"
+                  },
+                  "note": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "level"
+                ]
+              },
+              "target": {
+                "properties": {
+                  "level": {
+                    "type": "integer"
+                  },
+                  "targetDate": {
+                    "type": "string"
+                  },
+                  "rationale": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "level"
+                ]
+              },
+              "history": {
+                "items": {
+                  "properties": {
+                    "level": {
+                      "type": "integer"
+                    },
+                    "achievedAt": {
+                      "type": "string"
+                    },
+                    "assessedBy": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": [
+                    "level"
+                  ]
+                },
+                "type": "array"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "domainId",
+              "current"
+            ]
+          },
+          "type": "object"
+        },
+        "enablerState": {
+          "additionalProperties": {
+            "properties": {
+              "enablerId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "progress": {
+                "type": "number"
+              },
+              "startedAt": {
+                "type": "string"
+              },
+              "completedAt": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "type": "object",
+            "required": [
+              "enablerId",
+              "status"
+            ]
+          },
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "metrics"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "type": "object"
+}

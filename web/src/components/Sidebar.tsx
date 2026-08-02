@@ -72,7 +72,10 @@ export function Sidebar({
       {/* Header */}
       <div className="p-3 border-b border-gray-700 flex items-center justify-between">
         {!collapsed && (
-          <div className="flex items-center gap-2">
+          <button
+            onClick={() => onNavigate({ section: 'initiatives', view: 'all' })}
+            className="flex items-center gap-2 hover:text-white transition-colors"
+          >
             <span className="font-semibold text-sm">VisionStudio</span>
             <span
               className={`h-2 w-2 rounded-full ${
@@ -84,7 +87,7 @@ export function Sidebar({
               }`}
               title={apiStatus}
             />
-          </div>
+          </button>
         )}
         <button
           onClick={onToggleCollapse}

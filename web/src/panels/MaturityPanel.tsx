@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getMaturity } from '../api/client'
 import type { MaturityResponse, MaturityAssessment } from '../api/types'
+import { RadarChart, type RadarAxis, type RadarDataset } from '../components/charts'
 
 export function MaturityPanel() {
   const [data, setData] = useState<MaturityResponse | null>(null)
@@ -60,6 +61,26 @@ export function MaturityPanel() {
               <p className="text-gray-400 mt-1">{model.description}</p>
             )}
           </div>
+
+          {/* Radar Chart */}
+          {model.dimensions && model.dimensions.length >= 3 && modelAssessments.length > 0 && (
+            <div className="bg-gray-800 rounded-lg p-4">
+              <h3 className="text-lg font-semibold mb-4">Maturity Radar</h3>
+              <RadarChart
+                axes={model.dimensions.map((dim): RadarAxis => ({
+                  key: dim.key,
+                  label: dim.name,
+                  max: model.max_level,
+                }))}
+                datasets={modelAssessments.slice(0, 3).map((a): RadarDataset => ({
+                  name: a.initiative_id,
+                  values: Object.fromEntries(
+                    (a.scores ?? []).map((s) => [s.dimension_key, s.level])
+                  ),
+                }))}
+              />
+            </div>
+          )}
 
           {/* Dimensions */}
           {model.dimensions && model.dimensions.length > 0 && (

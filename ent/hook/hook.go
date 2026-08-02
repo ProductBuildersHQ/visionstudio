@@ -45,6 +45,18 @@ func (f DeliveryEvidenceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.V
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DeliveryEvidenceMutation", m)
 }
 
+// The DevXPeriodReportFunc type is an adapter to allow the use of ordinary
+// function as DevXPeriodReport mutator.
+type DevXPeriodReportFunc func(context.Context, *ent.DevXPeriodReportMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DevXPeriodReportFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DevXPeriodReportMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DevXPeriodReportMutation", m)
+}
+
 // The InitiativeFunc type is an adapter to allow the use of ordinary
 // function as Initiative mutator.
 type InitiativeFunc func(context.Context, *ent.InitiativeMutation) (ent.Value, error)
@@ -103,6 +115,42 @@ func (f MaturityAssessmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MaturityAssessmentMutation", m)
+}
+
+// The PRISMDocumentFunc type is an adapter to allow the use of ordinary
+// function as PRISMDocument mutator.
+type PRISMDocumentFunc func(context.Context, *ent.PRISMDocumentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PRISMDocumentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PRISMDocumentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PRISMDocumentMutation", m)
+}
+
+// The PRISMGoalFunc type is an adapter to allow the use of ordinary
+// function as PRISMGoal mutator.
+type PRISMGoalFunc func(context.Context, *ent.PRISMGoalMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PRISMGoalFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PRISMGoalMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PRISMGoalMutation", m)
+}
+
+// The PRISMRoadmapFunc type is an adapter to allow the use of ordinary
+// function as PRISMRoadmap mutator.
+type PRISMRoadmapFunc func(context.Context, *ent.PRISMRoadmapMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PRISMRoadmapFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PRISMRoadmapMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PRISMRoadmapMutation", m)
 }
 
 // The PhaseFunc type is an adapter to allow the use of ordinary
@@ -175,6 +223,18 @@ func (f RoadmapItemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RoadmapItemMutation", m)
+}
+
+// The SpecDocumentFunc type is an adapter to allow the use of ordinary
+// function as SpecDocument mutator.
+type SpecDocumentFunc func(context.Context, *ent.SpecDocumentMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f SpecDocumentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.SpecDocumentMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.SpecDocumentMutation", m)
 }
 
 // The SpecWorkflowFunc type is an adapter to allow the use of ordinary

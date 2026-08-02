@@ -15,17 +15,22 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/assignment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/capabilitymodel"
 	"github.com/ProductBuildersHQ/visionstudio/ent/deliveryevidence"
+	"github.com/ProductBuildersHQ/visionstudio/ent/devxperiodreport"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismroadmap"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repositorydependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
@@ -90,17 +95,22 @@ func checkColumn(t, c string) error {
 			assignment.Table:           assignment.ValidColumn,
 			capabilitymodel.Table:      capabilitymodel.ValidColumn,
 			deliveryevidence.Table:     deliveryevidence.ValidColumn,
+			devxperiodreport.Table:     devxperiodreport.ValidColumn,
 			initiative.Table:           initiative.ValidColumn,
 			initiativedependency.Table: initiativedependency.ValidColumn,
 			judgeresult.Table:          judgeresult.ValidColumn,
 			judgerubric.Table:          judgerubric.ValidColumn,
 			maturityassessment.Table:   maturityassessment.ValidColumn,
+			prismdocument.Table:        prismdocument.ValidColumn,
+			prismgoal.Table:            prismgoal.ValidColumn,
+			prismroadmap.Table:         prismroadmap.ValidColumn,
 			phase.Table:                phase.ValidColumn,
 			program.Table:              program.ValidColumn,
 			rmidependency.Table:        rmidependency.ValidColumn,
 			repository.Table:           repository.ValidColumn,
 			repositorydependency.Table: repositorydependency.ValidColumn,
 			roadmapitem.Table:          roadmapitem.ValidColumn,
+			specdocument.Table:         specdocument.ValidColumn,
 			specworkflow.Table:         specworkflow.ValidColumn,
 		})
 	})

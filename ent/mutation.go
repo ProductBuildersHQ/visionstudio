@@ -14,6 +14,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/assignment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/capabilitymodel"
 	"github.com/ProductBuildersHQ/visionstudio/ent/deliveryevidence"
+	"github.com/ProductBuildersHQ/visionstudio/ent/devxperiodreport"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
@@ -21,12 +22,16 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismroadmap"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repositorydependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/schema"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
@@ -42,17 +47,22 @@ const (
 	TypeAssignment           = "Assignment"
 	TypeCapabilityModel      = "CapabilityModel"
 	TypeDeliveryEvidence     = "DeliveryEvidence"
+	TypeDevXPeriodReport     = "DevXPeriodReport"
 	TypeInitiative           = "Initiative"
 	TypeInitiativeDependency = "InitiativeDependency"
 	TypeJudgeResult          = "JudgeResult"
 	TypeJudgeRubric          = "JudgeRubric"
 	TypeMaturityAssessment   = "MaturityAssessment"
+	TypePRISMDocument        = "PRISMDocument"
+	TypePRISMGoal            = "PRISMGoal"
+	TypePRISMRoadmap         = "PRISMRoadmap"
 	TypePhase                = "Phase"
 	TypeProgram              = "Program"
 	TypeRMIDependency        = "RMIDependency"
 	TypeRepository           = "Repository"
 	TypeRepositoryDependency = "RepositoryDependency"
 	TypeRoadmapItem          = "RoadmapItem"
+	TypeSpecDocument         = "SpecDocument"
 	TypeSpecWorkflow         = "SpecWorkflow"
 )
 
@@ -2301,6 +2311,1013 @@ func (m *DeliveryEvidenceMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown DeliveryEvidence edge %s", name)
+}
+
+// DevXPeriodReportMutation represents an operation that mutates the DevXPeriodReport nodes in the graph.
+type DevXPeriodReportMutation struct {
+	config
+	op                Op
+	typ               string
+	id                *string
+	organization      *string
+	repository_id     *string
+	person_id         *string
+	period_type       *string
+	period_label      *string
+	period_start      *time.Time
+	period_end        *time.Time
+	metrics           *map[string]interface{}
+	by_model          *map[string]interface{}
+	coverage_score    *float64
+	addcoverage_score *float64
+	created_at        *time.Time
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*DevXPeriodReport, error)
+	predicates        []predicate.DevXPeriodReport
+}
+
+var _ ent.Mutation = (*DevXPeriodReportMutation)(nil)
+
+// devxperiodreportOption allows management of the mutation configuration using functional options.
+type devxperiodreportOption func(*DevXPeriodReportMutation)
+
+// newDevXPeriodReportMutation creates new mutation for the DevXPeriodReport entity.
+func newDevXPeriodReportMutation(c config, op Op, opts ...devxperiodreportOption) *DevXPeriodReportMutation {
+	m := &DevXPeriodReportMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDevXPeriodReport,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDevXPeriodReportID sets the ID field of the mutation.
+func withDevXPeriodReportID(id string) devxperiodreportOption {
+	return func(m *DevXPeriodReportMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DevXPeriodReport
+		)
+		m.oldValue = func(ctx context.Context) (*DevXPeriodReport, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DevXPeriodReport.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDevXPeriodReport sets the old DevXPeriodReport of the mutation.
+func withDevXPeriodReport(node *DevXPeriodReport) devxperiodreportOption {
+	return func(m *DevXPeriodReportMutation) {
+		m.oldValue = func(context.Context) (*DevXPeriodReport, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DevXPeriodReportMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DevXPeriodReportMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DevXPeriodReport entities.
+func (m *DevXPeriodReportMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DevXPeriodReportMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DevXPeriodReportMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DevXPeriodReport.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetOrganization sets the "organization" field.
+func (m *DevXPeriodReportMutation) SetOrganization(s string) {
+	m.organization = &s
+}
+
+// Organization returns the value of the "organization" field in the mutation.
+func (m *DevXPeriodReportMutation) Organization() (r string, exists bool) {
+	v := m.organization
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrganization returns the old "organization" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldOrganization(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrganization is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrganization requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrganization: %w", err)
+	}
+	return oldValue.Organization, nil
+}
+
+// ClearOrganization clears the value of the "organization" field.
+func (m *DevXPeriodReportMutation) ClearOrganization() {
+	m.organization = nil
+	m.clearedFields[devxperiodreport.FieldOrganization] = struct{}{}
+}
+
+// OrganizationCleared returns if the "organization" field was cleared in this mutation.
+func (m *DevXPeriodReportMutation) OrganizationCleared() bool {
+	_, ok := m.clearedFields[devxperiodreport.FieldOrganization]
+	return ok
+}
+
+// ResetOrganization resets all changes to the "organization" field.
+func (m *DevXPeriodReportMutation) ResetOrganization() {
+	m.organization = nil
+	delete(m.clearedFields, devxperiodreport.FieldOrganization)
+}
+
+// SetRepositoryID sets the "repository_id" field.
+func (m *DevXPeriodReportMutation) SetRepositoryID(s string) {
+	m.repository_id = &s
+}
+
+// RepositoryID returns the value of the "repository_id" field in the mutation.
+func (m *DevXPeriodReportMutation) RepositoryID() (r string, exists bool) {
+	v := m.repository_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRepositoryID returns the old "repository_id" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldRepositoryID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRepositoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRepositoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRepositoryID: %w", err)
+	}
+	return oldValue.RepositoryID, nil
+}
+
+// ClearRepositoryID clears the value of the "repository_id" field.
+func (m *DevXPeriodReportMutation) ClearRepositoryID() {
+	m.repository_id = nil
+	m.clearedFields[devxperiodreport.FieldRepositoryID] = struct{}{}
+}
+
+// RepositoryIDCleared returns if the "repository_id" field was cleared in this mutation.
+func (m *DevXPeriodReportMutation) RepositoryIDCleared() bool {
+	_, ok := m.clearedFields[devxperiodreport.FieldRepositoryID]
+	return ok
+}
+
+// ResetRepositoryID resets all changes to the "repository_id" field.
+func (m *DevXPeriodReportMutation) ResetRepositoryID() {
+	m.repository_id = nil
+	delete(m.clearedFields, devxperiodreport.FieldRepositoryID)
+}
+
+// SetPersonID sets the "person_id" field.
+func (m *DevXPeriodReportMutation) SetPersonID(s string) {
+	m.person_id = &s
+}
+
+// PersonID returns the value of the "person_id" field in the mutation.
+func (m *DevXPeriodReportMutation) PersonID() (r string, exists bool) {
+	v := m.person_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPersonID returns the old "person_id" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldPersonID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPersonID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPersonID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPersonID: %w", err)
+	}
+	return oldValue.PersonID, nil
+}
+
+// ResetPersonID resets all changes to the "person_id" field.
+func (m *DevXPeriodReportMutation) ResetPersonID() {
+	m.person_id = nil
+}
+
+// SetPeriodType sets the "period_type" field.
+func (m *DevXPeriodReportMutation) SetPeriodType(s string) {
+	m.period_type = &s
+}
+
+// PeriodType returns the value of the "period_type" field in the mutation.
+func (m *DevXPeriodReportMutation) PeriodType() (r string, exists bool) {
+	v := m.period_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPeriodType returns the old "period_type" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldPeriodType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPeriodType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPeriodType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPeriodType: %w", err)
+	}
+	return oldValue.PeriodType, nil
+}
+
+// ResetPeriodType resets all changes to the "period_type" field.
+func (m *DevXPeriodReportMutation) ResetPeriodType() {
+	m.period_type = nil
+}
+
+// SetPeriodLabel sets the "period_label" field.
+func (m *DevXPeriodReportMutation) SetPeriodLabel(s string) {
+	m.period_label = &s
+}
+
+// PeriodLabel returns the value of the "period_label" field in the mutation.
+func (m *DevXPeriodReportMutation) PeriodLabel() (r string, exists bool) {
+	v := m.period_label
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPeriodLabel returns the old "period_label" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldPeriodLabel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPeriodLabel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPeriodLabel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPeriodLabel: %w", err)
+	}
+	return oldValue.PeriodLabel, nil
+}
+
+// ResetPeriodLabel resets all changes to the "period_label" field.
+func (m *DevXPeriodReportMutation) ResetPeriodLabel() {
+	m.period_label = nil
+}
+
+// SetPeriodStart sets the "period_start" field.
+func (m *DevXPeriodReportMutation) SetPeriodStart(t time.Time) {
+	m.period_start = &t
+}
+
+// PeriodStart returns the value of the "period_start" field in the mutation.
+func (m *DevXPeriodReportMutation) PeriodStart() (r time.Time, exists bool) {
+	v := m.period_start
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPeriodStart returns the old "period_start" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldPeriodStart(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPeriodStart is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPeriodStart requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPeriodStart: %w", err)
+	}
+	return oldValue.PeriodStart, nil
+}
+
+// ResetPeriodStart resets all changes to the "period_start" field.
+func (m *DevXPeriodReportMutation) ResetPeriodStart() {
+	m.period_start = nil
+}
+
+// SetPeriodEnd sets the "period_end" field.
+func (m *DevXPeriodReportMutation) SetPeriodEnd(t time.Time) {
+	m.period_end = &t
+}
+
+// PeriodEnd returns the value of the "period_end" field in the mutation.
+func (m *DevXPeriodReportMutation) PeriodEnd() (r time.Time, exists bool) {
+	v := m.period_end
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPeriodEnd returns the old "period_end" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldPeriodEnd(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPeriodEnd is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPeriodEnd requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPeriodEnd: %w", err)
+	}
+	return oldValue.PeriodEnd, nil
+}
+
+// ResetPeriodEnd resets all changes to the "period_end" field.
+func (m *DevXPeriodReportMutation) ResetPeriodEnd() {
+	m.period_end = nil
+}
+
+// SetMetrics sets the "metrics" field.
+func (m *DevXPeriodReportMutation) SetMetrics(value map[string]interface{}) {
+	m.metrics = &value
+}
+
+// Metrics returns the value of the "metrics" field in the mutation.
+func (m *DevXPeriodReportMutation) Metrics() (r map[string]interface{}, exists bool) {
+	v := m.metrics
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetrics returns the old "metrics" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldMetrics(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetrics is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetrics requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetrics: %w", err)
+	}
+	return oldValue.Metrics, nil
+}
+
+// ClearMetrics clears the value of the "metrics" field.
+func (m *DevXPeriodReportMutation) ClearMetrics() {
+	m.metrics = nil
+	m.clearedFields[devxperiodreport.FieldMetrics] = struct{}{}
+}
+
+// MetricsCleared returns if the "metrics" field was cleared in this mutation.
+func (m *DevXPeriodReportMutation) MetricsCleared() bool {
+	_, ok := m.clearedFields[devxperiodreport.FieldMetrics]
+	return ok
+}
+
+// ResetMetrics resets all changes to the "metrics" field.
+func (m *DevXPeriodReportMutation) ResetMetrics() {
+	m.metrics = nil
+	delete(m.clearedFields, devxperiodreport.FieldMetrics)
+}
+
+// SetByModel sets the "by_model" field.
+func (m *DevXPeriodReportMutation) SetByModel(value map[string]interface{}) {
+	m.by_model = &value
+}
+
+// ByModel returns the value of the "by_model" field in the mutation.
+func (m *DevXPeriodReportMutation) ByModel() (r map[string]interface{}, exists bool) {
+	v := m.by_model
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldByModel returns the old "by_model" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldByModel(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldByModel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldByModel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldByModel: %w", err)
+	}
+	return oldValue.ByModel, nil
+}
+
+// ClearByModel clears the value of the "by_model" field.
+func (m *DevXPeriodReportMutation) ClearByModel() {
+	m.by_model = nil
+	m.clearedFields[devxperiodreport.FieldByModel] = struct{}{}
+}
+
+// ByModelCleared returns if the "by_model" field was cleared in this mutation.
+func (m *DevXPeriodReportMutation) ByModelCleared() bool {
+	_, ok := m.clearedFields[devxperiodreport.FieldByModel]
+	return ok
+}
+
+// ResetByModel resets all changes to the "by_model" field.
+func (m *DevXPeriodReportMutation) ResetByModel() {
+	m.by_model = nil
+	delete(m.clearedFields, devxperiodreport.FieldByModel)
+}
+
+// SetCoverageScore sets the "coverage_score" field.
+func (m *DevXPeriodReportMutation) SetCoverageScore(f float64) {
+	m.coverage_score = &f
+	m.addcoverage_score = nil
+}
+
+// CoverageScore returns the value of the "coverage_score" field in the mutation.
+func (m *DevXPeriodReportMutation) CoverageScore() (r float64, exists bool) {
+	v := m.coverage_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCoverageScore returns the old "coverage_score" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldCoverageScore(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCoverageScore is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCoverageScore requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCoverageScore: %w", err)
+	}
+	return oldValue.CoverageScore, nil
+}
+
+// AddCoverageScore adds f to the "coverage_score" field.
+func (m *DevXPeriodReportMutation) AddCoverageScore(f float64) {
+	if m.addcoverage_score != nil {
+		*m.addcoverage_score += f
+	} else {
+		m.addcoverage_score = &f
+	}
+}
+
+// AddedCoverageScore returns the value that was added to the "coverage_score" field in this mutation.
+func (m *DevXPeriodReportMutation) AddedCoverageScore() (r float64, exists bool) {
+	v := m.addcoverage_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearCoverageScore clears the value of the "coverage_score" field.
+func (m *DevXPeriodReportMutation) ClearCoverageScore() {
+	m.coverage_score = nil
+	m.addcoverage_score = nil
+	m.clearedFields[devxperiodreport.FieldCoverageScore] = struct{}{}
+}
+
+// CoverageScoreCleared returns if the "coverage_score" field was cleared in this mutation.
+func (m *DevXPeriodReportMutation) CoverageScoreCleared() bool {
+	_, ok := m.clearedFields[devxperiodreport.FieldCoverageScore]
+	return ok
+}
+
+// ResetCoverageScore resets all changes to the "coverage_score" field.
+func (m *DevXPeriodReportMutation) ResetCoverageScore() {
+	m.coverage_score = nil
+	m.addcoverage_score = nil
+	delete(m.clearedFields, devxperiodreport.FieldCoverageScore)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *DevXPeriodReportMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *DevXPeriodReportMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the DevXPeriodReport entity.
+// If the DevXPeriodReport object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DevXPeriodReportMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *DevXPeriodReportMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// Where appends a list predicates to the DevXPeriodReportMutation builder.
+func (m *DevXPeriodReportMutation) Where(ps ...predicate.DevXPeriodReport) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DevXPeriodReportMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DevXPeriodReportMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DevXPeriodReport, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DevXPeriodReportMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DevXPeriodReportMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DevXPeriodReport).
+func (m *DevXPeriodReportMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DevXPeriodReportMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.organization != nil {
+		fields = append(fields, devxperiodreport.FieldOrganization)
+	}
+	if m.repository_id != nil {
+		fields = append(fields, devxperiodreport.FieldRepositoryID)
+	}
+	if m.person_id != nil {
+		fields = append(fields, devxperiodreport.FieldPersonID)
+	}
+	if m.period_type != nil {
+		fields = append(fields, devxperiodreport.FieldPeriodType)
+	}
+	if m.period_label != nil {
+		fields = append(fields, devxperiodreport.FieldPeriodLabel)
+	}
+	if m.period_start != nil {
+		fields = append(fields, devxperiodreport.FieldPeriodStart)
+	}
+	if m.period_end != nil {
+		fields = append(fields, devxperiodreport.FieldPeriodEnd)
+	}
+	if m.metrics != nil {
+		fields = append(fields, devxperiodreport.FieldMetrics)
+	}
+	if m.by_model != nil {
+		fields = append(fields, devxperiodreport.FieldByModel)
+	}
+	if m.coverage_score != nil {
+		fields = append(fields, devxperiodreport.FieldCoverageScore)
+	}
+	if m.created_at != nil {
+		fields = append(fields, devxperiodreport.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DevXPeriodReportMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case devxperiodreport.FieldOrganization:
+		return m.Organization()
+	case devxperiodreport.FieldRepositoryID:
+		return m.RepositoryID()
+	case devxperiodreport.FieldPersonID:
+		return m.PersonID()
+	case devxperiodreport.FieldPeriodType:
+		return m.PeriodType()
+	case devxperiodreport.FieldPeriodLabel:
+		return m.PeriodLabel()
+	case devxperiodreport.FieldPeriodStart:
+		return m.PeriodStart()
+	case devxperiodreport.FieldPeriodEnd:
+		return m.PeriodEnd()
+	case devxperiodreport.FieldMetrics:
+		return m.Metrics()
+	case devxperiodreport.FieldByModel:
+		return m.ByModel()
+	case devxperiodreport.FieldCoverageScore:
+		return m.CoverageScore()
+	case devxperiodreport.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DevXPeriodReportMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case devxperiodreport.FieldOrganization:
+		return m.OldOrganization(ctx)
+	case devxperiodreport.FieldRepositoryID:
+		return m.OldRepositoryID(ctx)
+	case devxperiodreport.FieldPersonID:
+		return m.OldPersonID(ctx)
+	case devxperiodreport.FieldPeriodType:
+		return m.OldPeriodType(ctx)
+	case devxperiodreport.FieldPeriodLabel:
+		return m.OldPeriodLabel(ctx)
+	case devxperiodreport.FieldPeriodStart:
+		return m.OldPeriodStart(ctx)
+	case devxperiodreport.FieldPeriodEnd:
+		return m.OldPeriodEnd(ctx)
+	case devxperiodreport.FieldMetrics:
+		return m.OldMetrics(ctx)
+	case devxperiodreport.FieldByModel:
+		return m.OldByModel(ctx)
+	case devxperiodreport.FieldCoverageScore:
+		return m.OldCoverageScore(ctx)
+	case devxperiodreport.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown DevXPeriodReport field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DevXPeriodReportMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case devxperiodreport.FieldOrganization:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrganization(v)
+		return nil
+	case devxperiodreport.FieldRepositoryID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRepositoryID(v)
+		return nil
+	case devxperiodreport.FieldPersonID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPersonID(v)
+		return nil
+	case devxperiodreport.FieldPeriodType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPeriodType(v)
+		return nil
+	case devxperiodreport.FieldPeriodLabel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPeriodLabel(v)
+		return nil
+	case devxperiodreport.FieldPeriodStart:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPeriodStart(v)
+		return nil
+	case devxperiodreport.FieldPeriodEnd:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPeriodEnd(v)
+		return nil
+	case devxperiodreport.FieldMetrics:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetrics(v)
+		return nil
+	case devxperiodreport.FieldByModel:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetByModel(v)
+		return nil
+	case devxperiodreport.FieldCoverageScore:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCoverageScore(v)
+		return nil
+	case devxperiodreport.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DevXPeriodReport field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DevXPeriodReportMutation) AddedFields() []string {
+	var fields []string
+	if m.addcoverage_score != nil {
+		fields = append(fields, devxperiodreport.FieldCoverageScore)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DevXPeriodReportMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case devxperiodreport.FieldCoverageScore:
+		return m.AddedCoverageScore()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DevXPeriodReportMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case devxperiodreport.FieldCoverageScore:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCoverageScore(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DevXPeriodReport numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DevXPeriodReportMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(devxperiodreport.FieldOrganization) {
+		fields = append(fields, devxperiodreport.FieldOrganization)
+	}
+	if m.FieldCleared(devxperiodreport.FieldRepositoryID) {
+		fields = append(fields, devxperiodreport.FieldRepositoryID)
+	}
+	if m.FieldCleared(devxperiodreport.FieldMetrics) {
+		fields = append(fields, devxperiodreport.FieldMetrics)
+	}
+	if m.FieldCleared(devxperiodreport.FieldByModel) {
+		fields = append(fields, devxperiodreport.FieldByModel)
+	}
+	if m.FieldCleared(devxperiodreport.FieldCoverageScore) {
+		fields = append(fields, devxperiodreport.FieldCoverageScore)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DevXPeriodReportMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DevXPeriodReportMutation) ClearField(name string) error {
+	switch name {
+	case devxperiodreport.FieldOrganization:
+		m.ClearOrganization()
+		return nil
+	case devxperiodreport.FieldRepositoryID:
+		m.ClearRepositoryID()
+		return nil
+	case devxperiodreport.FieldMetrics:
+		m.ClearMetrics()
+		return nil
+	case devxperiodreport.FieldByModel:
+		m.ClearByModel()
+		return nil
+	case devxperiodreport.FieldCoverageScore:
+		m.ClearCoverageScore()
+		return nil
+	}
+	return fmt.Errorf("unknown DevXPeriodReport nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DevXPeriodReportMutation) ResetField(name string) error {
+	switch name {
+	case devxperiodreport.FieldOrganization:
+		m.ResetOrganization()
+		return nil
+	case devxperiodreport.FieldRepositoryID:
+		m.ResetRepositoryID()
+		return nil
+	case devxperiodreport.FieldPersonID:
+		m.ResetPersonID()
+		return nil
+	case devxperiodreport.FieldPeriodType:
+		m.ResetPeriodType()
+		return nil
+	case devxperiodreport.FieldPeriodLabel:
+		m.ResetPeriodLabel()
+		return nil
+	case devxperiodreport.FieldPeriodStart:
+		m.ResetPeriodStart()
+		return nil
+	case devxperiodreport.FieldPeriodEnd:
+		m.ResetPeriodEnd()
+		return nil
+	case devxperiodreport.FieldMetrics:
+		m.ResetMetrics()
+		return nil
+	case devxperiodreport.FieldByModel:
+		m.ResetByModel()
+		return nil
+	case devxperiodreport.FieldCoverageScore:
+		m.ResetCoverageScore()
+		return nil
+	case devxperiodreport.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown DevXPeriodReport field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DevXPeriodReportMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DevXPeriodReportMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DevXPeriodReportMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DevXPeriodReportMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DevXPeriodReportMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DevXPeriodReportMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DevXPeriodReportMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown DevXPeriodReport unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DevXPeriodReportMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown DevXPeriodReport edge %s", name)
 }
 
 // InitiativeMutation represents an operation that mutates the Initiative nodes in the graph.
@@ -6713,6 +7730,2552 @@ func (m *MaturityAssessmentMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown MaturityAssessment edge %s", name)
+}
+
+// PRISMDocumentMutation represents an operation that mutates the PRISMDocument nodes in the graph.
+type PRISMDocumentMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *string
+	organization   *string
+	repository_id  *string
+	name           *string
+	description    *string
+	version        *string
+	domains        *[]interface{}
+	appenddomains  []interface{}
+	layers         *[]interface{}
+	appendlayers   []interface{}
+	metrics        *[]interface{}
+	appendmetrics  []interface{}
+	maturity       *map[string]interface{}
+	sli_state      *map[string]interface{}
+	maturity_state *map[string]interface{}
+	created_at     *time.Time
+	updated_at     *time.Time
+	clearedFields  map[string]struct{}
+	done           bool
+	oldValue       func(context.Context) (*PRISMDocument, error)
+	predicates     []predicate.PRISMDocument
+}
+
+var _ ent.Mutation = (*PRISMDocumentMutation)(nil)
+
+// prismdocumentOption allows management of the mutation configuration using functional options.
+type prismdocumentOption func(*PRISMDocumentMutation)
+
+// newPRISMDocumentMutation creates new mutation for the PRISMDocument entity.
+func newPRISMDocumentMutation(c config, op Op, opts ...prismdocumentOption) *PRISMDocumentMutation {
+	m := &PRISMDocumentMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePRISMDocument,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPRISMDocumentID sets the ID field of the mutation.
+func withPRISMDocumentID(id string) prismdocumentOption {
+	return func(m *PRISMDocumentMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *PRISMDocument
+		)
+		m.oldValue = func(ctx context.Context) (*PRISMDocument, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().PRISMDocument.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPRISMDocument sets the old PRISMDocument of the mutation.
+func withPRISMDocument(node *PRISMDocument) prismdocumentOption {
+	return func(m *PRISMDocumentMutation) {
+		m.oldValue = func(context.Context) (*PRISMDocument, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PRISMDocumentMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PRISMDocumentMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of PRISMDocument entities.
+func (m *PRISMDocumentMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PRISMDocumentMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PRISMDocumentMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().PRISMDocument.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetOrganization sets the "organization" field.
+func (m *PRISMDocumentMutation) SetOrganization(s string) {
+	m.organization = &s
+}
+
+// Organization returns the value of the "organization" field in the mutation.
+func (m *PRISMDocumentMutation) Organization() (r string, exists bool) {
+	v := m.organization
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrganization returns the old "organization" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldOrganization(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrganization is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrganization requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrganization: %w", err)
+	}
+	return oldValue.Organization, nil
+}
+
+// ClearOrganization clears the value of the "organization" field.
+func (m *PRISMDocumentMutation) ClearOrganization() {
+	m.organization = nil
+	m.clearedFields[prismdocument.FieldOrganization] = struct{}{}
+}
+
+// OrganizationCleared returns if the "organization" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) OrganizationCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldOrganization]
+	return ok
+}
+
+// ResetOrganization resets all changes to the "organization" field.
+func (m *PRISMDocumentMutation) ResetOrganization() {
+	m.organization = nil
+	delete(m.clearedFields, prismdocument.FieldOrganization)
+}
+
+// SetRepositoryID sets the "repository_id" field.
+func (m *PRISMDocumentMutation) SetRepositoryID(s string) {
+	m.repository_id = &s
+}
+
+// RepositoryID returns the value of the "repository_id" field in the mutation.
+func (m *PRISMDocumentMutation) RepositoryID() (r string, exists bool) {
+	v := m.repository_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRepositoryID returns the old "repository_id" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldRepositoryID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRepositoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRepositoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRepositoryID: %w", err)
+	}
+	return oldValue.RepositoryID, nil
+}
+
+// ClearRepositoryID clears the value of the "repository_id" field.
+func (m *PRISMDocumentMutation) ClearRepositoryID() {
+	m.repository_id = nil
+	m.clearedFields[prismdocument.FieldRepositoryID] = struct{}{}
+}
+
+// RepositoryIDCleared returns if the "repository_id" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) RepositoryIDCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldRepositoryID]
+	return ok
+}
+
+// ResetRepositoryID resets all changes to the "repository_id" field.
+func (m *PRISMDocumentMutation) ResetRepositoryID() {
+	m.repository_id = nil
+	delete(m.clearedFields, prismdocument.FieldRepositoryID)
+}
+
+// SetName sets the "name" field.
+func (m *PRISMDocumentMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *PRISMDocumentMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *PRISMDocumentMutation) ResetName() {
+	m.name = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *PRISMDocumentMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *PRISMDocumentMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *PRISMDocumentMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[prismdocument.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *PRISMDocumentMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, prismdocument.FieldDescription)
+}
+
+// SetVersion sets the "version" field.
+func (m *PRISMDocumentMutation) SetVersion(s string) {
+	m.version = &s
+}
+
+// Version returns the value of the "version" field in the mutation.
+func (m *PRISMDocumentMutation) Version() (r string, exists bool) {
+	v := m.version
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVersion returns the old "version" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldVersion(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVersion is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVersion requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVersion: %w", err)
+	}
+	return oldValue.Version, nil
+}
+
+// ClearVersion clears the value of the "version" field.
+func (m *PRISMDocumentMutation) ClearVersion() {
+	m.version = nil
+	m.clearedFields[prismdocument.FieldVersion] = struct{}{}
+}
+
+// VersionCleared returns if the "version" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) VersionCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldVersion]
+	return ok
+}
+
+// ResetVersion resets all changes to the "version" field.
+func (m *PRISMDocumentMutation) ResetVersion() {
+	m.version = nil
+	delete(m.clearedFields, prismdocument.FieldVersion)
+}
+
+// SetDomains sets the "domains" field.
+func (m *PRISMDocumentMutation) SetDomains(i []interface{}) {
+	m.domains = &i
+	m.appenddomains = nil
+}
+
+// Domains returns the value of the "domains" field in the mutation.
+func (m *PRISMDocumentMutation) Domains() (r []interface{}, exists bool) {
+	v := m.domains
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDomains returns the old "domains" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldDomains(ctx context.Context) (v []interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDomains is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDomains requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDomains: %w", err)
+	}
+	return oldValue.Domains, nil
+}
+
+// AppendDomains adds i to the "domains" field.
+func (m *PRISMDocumentMutation) AppendDomains(i []interface{}) {
+	m.appenddomains = append(m.appenddomains, i...)
+}
+
+// AppendedDomains returns the list of values that were appended to the "domains" field in this mutation.
+func (m *PRISMDocumentMutation) AppendedDomains() ([]interface{}, bool) {
+	if len(m.appenddomains) == 0 {
+		return nil, false
+	}
+	return m.appenddomains, true
+}
+
+// ClearDomains clears the value of the "domains" field.
+func (m *PRISMDocumentMutation) ClearDomains() {
+	m.domains = nil
+	m.appenddomains = nil
+	m.clearedFields[prismdocument.FieldDomains] = struct{}{}
+}
+
+// DomainsCleared returns if the "domains" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) DomainsCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldDomains]
+	return ok
+}
+
+// ResetDomains resets all changes to the "domains" field.
+func (m *PRISMDocumentMutation) ResetDomains() {
+	m.domains = nil
+	m.appenddomains = nil
+	delete(m.clearedFields, prismdocument.FieldDomains)
+}
+
+// SetLayers sets the "layers" field.
+func (m *PRISMDocumentMutation) SetLayers(i []interface{}) {
+	m.layers = &i
+	m.appendlayers = nil
+}
+
+// Layers returns the value of the "layers" field in the mutation.
+func (m *PRISMDocumentMutation) Layers() (r []interface{}, exists bool) {
+	v := m.layers
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLayers returns the old "layers" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldLayers(ctx context.Context) (v []interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLayers is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLayers requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLayers: %w", err)
+	}
+	return oldValue.Layers, nil
+}
+
+// AppendLayers adds i to the "layers" field.
+func (m *PRISMDocumentMutation) AppendLayers(i []interface{}) {
+	m.appendlayers = append(m.appendlayers, i...)
+}
+
+// AppendedLayers returns the list of values that were appended to the "layers" field in this mutation.
+func (m *PRISMDocumentMutation) AppendedLayers() ([]interface{}, bool) {
+	if len(m.appendlayers) == 0 {
+		return nil, false
+	}
+	return m.appendlayers, true
+}
+
+// ClearLayers clears the value of the "layers" field.
+func (m *PRISMDocumentMutation) ClearLayers() {
+	m.layers = nil
+	m.appendlayers = nil
+	m.clearedFields[prismdocument.FieldLayers] = struct{}{}
+}
+
+// LayersCleared returns if the "layers" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) LayersCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldLayers]
+	return ok
+}
+
+// ResetLayers resets all changes to the "layers" field.
+func (m *PRISMDocumentMutation) ResetLayers() {
+	m.layers = nil
+	m.appendlayers = nil
+	delete(m.clearedFields, prismdocument.FieldLayers)
+}
+
+// SetMetrics sets the "metrics" field.
+func (m *PRISMDocumentMutation) SetMetrics(i []interface{}) {
+	m.metrics = &i
+	m.appendmetrics = nil
+}
+
+// Metrics returns the value of the "metrics" field in the mutation.
+func (m *PRISMDocumentMutation) Metrics() (r []interface{}, exists bool) {
+	v := m.metrics
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMetrics returns the old "metrics" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldMetrics(ctx context.Context) (v []interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMetrics is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMetrics requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMetrics: %w", err)
+	}
+	return oldValue.Metrics, nil
+}
+
+// AppendMetrics adds i to the "metrics" field.
+func (m *PRISMDocumentMutation) AppendMetrics(i []interface{}) {
+	m.appendmetrics = append(m.appendmetrics, i...)
+}
+
+// AppendedMetrics returns the list of values that were appended to the "metrics" field in this mutation.
+func (m *PRISMDocumentMutation) AppendedMetrics() ([]interface{}, bool) {
+	if len(m.appendmetrics) == 0 {
+		return nil, false
+	}
+	return m.appendmetrics, true
+}
+
+// ClearMetrics clears the value of the "metrics" field.
+func (m *PRISMDocumentMutation) ClearMetrics() {
+	m.metrics = nil
+	m.appendmetrics = nil
+	m.clearedFields[prismdocument.FieldMetrics] = struct{}{}
+}
+
+// MetricsCleared returns if the "metrics" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) MetricsCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldMetrics]
+	return ok
+}
+
+// ResetMetrics resets all changes to the "metrics" field.
+func (m *PRISMDocumentMutation) ResetMetrics() {
+	m.metrics = nil
+	m.appendmetrics = nil
+	delete(m.clearedFields, prismdocument.FieldMetrics)
+}
+
+// SetMaturity sets the "maturity" field.
+func (m *PRISMDocumentMutation) SetMaturity(value map[string]interface{}) {
+	m.maturity = &value
+}
+
+// Maturity returns the value of the "maturity" field in the mutation.
+func (m *PRISMDocumentMutation) Maturity() (r map[string]interface{}, exists bool) {
+	v := m.maturity
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMaturity returns the old "maturity" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldMaturity(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMaturity is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMaturity requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMaturity: %w", err)
+	}
+	return oldValue.Maturity, nil
+}
+
+// ClearMaturity clears the value of the "maturity" field.
+func (m *PRISMDocumentMutation) ClearMaturity() {
+	m.maturity = nil
+	m.clearedFields[prismdocument.FieldMaturity] = struct{}{}
+}
+
+// MaturityCleared returns if the "maturity" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) MaturityCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldMaturity]
+	return ok
+}
+
+// ResetMaturity resets all changes to the "maturity" field.
+func (m *PRISMDocumentMutation) ResetMaturity() {
+	m.maturity = nil
+	delete(m.clearedFields, prismdocument.FieldMaturity)
+}
+
+// SetSliState sets the "sli_state" field.
+func (m *PRISMDocumentMutation) SetSliState(value map[string]interface{}) {
+	m.sli_state = &value
+}
+
+// SliState returns the value of the "sli_state" field in the mutation.
+func (m *PRISMDocumentMutation) SliState() (r map[string]interface{}, exists bool) {
+	v := m.sli_state
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSliState returns the old "sli_state" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldSliState(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSliState is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSliState requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSliState: %w", err)
+	}
+	return oldValue.SliState, nil
+}
+
+// ClearSliState clears the value of the "sli_state" field.
+func (m *PRISMDocumentMutation) ClearSliState() {
+	m.sli_state = nil
+	m.clearedFields[prismdocument.FieldSliState] = struct{}{}
+}
+
+// SliStateCleared returns if the "sli_state" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) SliStateCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldSliState]
+	return ok
+}
+
+// ResetSliState resets all changes to the "sli_state" field.
+func (m *PRISMDocumentMutation) ResetSliState() {
+	m.sli_state = nil
+	delete(m.clearedFields, prismdocument.FieldSliState)
+}
+
+// SetMaturityState sets the "maturity_state" field.
+func (m *PRISMDocumentMutation) SetMaturityState(value map[string]interface{}) {
+	m.maturity_state = &value
+}
+
+// MaturityState returns the value of the "maturity_state" field in the mutation.
+func (m *PRISMDocumentMutation) MaturityState() (r map[string]interface{}, exists bool) {
+	v := m.maturity_state
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMaturityState returns the old "maturity_state" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldMaturityState(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMaturityState is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMaturityState requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMaturityState: %w", err)
+	}
+	return oldValue.MaturityState, nil
+}
+
+// ClearMaturityState clears the value of the "maturity_state" field.
+func (m *PRISMDocumentMutation) ClearMaturityState() {
+	m.maturity_state = nil
+	m.clearedFields[prismdocument.FieldMaturityState] = struct{}{}
+}
+
+// MaturityStateCleared returns if the "maturity_state" field was cleared in this mutation.
+func (m *PRISMDocumentMutation) MaturityStateCleared() bool {
+	_, ok := m.clearedFields[prismdocument.FieldMaturityState]
+	return ok
+}
+
+// ResetMaturityState resets all changes to the "maturity_state" field.
+func (m *PRISMDocumentMutation) ResetMaturityState() {
+	m.maturity_state = nil
+	delete(m.clearedFields, prismdocument.FieldMaturityState)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PRISMDocumentMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PRISMDocumentMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PRISMDocumentMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PRISMDocumentMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PRISMDocumentMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the PRISMDocument entity.
+// If the PRISMDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMDocumentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PRISMDocumentMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the PRISMDocumentMutation builder.
+func (m *PRISMDocumentMutation) Where(ps ...predicate.PRISMDocument) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PRISMDocumentMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PRISMDocumentMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.PRISMDocument, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PRISMDocumentMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PRISMDocumentMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (PRISMDocument).
+func (m *PRISMDocumentMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PRISMDocumentMutation) Fields() []string {
+	fields := make([]string, 0, 13)
+	if m.organization != nil {
+		fields = append(fields, prismdocument.FieldOrganization)
+	}
+	if m.repository_id != nil {
+		fields = append(fields, prismdocument.FieldRepositoryID)
+	}
+	if m.name != nil {
+		fields = append(fields, prismdocument.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, prismdocument.FieldDescription)
+	}
+	if m.version != nil {
+		fields = append(fields, prismdocument.FieldVersion)
+	}
+	if m.domains != nil {
+		fields = append(fields, prismdocument.FieldDomains)
+	}
+	if m.layers != nil {
+		fields = append(fields, prismdocument.FieldLayers)
+	}
+	if m.metrics != nil {
+		fields = append(fields, prismdocument.FieldMetrics)
+	}
+	if m.maturity != nil {
+		fields = append(fields, prismdocument.FieldMaturity)
+	}
+	if m.sli_state != nil {
+		fields = append(fields, prismdocument.FieldSliState)
+	}
+	if m.maturity_state != nil {
+		fields = append(fields, prismdocument.FieldMaturityState)
+	}
+	if m.created_at != nil {
+		fields = append(fields, prismdocument.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, prismdocument.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PRISMDocumentMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case prismdocument.FieldOrganization:
+		return m.Organization()
+	case prismdocument.FieldRepositoryID:
+		return m.RepositoryID()
+	case prismdocument.FieldName:
+		return m.Name()
+	case prismdocument.FieldDescription:
+		return m.Description()
+	case prismdocument.FieldVersion:
+		return m.Version()
+	case prismdocument.FieldDomains:
+		return m.Domains()
+	case prismdocument.FieldLayers:
+		return m.Layers()
+	case prismdocument.FieldMetrics:
+		return m.Metrics()
+	case prismdocument.FieldMaturity:
+		return m.Maturity()
+	case prismdocument.FieldSliState:
+		return m.SliState()
+	case prismdocument.FieldMaturityState:
+		return m.MaturityState()
+	case prismdocument.FieldCreatedAt:
+		return m.CreatedAt()
+	case prismdocument.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PRISMDocumentMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case prismdocument.FieldOrganization:
+		return m.OldOrganization(ctx)
+	case prismdocument.FieldRepositoryID:
+		return m.OldRepositoryID(ctx)
+	case prismdocument.FieldName:
+		return m.OldName(ctx)
+	case prismdocument.FieldDescription:
+		return m.OldDescription(ctx)
+	case prismdocument.FieldVersion:
+		return m.OldVersion(ctx)
+	case prismdocument.FieldDomains:
+		return m.OldDomains(ctx)
+	case prismdocument.FieldLayers:
+		return m.OldLayers(ctx)
+	case prismdocument.FieldMetrics:
+		return m.OldMetrics(ctx)
+	case prismdocument.FieldMaturity:
+		return m.OldMaturity(ctx)
+	case prismdocument.FieldSliState:
+		return m.OldSliState(ctx)
+	case prismdocument.FieldMaturityState:
+		return m.OldMaturityState(ctx)
+	case prismdocument.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case prismdocument.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown PRISMDocument field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PRISMDocumentMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case prismdocument.FieldOrganization:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrganization(v)
+		return nil
+	case prismdocument.FieldRepositoryID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRepositoryID(v)
+		return nil
+	case prismdocument.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case prismdocument.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case prismdocument.FieldVersion:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVersion(v)
+		return nil
+	case prismdocument.FieldDomains:
+		v, ok := value.([]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDomains(v)
+		return nil
+	case prismdocument.FieldLayers:
+		v, ok := value.([]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLayers(v)
+		return nil
+	case prismdocument.FieldMetrics:
+		v, ok := value.([]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMetrics(v)
+		return nil
+	case prismdocument.FieldMaturity:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMaturity(v)
+		return nil
+	case prismdocument.FieldSliState:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSliState(v)
+		return nil
+	case prismdocument.FieldMaturityState:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMaturityState(v)
+		return nil
+	case prismdocument.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case prismdocument.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMDocument field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PRISMDocumentMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PRISMDocumentMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PRISMDocumentMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown PRISMDocument numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PRISMDocumentMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(prismdocument.FieldOrganization) {
+		fields = append(fields, prismdocument.FieldOrganization)
+	}
+	if m.FieldCleared(prismdocument.FieldRepositoryID) {
+		fields = append(fields, prismdocument.FieldRepositoryID)
+	}
+	if m.FieldCleared(prismdocument.FieldDescription) {
+		fields = append(fields, prismdocument.FieldDescription)
+	}
+	if m.FieldCleared(prismdocument.FieldVersion) {
+		fields = append(fields, prismdocument.FieldVersion)
+	}
+	if m.FieldCleared(prismdocument.FieldDomains) {
+		fields = append(fields, prismdocument.FieldDomains)
+	}
+	if m.FieldCleared(prismdocument.FieldLayers) {
+		fields = append(fields, prismdocument.FieldLayers)
+	}
+	if m.FieldCleared(prismdocument.FieldMetrics) {
+		fields = append(fields, prismdocument.FieldMetrics)
+	}
+	if m.FieldCleared(prismdocument.FieldMaturity) {
+		fields = append(fields, prismdocument.FieldMaturity)
+	}
+	if m.FieldCleared(prismdocument.FieldSliState) {
+		fields = append(fields, prismdocument.FieldSliState)
+	}
+	if m.FieldCleared(prismdocument.FieldMaturityState) {
+		fields = append(fields, prismdocument.FieldMaturityState)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PRISMDocumentMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PRISMDocumentMutation) ClearField(name string) error {
+	switch name {
+	case prismdocument.FieldOrganization:
+		m.ClearOrganization()
+		return nil
+	case prismdocument.FieldRepositoryID:
+		m.ClearRepositoryID()
+		return nil
+	case prismdocument.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case prismdocument.FieldVersion:
+		m.ClearVersion()
+		return nil
+	case prismdocument.FieldDomains:
+		m.ClearDomains()
+		return nil
+	case prismdocument.FieldLayers:
+		m.ClearLayers()
+		return nil
+	case prismdocument.FieldMetrics:
+		m.ClearMetrics()
+		return nil
+	case prismdocument.FieldMaturity:
+		m.ClearMaturity()
+		return nil
+	case prismdocument.FieldSliState:
+		m.ClearSliState()
+		return nil
+	case prismdocument.FieldMaturityState:
+		m.ClearMaturityState()
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMDocument nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PRISMDocumentMutation) ResetField(name string) error {
+	switch name {
+	case prismdocument.FieldOrganization:
+		m.ResetOrganization()
+		return nil
+	case prismdocument.FieldRepositoryID:
+		m.ResetRepositoryID()
+		return nil
+	case prismdocument.FieldName:
+		m.ResetName()
+		return nil
+	case prismdocument.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case prismdocument.FieldVersion:
+		m.ResetVersion()
+		return nil
+	case prismdocument.FieldDomains:
+		m.ResetDomains()
+		return nil
+	case prismdocument.FieldLayers:
+		m.ResetLayers()
+		return nil
+	case prismdocument.FieldMetrics:
+		m.ResetMetrics()
+		return nil
+	case prismdocument.FieldMaturity:
+		m.ResetMaturity()
+		return nil
+	case prismdocument.FieldSliState:
+		m.ResetSliState()
+		return nil
+	case prismdocument.FieldMaturityState:
+		m.ResetMaturityState()
+		return nil
+	case prismdocument.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case prismdocument.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMDocument field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PRISMDocumentMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PRISMDocumentMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PRISMDocumentMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PRISMDocumentMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PRISMDocumentMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PRISMDocumentMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PRISMDocumentMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown PRISMDocument unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PRISMDocumentMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown PRISMDocument edge %s", name)
+}
+
+// PRISMGoalMutation represents an operation that mutates the PRISMGoal nodes in the graph.
+type PRISMGoalMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	organization  *string
+	repository_id *string
+	goal_type     *string
+	document      *map[string]interface{}
+	created_at    *time.Time
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*PRISMGoal, error)
+	predicates    []predicate.PRISMGoal
+}
+
+var _ ent.Mutation = (*PRISMGoalMutation)(nil)
+
+// prismgoalOption allows management of the mutation configuration using functional options.
+type prismgoalOption func(*PRISMGoalMutation)
+
+// newPRISMGoalMutation creates new mutation for the PRISMGoal entity.
+func newPRISMGoalMutation(c config, op Op, opts ...prismgoalOption) *PRISMGoalMutation {
+	m := &PRISMGoalMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePRISMGoal,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPRISMGoalID sets the ID field of the mutation.
+func withPRISMGoalID(id string) prismgoalOption {
+	return func(m *PRISMGoalMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *PRISMGoal
+		)
+		m.oldValue = func(ctx context.Context) (*PRISMGoal, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().PRISMGoal.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPRISMGoal sets the old PRISMGoal of the mutation.
+func withPRISMGoal(node *PRISMGoal) prismgoalOption {
+	return func(m *PRISMGoalMutation) {
+		m.oldValue = func(context.Context) (*PRISMGoal, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PRISMGoalMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PRISMGoalMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of PRISMGoal entities.
+func (m *PRISMGoalMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PRISMGoalMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PRISMGoalMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().PRISMGoal.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetOrganization sets the "organization" field.
+func (m *PRISMGoalMutation) SetOrganization(s string) {
+	m.organization = &s
+}
+
+// Organization returns the value of the "organization" field in the mutation.
+func (m *PRISMGoalMutation) Organization() (r string, exists bool) {
+	v := m.organization
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrganization returns the old "organization" field's value of the PRISMGoal entity.
+// If the PRISMGoal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMGoalMutation) OldOrganization(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrganization is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrganization requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrganization: %w", err)
+	}
+	return oldValue.Organization, nil
+}
+
+// ClearOrganization clears the value of the "organization" field.
+func (m *PRISMGoalMutation) ClearOrganization() {
+	m.organization = nil
+	m.clearedFields[prismgoal.FieldOrganization] = struct{}{}
+}
+
+// OrganizationCleared returns if the "organization" field was cleared in this mutation.
+func (m *PRISMGoalMutation) OrganizationCleared() bool {
+	_, ok := m.clearedFields[prismgoal.FieldOrganization]
+	return ok
+}
+
+// ResetOrganization resets all changes to the "organization" field.
+func (m *PRISMGoalMutation) ResetOrganization() {
+	m.organization = nil
+	delete(m.clearedFields, prismgoal.FieldOrganization)
+}
+
+// SetRepositoryID sets the "repository_id" field.
+func (m *PRISMGoalMutation) SetRepositoryID(s string) {
+	m.repository_id = &s
+}
+
+// RepositoryID returns the value of the "repository_id" field in the mutation.
+func (m *PRISMGoalMutation) RepositoryID() (r string, exists bool) {
+	v := m.repository_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRepositoryID returns the old "repository_id" field's value of the PRISMGoal entity.
+// If the PRISMGoal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMGoalMutation) OldRepositoryID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRepositoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRepositoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRepositoryID: %w", err)
+	}
+	return oldValue.RepositoryID, nil
+}
+
+// ResetRepositoryID resets all changes to the "repository_id" field.
+func (m *PRISMGoalMutation) ResetRepositoryID() {
+	m.repository_id = nil
+}
+
+// SetGoalType sets the "goal_type" field.
+func (m *PRISMGoalMutation) SetGoalType(s string) {
+	m.goal_type = &s
+}
+
+// GoalType returns the value of the "goal_type" field in the mutation.
+func (m *PRISMGoalMutation) GoalType() (r string, exists bool) {
+	v := m.goal_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGoalType returns the old "goal_type" field's value of the PRISMGoal entity.
+// If the PRISMGoal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMGoalMutation) OldGoalType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGoalType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGoalType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGoalType: %w", err)
+	}
+	return oldValue.GoalType, nil
+}
+
+// ResetGoalType resets all changes to the "goal_type" field.
+func (m *PRISMGoalMutation) ResetGoalType() {
+	m.goal_type = nil
+}
+
+// SetDocument sets the "document" field.
+func (m *PRISMGoalMutation) SetDocument(value map[string]interface{}) {
+	m.document = &value
+}
+
+// Document returns the value of the "document" field in the mutation.
+func (m *PRISMGoalMutation) Document() (r map[string]interface{}, exists bool) {
+	v := m.document
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDocument returns the old "document" field's value of the PRISMGoal entity.
+// If the PRISMGoal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMGoalMutation) OldDocument(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDocument is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDocument requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDocument: %w", err)
+	}
+	return oldValue.Document, nil
+}
+
+// ClearDocument clears the value of the "document" field.
+func (m *PRISMGoalMutation) ClearDocument() {
+	m.document = nil
+	m.clearedFields[prismgoal.FieldDocument] = struct{}{}
+}
+
+// DocumentCleared returns if the "document" field was cleared in this mutation.
+func (m *PRISMGoalMutation) DocumentCleared() bool {
+	_, ok := m.clearedFields[prismgoal.FieldDocument]
+	return ok
+}
+
+// ResetDocument resets all changes to the "document" field.
+func (m *PRISMGoalMutation) ResetDocument() {
+	m.document = nil
+	delete(m.clearedFields, prismgoal.FieldDocument)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PRISMGoalMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PRISMGoalMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the PRISMGoal entity.
+// If the PRISMGoal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMGoalMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PRISMGoalMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PRISMGoalMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PRISMGoalMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the PRISMGoal entity.
+// If the PRISMGoal object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMGoalMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PRISMGoalMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the PRISMGoalMutation builder.
+func (m *PRISMGoalMutation) Where(ps ...predicate.PRISMGoal) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PRISMGoalMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PRISMGoalMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.PRISMGoal, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PRISMGoalMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PRISMGoalMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (PRISMGoal).
+func (m *PRISMGoalMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PRISMGoalMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.organization != nil {
+		fields = append(fields, prismgoal.FieldOrganization)
+	}
+	if m.repository_id != nil {
+		fields = append(fields, prismgoal.FieldRepositoryID)
+	}
+	if m.goal_type != nil {
+		fields = append(fields, prismgoal.FieldGoalType)
+	}
+	if m.document != nil {
+		fields = append(fields, prismgoal.FieldDocument)
+	}
+	if m.created_at != nil {
+		fields = append(fields, prismgoal.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, prismgoal.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PRISMGoalMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case prismgoal.FieldOrganization:
+		return m.Organization()
+	case prismgoal.FieldRepositoryID:
+		return m.RepositoryID()
+	case prismgoal.FieldGoalType:
+		return m.GoalType()
+	case prismgoal.FieldDocument:
+		return m.Document()
+	case prismgoal.FieldCreatedAt:
+		return m.CreatedAt()
+	case prismgoal.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PRISMGoalMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case prismgoal.FieldOrganization:
+		return m.OldOrganization(ctx)
+	case prismgoal.FieldRepositoryID:
+		return m.OldRepositoryID(ctx)
+	case prismgoal.FieldGoalType:
+		return m.OldGoalType(ctx)
+	case prismgoal.FieldDocument:
+		return m.OldDocument(ctx)
+	case prismgoal.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case prismgoal.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown PRISMGoal field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PRISMGoalMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case prismgoal.FieldOrganization:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrganization(v)
+		return nil
+	case prismgoal.FieldRepositoryID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRepositoryID(v)
+		return nil
+	case prismgoal.FieldGoalType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGoalType(v)
+		return nil
+	case prismgoal.FieldDocument:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDocument(v)
+		return nil
+	case prismgoal.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case prismgoal.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMGoal field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PRISMGoalMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PRISMGoalMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PRISMGoalMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown PRISMGoal numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PRISMGoalMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(prismgoal.FieldOrganization) {
+		fields = append(fields, prismgoal.FieldOrganization)
+	}
+	if m.FieldCleared(prismgoal.FieldDocument) {
+		fields = append(fields, prismgoal.FieldDocument)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PRISMGoalMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PRISMGoalMutation) ClearField(name string) error {
+	switch name {
+	case prismgoal.FieldOrganization:
+		m.ClearOrganization()
+		return nil
+	case prismgoal.FieldDocument:
+		m.ClearDocument()
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMGoal nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PRISMGoalMutation) ResetField(name string) error {
+	switch name {
+	case prismgoal.FieldOrganization:
+		m.ResetOrganization()
+		return nil
+	case prismgoal.FieldRepositoryID:
+		m.ResetRepositoryID()
+		return nil
+	case prismgoal.FieldGoalType:
+		m.ResetGoalType()
+		return nil
+	case prismgoal.FieldDocument:
+		m.ResetDocument()
+		return nil
+	case prismgoal.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case prismgoal.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMGoal field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PRISMGoalMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PRISMGoalMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PRISMGoalMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PRISMGoalMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PRISMGoalMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PRISMGoalMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PRISMGoalMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown PRISMGoal unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PRISMGoalMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown PRISMGoal edge %s", name)
+}
+
+// PRISMRoadmapMutation represents an operation that mutates the PRISMRoadmap nodes in the graph.
+type PRISMRoadmapMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	organization  *string
+	repository_id *string
+	name          *string
+	phases        *[]interface{}
+	appendphases  []interface{}
+	created_at    *time.Time
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*PRISMRoadmap, error)
+	predicates    []predicate.PRISMRoadmap
+}
+
+var _ ent.Mutation = (*PRISMRoadmapMutation)(nil)
+
+// prismroadmapOption allows management of the mutation configuration using functional options.
+type prismroadmapOption func(*PRISMRoadmapMutation)
+
+// newPRISMRoadmapMutation creates new mutation for the PRISMRoadmap entity.
+func newPRISMRoadmapMutation(c config, op Op, opts ...prismroadmapOption) *PRISMRoadmapMutation {
+	m := &PRISMRoadmapMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePRISMRoadmap,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPRISMRoadmapID sets the ID field of the mutation.
+func withPRISMRoadmapID(id string) prismroadmapOption {
+	return func(m *PRISMRoadmapMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *PRISMRoadmap
+		)
+		m.oldValue = func(ctx context.Context) (*PRISMRoadmap, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().PRISMRoadmap.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPRISMRoadmap sets the old PRISMRoadmap of the mutation.
+func withPRISMRoadmap(node *PRISMRoadmap) prismroadmapOption {
+	return func(m *PRISMRoadmapMutation) {
+		m.oldValue = func(context.Context) (*PRISMRoadmap, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PRISMRoadmapMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PRISMRoadmapMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of PRISMRoadmap entities.
+func (m *PRISMRoadmapMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PRISMRoadmapMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PRISMRoadmapMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().PRISMRoadmap.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetOrganization sets the "organization" field.
+func (m *PRISMRoadmapMutation) SetOrganization(s string) {
+	m.organization = &s
+}
+
+// Organization returns the value of the "organization" field in the mutation.
+func (m *PRISMRoadmapMutation) Organization() (r string, exists bool) {
+	v := m.organization
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrganization returns the old "organization" field's value of the PRISMRoadmap entity.
+// If the PRISMRoadmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMRoadmapMutation) OldOrganization(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrganization is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrganization requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrganization: %w", err)
+	}
+	return oldValue.Organization, nil
+}
+
+// ClearOrganization clears the value of the "organization" field.
+func (m *PRISMRoadmapMutation) ClearOrganization() {
+	m.organization = nil
+	m.clearedFields[prismroadmap.FieldOrganization] = struct{}{}
+}
+
+// OrganizationCleared returns if the "organization" field was cleared in this mutation.
+func (m *PRISMRoadmapMutation) OrganizationCleared() bool {
+	_, ok := m.clearedFields[prismroadmap.FieldOrganization]
+	return ok
+}
+
+// ResetOrganization resets all changes to the "organization" field.
+func (m *PRISMRoadmapMutation) ResetOrganization() {
+	m.organization = nil
+	delete(m.clearedFields, prismroadmap.FieldOrganization)
+}
+
+// SetRepositoryID sets the "repository_id" field.
+func (m *PRISMRoadmapMutation) SetRepositoryID(s string) {
+	m.repository_id = &s
+}
+
+// RepositoryID returns the value of the "repository_id" field in the mutation.
+func (m *PRISMRoadmapMutation) RepositoryID() (r string, exists bool) {
+	v := m.repository_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRepositoryID returns the old "repository_id" field's value of the PRISMRoadmap entity.
+// If the PRISMRoadmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMRoadmapMutation) OldRepositoryID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRepositoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRepositoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRepositoryID: %w", err)
+	}
+	return oldValue.RepositoryID, nil
+}
+
+// ResetRepositoryID resets all changes to the "repository_id" field.
+func (m *PRISMRoadmapMutation) ResetRepositoryID() {
+	m.repository_id = nil
+}
+
+// SetName sets the "name" field.
+func (m *PRISMRoadmapMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *PRISMRoadmapMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the PRISMRoadmap entity.
+// If the PRISMRoadmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMRoadmapMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ClearName clears the value of the "name" field.
+func (m *PRISMRoadmapMutation) ClearName() {
+	m.name = nil
+	m.clearedFields[prismroadmap.FieldName] = struct{}{}
+}
+
+// NameCleared returns if the "name" field was cleared in this mutation.
+func (m *PRISMRoadmapMutation) NameCleared() bool {
+	_, ok := m.clearedFields[prismroadmap.FieldName]
+	return ok
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *PRISMRoadmapMutation) ResetName() {
+	m.name = nil
+	delete(m.clearedFields, prismroadmap.FieldName)
+}
+
+// SetPhases sets the "phases" field.
+func (m *PRISMRoadmapMutation) SetPhases(i []interface{}) {
+	m.phases = &i
+	m.appendphases = nil
+}
+
+// Phases returns the value of the "phases" field in the mutation.
+func (m *PRISMRoadmapMutation) Phases() (r []interface{}, exists bool) {
+	v := m.phases
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPhases returns the old "phases" field's value of the PRISMRoadmap entity.
+// If the PRISMRoadmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMRoadmapMutation) OldPhases(ctx context.Context) (v []interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPhases is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPhases requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPhases: %w", err)
+	}
+	return oldValue.Phases, nil
+}
+
+// AppendPhases adds i to the "phases" field.
+func (m *PRISMRoadmapMutation) AppendPhases(i []interface{}) {
+	m.appendphases = append(m.appendphases, i...)
+}
+
+// AppendedPhases returns the list of values that were appended to the "phases" field in this mutation.
+func (m *PRISMRoadmapMutation) AppendedPhases() ([]interface{}, bool) {
+	if len(m.appendphases) == 0 {
+		return nil, false
+	}
+	return m.appendphases, true
+}
+
+// ClearPhases clears the value of the "phases" field.
+func (m *PRISMRoadmapMutation) ClearPhases() {
+	m.phases = nil
+	m.appendphases = nil
+	m.clearedFields[prismroadmap.FieldPhases] = struct{}{}
+}
+
+// PhasesCleared returns if the "phases" field was cleared in this mutation.
+func (m *PRISMRoadmapMutation) PhasesCleared() bool {
+	_, ok := m.clearedFields[prismroadmap.FieldPhases]
+	return ok
+}
+
+// ResetPhases resets all changes to the "phases" field.
+func (m *PRISMRoadmapMutation) ResetPhases() {
+	m.phases = nil
+	m.appendphases = nil
+	delete(m.clearedFields, prismroadmap.FieldPhases)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PRISMRoadmapMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PRISMRoadmapMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the PRISMRoadmap entity.
+// If the PRISMRoadmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMRoadmapMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PRISMRoadmapMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PRISMRoadmapMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PRISMRoadmapMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the PRISMRoadmap entity.
+// If the PRISMRoadmap object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PRISMRoadmapMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PRISMRoadmapMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the PRISMRoadmapMutation builder.
+func (m *PRISMRoadmapMutation) Where(ps ...predicate.PRISMRoadmap) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PRISMRoadmapMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PRISMRoadmapMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.PRISMRoadmap, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PRISMRoadmapMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PRISMRoadmapMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (PRISMRoadmap).
+func (m *PRISMRoadmapMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PRISMRoadmapMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.organization != nil {
+		fields = append(fields, prismroadmap.FieldOrganization)
+	}
+	if m.repository_id != nil {
+		fields = append(fields, prismroadmap.FieldRepositoryID)
+	}
+	if m.name != nil {
+		fields = append(fields, prismroadmap.FieldName)
+	}
+	if m.phases != nil {
+		fields = append(fields, prismroadmap.FieldPhases)
+	}
+	if m.created_at != nil {
+		fields = append(fields, prismroadmap.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, prismroadmap.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PRISMRoadmapMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case prismroadmap.FieldOrganization:
+		return m.Organization()
+	case prismroadmap.FieldRepositoryID:
+		return m.RepositoryID()
+	case prismroadmap.FieldName:
+		return m.Name()
+	case prismroadmap.FieldPhases:
+		return m.Phases()
+	case prismroadmap.FieldCreatedAt:
+		return m.CreatedAt()
+	case prismroadmap.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PRISMRoadmapMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case prismroadmap.FieldOrganization:
+		return m.OldOrganization(ctx)
+	case prismroadmap.FieldRepositoryID:
+		return m.OldRepositoryID(ctx)
+	case prismroadmap.FieldName:
+		return m.OldName(ctx)
+	case prismroadmap.FieldPhases:
+		return m.OldPhases(ctx)
+	case prismroadmap.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case prismroadmap.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown PRISMRoadmap field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PRISMRoadmapMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case prismroadmap.FieldOrganization:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrganization(v)
+		return nil
+	case prismroadmap.FieldRepositoryID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRepositoryID(v)
+		return nil
+	case prismroadmap.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case prismroadmap.FieldPhases:
+		v, ok := value.([]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPhases(v)
+		return nil
+	case prismroadmap.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case prismroadmap.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMRoadmap field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PRISMRoadmapMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PRISMRoadmapMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PRISMRoadmapMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown PRISMRoadmap numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PRISMRoadmapMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(prismroadmap.FieldOrganization) {
+		fields = append(fields, prismroadmap.FieldOrganization)
+	}
+	if m.FieldCleared(prismroadmap.FieldName) {
+		fields = append(fields, prismroadmap.FieldName)
+	}
+	if m.FieldCleared(prismroadmap.FieldPhases) {
+		fields = append(fields, prismroadmap.FieldPhases)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PRISMRoadmapMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PRISMRoadmapMutation) ClearField(name string) error {
+	switch name {
+	case prismroadmap.FieldOrganization:
+		m.ClearOrganization()
+		return nil
+	case prismroadmap.FieldName:
+		m.ClearName()
+		return nil
+	case prismroadmap.FieldPhases:
+		m.ClearPhases()
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMRoadmap nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PRISMRoadmapMutation) ResetField(name string) error {
+	switch name {
+	case prismroadmap.FieldOrganization:
+		m.ResetOrganization()
+		return nil
+	case prismroadmap.FieldRepositoryID:
+		m.ResetRepositoryID()
+		return nil
+	case prismroadmap.FieldName:
+		m.ResetName()
+		return nil
+	case prismroadmap.FieldPhases:
+		m.ResetPhases()
+		return nil
+	case prismroadmap.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case prismroadmap.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown PRISMRoadmap field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PRISMRoadmapMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PRISMRoadmapMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PRISMRoadmapMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PRISMRoadmapMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PRISMRoadmapMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PRISMRoadmapMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PRISMRoadmapMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown PRISMRoadmap unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PRISMRoadmapMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown PRISMRoadmap edge %s", name)
 }
 
 // PhaseMutation represents an operation that mutates the Phase nodes in the graph.
@@ -11207,6 +14770,976 @@ func (m *RoadmapItemMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown RoadmapItem edge %s", name)
+}
+
+// SpecDocumentMutation represents an operation that mutates the SpecDocument nodes in the graph.
+type SpecDocumentMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	organization  *string
+	repository_id *string
+	initiative_id *string
+	spec_type     *string
+	file_path     *string
+	title         *string
+	status        *string
+	content_hash  *string
+	synced_at     *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*SpecDocument, error)
+	predicates    []predicate.SpecDocument
+}
+
+var _ ent.Mutation = (*SpecDocumentMutation)(nil)
+
+// specdocumentOption allows management of the mutation configuration using functional options.
+type specdocumentOption func(*SpecDocumentMutation)
+
+// newSpecDocumentMutation creates new mutation for the SpecDocument entity.
+func newSpecDocumentMutation(c config, op Op, opts ...specdocumentOption) *SpecDocumentMutation {
+	m := &SpecDocumentMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeSpecDocument,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withSpecDocumentID sets the ID field of the mutation.
+func withSpecDocumentID(id string) specdocumentOption {
+	return func(m *SpecDocumentMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *SpecDocument
+		)
+		m.oldValue = func(ctx context.Context) (*SpecDocument, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().SpecDocument.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withSpecDocument sets the old SpecDocument of the mutation.
+func withSpecDocument(node *SpecDocument) specdocumentOption {
+	return func(m *SpecDocumentMutation) {
+		m.oldValue = func(context.Context) (*SpecDocument, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m SpecDocumentMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m SpecDocumentMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of SpecDocument entities.
+func (m *SpecDocumentMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *SpecDocumentMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *SpecDocumentMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().SpecDocument.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetOrganization sets the "organization" field.
+func (m *SpecDocumentMutation) SetOrganization(s string) {
+	m.organization = &s
+}
+
+// Organization returns the value of the "organization" field in the mutation.
+func (m *SpecDocumentMutation) Organization() (r string, exists bool) {
+	v := m.organization
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrganization returns the old "organization" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldOrganization(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrganization is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrganization requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrganization: %w", err)
+	}
+	return oldValue.Organization, nil
+}
+
+// ClearOrganization clears the value of the "organization" field.
+func (m *SpecDocumentMutation) ClearOrganization() {
+	m.organization = nil
+	m.clearedFields[specdocument.FieldOrganization] = struct{}{}
+}
+
+// OrganizationCleared returns if the "organization" field was cleared in this mutation.
+func (m *SpecDocumentMutation) OrganizationCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldOrganization]
+	return ok
+}
+
+// ResetOrganization resets all changes to the "organization" field.
+func (m *SpecDocumentMutation) ResetOrganization() {
+	m.organization = nil
+	delete(m.clearedFields, specdocument.FieldOrganization)
+}
+
+// SetRepositoryID sets the "repository_id" field.
+func (m *SpecDocumentMutation) SetRepositoryID(s string) {
+	m.repository_id = &s
+}
+
+// RepositoryID returns the value of the "repository_id" field in the mutation.
+func (m *SpecDocumentMutation) RepositoryID() (r string, exists bool) {
+	v := m.repository_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRepositoryID returns the old "repository_id" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldRepositoryID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRepositoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRepositoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRepositoryID: %w", err)
+	}
+	return oldValue.RepositoryID, nil
+}
+
+// ResetRepositoryID resets all changes to the "repository_id" field.
+func (m *SpecDocumentMutation) ResetRepositoryID() {
+	m.repository_id = nil
+}
+
+// SetInitiativeID sets the "initiative_id" field.
+func (m *SpecDocumentMutation) SetInitiativeID(s string) {
+	m.initiative_id = &s
+}
+
+// InitiativeID returns the value of the "initiative_id" field in the mutation.
+func (m *SpecDocumentMutation) InitiativeID() (r string, exists bool) {
+	v := m.initiative_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInitiativeID returns the old "initiative_id" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldInitiativeID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInitiativeID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInitiativeID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInitiativeID: %w", err)
+	}
+	return oldValue.InitiativeID, nil
+}
+
+// ClearInitiativeID clears the value of the "initiative_id" field.
+func (m *SpecDocumentMutation) ClearInitiativeID() {
+	m.initiative_id = nil
+	m.clearedFields[specdocument.FieldInitiativeID] = struct{}{}
+}
+
+// InitiativeIDCleared returns if the "initiative_id" field was cleared in this mutation.
+func (m *SpecDocumentMutation) InitiativeIDCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldInitiativeID]
+	return ok
+}
+
+// ResetInitiativeID resets all changes to the "initiative_id" field.
+func (m *SpecDocumentMutation) ResetInitiativeID() {
+	m.initiative_id = nil
+	delete(m.clearedFields, specdocument.FieldInitiativeID)
+}
+
+// SetSpecType sets the "spec_type" field.
+func (m *SpecDocumentMutation) SetSpecType(s string) {
+	m.spec_type = &s
+}
+
+// SpecType returns the value of the "spec_type" field in the mutation.
+func (m *SpecDocumentMutation) SpecType() (r string, exists bool) {
+	v := m.spec_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSpecType returns the old "spec_type" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldSpecType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSpecType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSpecType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSpecType: %w", err)
+	}
+	return oldValue.SpecType, nil
+}
+
+// ResetSpecType resets all changes to the "spec_type" field.
+func (m *SpecDocumentMutation) ResetSpecType() {
+	m.spec_type = nil
+}
+
+// SetFilePath sets the "file_path" field.
+func (m *SpecDocumentMutation) SetFilePath(s string) {
+	m.file_path = &s
+}
+
+// FilePath returns the value of the "file_path" field in the mutation.
+func (m *SpecDocumentMutation) FilePath() (r string, exists bool) {
+	v := m.file_path
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFilePath returns the old "file_path" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldFilePath(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFilePath is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFilePath requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFilePath: %w", err)
+	}
+	return oldValue.FilePath, nil
+}
+
+// ResetFilePath resets all changes to the "file_path" field.
+func (m *SpecDocumentMutation) ResetFilePath() {
+	m.file_path = nil
+}
+
+// SetTitle sets the "title" field.
+func (m *SpecDocumentMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *SpecDocumentMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ClearTitle clears the value of the "title" field.
+func (m *SpecDocumentMutation) ClearTitle() {
+	m.title = nil
+	m.clearedFields[specdocument.FieldTitle] = struct{}{}
+}
+
+// TitleCleared returns if the "title" field was cleared in this mutation.
+func (m *SpecDocumentMutation) TitleCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldTitle]
+	return ok
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *SpecDocumentMutation) ResetTitle() {
+	m.title = nil
+	delete(m.clearedFields, specdocument.FieldTitle)
+}
+
+// SetStatus sets the "status" field.
+func (m *SpecDocumentMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *SpecDocumentMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ClearStatus clears the value of the "status" field.
+func (m *SpecDocumentMutation) ClearStatus() {
+	m.status = nil
+	m.clearedFields[specdocument.FieldStatus] = struct{}{}
+}
+
+// StatusCleared returns if the "status" field was cleared in this mutation.
+func (m *SpecDocumentMutation) StatusCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldStatus]
+	return ok
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *SpecDocumentMutation) ResetStatus() {
+	m.status = nil
+	delete(m.clearedFields, specdocument.FieldStatus)
+}
+
+// SetContentHash sets the "content_hash" field.
+func (m *SpecDocumentMutation) SetContentHash(s string) {
+	m.content_hash = &s
+}
+
+// ContentHash returns the value of the "content_hash" field in the mutation.
+func (m *SpecDocumentMutation) ContentHash() (r string, exists bool) {
+	v := m.content_hash
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContentHash returns the old "content_hash" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldContentHash(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContentHash is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContentHash requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContentHash: %w", err)
+	}
+	return oldValue.ContentHash, nil
+}
+
+// ClearContentHash clears the value of the "content_hash" field.
+func (m *SpecDocumentMutation) ClearContentHash() {
+	m.content_hash = nil
+	m.clearedFields[specdocument.FieldContentHash] = struct{}{}
+}
+
+// ContentHashCleared returns if the "content_hash" field was cleared in this mutation.
+func (m *SpecDocumentMutation) ContentHashCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldContentHash]
+	return ok
+}
+
+// ResetContentHash resets all changes to the "content_hash" field.
+func (m *SpecDocumentMutation) ResetContentHash() {
+	m.content_hash = nil
+	delete(m.clearedFields, specdocument.FieldContentHash)
+}
+
+// SetSyncedAt sets the "synced_at" field.
+func (m *SpecDocumentMutation) SetSyncedAt(t time.Time) {
+	m.synced_at = &t
+}
+
+// SyncedAt returns the value of the "synced_at" field in the mutation.
+func (m *SpecDocumentMutation) SyncedAt() (r time.Time, exists bool) {
+	v := m.synced_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSyncedAt returns the old "synced_at" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldSyncedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSyncedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSyncedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSyncedAt: %w", err)
+	}
+	return oldValue.SyncedAt, nil
+}
+
+// ResetSyncedAt resets all changes to the "synced_at" field.
+func (m *SpecDocumentMutation) ResetSyncedAt() {
+	m.synced_at = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *SpecDocumentMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *SpecDocumentMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *SpecDocumentMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *SpecDocumentMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *SpecDocumentMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *SpecDocumentMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// Where appends a list predicates to the SpecDocumentMutation builder.
+func (m *SpecDocumentMutation) Where(ps ...predicate.SpecDocument) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the SpecDocumentMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *SpecDocumentMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.SpecDocument, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *SpecDocumentMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *SpecDocumentMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (SpecDocument).
+func (m *SpecDocumentMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *SpecDocumentMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.organization != nil {
+		fields = append(fields, specdocument.FieldOrganization)
+	}
+	if m.repository_id != nil {
+		fields = append(fields, specdocument.FieldRepositoryID)
+	}
+	if m.initiative_id != nil {
+		fields = append(fields, specdocument.FieldInitiativeID)
+	}
+	if m.spec_type != nil {
+		fields = append(fields, specdocument.FieldSpecType)
+	}
+	if m.file_path != nil {
+		fields = append(fields, specdocument.FieldFilePath)
+	}
+	if m.title != nil {
+		fields = append(fields, specdocument.FieldTitle)
+	}
+	if m.status != nil {
+		fields = append(fields, specdocument.FieldStatus)
+	}
+	if m.content_hash != nil {
+		fields = append(fields, specdocument.FieldContentHash)
+	}
+	if m.synced_at != nil {
+		fields = append(fields, specdocument.FieldSyncedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, specdocument.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, specdocument.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *SpecDocumentMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case specdocument.FieldOrganization:
+		return m.Organization()
+	case specdocument.FieldRepositoryID:
+		return m.RepositoryID()
+	case specdocument.FieldInitiativeID:
+		return m.InitiativeID()
+	case specdocument.FieldSpecType:
+		return m.SpecType()
+	case specdocument.FieldFilePath:
+		return m.FilePath()
+	case specdocument.FieldTitle:
+		return m.Title()
+	case specdocument.FieldStatus:
+		return m.Status()
+	case specdocument.FieldContentHash:
+		return m.ContentHash()
+	case specdocument.FieldSyncedAt:
+		return m.SyncedAt()
+	case specdocument.FieldCreatedAt:
+		return m.CreatedAt()
+	case specdocument.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *SpecDocumentMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case specdocument.FieldOrganization:
+		return m.OldOrganization(ctx)
+	case specdocument.FieldRepositoryID:
+		return m.OldRepositoryID(ctx)
+	case specdocument.FieldInitiativeID:
+		return m.OldInitiativeID(ctx)
+	case specdocument.FieldSpecType:
+		return m.OldSpecType(ctx)
+	case specdocument.FieldFilePath:
+		return m.OldFilePath(ctx)
+	case specdocument.FieldTitle:
+		return m.OldTitle(ctx)
+	case specdocument.FieldStatus:
+		return m.OldStatus(ctx)
+	case specdocument.FieldContentHash:
+		return m.OldContentHash(ctx)
+	case specdocument.FieldSyncedAt:
+		return m.OldSyncedAt(ctx)
+	case specdocument.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case specdocument.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown SpecDocument field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SpecDocumentMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case specdocument.FieldOrganization:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrganization(v)
+		return nil
+	case specdocument.FieldRepositoryID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRepositoryID(v)
+		return nil
+	case specdocument.FieldInitiativeID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInitiativeID(v)
+		return nil
+	case specdocument.FieldSpecType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSpecType(v)
+		return nil
+	case specdocument.FieldFilePath:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFilePath(v)
+		return nil
+	case specdocument.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case specdocument.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case specdocument.FieldContentHash:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContentHash(v)
+		return nil
+	case specdocument.FieldSyncedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSyncedAt(v)
+		return nil
+	case specdocument.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case specdocument.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown SpecDocument field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *SpecDocumentMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *SpecDocumentMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *SpecDocumentMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown SpecDocument numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *SpecDocumentMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(specdocument.FieldOrganization) {
+		fields = append(fields, specdocument.FieldOrganization)
+	}
+	if m.FieldCleared(specdocument.FieldInitiativeID) {
+		fields = append(fields, specdocument.FieldInitiativeID)
+	}
+	if m.FieldCleared(specdocument.FieldTitle) {
+		fields = append(fields, specdocument.FieldTitle)
+	}
+	if m.FieldCleared(specdocument.FieldStatus) {
+		fields = append(fields, specdocument.FieldStatus)
+	}
+	if m.FieldCleared(specdocument.FieldContentHash) {
+		fields = append(fields, specdocument.FieldContentHash)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *SpecDocumentMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *SpecDocumentMutation) ClearField(name string) error {
+	switch name {
+	case specdocument.FieldOrganization:
+		m.ClearOrganization()
+		return nil
+	case specdocument.FieldInitiativeID:
+		m.ClearInitiativeID()
+		return nil
+	case specdocument.FieldTitle:
+		m.ClearTitle()
+		return nil
+	case specdocument.FieldStatus:
+		m.ClearStatus()
+		return nil
+	case specdocument.FieldContentHash:
+		m.ClearContentHash()
+		return nil
+	}
+	return fmt.Errorf("unknown SpecDocument nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *SpecDocumentMutation) ResetField(name string) error {
+	switch name {
+	case specdocument.FieldOrganization:
+		m.ResetOrganization()
+		return nil
+	case specdocument.FieldRepositoryID:
+		m.ResetRepositoryID()
+		return nil
+	case specdocument.FieldInitiativeID:
+		m.ResetInitiativeID()
+		return nil
+	case specdocument.FieldSpecType:
+		m.ResetSpecType()
+		return nil
+	case specdocument.FieldFilePath:
+		m.ResetFilePath()
+		return nil
+	case specdocument.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case specdocument.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case specdocument.FieldContentHash:
+		m.ResetContentHash()
+		return nil
+	case specdocument.FieldSyncedAt:
+		m.ResetSyncedAt()
+		return nil
+	case specdocument.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case specdocument.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown SpecDocument field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *SpecDocumentMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *SpecDocumentMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *SpecDocumentMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *SpecDocumentMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *SpecDocumentMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *SpecDocumentMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *SpecDocumentMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown SpecDocument unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *SpecDocumentMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown SpecDocument edge %s", name)
 }
 
 // SpecWorkflowMutation represents an operation that mutates the SpecWorkflow nodes in the graph.

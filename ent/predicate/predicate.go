@@ -15,6 +15,9 @@ type CapabilityModel func(*sql.Selector)
 // DeliveryEvidence is the predicate function for deliveryevidence builders.
 type DeliveryEvidence func(*sql.Selector)
 
+// DevXPeriodReport is the predicate function for devxperiodreport builders.
+type DevXPeriodReport func(*sql.Selector)
+
 // Initiative is the predicate function for initiative builders.
 type Initiative func(*sql.Selector)
 
@@ -29,6 +32,15 @@ type JudgeRubric func(*sql.Selector)
 
 // MaturityAssessment is the predicate function for maturityassessment builders.
 type MaturityAssessment func(*sql.Selector)
+
+// PRISMDocument is the predicate function for prismdocument builders.
+type PRISMDocument func(*sql.Selector)
+
+// PRISMGoal is the predicate function for prismgoal builders.
+type PRISMGoal func(*sql.Selector)
+
+// PRISMRoadmap is the predicate function for prismroadmap builders.
+type PRISMRoadmap func(*sql.Selector)
 
 // Phase is the predicate function for phase builders.
 type Phase func(*sql.Selector)
@@ -47,6 +59,9 @@ type RepositoryDependency func(*sql.Selector)
 
 // RoadmapItem is the predicate function for roadmapitem builders.
 type RoadmapItem func(*sql.Selector)
+
+// SpecDocument is the predicate function for specdocument builders.
+type SpecDocument func(*sql.Selector)
 
 // SpecWorkflow is the predicate function for specworkflow builders.
 type SpecWorkflow func(*sql.Selector)

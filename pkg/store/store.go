@@ -22,6 +22,10 @@ type Store interface {
 	SpecWorkflowStore
 	JudgeStore
 	MaturityStore
+	DevXStore
+	PRISMRoadmapStore
+	PRISMDocumentStore
+	SpecDocumentStore
 }
 
 // UnitOfWork groups a SQL transaction with a subsequent Dolt commit.
@@ -347,4 +351,119 @@ type MaturityStore interface {
 	GetMaturityAssessment(ctx context.Context, id string) (*MaturityAssessment, error)
 	ListMaturityAssessments(ctx context.Context, initiativeID string) ([]*MaturityAssessment, error)
 	ListMaturityAssessmentsByOrg(ctx context.Context, org string) ([]*MaturityAssessment, error)
+}
+
+// DevXPeriodReport holds developer experience metrics for a period.
+type DevXPeriodReport struct {
+	ID            string         `json:"id"`
+	Organization  string         `json:"organization,omitempty"`
+	RepositoryID  string         `json:"repository_id,omitempty"`
+	PersonID      string         `json:"person_id"`
+	PeriodType    string         `json:"period_type"`
+	PeriodLabel   string         `json:"period_label"`
+	PeriodStart   time.Time      `json:"period_start"`
+	PeriodEnd     time.Time      `json:"period_end"`
+	Metrics       map[string]any `json:"metrics,omitempty"`
+	ByModel       map[string]any `json:"by_model,omitempty"`
+	CoverageScore float64        `json:"coverage_score,omitempty"`
+	CreatedAt     time.Time      `json:"created_at"`
+}
+
+// DevXStore defines persistence for developer experience metrics.
+type DevXStore interface {
+	CreateDevXPeriodReport(ctx context.Context, report *DevXPeriodReport) error
+	GetDevXPeriodReport(ctx context.Context, id string) (*DevXPeriodReport, error)
+	ListDevXPeriodReports(ctx context.Context, personID string) ([]*DevXPeriodReport, error)
+	ListDevXPeriodReportsByRepo(ctx context.Context, repoID string) ([]*DevXPeriodReport, error)
+	ListDevXPeriodReportsByOrg(ctx context.Context, org string) ([]*DevXPeriodReport, error)
+}
+
+// PRISMRoadmap holds prism-roadmap artifacts keyed by repo.
+type PRISMRoadmap struct {
+	ID           string    `json:"id"`
+	Organization string    `json:"organization,omitempty"`
+	RepositoryID string    `json:"repository_id"`
+	Name         string    `json:"name,omitempty"`
+	Phases       []any     `json:"phases,omitempty"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// PRISMGoal holds prism-roadmap goals artifacts.
+type PRISMGoal struct {
+	ID           string         `json:"id"`
+	Organization string         `json:"organization,omitempty"`
+	RepositoryID string         `json:"repository_id"`
+	GoalType     string         `json:"goal_type"`
+	Document     map[string]any `json:"document,omitempty"`
+	CreatedAt    time.Time      `json:"created_at"`
+	UpdatedAt    time.Time      `json:"updated_at"`
+}
+
+// PRISMRoadmapStore defines persistence for prism-roadmap artifacts.
+type PRISMRoadmapStore interface {
+	CreatePRISMRoadmap(ctx context.Context, roadmap *PRISMRoadmap) error
+	GetPRISMRoadmap(ctx context.Context, id string) (*PRISMRoadmap, error)
+	ListPRISMRoadmaps(ctx context.Context) ([]*PRISMRoadmap, error)
+	ListPRISMRoadmapsByRepo(ctx context.Context, repoID string) ([]*PRISMRoadmap, error)
+	UpdatePRISMRoadmap(ctx context.Context, roadmap *PRISMRoadmap) error
+	CreatePRISMGoal(ctx context.Context, goal *PRISMGoal) error
+	GetPRISMGoal(ctx context.Context, id string) (*PRISMGoal, error)
+	ListPRISMGoals(ctx context.Context, repoID string) ([]*PRISMGoal, error)
+	UpdatePRISMGoal(ctx context.Context, goal *PRISMGoal) error
+}
+
+// PRISMDocument holds prism-maturity domain/stage models.
+type PRISMDocument struct {
+	ID            string         `json:"id"`
+	Organization  string         `json:"organization,omitempty"`
+	RepositoryID  string         `json:"repository_id,omitempty"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description,omitempty"`
+	Version       string         `json:"version,omitempty"`
+	Domains       []any          `json:"domains,omitempty"`
+	Layers        []any          `json:"layers,omitempty"`
+	Metrics       []any          `json:"metrics,omitempty"`
+	Maturity      map[string]any `json:"maturity,omitempty"`
+	SLIState      map[string]any `json:"sli_state,omitempty"`
+	MaturityState map[string]any `json:"maturity_state,omitempty"`
+	CreatedAt     time.Time      `json:"created_at"`
+	UpdatedAt     time.Time      `json:"updated_at"`
+}
+
+// PRISMDocumentStore defines persistence for prism-maturity documents.
+type PRISMDocumentStore interface {
+	CreatePRISMDocument(ctx context.Context, doc *PRISMDocument) error
+	GetPRISMDocument(ctx context.Context, id string) (*PRISMDocument, error)
+	ListPRISMDocuments(ctx context.Context) ([]*PRISMDocument, error)
+	ListPRISMDocumentsByOrg(ctx context.Context, org string) ([]*PRISMDocument, error)
+	ListPRISMDocumentsByRepo(ctx context.Context, repoID string) ([]*PRISMDocument, error)
+	UpdatePRISMDocument(ctx context.Context, doc *PRISMDocument) error
+}
+
+// SpecDocument is a visionspec document registry entry.
+type SpecDocument struct {
+	ID           string    `json:"id"`
+	Organization string    `json:"organization,omitempty"`
+	RepositoryID string    `json:"repository_id"`
+	InitiativeID string    `json:"initiative_id,omitempty"`
+	SpecType     string    `json:"spec_type"`
+	FilePath     string    `json:"file_path"`
+	Title        string    `json:"title,omitempty"`
+	Status       string    `json:"status,omitempty"`
+	ContentHash  string    `json:"content_hash,omitempty"`
+	SyncedAt     time.Time `json:"synced_at"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// SpecDocumentStore defines persistence for the spec document registry.
+type SpecDocumentStore interface {
+	CreateSpecDocument(ctx context.Context, doc *SpecDocument) error
+	GetSpecDocument(ctx context.Context, id string) (*SpecDocument, error)
+	ListSpecDocuments(ctx context.Context) ([]*SpecDocument, error)
+	ListSpecDocumentsByRepo(ctx context.Context, repoID string) ([]*SpecDocument, error)
+	ListSpecDocumentsByInitiative(ctx context.Context, initiativeID string) ([]*SpecDocument, error)
+	UpdateSpecDocument(ctx context.Context, doc *SpecDocument) error
+	DeleteSpecDocument(ctx context.Context, id string) error
 }

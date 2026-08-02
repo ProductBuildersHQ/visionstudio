@@ -74,6 +74,27 @@ var (
 			},
 		},
 	}
+	// DevXperiodReportsColumns holds the columns for the "dev_xperiod_reports" table.
+	DevXperiodReportsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "organization", Type: field.TypeString, Nullable: true},
+		{Name: "repository_id", Type: field.TypeString, Nullable: true},
+		{Name: "person_id", Type: field.TypeString},
+		{Name: "period_type", Type: field.TypeString},
+		{Name: "period_label", Type: field.TypeString},
+		{Name: "period_start", Type: field.TypeTime},
+		{Name: "period_end", Type: field.TypeTime},
+		{Name: "metrics", Type: field.TypeJSON, Nullable: true},
+		{Name: "by_model", Type: field.TypeJSON, Nullable: true},
+		{Name: "coverage_score", Type: field.TypeFloat64, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+	}
+	// DevXperiodReportsTable holds the schema information for the "dev_xperiod_reports" table.
+	DevXperiodReportsTable = &schema.Table{
+		Name:       "dev_xperiod_reports",
+		Columns:    DevXperiodReportsColumns,
+		PrimaryKey: []*schema.Column{DevXperiodReportsColumns[0]},
+	}
 	// InitiativesColumns holds the columns for the "initiatives" table.
 	InitiativesColumns = []*schema.Column{
 		{Name: "initiative_id", Type: field.TypeString, Size: 64},
@@ -209,6 +230,61 @@ var (
 				OnDelete:   schema.SetNull,
 			},
 		},
+	}
+	// PrismDocumentsColumns holds the columns for the "prism_documents" table.
+	PrismDocumentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "organization", Type: field.TypeString, Nullable: true},
+		{Name: "repository_id", Type: field.TypeString, Nullable: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "version", Type: field.TypeString, Nullable: true},
+		{Name: "domains", Type: field.TypeJSON, Nullable: true},
+		{Name: "layers", Type: field.TypeJSON, Nullable: true},
+		{Name: "metrics", Type: field.TypeJSON, Nullable: true},
+		{Name: "maturity", Type: field.TypeJSON, Nullable: true},
+		{Name: "sli_state", Type: field.TypeJSON, Nullable: true},
+		{Name: "maturity_state", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PrismDocumentsTable holds the schema information for the "prism_documents" table.
+	PrismDocumentsTable = &schema.Table{
+		Name:       "prism_documents",
+		Columns:    PrismDocumentsColumns,
+		PrimaryKey: []*schema.Column{PrismDocumentsColumns[0]},
+	}
+	// PrismGoalsColumns holds the columns for the "prism_goals" table.
+	PrismGoalsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "organization", Type: field.TypeString, Nullable: true},
+		{Name: "repository_id", Type: field.TypeString},
+		{Name: "goal_type", Type: field.TypeString},
+		{Name: "document", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PrismGoalsTable holds the schema information for the "prism_goals" table.
+	PrismGoalsTable = &schema.Table{
+		Name:       "prism_goals",
+		Columns:    PrismGoalsColumns,
+		PrimaryKey: []*schema.Column{PrismGoalsColumns[0]},
+	}
+	// PrismRoadmapsColumns holds the columns for the "prism_roadmaps" table.
+	PrismRoadmapsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "organization", Type: field.TypeString, Nullable: true},
+		{Name: "repository_id", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString, Nullable: true},
+		{Name: "phases", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PrismRoadmapsTable holds the schema information for the "prism_roadmaps" table.
+	PrismRoadmapsTable = &schema.Table{
+		Name:       "prism_roadmaps",
+		Columns:    PrismRoadmapsColumns,
+		PrimaryKey: []*schema.Column{PrismRoadmapsColumns[0]},
 	}
 	// PhasesColumns holds the columns for the "phases" table.
 	PhasesColumns = []*schema.Column{
@@ -350,6 +426,27 @@ var (
 			},
 		},
 	}
+	// SpecDocumentsColumns holds the columns for the "spec_documents" table.
+	SpecDocumentsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "organization", Type: field.TypeString, Nullable: true},
+		{Name: "repository_id", Type: field.TypeString},
+		{Name: "initiative_id", Type: field.TypeString, Nullable: true},
+		{Name: "spec_type", Type: field.TypeString},
+		{Name: "file_path", Type: field.TypeString},
+		{Name: "title", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeString, Nullable: true},
+		{Name: "content_hash", Type: field.TypeString, Nullable: true},
+		{Name: "synced_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// SpecDocumentsTable holds the schema information for the "spec_documents" table.
+	SpecDocumentsTable = &schema.Table{
+		Name:       "spec_documents",
+		Columns:    SpecDocumentsColumns,
+		PrimaryKey: []*schema.Column{SpecDocumentsColumns[0]},
+	}
 	// SpecWorkflowsColumns holds the columns for the "spec_workflows" table.
 	SpecWorkflowsColumns = []*schema.Column{
 		{Name: "workflow_id", Type: field.TypeString, Size: 64},
@@ -370,17 +467,22 @@ var (
 		AssignmentsTable,
 		CapabilityModelsTable,
 		DeliveryEvidencesTable,
+		DevXperiodReportsTable,
 		InitiativesTable,
 		InitiativeDependenciesTable,
 		JudgeResultsTable,
 		JudgeRubricsTable,
 		MaturityAssessmentsTable,
+		PrismDocumentsTable,
+		PrismGoalsTable,
+		PrismRoadmapsTable,
 		PhasesTable,
 		ProgramsTable,
 		RmiDependenciesTable,
 		RepositoriesTable,
 		RepositoryDependenciesTable,
 		RoadmapItemsTable,
+		SpecDocumentsTable,
 		SpecWorkflowsTable,
 	}
 )

@@ -113,6 +113,9 @@ func (s *Server) Router() http.Handler {
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", s.handleHealth)
 
+		// Unified dashboard API (execution, spend, maturity, specs)
+		registerDashboardAPI(r, s.logger)
+
 		// DevX (OmniDevX dashboard passthrough)
 		r.Get("/devx/dashboard", s.handleGetDevXDashboard)
 		r.Get("/devx/periods", s.handleListDevXPeriods)
@@ -199,7 +202,47 @@ func (s *Server) Router() http.Handler {
 		r.Post("/extensions/api-style-spec/suggest-fixes", s.handleAPIStyleSuggestFixes)
 	})
 
+	// Unified web app (prod mode): serve the built SPA when web/dist exists.
+	// In dev the SPA runs under vite, which proxies /api here instead.
+	if handler := s.spaHandler(); handler != nil {
+		r.NotFound(handler)
+	}
+
 	return r
+}
+
+// spaHandler serves the built web app with an index.html fallback for
+// client-side routes. Returns nil when no build output is present.
+func (s *Server) spaHandler() http.HandlerFunc {
+	distDir := os.Getenv("VISIONSTUDIO_WEB_DIST")
+	if distDir == "" {
+		distDir = "web/dist"
+	}
+	absDist, err := filepath.Abs(distDir)
+	if err != nil {
+		s.logger.Error("resolve web dist dir", "dir", distDir, "error", err)
+		return nil
+	}
+	indexPath := filepath.Join(absDist, "index.html")
+	if _, err := os.Stat(indexPath); err != nil { //nolint:gosec // G703: operator-controlled path from env/default, not request input
+		s.logger.Info("web app build not found; SPA serving disabled", "dir", absDist)
+		return nil
+	}
+	fs := http.FileServer(http.Dir(absDist))
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Clean with a rooted path so ".." cannot escape, then require the
+		// result to stay inside the dist directory before touching disk.
+		requested := filepath.Join(absDist, filepath.Clean("/"+r.URL.Path))
+		if requested != absDist && !strings.HasPrefix(requested, absDist+string(filepath.Separator)) {
+			http.NotFound(w, r)
+			return
+		}
+		if info, statErr := os.Stat(requested); statErr == nil && !info.IsDir() { //nolint:gosec // G703: path is prefix-checked against absDist above
+			fs.ServeHTTP(w, r)
+			return
+		}
+		http.ServeFile(w, r, indexPath) //nolint:gosec // G703: indexPath is operator-controlled, not request input
+	}
 }
 
 func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {

@@ -46,9 +46,9 @@ func TestValidPeriodLabel(t *testing.T) {
 		{"2026-Q4", true},
 
 		// Invalid
-		{"2026-W100", false}, // Too many digits
-		{"2026-Q5", false},   // Invalid quarter
-		{"2026-13", true},    // Pattern allows 00-99; filesystem handles actual validity
+		{"2026-W100", false},      // Too many digits
+		{"2026-Q5", false},        // Invalid quarter
+		{"2026-13", true},         // Pattern allows 00-99; filesystem handles actual validity
 		{"../2026-W30", false},    // Path traversal
 		{"2026-W30/../..", false}, // Path traversal
 		{"", false},

@@ -11,30 +11,30 @@ import (
 // RepoSnapshot composes all domain IRs for one repository.
 // This is the unit of import/export for visionstudio ingest.
 type RepoSnapshot struct {
-	Repo      string        `json:"repo"`
-	Org       string        `json:"org,omitempty"`
-	Execution *ExecutionIR  `json:"execution,omitempty"`
-	Maturity  *MaturityIR   `json:"maturity,omitempty"`
-	Roadmap   *RoadmapIR    `json:"roadmap,omitempty"`
-	DevX      *DevXIR       `json:"devx,omitempty"`
-	Contrib   *ContribIR    `json:"contrib,omitempty"`
-	Timestamp string        `json:"timestamp,omitempty"`
+	Repo      string       `json:"repo"`
+	Org       string       `json:"org,omitempty"`
+	Execution *ExecutionIR `json:"execution,omitempty"`
+	Maturity  *MaturityIR  `json:"maturity,omitempty"`
+	Roadmap   *RoadmapIR   `json:"roadmap,omitempty"`
+	DevX      *DevXIR      `json:"devx,omitempty"`
+	Contrib   *ContribIR   `json:"contrib,omitempty"`
+	Timestamp string       `json:"timestamp,omitempty"`
 }
 
 // ExecutionIR holds execution-tracking data for a repository.
 type ExecutionIR struct {
-	Initiatives []*Initiative    `json:"initiatives,omitempty"`
-	Phases      []*Phase         `json:"phases,omitempty"`
-	RMIs        []*RoadmapItem   `json:"rmis,omitempty"`
-	Assignments []*Assignment    `json:"assignments,omitempty"`
+	Initiatives []*Initiative       `json:"initiatives,omitempty"`
+	Phases      []*Phase            `json:"phases,omitempty"`
+	RMIs        []*RoadmapItem      `json:"rmis,omitempty"`
+	Assignments []*Assignment       `json:"assignments,omitempty"`
 	Evidence    []*DeliveryEvidence `json:"evidence,omitempty"`
 }
 
 // MaturityIR holds maturity assessment data.
 // Supports both capability models (Dolt-backed) and PRISM documents (JSON IR).
 type MaturityIR struct {
-	CapabilityModels []*CapabilityModel     `json:"capabilityModels,omitempty"`
-	Assessments      []*MaturityAssessment  `json:"assessments,omitempty"`
+	CapabilityModels []*CapabilityModel           `json:"capabilityModels,omitempty"`
+	Assessments      []*MaturityAssessment        `json:"assessments,omitempty"`
 	PRISMDocument    *prismmaturity.PRISMDocument `json:"prismDocument,omitempty"`
 }
 

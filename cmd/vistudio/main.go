@@ -1,13 +1,15 @@
-// Package main is the entry point for the visionstudio CLI — DB-backed
-// orchestration of programs, initiatives, RMIs, and work assignments.
-// It succeeds the prismctl DB commands, which now point here.
+// Package main is the entry point for the vistudio CLI — the VisionStudio
+// control plane, successor to prismctl with the full command surface.
 package main
 
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
+
+	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
 )
 
 const defaultDSN = "root:@tcp(127.0.0.1:3306)/visionstudio"
@@ -22,7 +24,7 @@ func main() {
 
 func rootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "visionstudio",
+		Use:   "vistudio",
 		Short: "VisionStudio — Product Delivery Control Plane",
 		Long:  "Coordinate cross-repository initiatives, roadmap items, assignments, and delivery evidence.",
 	}
@@ -32,6 +34,7 @@ func rootCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		versionCmd(),
+		configCmd(),
 		dbCmd(),
 		registryCmd(),
 		programCmd(),
@@ -39,8 +42,52 @@ func rootCmd() *cobra.Command {
 		phaseCmd(),
 		rmiCmd(),
 		workCmd(),
+		contextCmd(),
+		exportCmd(),
+		ingestCmd(),
+		reportCmd(),
+		validateCmd(),
+		mcpCmd(),
+		dashboardCmd(),
+		roadmapCmd(),
+		releaseCmd(),
+		workflowCmd(),
+		specCmd(),
+		maturityCmd(),
 	)
+
 	return cmd
+}
+
+func getDataDir(cmd *cobra.Command) string {
+	dir, _ := cmd.Flags().GetString("data-dir")
+	if dir != "" {
+		return expandHome(dir)
+	}
+	if env := os.Getenv("VISIONSTUDIO_DATA"); env != "" {
+		return expandHome(env)
+	}
+	if dsn, _ := cmd.Flags().GetString("dsn"); dsn != "" {
+		return ""
+	}
+	if os.Getenv("VISIONSTUDIO_DSN") != "" {
+		return ""
+	}
+	if cfg, err := config.Load(); err == nil && cfg.DSN != "" {
+		return ""
+	}
+	return expandHome(defaultDataDir)
+}
+
+func expandHome(path string) string {
+	if len(path) >= 2 && path[:2] == "~/" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return path
+		}
+		return filepath.Join(home, path[2:])
+	}
+	return path
 }
 
 func versionCmd() *cobra.Command {
@@ -48,7 +95,7 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print the version",
 		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Println("visionstudio v0.1.0-dev")
+			fmt.Println("vistudio v0.1.0-dev")
 		},
 	}
 }

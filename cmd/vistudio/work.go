@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/ProductBuildersHQ/visionstudio/pkg/roadmap"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
@@ -46,7 +48,11 @@ func workReadyCmd() *cobra.Command {
   - All "requires" dependencies are completed
   - No active assignment (unclaimed)
 
-Use --initiative or --repo to narrow results.`,
+Use --initiative or --repo to narrow results.
+
+When --initiative is set, automatically checks ROADMAP.md for drift
+against the database and warns if discrepancies are found. Disable
+with --check-roadmap=false.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {
@@ -56,6 +62,11 @@ Use --initiative or --repo to narrow results.`,
 
 			initiative, _ := cmd.Flags().GetString("initiative")
 			repo, _ := cmd.Flags().GetString("repo")
+			checkRoadmap, _ := cmd.Flags().GetBool("check-roadmap")
+
+			if initiative != "" && checkRoadmap {
+				checkRoadmapDrift(cmd, svc, initiative)
+			}
 
 			filters := service.WorkReadyFilters{
 				InitiativeID: initiative,
@@ -95,7 +106,64 @@ Use --initiative or --repo to narrow results.`,
 	}
 	cmd.Flags().String("initiative", "", "Filter by initiative ID")
 	cmd.Flags().String("repo", "", "Filter by repository ID")
+	cmd.Flags().Bool("check-roadmap", true, "Check ROADMAP.md for drift when --initiative is set")
 	return cmd
+}
+
+// checkRoadmapDrift looks for a ROADMAP.md in the initiative's home repo
+// and prints warnings if it has drifted from the database. Best-effort:
+// errors are printed as warnings, never fatal.
+func checkRoadmapDrift(cmd *cobra.Command, svc *service.Service, initiativeID string) {
+	ctx := cmd.Context()
+
+	init, err := svc.GetInitiative(ctx, initiativeID)
+	if err != nil || init.HomeRepo == "" {
+		return
+	}
+
+	repo, err := svc.Store.GetRepository(ctx, init.HomeRepo)
+	if err != nil || repo.LocalPath == "" {
+		return
+	}
+
+	roadmapPath := filepath.Join(repo.LocalPath, "docs", "specs", "ROADMAP.md")
+	f, err := os.Open(roadmapPath)
+	if err != nil {
+		return
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: close roadmap: %v\n", err)
+		}
+	}()
+
+	parsed, err := roadmap.Parse(f)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: could not parse %s: %v\n", roadmapPath, err)
+		return
+	}
+
+	dbInput, err := loadDiffInput(cmd, svc, initiativeID)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: could not load DB state for diff: %v\n", err)
+		return
+	}
+
+	diffs := roadmap.Diff(parsed, dbInput)
+	if len(diffs) == 0 {
+		return
+	}
+
+	cmd.Printf("WARNING: ROADMAP.md has %d difference(s) from database:\n", len(diffs))
+	limit := 5
+	for i, d := range diffs {
+		if i >= limit {
+			cmd.Printf("  ... and %d more (run: vistudio roadmap diff %s)\n", len(diffs)-limit, roadmapPath)
+			break
+		}
+		cmd.Printf("  %s %s\n", diffIcon(d.Kind), d.Message)
+	}
+	cmd.Println()
 }
 
 func workClaimCmd() *cobra.Command {
@@ -247,7 +315,7 @@ func workCompleteCmd() *cobra.Command {
 					if svc.CheckInitiativeAllComplete(cmd.Context(), initID) {
 						cmd.Printf("\n✓ All required RMIs in %s are now completed.\n", initID)
 						cmd.Printf("  Transition to delivery_complete with:\n")
-						cmd.Printf("    visionstudio initiative transition %s delivery_complete\n", initID)
+						cmd.Printf("    vistudio initiative transition %s delivery_complete\n", initID)
 					}
 				}
 			}
@@ -406,7 +474,7 @@ Phase ID format: INITIATIVE-ID/phase-N (e.g. INIT-PRISMCONTROL-001/phase-5).`,
 				cmd.Println("No in-progress RMIs with active assignments in phase.")
 				if len(result.NoAssignment) > 0 {
 					cmd.Printf("  In-progress but no active assignment: %s\n", strings.Join(result.NoAssignment, ", "))
-					cmd.Println("  These RMIs may have expired leases — reclaim with: visionstudio work claim <RMI-ID> --worker <session-id>")
+					cmd.Println("  These RMIs may have expired leases — reclaim with: vistudio work claim <RMI-ID> --worker <session-id>")
 				}
 				return nil
 			}
@@ -424,7 +492,7 @@ Phase ID format: INITIATIVE-ID/phase-N (e.g. INIT-PRISMCONTROL-001/phase-5).`,
 			if result.InitiativeAllComplete {
 				cmd.Printf("\n✓ All required RMIs in %s are now completed.\n", result.InitiativeID)
 				cmd.Printf("  Transition to delivery_complete with:\n")
-				cmd.Printf("    visionstudio initiative transition %s delivery_complete\n", result.InitiativeID)
+				cmd.Printf("    vistudio initiative transition %s delivery_complete\n", result.InitiativeID)
 			}
 			return nil
 		},

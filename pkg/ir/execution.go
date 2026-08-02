@@ -6,8 +6,11 @@ package ir
 import (
 	"github.com/ProductBuildersHQ/prism-build/pkg/store"
 	prismmaturity "github.com/grokify/prism-maturity"
+	"github.com/grokify/prism-roadmap/goals"
+	"github.com/grokify/prism-roadmap/goals/okr"
 	"github.com/grokify/prism-roadmap/roadmap"
 	"github.com/plexusone/devfolio/contributor"
+	"github.com/plexusone/devfolio/output/devxdashboard"
 )
 
 // Execution domain types — aliases to prism-build/pkg/store.
@@ -65,7 +68,18 @@ type (
 	Deliverable       = roadmap.Deliverable
 	DeliverableStatus = roadmap.DeliverableStatus
 	PhaseStatus       = roadmap.PhaseStatus
-	Risk              = roadmap.Risk
+	RoadmapRisk       = roadmap.Risk
+)
+
+// Goals types from prism-roadmap (JSON IR).
+
+type (
+	Goals       = goals.Goals
+	GoalItem    = goals.GoalItem
+	ResultItem  = goals.ResultItem
+	OKRDocument = okr.OKRDocument
+	Objective   = okr.Objective
+	KeyResult   = okr.KeyResult
 )
 
 // Contributor/devfolio types (JSON IR).
@@ -75,4 +89,13 @@ type (
 	RepoContrib        = contributor.RepoContrib
 	ContributorStats   = contributor.ContributorStats
 	DailyActivity      = contributor.DailyActivity
+)
+
+// DevX dashboard period report types (JSON IR).
+
+type (
+	PeriodReport     = devxdashboard.PeriodReport
+	PeriodType       = devxdashboard.PeriodType
+	DailyPoint       = devxdashboard.DailyPoint
+	ModelPeriodPoint = devxdashboard.ModelPeriodPoint
 )

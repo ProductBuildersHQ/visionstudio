@@ -25,6 +25,11 @@ type MemStore struct {
 	judgeResults        map[string]*JudgeResult
 	capabilityModels    map[string]*CapabilityModel
 	maturityAssessments map[string]*MaturityAssessment
+	devxPeriodReports   map[string]*DevXPeriodReport
+	prismRoadmaps       map[string]*PRISMRoadmap
+	prismGoals          map[string]*PRISMGoal
+	prismDocuments      map[string]*PRISMDocument
+	specDocuments       map[string]*SpecDocument
 }
 
 // NewMemStore creates a new in-memory store.
@@ -42,6 +47,11 @@ func NewMemStore() *MemStore {
 		judgeResults:        make(map[string]*JudgeResult),
 		capabilityModels:    make(map[string]*CapabilityModel),
 		maturityAssessments: make(map[string]*MaturityAssessment),
+		devxPeriodReports:   make(map[string]*DevXPeriodReport),
+		prismRoadmaps:       make(map[string]*PRISMRoadmap),
+		prismGoals:          make(map[string]*PRISMGoal),
+		prismDocuments:      make(map[string]*PRISMDocument),
+		specDocuments:       make(map[string]*SpecDocument),
 	}
 }
 
@@ -675,6 +685,310 @@ func (m *MemStore) ListMaturityAssessmentsByOrg(_ context.Context, org string) (
 		}
 	}
 	return result, nil
+}
+
+// ---------------------------------------------------------------------------
+// DevXStore implementation
+// ---------------------------------------------------------------------------
+
+func (m *MemStore) CreateDevXPeriodReport(_ context.Context, report *DevXPeriodReport) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.devxPeriodReports[report.ID]; exists {
+		return fmt.Errorf("devx period report %s already exists", report.ID)
+	}
+	m.devxPeriodReports[report.ID] = report
+	return nil
+}
+
+func (m *MemStore) GetDevXPeriodReport(_ context.Context, id string) (*DevXPeriodReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	report, ok := m.devxPeriodReports[id]
+	if !ok {
+		return nil, fmt.Errorf("devx period report %s not found", id)
+	}
+	return report, nil
+}
+
+func (m *MemStore) ListDevXPeriodReports(_ context.Context, personID string) ([]*DevXPeriodReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*DevXPeriodReport
+	for _, r := range m.devxPeriodReports {
+		if r.PersonID == personID {
+			result = append(result, r)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListDevXPeriodReportsByRepo(_ context.Context, repoID string) ([]*DevXPeriodReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*DevXPeriodReport
+	for _, r := range m.devxPeriodReports {
+		if r.RepositoryID == repoID {
+			result = append(result, r)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListDevXPeriodReportsByOrg(_ context.Context, org string) ([]*DevXPeriodReport, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*DevXPeriodReport
+	for _, r := range m.devxPeriodReports {
+		if r.Organization == org {
+			result = append(result, r)
+		}
+	}
+	return result, nil
+}
+
+// ---------------------------------------------------------------------------
+// PRISMRoadmapStore implementation
+// ---------------------------------------------------------------------------
+
+func (m *MemStore) CreatePRISMRoadmap(_ context.Context, roadmap *PRISMRoadmap) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.prismRoadmaps[roadmap.ID]; exists {
+		return fmt.Errorf("prism roadmap %s already exists", roadmap.ID)
+	}
+	m.prismRoadmaps[roadmap.ID] = roadmap
+	return nil
+}
+
+func (m *MemStore) GetPRISMRoadmap(_ context.Context, id string) (*PRISMRoadmap, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	roadmap, ok := m.prismRoadmaps[id]
+	if !ok {
+		return nil, fmt.Errorf("prism roadmap %s not found", id)
+	}
+	return roadmap, nil
+}
+
+func (m *MemStore) ListPRISMRoadmaps(_ context.Context) ([]*PRISMRoadmap, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	result := make([]*PRISMRoadmap, 0, len(m.prismRoadmaps))
+	for _, v := range m.prismRoadmaps {
+		result = append(result, v)
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListPRISMRoadmapsByRepo(_ context.Context, repoID string) ([]*PRISMRoadmap, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*PRISMRoadmap
+	for _, r := range m.prismRoadmaps {
+		if r.RepositoryID == repoID {
+			result = append(result, r)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) UpdatePRISMRoadmap(_ context.Context, roadmap *PRISMRoadmap) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.prismRoadmaps[roadmap.ID]; !exists {
+		return fmt.Errorf("prism roadmap %s not found", roadmap.ID)
+	}
+	m.prismRoadmaps[roadmap.ID] = roadmap
+	return nil
+}
+
+func (m *MemStore) CreatePRISMGoal(_ context.Context, goal *PRISMGoal) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.prismGoals[goal.ID]; exists {
+		return fmt.Errorf("prism goal %s already exists", goal.ID)
+	}
+	m.prismGoals[goal.ID] = goal
+	return nil
+}
+
+func (m *MemStore) GetPRISMGoal(_ context.Context, id string) (*PRISMGoal, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	goal, ok := m.prismGoals[id]
+	if !ok {
+		return nil, fmt.Errorf("prism goal %s not found", id)
+	}
+	return goal, nil
+}
+
+func (m *MemStore) ListPRISMGoals(_ context.Context, repoID string) ([]*PRISMGoal, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*PRISMGoal
+	for _, g := range m.prismGoals {
+		if g.RepositoryID == repoID {
+			result = append(result, g)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) UpdatePRISMGoal(_ context.Context, goal *PRISMGoal) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.prismGoals[goal.ID]; !exists {
+		return fmt.Errorf("prism goal %s not found", goal.ID)
+	}
+	m.prismGoals[goal.ID] = goal
+	return nil
+}
+
+// ---------------------------------------------------------------------------
+// PRISMDocumentStore implementation
+// ---------------------------------------------------------------------------
+
+func (m *MemStore) CreatePRISMDocument(_ context.Context, doc *PRISMDocument) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.prismDocuments[doc.ID]; exists {
+		return fmt.Errorf("prism document %s already exists", doc.ID)
+	}
+	m.prismDocuments[doc.ID] = doc
+	return nil
+}
+
+func (m *MemStore) GetPRISMDocument(_ context.Context, id string) (*PRISMDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	doc, ok := m.prismDocuments[id]
+	if !ok {
+		return nil, fmt.Errorf("prism document %s not found", id)
+	}
+	return doc, nil
+}
+
+func (m *MemStore) ListPRISMDocuments(_ context.Context) ([]*PRISMDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	result := make([]*PRISMDocument, 0, len(m.prismDocuments))
+	for _, v := range m.prismDocuments {
+		result = append(result, v)
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListPRISMDocumentsByOrg(_ context.Context, org string) ([]*PRISMDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*PRISMDocument
+	for _, d := range m.prismDocuments {
+		if d.Organization == org {
+			result = append(result, d)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListPRISMDocumentsByRepo(_ context.Context, repoID string) ([]*PRISMDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*PRISMDocument
+	for _, d := range m.prismDocuments {
+		if d.RepositoryID == repoID {
+			result = append(result, d)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) UpdatePRISMDocument(_ context.Context, doc *PRISMDocument) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.prismDocuments[doc.ID]; !exists {
+		return fmt.Errorf("prism document %s not found", doc.ID)
+	}
+	m.prismDocuments[doc.ID] = doc
+	return nil
+}
+
+// ---------------------------------------------------------------------------
+// SpecDocumentStore implementation
+// ---------------------------------------------------------------------------
+
+func (m *MemStore) CreateSpecDocument(_ context.Context, doc *SpecDocument) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.specDocuments[doc.ID]; exists {
+		return fmt.Errorf("spec document %s already exists", doc.ID)
+	}
+	m.specDocuments[doc.ID] = doc
+	return nil
+}
+
+func (m *MemStore) GetSpecDocument(_ context.Context, id string) (*SpecDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	doc, ok := m.specDocuments[id]
+	if !ok {
+		return nil, fmt.Errorf("spec document %s not found", id)
+	}
+	return doc, nil
+}
+
+func (m *MemStore) ListSpecDocuments(_ context.Context) ([]*SpecDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	result := make([]*SpecDocument, 0, len(m.specDocuments))
+	for _, v := range m.specDocuments {
+		result = append(result, v)
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListSpecDocumentsByRepo(_ context.Context, repoID string) ([]*SpecDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*SpecDocument
+	for _, d := range m.specDocuments {
+		if d.RepositoryID == repoID {
+			result = append(result, d)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) ListSpecDocumentsByInitiative(_ context.Context, initiativeID string) ([]*SpecDocument, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	var result []*SpecDocument
+	for _, d := range m.specDocuments {
+		if d.InitiativeID == initiativeID {
+			result = append(result, d)
+		}
+	}
+	return result, nil
+}
+
+func (m *MemStore) UpdateSpecDocument(_ context.Context, doc *SpecDocument) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.specDocuments[doc.ID]; !exists {
+		return fmt.Errorf("spec document %s not found", doc.ID)
+	}
+	m.specDocuments[doc.ID] = doc
+	return nil
+}
+
+func (m *MemStore) DeleteSpecDocument(_ context.Context, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.specDocuments[id]; !exists {
+		return fmt.Errorf("spec document %s not found", id)
+	}
+	delete(m.specDocuments, id)
+	return nil
 }
 
 // MemUnitOfWork is a no-op UnitOfWork for the in-memory store.

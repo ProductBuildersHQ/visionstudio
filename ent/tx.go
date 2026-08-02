@@ -18,6 +18,8 @@ type Tx struct {
 	CapabilityModel *CapabilityModelClient
 	// DeliveryEvidence is the client for interacting with the DeliveryEvidence builders.
 	DeliveryEvidence *DeliveryEvidenceClient
+	// DevXPeriodReport is the client for interacting with the DevXPeriodReport builders.
+	DevXPeriodReport *DevXPeriodReportClient
 	// Initiative is the client for interacting with the Initiative builders.
 	Initiative *InitiativeClient
 	// InitiativeDependency is the client for interacting with the InitiativeDependency builders.
@@ -28,6 +30,12 @@ type Tx struct {
 	JudgeRubric *JudgeRubricClient
 	// MaturityAssessment is the client for interacting with the MaturityAssessment builders.
 	MaturityAssessment *MaturityAssessmentClient
+	// PRISMDocument is the client for interacting with the PRISMDocument builders.
+	PRISMDocument *PRISMDocumentClient
+	// PRISMGoal is the client for interacting with the PRISMGoal builders.
+	PRISMGoal *PRISMGoalClient
+	// PRISMRoadmap is the client for interacting with the PRISMRoadmap builders.
+	PRISMRoadmap *PRISMRoadmapClient
 	// Phase is the client for interacting with the Phase builders.
 	Phase *PhaseClient
 	// Program is the client for interacting with the Program builders.
@@ -40,6 +48,8 @@ type Tx struct {
 	RepositoryDependency *RepositoryDependencyClient
 	// RoadmapItem is the client for interacting with the RoadmapItem builders.
 	RoadmapItem *RoadmapItemClient
+	// SpecDocument is the client for interacting with the SpecDocument builders.
+	SpecDocument *SpecDocumentClient
 	// SpecWorkflow is the client for interacting with the SpecWorkflow builders.
 	SpecWorkflow *SpecWorkflowClient
 
@@ -176,17 +186,22 @@ func (tx *Tx) init() {
 	tx.Assignment = NewAssignmentClient(tx.config)
 	tx.CapabilityModel = NewCapabilityModelClient(tx.config)
 	tx.DeliveryEvidence = NewDeliveryEvidenceClient(tx.config)
+	tx.DevXPeriodReport = NewDevXPeriodReportClient(tx.config)
 	tx.Initiative = NewInitiativeClient(tx.config)
 	tx.InitiativeDependency = NewInitiativeDependencyClient(tx.config)
 	tx.JudgeResult = NewJudgeResultClient(tx.config)
 	tx.JudgeRubric = NewJudgeRubricClient(tx.config)
 	tx.MaturityAssessment = NewMaturityAssessmentClient(tx.config)
+	tx.PRISMDocument = NewPRISMDocumentClient(tx.config)
+	tx.PRISMGoal = NewPRISMGoalClient(tx.config)
+	tx.PRISMRoadmap = NewPRISMRoadmapClient(tx.config)
 	tx.Phase = NewPhaseClient(tx.config)
 	tx.Program = NewProgramClient(tx.config)
 	tx.RMIDependency = NewRMIDependencyClient(tx.config)
 	tx.Repository = NewRepositoryClient(tx.config)
 	tx.RepositoryDependency = NewRepositoryDependencyClient(tx.config)
 	tx.RoadmapItem = NewRoadmapItemClient(tx.config)
+	tx.SpecDocument = NewSpecDocumentClient(tx.config)
 	tx.SpecWorkflow = NewSpecWorkflowClient(tx.config)
 }
 

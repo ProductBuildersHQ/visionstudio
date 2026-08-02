@@ -14,7 +14,7 @@ func ingestCmd() *cobra.Command {
 		Use:   "ingest",
 		Short: "Scan external sources for delivery evidence",
 	}
-	cmd.AddCommand(ingestGitCmd(), ingestChangelogCmd())
+	cmd.AddCommand(ingestGitCmd(), ingestChangelogCmd(), ingestIRCmd())
 	return cmd
 }
 
@@ -142,4 +142,75 @@ func printIngestResult(cmd *cobra.Command, r *ingest.GitResult) {
 	if r.NewHighWater != "" {
 		cmd.Printf("High-water:   %s\n", r.NewHighWater)
 	}
+}
+
+func ingestIRCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "ir <repo-id> [file]",
+		Short: "Ingest *.ir.json files into Dolt",
+		Long: `Import IR (intermediate representation) JSON files into the database.
+
+If a file path is provided, ingests that single file.
+Otherwise, scans the repository for all *.ir.json files.
+
+IR files contain multi-domain snapshots including:
+- DevX metrics (developer experience period reports)
+- PRISM roadmaps and goals
+- PRISM maturity documents
+- Execution data (initiatives, phases, RMIs)`,
+		Args: cobra.RangeArgs(1, 2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			repoID := args[0]
+
+			if len(args) == 2 {
+				result, err := ingest.IR(cmd.Context(), svc, repoID, args[1])
+				if err != nil {
+					return err
+				}
+				printIRResult(cmd, result)
+				return nil
+			}
+
+			results, err := ingest.IRFromRepo(cmd.Context(), svc, repoID)
+			if err != nil {
+				return err
+			}
+
+			if len(results) == 0 {
+				cmd.Println("No *.ir.json files found.")
+				return nil
+			}
+
+			var errCount int
+			for _, r := range results {
+				if r.Err != nil {
+					cmd.PrintErrf("  %s: error: %v\n", r.FilePath, r.Err)
+					errCount++
+					continue
+				}
+				printIRResult(cmd, r)
+				cmd.Println()
+			}
+			if errCount > 0 {
+				cmd.Printf("%d of %d files had errors.\n", errCount, len(results))
+			}
+			return nil
+		},
+	}
+	return cmd
+}
+
+func printIRResult(cmd *cobra.Command, r *ingest.IRResult) {
+	cmd.Printf("Repository:      %s\n", r.RepoID)
+	cmd.Printf("File:            %s\n", r.FilePath)
+	cmd.Printf("DevX Reports:    %d\n", r.DevXReports)
+	cmd.Printf("PRISM Roadmaps:  %d\n", r.PRISMRoadmaps)
+	cmd.Printf("PRISM Goals:     %d\n", r.PRISMGoals)
+	cmd.Printf("PRISM Documents: %d\n", r.PRISMDocuments)
 }

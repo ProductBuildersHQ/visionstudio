@@ -47,16 +47,17 @@ Phase 4 (RMI-PRISMCONTROL-116..119 superseded).
 ## Phase 4 — Backend Migration from prism-build
 
 Move Dolt/Ent/service into visionstudio (TRD T2); the daemon re-serves the
-Phase 2 JSON API unchanged (golden-file tests prove it). prism-build keeps
-file-mode functionality.
+Phase 2 JSON API unchanged (contract tests prove it). The full prismctl
+command surface migrates into the `vistudio` binary — no slim-down, no
+feature loss; prism-build stays intact with deprecation pointers.
 
 | RMI | Title | Notes |
 |-----|-------|-------|
 | RMI-VISIONSTUDIO-113 | Move Ent schema + generated code | Keep `//go:build dolt` pattern |
-| RMI-VISIONSTUDIO-114 | Move Store/UnitOfWork interfaces, memstore, doltstore | Structs remain in prism-build; interfaces reference them |
-| RMI-VISIONSTUDIO-115 | Move `pkg/service` + JSON API onto visionstudio daemon | Same contract as RMI-PRISMBUILD-101; web app re-points via base URL only |
+| RMI-VISIONSTUDIO-114 | Move Store/UnitOfWork interfaces, memstore, doltstore | Full store layer copied; embedded DB name `visionstudio` |
+| RMI-VISIONSTUDIO-115 | Move `pkg/service` + JSON API onto visionstudio daemon | Same contract as RMI-PRISMBUILD-101 via `pkg/webapi`; web app re-points via base URL only; daemon serves the built SPA |
 | RMI-VISIONSTUDIO-116 | visionstudio CLI for DB-backed orchestration | Initiative/RMI/assignment commands; prismctl DB commands deprecated with pointers |
-| RMI-VISIONSTUDIO-117 | Dolt data migration + prism-build slim-down release | Branch backup, migrate `prismcontrol` DB, row-count diff; delete moved code from prism-build |
+| RMI-VISIONSTUDIO-117 | Dolt data migration + full prismctl feature migration (vistudio CLI) | Branch backup, copy `prismcontrol` DB to `~/.productbuildershq/visionstudio`, row-count diff verified; ALL prismctl commands (mcp, spec, maturity, context, export, ingest, report, validate, roadmap, release, dashboard) ported into the `vistudio` binary; prism-build kept intact |
 
 ## Phase 5 — Multi-Domain Schema + Ingest
 

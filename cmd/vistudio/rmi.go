@@ -402,8 +402,8 @@ Use --from to only transition RMIs currently in a specific status.
 Phase ID format: INITIATIVE-ID/phase-N (e.g. INIT-PRISMCONTROL-001/phase-5).
 
 Examples:
-  visionstudio rmi update-phase INIT-X-001/phase-3 --status ready
-  visionstudio rmi update-phase INIT-X-001/phase-3 --status ready --from proposed`,
+  vistudio rmi update-phase INIT-X-001/phase-3 --status ready
+  vistudio rmi update-phase INIT-X-001/phase-3 --status ready --from proposed`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)

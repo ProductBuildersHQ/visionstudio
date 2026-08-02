@@ -1,8 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 	"time"
 
@@ -22,6 +24,7 @@ func programCmd() *cobra.Command {
 		programUpdateCmd(),
 		programHideCmd(),
 		programShowCmd(),
+		programMigrateCmd(),
 	)
 	return cmd
 }
@@ -218,4 +221,110 @@ func programUpdateCmd() *cobra.Command {
 	cmd.Flags().String("name", "", "Program display name")
 	cmd.Flags().String("description", "", "Description")
 	return cmd
+}
+
+// rawDBAccessor is implemented by store backends that expose *sql.DB.
+type rawDBAccessor interface {
+	DB() *sql.DB
+}
+
+func programMigrateCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "migrate-strings",
+		Short: "Convert free-text program strings on initiatives to Program entities",
+		Long: `Read the legacy 'program' text column from the initiatives table, create
+Program entities for each distinct value, and set the program_initiatives FK.
+
+This is a one-time migration for databases created before Program was promoted
+to a first-class entity.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			accessor, ok := svc.Store.(rawDBAccessor)
+			if !ok {
+				return fmt.Errorf("migrate-strings requires a database-backed store (not in-memory)")
+			}
+			db := accessor.DB()
+
+			rows, err := db.QueryContext(cmd.Context(),
+				"SELECT initiative_id, program FROM initiatives WHERE program IS NOT NULL AND program != ''")
+			if err != nil {
+				return fmt.Errorf("query legacy program column: %w", err)
+			}
+			defer rows.Close()
+
+			type legacyRow struct {
+				initID  string
+				program string
+			}
+			var legacy []legacyRow
+			for rows.Next() {
+				var r legacyRow
+				if err := rows.Scan(&r.initID, &r.program); err != nil {
+					return fmt.Errorf("scan row: %w", err)
+				}
+				legacy = append(legacy, r)
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate rows: %w", err)
+			}
+
+			if len(legacy) == 0 {
+				cmd.Println("No legacy program values to migrate.")
+				return nil
+			}
+
+			nameToID := map[string]string{}
+			for _, r := range legacy {
+				if _, exists := nameToID[r.program]; exists {
+					continue
+				}
+				slug := strings.ToUpper(strings.ReplaceAll(
+					strings.ReplaceAll(r.program, " ", "-"), "_", "-"))
+				id := "PROG-" + slug
+				_, createErr := svc.CreateProgram(cmd.Context(), id, r.program, "default", "")
+				if createErr != nil {
+					if _, getErr := svc.GetProgram(cmd.Context(), id); getErr == nil {
+						nameToID[r.program] = id
+						cmd.Printf("Program already exists: %s (%s)\n", id, r.program)
+						continue
+					}
+					cmd.PrintErrf("Warning: could not create program %s: %v\n", id, createErr)
+					continue
+				}
+				nameToID[r.program] = id
+				cmd.Printf("Created program: %s -> %s\n", r.program, id)
+			}
+
+			for _, r := range legacy {
+				newID, ok := nameToID[r.program]
+				if !ok {
+					continue
+				}
+				init, getErr := svc.Store.GetInitiative(cmd.Context(), r.initID)
+				if getErr != nil {
+					cmd.PrintErrf("Warning: could not get initiative %s: %v\n", r.initID, getErr)
+					continue
+				}
+				if init.ProgramID == newID {
+					cmd.Printf("Initiative %s already assigned to %s\n", r.initID, newID)
+					continue
+				}
+				init.ProgramID = newID
+				if err := svc.UpdateInitiative(cmd.Context(), init); err != nil {
+					cmd.PrintErrf("Warning: could not update initiative %s: %v\n", r.initID, err)
+				} else {
+					cmd.Printf("Updated initiative %s -> program %s\n", r.initID, newID)
+				}
+			}
+
+			cmd.Println("\nMigration complete. You can drop the legacy column with:")
+			cmd.Println("  mysql -h 127.0.0.1 -P 13306 visionstudio -e \"ALTER TABLE initiatives DROP COLUMN program;\"")
+			return nil
+		},
+	}
 }

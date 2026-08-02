@@ -1,0 +1,517 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"strings"
+	"text/tabwriter"
+
+	"github.com/spf13/cobra"
+
+	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
+)
+
+func rmiCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "rmi",
+		Short: "Manage roadmap items (RMIs)",
+	}
+	cmd.AddCommand(
+		rmiCreateCmd(),
+		rmiGetCmd(),
+		rmiListCmd(),
+		rmiUpdateCmd(),
+		rmiUpdatePhaseCmd(),
+		rmiMoveCmd(),
+		rmiDepCmd(),
+	)
+	return cmd
+}
+
+func rmiMoveCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "move <rmi-id>",
+		Short: "Move an RMI to another phase (and its initiative)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			phaseID, err := cmd.Flags().GetString("phase")
+			if err != nil {
+				return err
+			}
+			seq, err := cmd.Flags().GetInt("seq")
+			if err != nil {
+				return err
+			}
+			rmi, err := svc.MoveRMI(cmd.Context(), args[0], phaseID, seq)
+			if err != nil {
+				return err
+			}
+			cmd.Printf("Moved %s to %s (initiative %s)\n", rmi.ID, rmi.PhaseID, rmi.InitiativeID)
+			return nil
+		},
+	}
+	cmd.Flags().String("phase", "", "Target phase ID (INITIATIVE-ID/phase-N)")
+	cmd.Flags().Int("seq", 0, "Sequence number within the target phase (optional)")
+	if err := cmd.MarkFlagRequired("phase"); err != nil {
+		panic(err)
+	}
+	return cmd
+}
+
+func rmiCreateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a new roadmap item",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			id, _ := cmd.Flags().GetString("id")
+			repo, _ := cmd.Flags().GetString("repo")
+			initiative, _ := cmd.Flags().GetString("initiative")
+			phase, _ := cmd.Flags().GetString("phase")
+			title, _ := cmd.Flags().GetString("title")
+			desc, _ := cmd.Flags().GetString("description")
+			itemType, _ := cmd.Flags().GetString("type")
+			priority, _ := cmd.Flags().GetString("priority")
+			required, _ := cmd.Flags().GetBool("required")
+			seq, _ := cmd.Flags().GetInt("sequence")
+			acceptanceRaw, _ := cmd.Flags().GetString("acceptance")
+
+			if id == "" || repo == "" || title == "" || itemType == "" {
+				return fmt.Errorf("--id, --repo, --title, and --type are required")
+			}
+
+			var acceptance []string
+			if acceptanceRaw != "" {
+				acceptance = strings.Split(acceptanceRaw, ";")
+				for i := range acceptance {
+					acceptance[i] = strings.TrimSpace(acceptance[i])
+				}
+			}
+
+			rmi, err := svc.CreateRMI(cmd.Context(), id, repo, initiative, phase, title, desc, itemType, priority, required, seq, acceptance)
+			if err != nil {
+				return err
+			}
+
+			// Handle context_spec if provided
+			contextSpecJSON, _ := cmd.Flags().GetString("context-spec")
+			if contextSpecJSON != "" {
+				var spec store.ContextSpec
+				if err := json.Unmarshal([]byte(contextSpecJSON), &spec); err != nil {
+					return fmt.Errorf("invalid --context-spec JSON: %w", err)
+				}
+				rmi.ContextSpec = &spec
+				if err := svc.UpdateRMI(cmd.Context(), rmi); err != nil {
+					return err
+				}
+			}
+
+			cmd.Printf("Created RMI: %s (%s)\n", rmi.ID, rmi.Status)
+			return nil
+		},
+	}
+	cmd.Flags().String("id", "", "RMI ID (e.g. RMI-MYREPO-001) (required)")
+	cmd.Flags().String("repo", "", "Repository ID (e.g. github.com/org/repo) (required)")
+	cmd.Flags().String("initiative", "", "Parent initiative ID")
+	cmd.Flags().String("phase", "", "Parent phase ID")
+	cmd.Flags().String("title", "", "RMI title (required)")
+	cmd.Flags().String("description", "", "Detailed description")
+	cmd.Flags().String("type", "capability", "Item type (capability, fix, chore, spike) (required)")
+	cmd.Flags().String("priority", "", "Priority (high, medium, low)")
+	cmd.Flags().Bool("required", true, "Whether this RMI is required for phase completion")
+	cmd.Flags().Int("sequence", 0, "Sequence number within phase")
+	cmd.Flags().String("acceptance", "", "Acceptance criteria (semicolon-separated)")
+	cmd.Flags().String("context-spec", "", "Context spec JSON: {\"extra_repos\":[...],\"include_specs\":[...],\"exclude_specs\":[...]}")
+	return cmd
+}
+
+func rmiGetCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "get <rmi-id>",
+		Short: "Show RMI details with dependencies",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			detail, err := svc.GetRMIDetail(cmd.Context(), args[0])
+			if err != nil {
+				return err
+			}
+
+			rmi := detail.RMI
+			cmd.Printf("RMI:         %s\n", rmi.ID)
+			cmd.Printf("Title:       %s\n", rmi.Title)
+			cmd.Printf("Status:      %s\n", rmi.Status)
+			cmd.Printf("Type:        %s\n", rmi.ItemType)
+			cmd.Printf("Repository:  %s\n", rmi.RepositoryID)
+			if rmi.InitiativeID != "" {
+				cmd.Printf("Initiative:  %s\n", rmi.InitiativeID)
+			}
+			if rmi.PhaseID != "" {
+				cmd.Printf("Phase:       %s\n", rmi.PhaseID)
+			}
+			if rmi.Description != "" {
+				cmd.Printf("Description: %s\n", rmi.Description)
+			}
+			if rmi.Priority != "" {
+				cmd.Printf("Priority:    %s\n", rmi.Priority)
+			}
+			cmd.Printf("Required:    %v\n", rmi.Required)
+			if rmi.SequenceNumber != 0 {
+				cmd.Printf("Sequence:    %d\n", rmi.SequenceNumber)
+			}
+			cmd.Printf("Created:     %s\n", rmi.CreatedAt.Format("2006-01-02 15:04"))
+			if rmi.CompletedAt != nil {
+				cmd.Printf("Completed:   %s\n", rmi.CompletedAt.Format("2006-01-02 15:04"))
+			}
+
+			if len(rmi.AcceptanceCriteria) > 0 {
+				cmd.Println("\nAcceptance Criteria:")
+				for i, ac := range rmi.AcceptanceCriteria {
+					cmd.Printf("  %d. %s\n", i+1, ac)
+				}
+			}
+
+			if rmi.ContextSpec != nil {
+				cmd.Println("\nContext Spec:")
+				if len(rmi.ContextSpec.ExtraRepos) > 0 {
+					cmd.Printf("  Extra Repos:   %s\n", strings.Join(rmi.ContextSpec.ExtraRepos, ", "))
+				}
+				if len(rmi.ContextSpec.IncludeSpecs) > 0 {
+					cmd.Printf("  Include Specs: %s\n", strings.Join(rmi.ContextSpec.IncludeSpecs, ", "))
+				}
+				if len(rmi.ContextSpec.ExcludeSpecs) > 0 {
+					cmd.Printf("  Exclude Specs: %s\n", strings.Join(rmi.ContextSpec.ExcludeSpecs, ", "))
+				}
+			}
+
+			if len(detail.Dependencies) > 0 {
+				cmd.Println("\nDependencies:")
+				w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+				_, _ = fmt.Fprintln(w, "  DIRECTION\tRMI\tRELATIONSHIP")
+				for _, d := range detail.Dependencies {
+					if d.SourceRMIID == rmi.ID {
+						_, _ = fmt.Fprintf(w, "  depends on\t%s\t%s\n", d.TargetRMIID, d.Relationship)
+					} else {
+						_, _ = fmt.Fprintf(w, "  depended by\t%s\t%s\n", d.SourceRMIID, d.Relationship)
+					}
+				}
+				if err := w.Flush(); err != nil {
+					return err
+				}
+			}
+			return nil
+		},
+	}
+}
+
+func rmiListCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "list",
+		Short: "List roadmap items",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			initiative, _ := cmd.Flags().GetString("initiative")
+			repo, _ := cmd.Flags().GetString("repo")
+
+			if initiative == "" && repo == "" {
+				return fmt.Errorf("either --initiative or --repo is required")
+			}
+
+			var rmis []*rmiListItem
+			if initiative != "" {
+				items, err := svc.ListRMIs(cmd.Context(), initiative)
+				if err != nil {
+					return err
+				}
+				for _, r := range items {
+					rmis = append(rmis, &rmiListItem{r})
+				}
+			} else {
+				items, err := svc.ListRMIsByRepo(cmd.Context(), repo)
+				if err != nil {
+					return err
+				}
+				for _, r := range items {
+					rmis = append(rmis, &rmiListItem{r})
+				}
+			}
+
+			if len(rmis) == 0 {
+				cmd.Println("No RMIs found.")
+				return nil
+			}
+
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tTYPE\tREQUIRED\tREPO")
+			for _, r := range rmis {
+				req := "yes"
+				if !r.item.Required {
+					req = "no"
+				}
+				repoShort := r.item.RepositoryID
+				if idx := strings.LastIndex(repoShort, "/"); idx >= 0 {
+					repoShort = repoShort[idx+1:]
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
+					r.item.ID, r.item.Title, r.item.Status, r.item.ItemType, req, repoShort)
+			}
+			return w.Flush()
+		},
+	}
+	cmd.Flags().String("initiative", "", "Filter by initiative ID")
+	cmd.Flags().String("repo", "", "Filter by repository ID")
+	return cmd
+}
+
+type rmiListItem struct {
+	item *store.RoadmapItem
+}
+
+func rmiUpdateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <rmi-id>",
+		Short: "Update an RMI's status or fields",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			status, _ := cmd.Flags().GetString("status")
+			title, _ := cmd.Flags().GetString("title")
+			description, _ := cmd.Flags().GetString("description")
+			priority, _ := cmd.Flags().GetString("priority")
+			repo, _ := cmd.Flags().GetString("repo")
+			contextSpecJSON, _ := cmd.Flags().GetString("context-spec")
+
+			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" {
+				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, or --context-spec is required")
+			}
+
+			if status != "" {
+				rmi, err := svc.UpdateRMIStatus(cmd.Context(), args[0], status)
+				if err != nil {
+					return err
+				}
+				cmd.Printf("Updated %s status to %s\n", rmi.ID, rmi.Status)
+			}
+
+			if title != "" || repo != "" || cmd.Flags().Changed("description") || cmd.Flags().Changed("priority") || cmd.Flags().Changed("required") || contextSpecJSON != "" {
+				rmi, err := svc.GetRMI(cmd.Context(), args[0])
+				if err != nil {
+					return err
+				}
+				if title != "" {
+					rmi.Title = title
+				}
+				if repo != "" {
+					rmi.RepositoryID = repo
+				}
+				if cmd.Flags().Changed("description") {
+					rmi.Description = description
+				}
+				if cmd.Flags().Changed("priority") {
+					rmi.Priority = priority
+				}
+				if cmd.Flags().Changed("required") {
+					required, err := cmd.Flags().GetBool("required")
+					if err != nil {
+						return err
+					}
+					rmi.Required = required
+				}
+				if contextSpecJSON != "" {
+					if contextSpecJSON == "null" || contextSpecJSON == "{}" {
+						rmi.ContextSpec = nil
+					} else {
+						var spec store.ContextSpec
+						if err := json.Unmarshal([]byte(contextSpecJSON), &spec); err != nil {
+							return fmt.Errorf("invalid --context-spec JSON: %w", err)
+						}
+						rmi.ContextSpec = &spec
+					}
+				}
+				if err := svc.UpdateRMI(cmd.Context(), rmi); err != nil {
+					return err
+				}
+				var fields []string
+				if title != "" {
+					fields = append(fields, "title")
+				}
+				if repo != "" {
+					fields = append(fields, "repo")
+				}
+				if cmd.Flags().Changed("description") {
+					fields = append(fields, "description")
+				}
+				if cmd.Flags().Changed("priority") {
+					fields = append(fields, "priority")
+				}
+				if cmd.Flags().Changed("required") {
+					fields = append(fields, "required")
+				}
+				if contextSpecJSON != "" {
+					fields = append(fields, "context_spec")
+				}
+				cmd.Printf("Updated %s fields: %s\n", args[0], strings.Join(fields, ", "))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("status", "", "New status (proposed, planned, ready, in_progress, completed, blocked, cancelled)")
+	cmd.Flags().String("title", "", "New title")
+	cmd.Flags().String("repo", "", "New repository ID (e.g. github.com/org/repo)")
+	cmd.Flags().String("description", "", "New description (use empty string to clear)")
+	cmd.Flags().String("priority", "", "New priority (use empty string to clear)")
+	cmd.Flags().Bool("required", false, "Whether the RMI is required for phase completion")
+	cmd.Flags().String("context-spec", "", "Context spec JSON (use \"null\" or \"{}\" to clear)")
+	return cmd
+}
+
+func rmiUpdatePhaseCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-phase <phase-id>",
+		Short: "Bulk-update status of all RMIs in a phase",
+		Long: `Transition all RMIs in a phase to the target status.
+Use --from to only transition RMIs currently in a specific status.
+
+Phase ID format: INITIATIVE-ID/phase-N (e.g. INIT-PRISMCONTROL-001/phase-5).
+
+Examples:
+  visionstudio rmi update-phase INIT-X-001/phase-3 --status ready
+  visionstudio rmi update-phase INIT-X-001/phase-3 --status ready --from proposed`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			status, _ := cmd.Flags().GetString("status")
+			from, _ := cmd.Flags().GetString("from")
+			if status == "" {
+				return fmt.Errorf("--status is required")
+			}
+
+			updated, skipped, err := svc.UpdatePhaseStatus(cmd.Context(), args[0], from, status)
+			if err != nil {
+				return err
+			}
+
+			if len(updated) == 0 {
+				cmd.Println("No RMIs were updated.")
+			} else {
+				cmd.Printf("Updated %d RMIs to %s:\n", len(updated), status)
+				for _, id := range updated {
+					cmd.Printf("  %s\n", id)
+				}
+			}
+			if len(skipped) > 0 {
+				cmd.Printf("Skipped %d (already %s or filtered by --from): %s\n",
+					len(skipped), status, strings.Join(skipped, ", "))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("status", "", "Target status (required)")
+	cmd.Flags().String("from", "", "Only transition RMIs currently in this status (optional)")
+	return cmd
+}
+
+func rmiDepCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "dep",
+		Short: "Manage RMI dependencies",
+	}
+	cmd.AddCommand(rmiDepAddCmd(), rmiDepListCmd())
+	return cmd
+}
+
+func rmiDepAddCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add",
+		Short: "Add a dependency between two RMIs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			source, _ := cmd.Flags().GetString("source")
+			target, _ := cmd.Flags().GetString("target")
+			rel, _ := cmd.Flags().GetString("relationship")
+
+			if source == "" || target == "" {
+				return fmt.Errorf("--source and --target are required")
+			}
+
+			if err := svc.CreateDependency(cmd.Context(), source, target, rel); err != nil {
+				return err
+			}
+			cmd.Printf("Added dependency: %s -> %s (%s)\n", source, target, rel)
+			return nil
+		},
+	}
+	cmd.Flags().String("source", "", "Source RMI ID (the one that depends) (required)")
+	cmd.Flags().String("target", "", "Target RMI ID (the one depended upon) (required)")
+	cmd.Flags().String("relationship", "requires", "Relationship type (requires, relates)")
+	return cmd
+}
+
+func rmiDepListCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "list <rmi-id>",
+		Short: "List dependencies for an RMI",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			deps, err := svc.ListDependencies(cmd.Context(), args[0])
+			if err != nil {
+				return err
+			}
+
+			if len(deps) == 0 {
+				cmd.Println("No dependencies found.")
+				return nil
+			}
+
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "SOURCE\tTARGET\tRELATIONSHIP")
+			for _, d := range deps {
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", d.SourceRMIID, d.TargetRMIID, d.Relationship)
+			}
+			return w.Flush()
+		},
+	}
+}

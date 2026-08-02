@@ -48,6 +48,10 @@ const (
 	EdgePhases = "phases"
 	// EdgeRoadmapItems holds the string denoting the roadmap_items edge name in mutations.
 	EdgeRoadmapItems = "roadmap_items"
+	// EdgeJudgeResults holds the string denoting the judge_results edge name in mutations.
+	EdgeJudgeResults = "judge_results"
+	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
+	EdgeSpecDocuments = "spec_documents"
 	// EdgeProgram holds the string denoting the program edge name in mutations.
 	EdgeProgram = "program"
 	// EdgeWorkflow holds the string denoting the workflow edge name in mutations.
@@ -56,6 +60,10 @@ const (
 	PhaseFieldID = "phase_id"
 	// RoadmapItemFieldID holds the string denoting the ID field of the RoadmapItem.
 	RoadmapItemFieldID = "rmi_id"
+	// JudgeResultFieldID holds the string denoting the ID field of the JudgeResult.
+	JudgeResultFieldID = "result_id"
+	// SpecDocumentFieldID holds the string denoting the ID field of the SpecDocument.
+	SpecDocumentFieldID = "id"
 	// ProgramFieldID holds the string denoting the ID field of the Program.
 	ProgramFieldID = "program_id"
 	// SpecWorkflowFieldID holds the string denoting the ID field of the SpecWorkflow.
@@ -76,6 +84,20 @@ const (
 	RoadmapItemsInverseTable = "roadmap_items"
 	// RoadmapItemsColumn is the table column denoting the roadmap_items relation/edge.
 	RoadmapItemsColumn = "initiative_roadmap_items"
+	// JudgeResultsTable is the table that holds the judge_results relation/edge.
+	JudgeResultsTable = "judge_results"
+	// JudgeResultsInverseTable is the table name for the JudgeResult entity.
+	// It exists in this package in order to avoid circular dependency with the "judgeresult" package.
+	JudgeResultsInverseTable = "judge_results"
+	// JudgeResultsColumn is the table column denoting the judge_results relation/edge.
+	JudgeResultsColumn = "initiative_id"
+	// SpecDocumentsTable is the table that holds the spec_documents relation/edge.
+	SpecDocumentsTable = "spec_documents"
+	// SpecDocumentsInverseTable is the table name for the SpecDocument entity.
+	// It exists in this package in order to avoid circular dependency with the "specdocument" package.
+	SpecDocumentsInverseTable = "spec_documents"
+	// SpecDocumentsColumn is the table column denoting the spec_documents relation/edge.
+	SpecDocumentsColumn = "initiative_id"
 	// ProgramTable is the table that holds the program relation/edge.
 	ProgramTable = "initiatives"
 	// ProgramInverseTable is the table name for the Program entity.
@@ -267,6 +289,34 @@ func ByRoadmapItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByJudgeResultsCount orders the results by judge_results count.
+func ByJudgeResultsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newJudgeResultsStep(), opts...)
+	}
+}
+
+// ByJudgeResults orders the results by judge_results terms.
+func ByJudgeResults(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newJudgeResultsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// BySpecDocumentsCount orders the results by spec_documents count.
+func BySpecDocumentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSpecDocumentsStep(), opts...)
+	}
+}
+
+// BySpecDocuments orders the results by spec_documents terms.
+func BySpecDocuments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSpecDocumentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByProgramField orders the results by program field.
 func ByProgramField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -292,6 +342,20 @@ func newRoadmapItemsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RoadmapItemsInverseTable, RoadmapItemFieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RoadmapItemsTable, RoadmapItemsColumn),
+	)
+}
+func newJudgeResultsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(JudgeResultsInverseTable, JudgeResultFieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, JudgeResultsTable, JudgeResultsColumn),
+	)
+}
+func newSpecDocumentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SpecDocumentsInverseTable, SpecDocumentFieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SpecDocumentsTable, SpecDocumentsColumn),
 	)
 }
 func newProgramStep() *sqlgraph.Step {

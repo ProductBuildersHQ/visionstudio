@@ -12,10 +12,12 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
+	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
@@ -338,6 +340,36 @@ func (_u *InitiativeUpdate) AddRoadmapItems(v ...*RoadmapItem) *InitiativeUpdate
 	return _u.AddRoadmapItemIDs(ids...)
 }
 
+// AddJudgeResultIDs adds the "judge_results" edge to the JudgeResult entity by IDs.
+func (_u *InitiativeUpdate) AddJudgeResultIDs(ids ...string) *InitiativeUpdate {
+	_u.mutation.AddJudgeResultIDs(ids...)
+	return _u
+}
+
+// AddJudgeResults adds the "judge_results" edges to the JudgeResult entity.
+func (_u *InitiativeUpdate) AddJudgeResults(v ...*JudgeResult) *InitiativeUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddJudgeResultIDs(ids...)
+}
+
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_u *InitiativeUpdate) AddSpecDocumentIDs(ids ...string) *InitiativeUpdate {
+	_u.mutation.AddSpecDocumentIDs(ids...)
+	return _u
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_u *InitiativeUpdate) AddSpecDocuments(v ...*SpecDocument) *InitiativeUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpecDocumentIDs(ids...)
+}
+
 // SetProgramID sets the "program" edge to the Program entity by ID.
 func (_u *InitiativeUpdate) SetProgramID(id string) *InitiativeUpdate {
 	_u.mutation.SetProgramID(id)
@@ -421,6 +453,48 @@ func (_u *InitiativeUpdate) RemoveRoadmapItems(v ...*RoadmapItem) *InitiativeUpd
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRoadmapItemIDs(ids...)
+}
+
+// ClearJudgeResults clears all "judge_results" edges to the JudgeResult entity.
+func (_u *InitiativeUpdate) ClearJudgeResults() *InitiativeUpdate {
+	_u.mutation.ClearJudgeResults()
+	return _u
+}
+
+// RemoveJudgeResultIDs removes the "judge_results" edge to JudgeResult entities by IDs.
+func (_u *InitiativeUpdate) RemoveJudgeResultIDs(ids ...string) *InitiativeUpdate {
+	_u.mutation.RemoveJudgeResultIDs(ids...)
+	return _u
+}
+
+// RemoveJudgeResults removes "judge_results" edges to JudgeResult entities.
+func (_u *InitiativeUpdate) RemoveJudgeResults(v ...*JudgeResult) *InitiativeUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveJudgeResultIDs(ids...)
+}
+
+// ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
+func (_u *InitiativeUpdate) ClearSpecDocuments() *InitiativeUpdate {
+	_u.mutation.ClearSpecDocuments()
+	return _u
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to SpecDocument entities by IDs.
+func (_u *InitiativeUpdate) RemoveSpecDocumentIDs(ids ...string) *InitiativeUpdate {
+	_u.mutation.RemoveSpecDocumentIDs(ids...)
+	return _u
+}
+
+// RemoveSpecDocuments removes "spec_documents" edges to SpecDocument entities.
+func (_u *InitiativeUpdate) RemoveSpecDocuments(v ...*SpecDocument) *InitiativeUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpecDocumentIDs(ids...)
 }
 
 // ClearProgram clears the "program" edge to the Program entity.
@@ -675,6 +749,96 @@ func (_u *InitiativeUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(roadmapitem.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.JudgeResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.JudgeResultsTable,
+			Columns: []string{initiative.JudgeResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(judgeresult.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedJudgeResultsIDs(); len(nodes) > 0 && !_u.mutation.JudgeResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.JudgeResultsTable,
+			Columns: []string{initiative.JudgeResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(judgeresult.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.JudgeResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.JudgeResultsTable,
+			Columns: []string{initiative.JudgeResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(judgeresult.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.SpecDocumentsTable,
+			Columns: []string{initiative.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpecDocumentsIDs(); len(nodes) > 0 && !_u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.SpecDocumentsTable,
+			Columns: []string{initiative.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.SpecDocumentsTable,
+			Columns: []string{initiative.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -1066,6 +1230,36 @@ func (_u *InitiativeUpdateOne) AddRoadmapItems(v ...*RoadmapItem) *InitiativeUpd
 	return _u.AddRoadmapItemIDs(ids...)
 }
 
+// AddJudgeResultIDs adds the "judge_results" edge to the JudgeResult entity by IDs.
+func (_u *InitiativeUpdateOne) AddJudgeResultIDs(ids ...string) *InitiativeUpdateOne {
+	_u.mutation.AddJudgeResultIDs(ids...)
+	return _u
+}
+
+// AddJudgeResults adds the "judge_results" edges to the JudgeResult entity.
+func (_u *InitiativeUpdateOne) AddJudgeResults(v ...*JudgeResult) *InitiativeUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddJudgeResultIDs(ids...)
+}
+
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_u *InitiativeUpdateOne) AddSpecDocumentIDs(ids ...string) *InitiativeUpdateOne {
+	_u.mutation.AddSpecDocumentIDs(ids...)
+	return _u
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_u *InitiativeUpdateOne) AddSpecDocuments(v ...*SpecDocument) *InitiativeUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpecDocumentIDs(ids...)
+}
+
 // SetProgramID sets the "program" edge to the Program entity by ID.
 func (_u *InitiativeUpdateOne) SetProgramID(id string) *InitiativeUpdateOne {
 	_u.mutation.SetProgramID(id)
@@ -1149,6 +1343,48 @@ func (_u *InitiativeUpdateOne) RemoveRoadmapItems(v ...*RoadmapItem) *Initiative
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRoadmapItemIDs(ids...)
+}
+
+// ClearJudgeResults clears all "judge_results" edges to the JudgeResult entity.
+func (_u *InitiativeUpdateOne) ClearJudgeResults() *InitiativeUpdateOne {
+	_u.mutation.ClearJudgeResults()
+	return _u
+}
+
+// RemoveJudgeResultIDs removes the "judge_results" edge to JudgeResult entities by IDs.
+func (_u *InitiativeUpdateOne) RemoveJudgeResultIDs(ids ...string) *InitiativeUpdateOne {
+	_u.mutation.RemoveJudgeResultIDs(ids...)
+	return _u
+}
+
+// RemoveJudgeResults removes "judge_results" edges to JudgeResult entities.
+func (_u *InitiativeUpdateOne) RemoveJudgeResults(v ...*JudgeResult) *InitiativeUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveJudgeResultIDs(ids...)
+}
+
+// ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
+func (_u *InitiativeUpdateOne) ClearSpecDocuments() *InitiativeUpdateOne {
+	_u.mutation.ClearSpecDocuments()
+	return _u
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to SpecDocument entities by IDs.
+func (_u *InitiativeUpdateOne) RemoveSpecDocumentIDs(ids ...string) *InitiativeUpdateOne {
+	_u.mutation.RemoveSpecDocumentIDs(ids...)
+	return _u
+}
+
+// RemoveSpecDocuments removes "spec_documents" edges to SpecDocument entities.
+func (_u *InitiativeUpdateOne) RemoveSpecDocuments(v ...*SpecDocument) *InitiativeUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpecDocumentIDs(ids...)
 }
 
 // ClearProgram clears the "program" edge to the Program entity.
@@ -1433,6 +1669,96 @@ func (_u *InitiativeUpdateOne) sqlSave(ctx context.Context) (_node *Initiative, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(roadmapitem.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.JudgeResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.JudgeResultsTable,
+			Columns: []string{initiative.JudgeResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(judgeresult.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedJudgeResultsIDs(); len(nodes) > 0 && !_u.mutation.JudgeResultsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.JudgeResultsTable,
+			Columns: []string{initiative.JudgeResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(judgeresult.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.JudgeResultsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.JudgeResultsTable,
+			Columns: []string{initiative.JudgeResultsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(judgeresult.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.SpecDocumentsTable,
+			Columns: []string{initiative.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpecDocumentsIDs(); len(nodes) > 0 && !_u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.SpecDocumentsTable,
+			Columns: []string{initiative.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   initiative.SpecDocumentsTable,
+			Columns: []string{initiative.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

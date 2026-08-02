@@ -42,9 +42,11 @@ type Repository struct {
 type RepositoryEdges struct {
 	// RoadmapItems holds the value of the roadmap_items edge.
 	RoadmapItems []*RoadmapItem `json:"roadmap_items,omitempty"`
+	// SpecDocuments holds the value of the spec_documents edge.
+	SpecDocuments []*SpecDocument `json:"spec_documents,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // RoadmapItemsOrErr returns the RoadmapItems value or an error if the edge
@@ -54,6 +56,15 @@ func (e RepositoryEdges) RoadmapItemsOrErr() ([]*RoadmapItem, error) {
 		return e.RoadmapItems, nil
 	}
 	return nil, &NotLoadedError{edge: "roadmap_items"}
+}
+
+// SpecDocumentsOrErr returns the SpecDocuments value or an error if the edge
+// was not loaded in eager-loading.
+func (e RepositoryEdges) SpecDocumentsOrErr() ([]*SpecDocument, error) {
+	if e.loadedTypes[1] {
+		return e.SpecDocuments, nil
+	}
+	return nil, &NotLoadedError{edge: "spec_documents"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -148,6 +159,11 @@ func (_m *Repository) Value(name string) (ent.Value, error) {
 // QueryRoadmapItems queries the "roadmap_items" edge of the Repository entity.
 func (_m *Repository) QueryRoadmapItems() *RoadmapItemQuery {
 	return NewRepositoryClient(_m.config).QueryRoadmapItems(_m)
+}
+
+// QuerySpecDocuments queries the "spec_documents" edge of the Repository entity.
+func (_m *Repository) QuerySpecDocuments() *SpecDocumentQuery {
+	return NewRepositoryClient(_m.config).QuerySpecDocuments(_m)
 }
 
 // Update returns a builder for updating this Repository.

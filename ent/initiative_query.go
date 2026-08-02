@@ -13,25 +13,29 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
+	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
 // InitiativeQuery is the builder for querying Initiative entities.
 type InitiativeQuery struct {
 	config
-	ctx              *QueryContext
-	order            []initiative.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.Initiative
-	withPhases       *PhaseQuery
-	withRoadmapItems *RoadmapItemQuery
-	withProgram      *ProgramQuery
-	withWorkflow     *SpecWorkflowQuery
-	withFKs          bool
+	ctx               *QueryContext
+	order             []initiative.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.Initiative
+	withPhases        *PhaseQuery
+	withRoadmapItems  *RoadmapItemQuery
+	withJudgeResults  *JudgeResultQuery
+	withSpecDocuments *SpecDocumentQuery
+	withProgram       *ProgramQuery
+	withWorkflow      *SpecWorkflowQuery
+	withFKs           bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -105,6 +109,50 @@ func (_q *InitiativeQuery) QueryRoadmapItems() *RoadmapItemQuery {
 			sqlgraph.From(initiative.Table, initiative.FieldID, selector),
 			sqlgraph.To(roadmapitem.Table, roadmapitem.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, initiative.RoadmapItemsTable, initiative.RoadmapItemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryJudgeResults chains the current query on the "judge_results" edge.
+func (_q *InitiativeQuery) QueryJudgeResults() *JudgeResultQuery {
+	query := (&JudgeResultClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(initiative.Table, initiative.FieldID, selector),
+			sqlgraph.To(judgeresult.Table, judgeresult.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, initiative.JudgeResultsTable, initiative.JudgeResultsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpecDocuments chains the current query on the "spec_documents" edge.
+func (_q *InitiativeQuery) QuerySpecDocuments() *SpecDocumentQuery {
+	query := (&SpecDocumentClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(initiative.Table, initiative.FieldID, selector),
+			sqlgraph.To(specdocument.Table, specdocument.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, initiative.SpecDocumentsTable, initiative.SpecDocumentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -343,15 +391,17 @@ func (_q *InitiativeQuery) Clone() *InitiativeQuery {
 		return nil
 	}
 	return &InitiativeQuery{
-		config:           _q.config,
-		ctx:              _q.ctx.Clone(),
-		order:            append([]initiative.OrderOption{}, _q.order...),
-		inters:           append([]Interceptor{}, _q.inters...),
-		predicates:       append([]predicate.Initiative{}, _q.predicates...),
-		withPhases:       _q.withPhases.Clone(),
-		withRoadmapItems: _q.withRoadmapItems.Clone(),
-		withProgram:      _q.withProgram.Clone(),
-		withWorkflow:     _q.withWorkflow.Clone(),
+		config:            _q.config,
+		ctx:               _q.ctx.Clone(),
+		order:             append([]initiative.OrderOption{}, _q.order...),
+		inters:            append([]Interceptor{}, _q.inters...),
+		predicates:        append([]predicate.Initiative{}, _q.predicates...),
+		withPhases:        _q.withPhases.Clone(),
+		withRoadmapItems:  _q.withRoadmapItems.Clone(),
+		withJudgeResults:  _q.withJudgeResults.Clone(),
+		withSpecDocuments: _q.withSpecDocuments.Clone(),
+		withProgram:       _q.withProgram.Clone(),
+		withWorkflow:      _q.withWorkflow.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -377,6 +427,28 @@ func (_q *InitiativeQuery) WithRoadmapItems(opts ...func(*RoadmapItemQuery)) *In
 		opt(query)
 	}
 	_q.withRoadmapItems = query
+	return _q
+}
+
+// WithJudgeResults tells the query-builder to eager-load the nodes that are connected to
+// the "judge_results" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *InitiativeQuery) WithJudgeResults(opts ...func(*JudgeResultQuery)) *InitiativeQuery {
+	query := (&JudgeResultClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withJudgeResults = query
+	return _q
+}
+
+// WithSpecDocuments tells the query-builder to eager-load the nodes that are connected to
+// the "spec_documents" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *InitiativeQuery) WithSpecDocuments(opts ...func(*SpecDocumentQuery)) *InitiativeQuery {
+	query := (&SpecDocumentClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpecDocuments = query
 	return _q
 }
 
@@ -481,9 +553,11 @@ func (_q *InitiativeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*I
 		nodes       = []*Initiative{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [6]bool{
 			_q.withPhases != nil,
 			_q.withRoadmapItems != nil,
+			_q.withJudgeResults != nil,
+			_q.withSpecDocuments != nil,
 			_q.withProgram != nil,
 			_q.withWorkflow != nil,
 		}
@@ -523,6 +597,20 @@ func (_q *InitiativeQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*I
 		if err := _q.loadRoadmapItems(ctx, query, nodes,
 			func(n *Initiative) { n.Edges.RoadmapItems = []*RoadmapItem{} },
 			func(n *Initiative, e *RoadmapItem) { n.Edges.RoadmapItems = append(n.Edges.RoadmapItems, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withJudgeResults; query != nil {
+		if err := _q.loadJudgeResults(ctx, query, nodes,
+			func(n *Initiative) { n.Edges.JudgeResults = []*JudgeResult{} },
+			func(n *Initiative, e *JudgeResult) { n.Edges.JudgeResults = append(n.Edges.JudgeResults, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpecDocuments; query != nil {
+		if err := _q.loadSpecDocuments(ctx, query, nodes,
+			func(n *Initiative) { n.Edges.SpecDocuments = []*SpecDocument{} },
+			func(n *Initiative, e *SpecDocument) { n.Edges.SpecDocuments = append(n.Edges.SpecDocuments, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -598,6 +686,67 @@ func (_q *InitiativeQuery) loadRoadmapItems(ctx context.Context, query *RoadmapI
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "initiative_roadmap_items" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *InitiativeQuery) loadJudgeResults(ctx context.Context, query *JudgeResultQuery, nodes []*Initiative, init func(*Initiative), assign func(*Initiative, *JudgeResult)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Initiative)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(judgeresult.FieldInitiativeID)
+	}
+	query.Where(predicate.JudgeResult(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(initiative.JudgeResultsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.InitiativeID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "initiative_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *InitiativeQuery) loadSpecDocuments(ctx context.Context, query *SpecDocumentQuery, nodes []*Initiative, init func(*Initiative), assign func(*Initiative, *SpecDocument)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Initiative)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(specdocument.FieldInitiativeID)
+	}
+	query.Where(predicate.SpecDocument(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(initiative.SpecDocumentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.InitiativeID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "initiative_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

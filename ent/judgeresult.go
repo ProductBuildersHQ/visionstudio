@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 )
@@ -41,9 +42,11 @@ type JudgeResult struct {
 type JudgeResultEdges struct {
 	// Rubric holds the value of the rubric edge.
 	Rubric *JudgeRubric `json:"rubric,omitempty"`
+	// Initiative holds the value of the initiative edge.
+	Initiative *Initiative `json:"initiative,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // RubricOrErr returns the Rubric value or an error if the edge
@@ -55,6 +58,17 @@ func (e JudgeResultEdges) RubricOrErr() (*JudgeRubric, error) {
 		return nil, &NotFoundError{label: judgerubric.Label}
 	}
 	return nil, &NotLoadedError{edge: "rubric"}
+}
+
+// InitiativeOrErr returns the Initiative value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e JudgeResultEdges) InitiativeOrErr() (*Initiative, error) {
+	if e.Initiative != nil {
+		return e.Initiative, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: initiative.Label}
+	}
+	return nil, &NotLoadedError{edge: "initiative"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -150,6 +164,11 @@ func (_m *JudgeResult) Value(name string) (ent.Value, error) {
 // QueryRubric queries the "rubric" edge of the JudgeResult entity.
 func (_m *JudgeResult) QueryRubric() *JudgeRubricQuery {
 	return NewJudgeResultClient(_m.config).QueryRubric(_m)
+}
+
+// QueryInitiative queries the "initiative" edge of the JudgeResult entity.
+func (_m *JudgeResult) QueryInitiative() *InitiativeQuery {
+	return NewJudgeResultClient(_m.config).QueryInitiative(_m)
 }
 
 // Update returns a builder for updating this JudgeResult.

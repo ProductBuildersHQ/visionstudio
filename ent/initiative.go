@@ -66,13 +66,17 @@ type InitiativeEdges struct {
 	Phases []*Phase `json:"phases,omitempty"`
 	// RoadmapItems holds the value of the roadmap_items edge.
 	RoadmapItems []*RoadmapItem `json:"roadmap_items,omitempty"`
+	// JudgeResults holds the value of the judge_results edge.
+	JudgeResults []*JudgeResult `json:"judge_results,omitempty"`
+	// SpecDocuments holds the value of the spec_documents edge.
+	SpecDocuments []*SpecDocument `json:"spec_documents,omitempty"`
 	// Program holds the value of the program edge.
 	Program *Program `json:"program,omitempty"`
 	// Workflow holds the value of the workflow edge.
 	Workflow *SpecWorkflow `json:"workflow,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [6]bool
 }
 
 // PhasesOrErr returns the Phases value or an error if the edge
@@ -93,12 +97,30 @@ func (e InitiativeEdges) RoadmapItemsOrErr() ([]*RoadmapItem, error) {
 	return nil, &NotLoadedError{edge: "roadmap_items"}
 }
 
+// JudgeResultsOrErr returns the JudgeResults value or an error if the edge
+// was not loaded in eager-loading.
+func (e InitiativeEdges) JudgeResultsOrErr() ([]*JudgeResult, error) {
+	if e.loadedTypes[2] {
+		return e.JudgeResults, nil
+	}
+	return nil, &NotLoadedError{edge: "judge_results"}
+}
+
+// SpecDocumentsOrErr returns the SpecDocuments value or an error if the edge
+// was not loaded in eager-loading.
+func (e InitiativeEdges) SpecDocumentsOrErr() ([]*SpecDocument, error) {
+	if e.loadedTypes[3] {
+		return e.SpecDocuments, nil
+	}
+	return nil, &NotLoadedError{edge: "spec_documents"}
+}
+
 // ProgramOrErr returns the Program value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e InitiativeEdges) ProgramOrErr() (*Program, error) {
 	if e.Program != nil {
 		return e.Program, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[4] {
 		return nil, &NotFoundError{label: program.Label}
 	}
 	return nil, &NotLoadedError{edge: "program"}
@@ -109,7 +131,7 @@ func (e InitiativeEdges) ProgramOrErr() (*Program, error) {
 func (e InitiativeEdges) WorkflowOrErr() (*SpecWorkflow, error) {
 	if e.Workflow != nil {
 		return e.Workflow, nil
-	} else if e.loadedTypes[3] {
+	} else if e.loadedTypes[5] {
 		return nil, &NotFoundError{label: specworkflow.Label}
 	}
 	return nil, &NotLoadedError{edge: "workflow"}
@@ -289,6 +311,16 @@ func (_m *Initiative) QueryPhases() *PhaseQuery {
 // QueryRoadmapItems queries the "roadmap_items" edge of the Initiative entity.
 func (_m *Initiative) QueryRoadmapItems() *RoadmapItemQuery {
 	return NewInitiativeClient(_m.config).QueryRoadmapItems(_m)
+}
+
+// QueryJudgeResults queries the "judge_results" edge of the Initiative entity.
+func (_m *Initiative) QueryJudgeResults() *JudgeResultQuery {
+	return NewInitiativeClient(_m.config).QueryJudgeResults(_m)
+}
+
+// QuerySpecDocuments queries the "spec_documents" edge of the Initiative entity.
+func (_m *Initiative) QuerySpecDocuments() *SpecDocumentQuery {
+	return NewInitiativeClient(_m.config).QuerySpecDocuments(_m)
 }
 
 // QueryProgram queries the "program" edge of the Initiative entity.

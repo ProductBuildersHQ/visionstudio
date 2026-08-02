@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
 // RepositoryCreate is the builder for creating a Repository entity.
@@ -127,6 +128,21 @@ func (_c *RepositoryCreate) AddRoadmapItems(v ...*RoadmapItem) *RepositoryCreate
 		ids[i] = v[i].ID
 	}
 	return _c.AddRoadmapItemIDs(ids...)
+}
+
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_c *RepositoryCreate) AddSpecDocumentIDs(ids ...string) *RepositoryCreate {
+	_c.mutation.AddSpecDocumentIDs(ids...)
+	return _c
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_c *RepositoryCreate) AddSpecDocuments(v ...*SpecDocument) *RepositoryCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpecDocumentIDs(ids...)
 }
 
 // Mutation returns the RepositoryMutation object of the builder.
@@ -305,6 +321,22 @@ func (_c *RepositoryCreate) createSpec() (*Repository, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(roadmapitem.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.SpecDocumentsTable,
+			Columns: []string{repository.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

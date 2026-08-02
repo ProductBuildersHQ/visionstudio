@@ -30,8 +30,12 @@ const (
 	FieldIngestHighWater = "ingest_high_water"
 	// EdgeRoadmapItems holds the string denoting the roadmap_items edge name in mutations.
 	EdgeRoadmapItems = "roadmap_items"
+	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
+	EdgeSpecDocuments = "spec_documents"
 	// RoadmapItemFieldID holds the string denoting the ID field of the RoadmapItem.
 	RoadmapItemFieldID = "rmi_id"
+	// SpecDocumentFieldID holds the string denoting the ID field of the SpecDocument.
+	SpecDocumentFieldID = "id"
 	// Table holds the table name of the repository in the database.
 	Table = "repositories"
 	// RoadmapItemsTable is the table that holds the roadmap_items relation/edge.
@@ -41,6 +45,13 @@ const (
 	RoadmapItemsInverseTable = "roadmap_items"
 	// RoadmapItemsColumn is the table column denoting the roadmap_items relation/edge.
 	RoadmapItemsColumn = "repository_roadmap_items"
+	// SpecDocumentsTable is the table that holds the spec_documents relation/edge.
+	SpecDocumentsTable = "spec_documents"
+	// SpecDocumentsInverseTable is the table name for the SpecDocument entity.
+	// It exists in this package in order to avoid circular dependency with the "specdocument" package.
+	SpecDocumentsInverseTable = "spec_documents"
+	// SpecDocumentsColumn is the table column denoting the spec_documents relation/edge.
+	SpecDocumentsColumn = "repository_id"
 )
 
 // Columns holds all SQL columns for repository fields.
@@ -150,10 +161,31 @@ func ByRoadmapItems(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRoadmapItemsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// BySpecDocumentsCount orders the results by spec_documents count.
+func BySpecDocumentsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newSpecDocumentsStep(), opts...)
+	}
+}
+
+// BySpecDocuments orders the results by spec_documents terms.
+func BySpecDocuments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newSpecDocumentsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newRoadmapItemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RoadmapItemsInverseTable, RoadmapItemFieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, RoadmapItemsTable, RoadmapItemsColumn),
+	)
+}
+func newSpecDocumentsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(SpecDocumentsInverseTable, SpecDocumentFieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, SpecDocumentsTable, SpecDocumentsColumn),
 	)
 }

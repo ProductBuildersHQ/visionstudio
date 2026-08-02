@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
 
@@ -25,5 +26,12 @@ func (SpecDocument) Fields() []ent.Field {
 		field.Time("synced_at"),
 		field.Time("created_at"),
 		field.Time("updated_at"),
+	}
+}
+
+func (SpecDocument) Edges() []ent.Edge {
+	return []ent.Edge{
+		edge.From("initiative", Initiative.Type).Ref("spec_documents").Unique().Field("initiative_id"),
+		edge.From("repository", Repository.Type).Ref("spec_documents").Unique().Required().Field("repository_id"),
 	}
 }

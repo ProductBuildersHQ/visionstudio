@@ -26,5 +26,6 @@ func (JudgeResult) Fields() []ent.Field {
 func (JudgeResult) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("rubric", JudgeRubric.Type).Ref("results").Unique(),
+		edge.From("initiative", Initiative.Type).Ref("judge_results").Unique().Required().Field("initiative_id"),
 	}
 }

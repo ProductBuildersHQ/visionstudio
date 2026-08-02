@@ -11,7 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 )
 
@@ -212,9 +214,31 @@ func (_u *SpecDocumentUpdate) SetNillableUpdatedAt(v *time.Time) *SpecDocumentUp
 	return _u
 }
 
+// SetInitiative sets the "initiative" edge to the Initiative entity.
+func (_u *SpecDocumentUpdate) SetInitiative(v *Initiative) *SpecDocumentUpdate {
+	return _u.SetInitiativeID(v.ID)
+}
+
+// SetRepository sets the "repository" edge to the Repository entity.
+func (_u *SpecDocumentUpdate) SetRepository(v *Repository) *SpecDocumentUpdate {
+	return _u.SetRepositoryID(v.ID)
+}
+
 // Mutation returns the SpecDocumentMutation object of the builder.
 func (_u *SpecDocumentUpdate) Mutation() *SpecDocumentMutation {
 	return _u.mutation
+}
+
+// ClearInitiative clears the "initiative" edge to the Initiative entity.
+func (_u *SpecDocumentUpdate) ClearInitiative() *SpecDocumentUpdate {
+	_u.mutation.ClearInitiative()
+	return _u
+}
+
+// ClearRepository clears the "repository" edge to the Repository entity.
+func (_u *SpecDocumentUpdate) ClearRepository() *SpecDocumentUpdate {
+	_u.mutation.ClearRepository()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -244,7 +268,18 @@ func (_u *SpecDocumentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *SpecDocumentUpdate) check() error {
+	if _u.mutation.RepositoryCleared() && len(_u.mutation.RepositoryIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpecDocument.repository"`)
+	}
+	return nil
+}
+
 func (_u *SpecDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(specdocument.Table, specdocument.Columns, sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -258,15 +293,6 @@ func (_u *SpecDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.OrganizationCleared() {
 		_spec.ClearField(specdocument.FieldOrganization, field.TypeString)
-	}
-	if value, ok := _u.mutation.RepositoryID(); ok {
-		_spec.SetField(specdocument.FieldRepositoryID, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.InitiativeID(); ok {
-		_spec.SetField(specdocument.FieldInitiativeID, field.TypeString, value)
-	}
-	if _u.mutation.InitiativeIDCleared() {
-		_spec.ClearField(specdocument.FieldInitiativeID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SpecType(); ok {
 		_spec.SetField(specdocument.FieldSpecType, field.TypeString, value)
@@ -300,6 +326,64 @@ func (_u *SpecDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(specdocument.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.InitiativeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.InitiativeTable,
+			Columns: []string{specdocument.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InitiativeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.InitiativeTable,
+			Columns: []string{specdocument.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RepositoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.RepositoryTable,
+			Columns: []string{specdocument.RepositoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RepositoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.RepositoryTable,
+			Columns: []string{specdocument.RepositoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -505,9 +589,31 @@ func (_u *SpecDocumentUpdateOne) SetNillableUpdatedAt(v *time.Time) *SpecDocumen
 	return _u
 }
 
+// SetInitiative sets the "initiative" edge to the Initiative entity.
+func (_u *SpecDocumentUpdateOne) SetInitiative(v *Initiative) *SpecDocumentUpdateOne {
+	return _u.SetInitiativeID(v.ID)
+}
+
+// SetRepository sets the "repository" edge to the Repository entity.
+func (_u *SpecDocumentUpdateOne) SetRepository(v *Repository) *SpecDocumentUpdateOne {
+	return _u.SetRepositoryID(v.ID)
+}
+
 // Mutation returns the SpecDocumentMutation object of the builder.
 func (_u *SpecDocumentUpdateOne) Mutation() *SpecDocumentMutation {
 	return _u.mutation
+}
+
+// ClearInitiative clears the "initiative" edge to the Initiative entity.
+func (_u *SpecDocumentUpdateOne) ClearInitiative() *SpecDocumentUpdateOne {
+	_u.mutation.ClearInitiative()
+	return _u
+}
+
+// ClearRepository clears the "repository" edge to the Repository entity.
+func (_u *SpecDocumentUpdateOne) ClearRepository() *SpecDocumentUpdateOne {
+	_u.mutation.ClearRepository()
+	return _u
 }
 
 // Where appends a list predicates to the SpecDocumentUpdate builder.
@@ -550,7 +656,18 @@ func (_u *SpecDocumentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *SpecDocumentUpdateOne) check() error {
+	if _u.mutation.RepositoryCleared() && len(_u.mutation.RepositoryIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "SpecDocument.repository"`)
+	}
+	return nil
+}
+
 func (_u *SpecDocumentUpdateOne) sqlSave(ctx context.Context) (_node *SpecDocument, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(specdocument.Table, specdocument.Columns, sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -581,15 +698,6 @@ func (_u *SpecDocumentUpdateOne) sqlSave(ctx context.Context) (_node *SpecDocume
 	}
 	if _u.mutation.OrganizationCleared() {
 		_spec.ClearField(specdocument.FieldOrganization, field.TypeString)
-	}
-	if value, ok := _u.mutation.RepositoryID(); ok {
-		_spec.SetField(specdocument.FieldRepositoryID, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.InitiativeID(); ok {
-		_spec.SetField(specdocument.FieldInitiativeID, field.TypeString, value)
-	}
-	if _u.mutation.InitiativeIDCleared() {
-		_spec.ClearField(specdocument.FieldInitiativeID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SpecType(); ok {
 		_spec.SetField(specdocument.FieldSpecType, field.TypeString, value)
@@ -623,6 +731,64 @@ func (_u *SpecDocumentUpdateOne) sqlSave(ctx context.Context) (_node *SpecDocume
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(specdocument.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if _u.mutation.InitiativeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.InitiativeTable,
+			Columns: []string{specdocument.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InitiativeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.InitiativeTable,
+			Columns: []string{specdocument.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.RepositoryCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.RepositoryTable,
+			Columns: []string{specdocument.RepositoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RepositoryIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.RepositoryTable,
+			Columns: []string{specdocument.RepositoryColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &SpecDocument{config: _u.config}
 	_spec.Assign = _node.assignValues

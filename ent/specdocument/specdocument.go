@@ -4,6 +4,7 @@ package specdocument
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -33,8 +34,30 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// EdgeInitiative holds the string denoting the initiative edge name in mutations.
+	EdgeInitiative = "initiative"
+	// EdgeRepository holds the string denoting the repository edge name in mutations.
+	EdgeRepository = "repository"
+	// InitiativeFieldID holds the string denoting the ID field of the Initiative.
+	InitiativeFieldID = "initiative_id"
+	// RepositoryFieldID holds the string denoting the ID field of the Repository.
+	RepositoryFieldID = "repository_id"
 	// Table holds the table name of the specdocument in the database.
 	Table = "spec_documents"
+	// InitiativeTable is the table that holds the initiative relation/edge.
+	InitiativeTable = "spec_documents"
+	// InitiativeInverseTable is the table name for the Initiative entity.
+	// It exists in this package in order to avoid circular dependency with the "initiative" package.
+	InitiativeInverseTable = "initiatives"
+	// InitiativeColumn is the table column denoting the initiative relation/edge.
+	InitiativeColumn = "initiative_id"
+	// RepositoryTable is the table that holds the repository relation/edge.
+	RepositoryTable = "spec_documents"
+	// RepositoryInverseTable is the table name for the Repository entity.
+	// It exists in this package in order to avoid circular dependency with the "repository" package.
+	RepositoryInverseTable = "repositories"
+	// RepositoryColumn is the table column denoting the repository relation/edge.
+	RepositoryColumn = "repository_id"
 )
 
 // Columns holds all SQL columns for specdocument fields.
@@ -124,4 +147,32 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByInitiativeField orders the results by initiative field.
+func ByInitiativeField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newInitiativeStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByRepositoryField orders the results by repository field.
+func ByRepositoryField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRepositoryStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newInitiativeStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(InitiativeInverseTable, InitiativeFieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, InitiativeTable, InitiativeColumn),
+	)
+}
+func newRepositoryStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RepositoryInverseTable, RepositoryFieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, RepositoryTable, RepositoryColumn),
+	)
 }

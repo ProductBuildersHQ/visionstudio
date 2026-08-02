@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 )
@@ -106,6 +107,11 @@ func (_c *JudgeResultCreate) SetRubric(v *JudgeRubric) *JudgeResultCreate {
 	return _c.SetRubricID(v.ID)
 }
 
+// SetInitiative sets the "initiative" edge to the Initiative entity.
+func (_c *JudgeResultCreate) SetInitiative(v *Initiative) *JudgeResultCreate {
+	return _c.SetInitiativeID(v.ID)
+}
+
 // Mutation returns the JudgeResultMutation object of the builder.
 func (_c *JudgeResultCreate) Mutation() *JudgeResultMutation {
 	return _c.mutation
@@ -169,6 +175,9 @@ func (_c *JudgeResultCreate) check() error {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.id": %w`, err)}
 		}
 	}
+	if len(_c.mutation.InitiativeIDs()) == 0 {
+		return &ValidationError{Name: "initiative", err: errors.New(`ent: missing required edge "JudgeResult.initiative"`)}
+	}
 	return nil
 }
 
@@ -203,10 +212,6 @@ func (_c *JudgeResultCreate) createSpec() (*JudgeResult, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
-	}
-	if value, ok := _c.mutation.InitiativeID(); ok {
-		_spec.SetField(judgeresult.FieldInitiativeID, field.TypeString, value)
-		_node.InitiativeID = value
 	}
 	if value, ok := _c.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
@@ -243,6 +248,23 @@ func (_c *JudgeResultCreate) createSpec() (*JudgeResult, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.judge_rubric_results = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.InitiativeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   judgeresult.InitiativeTable,
+			Columns: []string{judgeresult.InitiativeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.InitiativeID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

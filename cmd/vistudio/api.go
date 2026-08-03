@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -519,18 +520,151 @@ func buildSpecsResponse(ctx context.Context, svc *service.Service) (*SpecsRespon
 	}
 
 	var allResults []*store.JudgeResult
+	seenIDs := make(map[string]bool)
+
+	// First, load from store
 	for _, init := range initiatives {
 		results, err := svc.Store.ListJudgeResults(ctx, init.ID)
 		if err != nil {
 			return nil, err
 		}
-		allResults = append(allResults, results...)
+		for _, r := range results {
+			seenIDs[r.ID] = true
+			allResults = append(allResults, r)
+		}
+	}
+
+	// Also load from disk (evaluations/ directories) for results not in store
+	for _, init := range initiatives {
+		diskResults := loadJudgeResultsFromDisk(init.ID, svc)
+		for _, r := range diskResults {
+			if !seenIDs[r.ID] {
+				seenIDs[r.ID] = true
+				allResults = append(allResults, r)
+			}
+		}
+	}
+
+	// Also scan for disk-only initiatives (not in database)
+	diskInitIDs := scanDiskInitiatives()
+	for _, initID := range diskInitIDs {
+		// Skip if we already processed from store
+		alreadyProcessed := false
+		for _, init := range initiatives {
+			if init.ID == initID {
+				alreadyProcessed = true
+				break
+			}
+		}
+		if alreadyProcessed {
+			continue
+		}
+
+		diskResults := loadJudgeResultsFromDisk(initID, svc)
+		for _, r := range diskResults {
+			if !seenIDs[r.ID] {
+				seenIDs[r.ID] = true
+				allResults = append(allResults, r)
+			}
+		}
 	}
 
 	return &SpecsResponse{
 		Workflows:    workflows,
 		JudgeResults: allResults,
 	}, nil
+}
+
+// scanDiskInitiatives looks for initiative directories in the current working directory.
+func scanDiskInitiatives() []string {
+	var initIDs []string
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return initIDs
+	}
+
+	initDir := filepath.Join(cwd, "docs", "specs", "initiatives")
+	entries, err := os.ReadDir(initDir)
+	if err != nil {
+		return initIDs
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() && strings.HasPrefix(entry.Name(), "INIT-") {
+			initIDs = append(initIDs, entry.Name())
+		}
+	}
+
+	return initIDs
+}
+
+// loadJudgeResultsFromDisk reads *.eval.json files from disk and converts them to JudgeResults.
+func loadJudgeResultsFromDisk(initiativeID string, svc *service.Service) []*store.JudgeResult {
+	var results []*store.JudgeResult
+	var evalDir string
+
+	// Try to find the evaluations directory
+	// First check if initiative has HomeRepo with LocalPath
+	init, err := svc.Store.GetInitiative(context.Background(), initiativeID)
+	if err == nil && init.HomeRepo != "" {
+		repo, err := svc.Store.GetRepository(context.Background(), init.HomeRepo)
+		if err == nil && repo.LocalPath != "" {
+			evalDir = filepath.Join(repo.LocalPath, "docs", "specs", "initiatives", initiativeID, "evaluations")
+		}
+	}
+
+	// Fallback: check current working directory
+	if evalDir == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return results
+		}
+		evalDir = filepath.Join(cwd, "docs", "specs", "initiatives", initiativeID, "evaluations")
+	}
+	entries, err := os.ReadDir(evalDir)
+	if err != nil {
+		return results
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".eval.json") {
+			continue
+		}
+
+		filePath := filepath.Join(evalDir, entry.Name())
+		data, err := os.ReadFile(filePath)
+		if err != nil {
+			continue
+		}
+
+		var evalFile struct {
+			ID           string    `json:"id"`
+			InitiativeID string    `json:"initiative_id"`
+			SpecPath     string    `json:"spec_path"`
+			RubricID     string    `json:"rubric_id"`
+			Score        float64   `json:"score"`
+			Rationale    string    `json:"rationale"`
+			Model        string    `json:"model"`
+			EvaluatedAt  time.Time `json:"evaluated_at"`
+		}
+		if err := json.Unmarshal(data, &evalFile); err != nil {
+			continue
+		}
+
+		results = append(results, &store.JudgeResult{
+			ID:           evalFile.ID,
+			InitiativeID: evalFile.InitiativeID,
+			SpecPath:     evalFile.SpecPath,
+			RubricID:     evalFile.RubricID,
+			Score:        evalFile.Score,
+			Rationale:    evalFile.Rationale,
+			Model:        evalFile.Model,
+			EvaluatedAt:  evalFile.EvaluatedAt,
+		})
+	}
+
+	return results
 }
 
 func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {
@@ -649,13 +783,22 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
 			}
 
-			files = append(files, SpecFile{
+			sf := SpecFile{
 				InitiativeID: initiativeID,
 				SpecType:     deriveSpecType(entry.Name()),
 				Path:         specPath,
 				Content:      string(content),
 				ModTime:      modTime,
-			})
+			}
+
+			// Check for corresponding eval JSON in evaluations/ directory
+			evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
+			evalPath := filepath.Join(specDir, "evaluations", evalName)
+			if evalContent, err := os.ReadFile(evalPath); err == nil {
+				sf.EvalJSON = string(evalContent)
+			}
+
+			files = append(files, sf)
 		}
 	}
 

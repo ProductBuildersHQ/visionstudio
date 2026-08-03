@@ -3,7 +3,7 @@
 VisionStudio sits at the top of the ProductBuildersHQ spec stack. This page
 describes how it consumes the two layers beneath it and the rules that keep
 the layering intact. The canonical cross-repo reference lives in the
-[org architecture doc](https://github.com/ProductBuildersHQ/prism/blob/main/.github/ARCHITECTURE.md).
+[org architecture doc](https://github.com/ProductBuildersHQ/.github/blob/main/ARCHITECTURE.md).
 
 ```
 visionstudio  ──▶  visionspec  ──▶  specification-workflow-spec

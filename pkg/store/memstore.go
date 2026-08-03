@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 )
 
 // MemStore is an in-memory Store implementation for unit testing.
@@ -28,8 +29,9 @@ type MemStore struct {
 	devxPeriodReports   map[string]*DevXPeriodReport
 	prismRoadmaps       map[string]*PRISMRoadmap
 	prismGoals          map[string]*PRISMGoal
-	prismDocuments      map[string]*PRISMDocument
-	specDocuments       map[string]*SpecDocument
+	prismDocuments       map[string]*PRISMDocument
+	specDocuments        map[string]*SpecDocument
+	initiativeWorkflows  map[string]*InitiativeWorkflow
 }
 
 // NewMemStore creates a new in-memory store.
@@ -50,8 +52,9 @@ func NewMemStore() *MemStore {
 		devxPeriodReports:   make(map[string]*DevXPeriodReport),
 		prismRoadmaps:       make(map[string]*PRISMRoadmap),
 		prismGoals:          make(map[string]*PRISMGoal),
-		prismDocuments:      make(map[string]*PRISMDocument),
-		specDocuments:       make(map[string]*SpecDocument),
+		prismDocuments:       make(map[string]*PRISMDocument),
+		specDocuments:        make(map[string]*SpecDocument),
+		initiativeWorkflows:  make(map[string]*InitiativeWorkflow),
 	}
 }
 
@@ -547,6 +550,27 @@ func (m *MemStore) UpdateSpecWorkflow(_ context.Context, wf *SpecWorkflow) error
 	}
 	m.workflows[wf.ID] = wf
 	return nil
+}
+
+func (m *MemStore) SelectWorkflowForInitiative(_ context.Context, initiativeID, workflowID string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.initiativeWorkflows[initiativeID] = &InitiativeWorkflow{
+		InitiativeID: initiativeID,
+		WorkflowID:   workflowID,
+		SelectedAt:   time.Now(),
+	}
+	return nil
+}
+
+func (m *MemStore) GetWorkflowForInitiative(_ context.Context, initiativeID string) (*InitiativeWorkflow, error) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	iw, ok := m.initiativeWorkflows[initiativeID]
+	if !ok {
+		return nil, nil
+	}
+	return iw, nil
 }
 
 func (m *MemStore) CreateJudgeRubric(_ context.Context, rubric *JudgeRubric) error {

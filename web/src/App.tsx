@@ -7,6 +7,7 @@ import { InitiativesOverview } from './panels/InitiativesOverview'
 import { InitiativeDetail } from './panels/InitiativeDetail'
 import { MaturityPanel } from './panels/MaturityPanel'
 import { SpendPanel } from './panels/SpendPanel'
+import { SpecViewer } from './panels/SpecViewer'
 import { LoadingState, ErrorState } from './components'
 
 export type NavSection = 'initiatives' | 'maturity' | 'spend'
@@ -143,6 +144,8 @@ function AppContent() {
                 />
               }
             />
+            <Route path="/initiative/:initiativeId/spec/:specType" element={<SpecViewer />} />
+            <Route path="/initiative/:initiativeId/spec" element={<SpecViewer />} />
             <Route path="/maturity" element={<MaturityPanel />} />
             <Route path="/spend" element={<SpendPanel />} />
           </Routes>

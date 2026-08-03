@@ -12,7 +12,7 @@ func TestCreateInitiative(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	init, err := svc.CreateInitiative(ctx, "INIT-TEST-001", "test", "Test Initiative", "A test", "high", "")
+	init, err := svc.CreateInitiative(ctx, "INIT-TEST-001", "test", "Test Initiative", "A test", "high", "", "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func TestCreateInitiative(t *testing.T) {
 	}
 
 	// duplicate
-	_, err = svc.CreateInitiative(ctx, "INIT-TEST-001", "test", "Dup", "", "", "")
+	_, err = svc.CreateInitiative(ctx, "INIT-TEST-001", "test", "Dup", "", "", "", "")
 	if err == nil {
 		t.Fatal("expected error on duplicate")
 	}
@@ -34,10 +34,10 @@ func TestListInitiatives(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "test", "A", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "test", "A", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := svc.CreateInitiative(ctx, "INIT-B-001", "test", "B", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-B-001", "test", "B", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 
@@ -54,7 +54,7 @@ func TestTransitionInitiative(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-T-001", "test", "Transition Test", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-T-001", "test", "Transition Test", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 
@@ -100,7 +100,7 @@ func TestGetInitiativeDetail(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-D-001", "test", "Detail Test", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-D-001", "test", "Detail Test", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-D-001/phase-1", "INIT-D-001", 1, "Foundation", "Build the base"); err != nil {
@@ -173,7 +173,7 @@ func TestCreatePhase(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-P-001", "test", "Phase Test", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-P-001", "test", "Phase Test", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 
@@ -196,7 +196,7 @@ func TestListPhases(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-LP-001", "test", "List Phases", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-LP-001", "test", "List Phases", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-LP-001/phase-1", "INIT-LP-001", 1, "One", ""); err != nil {

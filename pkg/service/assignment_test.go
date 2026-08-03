@@ -323,7 +323,7 @@ func setupPhaseTest(t *testing.T) (*Service, context.Context, string) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-P-001", "org", "Phase test", "", "high", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-P-001", "org", "Phase test", "", "high", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-P-001/phase-1", "INIT-P-001", 1, "Phase 1", "test"); err != nil {
@@ -378,7 +378,7 @@ func TestClaimPhaseEmpty(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-E-001", "org", "Empty", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-E-001", "org", "Empty", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-E-001/phase-1", "INIT-E-001", 1, "Phase 1", "test"); err != nil {
@@ -398,7 +398,7 @@ func TestClaimPhaseAllProposed(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-AP-001", "org", "All Proposed", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-AP-001", "org", "All Proposed", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-AP-001/phase-1", "INIT-AP-001", 1, "Phase 1", "test"); err != nil {

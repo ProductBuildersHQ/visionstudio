@@ -69,7 +69,7 @@ func seedInitiative(t *testing.T, svc *service.Service) {
 		t.Fatal(err)
 	}
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-TEST-001", "test", "Test Initiative", "A test", "high", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-TEST-001", "test", "Test Initiative", "A test", "high", "", "pbhq-lite"); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-TEST-001/phase-1", "INIT-TEST-001", 1, "Foundation", ""); err != nil {
@@ -149,6 +149,7 @@ func TestInitiativeCreate(t *testing.T) {
 		"id":           "INIT-NEW-001",
 		"organization": "neworg",
 		"title":        "New Initiative",
+		"workflow_id":  "pbhq-lite",
 	})
 
 	var init store.Initiative

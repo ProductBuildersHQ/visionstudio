@@ -6,6 +6,17 @@ import { LoadingState, ErrorState, MarkdownPreview, MarkdownSource } from '../co
 
 type ViewMode = 'display' | 'markdown'
 
+const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
+
+function sortSpecsByWorkflowOrder(specFiles: SpecFile[]): SpecFile[] {
+  const order = PBHQ_LITE_SPECS.reduce((acc, spec, i) => ({ ...acc, [spec]: i }), {} as Record<string, number>)
+  return [...specFiles].sort((a, b) => {
+    const aOrder = order[a.specType.toUpperCase()] ?? 999
+    const bOrder = order[b.specType.toUpperCase()] ?? 999
+    return aOrder - bOrder
+  })
+}
+
 export function SpecViewer() {
   const { initiativeId, specType } = useParams<{ initiativeId: string; specType: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -30,10 +41,12 @@ export function SpecViewer() {
       .finally(() => setLoading(false))
   }, [initiativeId])
 
+  const sortedSpecFiles = useMemo(() => sortSpecsByWorkflowOrder(specFiles), [specFiles])
+
   const selectedSpec = useMemo(() => {
-    if (!specType) return specFiles[0]
-    return specFiles.find((f) => f.specType.toLowerCase() === specType.toLowerCase()) ?? specFiles[0]
-  }, [specFiles, specType])
+    if (!specType) return sortedSpecFiles[0]
+    return sortedSpecFiles.find((f) => f.specType.toLowerCase() === specType.toLowerCase()) ?? sortedSpecFiles[0]
+  }, [sortedSpecFiles, specType])
 
   const handleModeChange = (newMode: ViewMode) => {
     setMode(newMode)
@@ -158,7 +171,7 @@ export function SpecViewer() {
         {/* Spec Type Tabs */}
         <div className="border-b border-gray-700 px-4 flex items-center justify-between">
           <div className="flex gap-1">
-            {specFiles.map((f) => (
+            {sortedSpecFiles.map((f) => (
               <button
                 key={f.specType}
                 onClick={() => handleSpecChange(f.specType)}

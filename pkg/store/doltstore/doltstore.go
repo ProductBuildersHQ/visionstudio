@@ -1,5 +1,3 @@
-//go:build dolt
-
 // Package doltstore implements the store.Store interface backed by
 // Ent and Dolt. Every mutating operation runs inside a unit-of-work
 // that wraps an Ent transaction followed by a DOLT_COMMIT.

@@ -1,4 +1,4 @@
-//go:build dolt
+//go:build dolt_embedded
 
 package doltstore
 

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflows"
 	"github.com/plexusone/structured-evaluation/rubric"
 )
 
@@ -55,6 +56,19 @@ func NewEvaluator(client LLMClient) *Evaluator {
 		llmClient: client,
 		rubrics:   make(map[string]*rubric.RubricSet),
 	}
+}
+
+// NewEvaluatorWithWorkflow creates an Evaluator pre-loaded with rubrics from a workflow.
+func NewEvaluatorWithWorkflow(client LLMClient, workflowID string) (*Evaluator, error) {
+	e := NewEvaluator(client)
+	loaded, err := workflows.DefaultLoader().Load(workflowID)
+	if err != nil {
+		return nil, fmt.Errorf("load workflow %q: %w", workflowID, err)
+	}
+	for specType, r := range loaded.Rubrics {
+		e.rubrics[specType] = r
+	}
+	return e, nil
 }
 
 // RegisterRubric registers a rubric for a spec type.

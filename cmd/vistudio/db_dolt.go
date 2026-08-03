@@ -19,7 +19,7 @@ import (
 var viewsSQL string
 
 func addDoltDBCommands(cmd *cobra.Command) {
-	cmd.AddCommand(dbInitCmd(), dbCreateViewsCmd(), dbIngestTokensCmd())
+	cmd.AddCommand(dbInitCmd(), dbCreateViewsCmd(), dbIngestTokensCmd(), dbCommitCmd())
 }
 
 func dbInitCmd() *cobra.Command {
@@ -239,4 +239,61 @@ func parseDate(s string) (time.Time, error) {
 		return t, nil
 	}
 	return time.Time{}, fmt.Errorf("invalid date format: %s (expected YYYY-MM-DD)", s)
+}
+
+func dbCommitCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "commit [message]",
+		Short: "Commit any uncommitted changes in the Dolt working set",
+		Long: `Stage and commit all uncommitted changes in the Dolt database.
+
+By default, only commits if there are changes. Use --force to create
+an empty commit even when there are no changes.
+
+This is useful when changes have been made without auto-commit enabled,
+or after bulk operations that don't commit individually.`,
+		Args: cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			dataDir := getDataDir(cmd)
+			force, _ := cmd.Flags().GetBool("force")
+
+			var ds *doltstore.DoltStore
+			var err error
+			if dataDir != "" {
+				ds, err = doltstore.NewEmbedded(dataDir)
+			} else {
+				ds, err = doltstore.New(getDSN(cmd))
+			}
+			if err != nil {
+				return fmt.Errorf("connect to database: %w", err)
+			}
+			defer func() { printCloseWarning(ds.Close()) }()
+
+			message := "vistudio: manual commit"
+			if len(args) > 0 {
+				message = args[0]
+			}
+
+			if force {
+				if err := ds.Commit(cmd.Context(), message); err != nil {
+					return fmt.Errorf("commit: %w", err)
+				}
+				cmd.Println("Committed (forced).")
+				return nil
+			}
+
+			committed, err := ds.CommitIfDirty(cmd.Context(), message)
+			if err != nil {
+				return fmt.Errorf("commit: %w", err)
+			}
+			if committed {
+				cmd.Println("Committed uncommitted changes.")
+			} else {
+				cmd.Println("Nothing to commit (working set is clean).")
+			}
+			return nil
+		},
+	}
+	cmd.Flags().Bool("force", false, "Create commit even if there are no changes")
+	return cmd
 }

@@ -96,6 +96,10 @@ func runUnifiedDashboardServer(cmd *cobra.Command, port int) error {
 	}
 	registerAPIRoutes(mux, connectSvc, dataDir)
 
+	// Start periodic Dolt commit (commits every 5 minutes to prevent data loss)
+	stopCommitter := startPeriodicCommitter(cmd.Context(), cmd)
+	defer stopCommitter()
+
 	// Find web/dist directory relative to the executable or working directory
 	webDistPath := findWebDistPath()
 	if webDistPath == "" {

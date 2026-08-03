@@ -20,3 +20,4 @@ site/
 # Local multi-repo workspace (CI pins tagged versions)
 go.work
 go.work.sum
+CONTEXT.md

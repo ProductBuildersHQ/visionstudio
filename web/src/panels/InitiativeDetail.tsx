@@ -114,7 +114,7 @@ export function InitiativeDetail({
       <div className="grid grid-cols-4 gap-4">
         <SummaryCard
           label="Definition"
-          value={judgeResults.length > 0 ? `${(judgeResults.reduce((s, r) => s + r.score, 0) / judgeResults.length).toFixed(1)} avg` : 'No specs'}
+          value={specFiles.length > 0 ? `${specFiles.length} of ${PBHQ_LITE_SPECS.length} (${Math.round(specFiles.length / PBHQ_LITE_SPECS.length * 100)}%)` : 'No specs'}
           color="purple"
         />
         <SummaryCard label="Phases" value={phases.length.toString()} color="blue" />
@@ -285,7 +285,8 @@ function SpecFilesViewer({
 }) {
   const [selectedSpec, setSelectedSpec] = useState<string | null>(null)
 
-  const selected = specFiles.find((f) => f.specType === selectedSpec) ?? specFiles[0]
+  const sortedSpecFiles = useMemo(() => sortSpecsByWorkflowOrder(specFiles), [specFiles])
+  const selected = sortedSpecFiles.find((f) => f.specType === selectedSpec) ?? sortedSpecFiles[0]
 
   const renderedHTML = useMemo(() => {
     if (!selected?.content) return ''
@@ -316,12 +317,12 @@ function SpecFilesViewer({
       {/* Spec Type Tabs */}
       <div className="border-b border-gray-700 px-4 flex items-center justify-between">
         <div className="flex gap-1">
-          {specFiles.map((f) => (
+          {sortedSpecFiles.map((f) => (
             <button
               key={f.specType}
               onClick={() => setSelectedSpec(f.specType)}
               className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
-                (selectedSpec ?? specFiles[0]?.specType) === f.specType
+                (selectedSpec ?? sortedSpecFiles[0]?.specType) === f.specType
                   ? 'border-purple-500 text-purple-400'
                   : 'border-transparent text-gray-400 hover:text-gray-200'
               }`}
@@ -391,17 +392,14 @@ function ExecutionTab({
     <div className="space-y-6">
       {/* Status Distribution */}
       {statusDist.length > 0 && (
-        <div className="bg-gray-800 rounded-lg p-4">
-          <h3 className="font-medium mb-4">RMI Status Distribution</h3>
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24">
-              <PieChart data={statusDist} size={96} showLegend={false} />
-            </div>
-            <div className="flex-1 grid grid-cols-3 gap-2">
+        <div className="bg-gray-800 rounded-lg px-4 py-3">
+          <div className="flex items-center gap-4">
+            <h3 className="font-medium text-sm text-gray-300">RMI Status</h3>
+            <div className="flex items-center gap-4">
               {statusDist.map((s) => (
-                <div key={s.name} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-400 capitalize">{s.name.replace('_', ' ')}</span>
-                  <span className="text-gray-200 font-medium">{s.value}</span>
+                <div key={s.name} className="flex items-center gap-1.5 text-sm">
+                  <span className="text-blue-400 font-semibold tabular-nums">{s.value}</span>
+                  <span className="text-gray-500 capitalize">{s.name.replace('_', ' ')}</span>
                 </div>
               ))}
             </div>
@@ -501,6 +499,15 @@ function DependenciesSection({
 }
 
 const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
+
+function sortSpecsByWorkflowOrder(specFiles: SpecFile[]): SpecFile[] {
+  const order = PBHQ_LITE_SPECS.reduce((acc, spec, i) => ({ ...acc, [spec]: i }), {} as Record<string, number>)
+  return [...specFiles].sort((a, b) => {
+    const aOrder = order[a.specType.toUpperCase()] ?? 999
+    const bOrder = order[b.specType.toUpperCase()] ?? 999
+    return aOrder - bOrder
+  })
+}
 
 function WorkflowDiagram({
   judgeResults,

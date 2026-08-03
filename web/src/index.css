@@ -11,10 +11,14 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html,
+body,
+#root {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background-color: #111827; /* gray-900 */
+  overscroll-behavior: none;
 }
 
 /* Prose styles for rendered markdown in spec viewer */

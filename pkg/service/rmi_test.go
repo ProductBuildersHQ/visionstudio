@@ -230,13 +230,13 @@ func TestMoveRMI(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "org", "Source", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "org", "Source", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-A-001/phase-1", "INIT-A-001", 1, "Phase 1", ""); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := svc.CreateInitiative(ctx, "INIT-B-001", "org", "Target", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-B-001", "org", "Target", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-B-001/phase-1", "INIT-B-001", 1, "Phase 1", ""); err != nil {
@@ -286,7 +286,7 @@ func TestMoveRMIValidation(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "org", "Source", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "org", "Source", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-A-001/phase-1", "INIT-A-001", 1, "Phase 1", ""); err != nil {
@@ -315,7 +315,7 @@ func TestRemovePhase(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()
 
-	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "org", "Source", "", "", ""); err != nil {
+	if _, err := svc.CreateInitiative(ctx, "INIT-A-001", "org", "Source", "", "", "", ""); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := svc.CreatePhase(ctx, "INIT-A-001/phase-1", "INIT-A-001", 1, "Phase 1", ""); err != nil {

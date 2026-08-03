@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import MarkdownIt from 'markdown-it'
 import type {
   ExecutionResponse,
   SpecsResponse,
@@ -248,7 +250,7 @@ function DefinitionTab({
       <WorkflowDiagram judgeResults={judgeResults} workflows={workflows} specFiles={specFiles} />
 
       {/* Spec Files Viewer */}
-      <SpecFilesViewer specFiles={specFiles} loading={specFilesLoading} />
+      <SpecFilesViewer specFiles={specFiles} loading={specFilesLoading} initiativeId={initiative.id} />
 
       {/* Judge Results Detail */}
       <JudgeResultsDetail judgeResults={judgeResults} />
@@ -265,14 +267,30 @@ function DefinitionTab({
   )
 }
 
+const md = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  breaks: true,
+})
+
 function SpecFilesViewer({
   specFiles,
   loading,
+  initiativeId,
 }: {
   specFiles: SpecFile[]
   loading: boolean
+  initiativeId: string
 }) {
   const [selectedSpec, setSelectedSpec] = useState<string | null>(null)
+
+  const selected = specFiles.find((f) => f.specType === selectedSpec) ?? specFiles[0]
+
+  const renderedHTML = useMemo(() => {
+    if (!selected?.content) return ''
+    return md.render(selected.content)
+  }, [selected?.content])
 
   if (loading) {
     return (
@@ -293,25 +311,31 @@ function SpecFilesViewer({
     )
   }
 
-  const selected = specFiles.find((f) => f.specType === selectedSpec) ?? specFiles[0]
-
   return (
     <div className="bg-gray-800 rounded-lg overflow-hidden">
       {/* Spec Type Tabs */}
-      <div className="border-b border-gray-700 px-4 flex gap-1">
-        {specFiles.map((f) => (
-          <button
-            key={f.specType}
-            onClick={() => setSelectedSpec(f.specType)}
-            className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
-              (selectedSpec ?? specFiles[0]?.specType) === f.specType
-                ? 'border-purple-500 text-purple-400'
-                : 'border-transparent text-gray-400 hover:text-gray-200'
-            }`}
-          >
-            {f.specType}
-          </button>
-        ))}
+      <div className="border-b border-gray-700 px-4 flex items-center justify-between">
+        <div className="flex gap-1">
+          {specFiles.map((f) => (
+            <button
+              key={f.specType}
+              onClick={() => setSelectedSpec(f.specType)}
+              className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+                (selectedSpec ?? specFiles[0]?.specType) === f.specType
+                  ? 'border-purple-500 text-purple-400'
+                  : 'border-transparent text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              {f.specType}
+            </button>
+          ))}
+        </div>
+        <Link
+          to={`/initiative/${initiativeId}/spec/${selected.specType.toLowerCase()}`}
+          className="px-3 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+        >
+          Open Full View
+        </Link>
       </div>
 
       {/* Spec Content */}
@@ -324,9 +348,10 @@ function SpecFilesViewer({
             </span>
           )}
         </div>
-        <div className="bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto">
-          <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono">{selected.content}</pre>
-        </div>
+        <div
+          className="spec-prose bg-gray-900 rounded-lg p-4 max-h-96 overflow-y-auto"
+          dangerouslySetInnerHTML={{ __html: renderedHTML }}
+        />
       </div>
     </div>
   )

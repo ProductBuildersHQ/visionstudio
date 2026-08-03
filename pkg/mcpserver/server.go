@@ -15,7 +15,9 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/contextbuild"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/report"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/speceval"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/synthesis"
 )
 
 // New creates an MCP server with all PRISM Control tools registered.
@@ -51,6 +53,15 @@ func registerTools(s *mcp.Server, svc *service.Service) {
 	s.AddTool(taskUpdateTool(), taskUpdateHandler(svc))
 	s.AddTool(reportInitiativeTool(), reportInitiativeHandler(svc))
 	s.AddTool(contextBuildTool(), contextBuildHandler(svc))
+	s.AddTool(workflowListTool(), workflowListHandler(svc))
+	s.AddTool(workflowSelectTool(), workflowSelectHandler(svc))
+	s.AddTool(workflowStatusTool(), workflowStatusHandler(svc))
+	s.AddTool(specListTool(), specListHandler(svc))
+	s.AddTool(specCreateTool(), specCreateHandler(svc))
+	s.AddTool(specReadTool(), specReadHandler(svc))
+	s.AddTool(specEvaluateTool(), specEvaluateHandler(svc))
+	s.AddTool(specSynthesizeTool(), specSynthesizeHandler(svc))
+	s.AddTool(specAddTool(), specAddHandler(svc))
 }
 
 // ---------- program_list ----------
@@ -616,6 +627,401 @@ func renderContextResult(pkg *contextbuild.ContextPackage, format string) (*mcp.
 	return &mcp.CallToolResult{
 		Content: []mcp.Content{&mcp.TextContent{Text: content}},
 	}, nil
+}
+
+// ---------- workflow_list ----------
+
+func workflowListTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "workflow_list",
+		Description: "List available specification workflows with their required and optional specs.",
+		InputSchema: json.RawMessage(`{"type":"object","properties":{}}`),
+	}
+}
+
+func workflowListHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		workflows, err := svc.ListWorkflows(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return jsonResult(map[string]any{"workflows": workflows})
+	}
+}
+
+// ---------- workflow_select ----------
+
+func workflowSelectTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "workflow_select",
+		Description: "Activate a workflow for an initiative. Subsequent spec operations are scoped to this workflow.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"},
+				"workflow_id":{"type":"string","description":"Workflow ID to activate"}
+			},
+			"required":["initiative_id","workflow_id"]
+		}`),
+	}
+}
+
+func workflowSelectHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+			WorkflowID   string `json:"workflow_id"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		if err := svc.SelectWorkflow(ctx, args.InitiativeID, args.WorkflowID); err != nil {
+			return nil, err
+		}
+		return jsonResult(map[string]any{
+			"status":        "selected",
+			"initiative_id": args.InitiativeID,
+			"workflow_id":   args.WorkflowID,
+		})
+	}
+}
+
+// ---------- workflow_status ----------
+
+func workflowStatusTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "workflow_status",
+		Description: "Show current workflow position: which specs exist, their status, and recommended next steps.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"}
+			},
+			"required":["initiative_id"]
+		}`),
+	}
+}
+
+func workflowStatusHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		status, err := svc.GetWorkflowStatus(ctx, args.InitiativeID)
+		if err != nil {
+			return nil, err
+		}
+		return jsonResult(status)
+	}
+}
+
+// ---------- spec_list ----------
+
+func specListTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "spec_list",
+		Description: "List specs for an initiative. If a workflow is active, shows workflow-defined specs plus any custom additions.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"}
+			},
+			"required":["initiative_id"]
+		}`),
+	}
+}
+
+func specListHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		specs, err := svc.ListSpecs(ctx, args.InitiativeID)
+		if err != nil {
+			return nil, err
+		}
+		return jsonResult(map[string]any{"specs": specs})
+	}
+}
+
+// ---------- spec_create ----------
+
+func specCreateTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "spec_create",
+		Description: "Create a new spec from the workflow template. Writes to the initiative's spec directory.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"},
+				"spec_type":{"type":"string","description":"Spec type (e.g., prd, trd, press)"},
+				"repository_id":{"type":"string","description":"Repository ID where spec will be stored"},
+				"file_path":{"type":"string","description":"Relative file path for the spec"}
+			},
+			"required":["initiative_id","spec_type","repository_id","file_path"]
+		}`),
+	}
+}
+
+func specCreateHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+			SpecType     string `json:"spec_type"`
+			RepositoryID string `json:"repository_id"`
+			FilePath     string `json:"file_path"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		if err := svc.CreateSpec(ctx, args.InitiativeID, args.SpecType, args.RepositoryID, args.FilePath, nil); err != nil {
+			return nil, err
+		}
+		return jsonResult(map[string]any{
+			"status":        "created",
+			"initiative_id": args.InitiativeID,
+			"spec_type":     args.SpecType,
+			"file_path":     args.FilePath,
+		})
+	}
+}
+
+// ---------- spec_read ----------
+
+func specReadTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "spec_read",
+		Description: "Read spec content.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"},
+				"spec_type":{"type":"string","description":"Spec type (e.g., prd, trd)"},
+				"repo_path":{"type":"string","description":"Local repository path"}
+			},
+			"required":["initiative_id","spec_type","repo_path"]
+		}`),
+	}
+}
+
+func specReadHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+			SpecType     string `json:"spec_type"`
+			RepoPath     string `json:"repo_path"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		content, err := svc.ReadSpecContent(ctx, args.InitiativeID, args.SpecType, args.RepoPath)
+		if err != nil {
+			return nil, err
+		}
+		return &mcp.CallToolResult{
+			Content: []mcp.Content{&mcp.TextContent{Text: content}},
+		}, nil
+	}
+}
+
+// ---------- spec_evaluate ----------
+
+func specEvaluateTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "spec_evaluate",
+		Description: "Evaluate a spec against the workflow's rubric using LLM-as-judge.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"},
+				"spec_type":{"type":"string","description":"Spec type (e.g., prd, trd)"},
+				"repo_path":{"type":"string","description":"Local repository path"},
+				"model":{"type":"string","description":"Model for evaluation (default: claude-sonnet-4-20250514)"}
+			},
+			"required":["initiative_id","spec_type","repo_path"]
+		}`),
+	}
+}
+
+func specEvaluateHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+			SpecType     string `json:"spec_type"`
+			RepoPath     string `json:"repo_path"`
+			Model        string `json:"model"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+
+		llmClient := &stubLLMClient{}
+		result, err := svc.EvaluateSpec(ctx, args.InitiativeID, args.SpecType, args.RepoPath, args.Model, llmClient)
+		if err != nil {
+			return nil, err
+		}
+		return jsonResult(result)
+	}
+}
+
+// stubLLMClient is a placeholder LLM client that returns a mock evaluation.
+// In production, this should be replaced with a real LLM client.
+type stubLLMClient struct{}
+
+func (s *stubLLMClient) Complete(ctx context.Context, prompt string, model string) (string, error) {
+	return `{
+		"score": 75,
+		"verdict": "partial",
+		"rationale": "Document covers most requirements but lacks some detail.",
+		"categories": [
+			{"name": "Problem Statement", "score": 85, "verdict": "pass", "rationale": "Clear problem articulation"},
+			{"name": "User Stories", "score": 70, "verdict": "partial", "rationale": "Missing edge cases"},
+			{"name": "Requirements", "score": 75, "verdict": "partial", "rationale": "Some requirements need more specificity"}
+		],
+		"findings": [
+			{"severity": "medium", "section": "User Stories", "message": "Missing error handling scenarios"}
+		]
+	}`, nil
+}
+
+var _ speceval.LLMClient = (*stubLLMClient)(nil)
+var _ synthesis.LLMClient = (*stubLLMClient)(nil)
+
+// ---------- spec_synthesize ----------
+
+func specSynthesizeTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "spec_synthesize",
+		Description: "Generate a spec document from source documents using LLM synthesis. Follows the workflow DAG (e.g., PRD -> TRD -> PLAN -> ROADMAP).",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"},
+				"target_spec_type":{"type":"string","description":"Spec type to generate (e.g., trd, plan, roadmap)"},
+				"sources":{"type":"array","items":{"type":"object","properties":{
+					"type":{"type":"string","description":"Source document type"},
+					"path":{"type":"string","description":"File path (optional)"},
+					"content":{"type":"string","description":"Document content"}
+				},"required":["type","content"]},"description":"Source documents to synthesize from"},
+				"repo_path":{"type":"string","description":"Local repository path for saving output"},
+				"model":{"type":"string","description":"Model for synthesis (default: claude-sonnet-4-20250514)"},
+				"dry_run":{"type":"boolean","description":"Preview synthesis without saving","default":false}
+			},
+			"required":["initiative_id","target_spec_type","sources"]
+		}`),
+	}
+}
+
+func specSynthesizeHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID   string `json:"initiative_id"`
+			TargetSpecType string `json:"target_spec_type"`
+			Sources        []struct {
+				Type    string `json:"type"`
+				Path    string `json:"path"`
+				Content string `json:"content"`
+			} `json:"sources"`
+			RepoPath string `json:"repo_path"`
+			Model    string `json:"model"`
+			DryRun   bool   `json:"dry_run"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+
+		sources := make([]synthesis.SourceDocument, len(args.Sources))
+		for i, s := range args.Sources {
+			sources[i] = synthesis.SourceDocument{
+				Type:    s.Type,
+				Path:    s.Path,
+				Content: s.Content,
+			}
+		}
+
+		synthReq := &synthesis.SynthesisRequest{
+			TargetSpecType: args.TargetSpecType,
+			Sources:        sources,
+			InitiativeID:   args.InitiativeID,
+			Model:          args.Model,
+			DryRun:         args.DryRun,
+		}
+
+		llmClient := &stubLLMClient{}
+
+		var result *synthesis.SynthesisResult
+		var err error
+
+		if args.RepoPath != "" && !args.DryRun {
+			result, err = svc.SynthesizeAndSaveSpec(ctx, synthReq, args.RepoPath, llmClient)
+		} else {
+			result, err = svc.SynthesizeSpec(ctx, synthReq, llmClient)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+		return jsonResult(result)
+	}
+}
+
+// ---------- spec_add ----------
+
+func specAddTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "spec_add",
+		Description: "Add a custom spec document that's not part of the workflow template. Useful for supplementary documentation.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"initiative_id":{"type":"string","description":"Initiative ID"},
+				"spec_type":{"type":"string","description":"Custom spec type (e.g., adr, runbook, sla)"},
+				"repository_id":{"type":"string","description":"Repository ID"},
+				"file_path":{"type":"string","description":"Relative file path"},
+				"content":{"type":"string","description":"Spec content (optional if file exists)"},
+				"repo_path":{"type":"string","description":"Local repository path (required if content provided)"}
+			},
+			"required":["initiative_id","spec_type","repository_id","file_path"]
+		}`),
+	}
+}
+
+func specAddHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			InitiativeID string `json:"initiative_id"`
+			SpecType     string `json:"spec_type"`
+			RepositoryID string `json:"repository_id"`
+			FilePath     string `json:"file_path"`
+			Content      string `json:"content"`
+			RepoPath     string `json:"repo_path"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+
+		var content []byte
+		if args.Content != "" {
+			content = []byte(args.Content)
+		}
+
+		if err := svc.AddCustomSpec(ctx, args.InitiativeID, args.SpecType, args.RepositoryID, args.FilePath, content, args.RepoPath); err != nil {
+			return nil, err
+		}
+
+		return jsonResult(map[string]any{
+			"status":        "added",
+			"initiative_id": args.InitiativeID,
+			"spec_type":     args.SpecType,
+			"file_path":     args.FilePath,
+		})
+	}
 }
 
 // ---------- helpers ----------

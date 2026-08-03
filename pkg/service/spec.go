@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/speceval"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/synthesis"
 )
@@ -226,15 +227,30 @@ func (s *Service) UpdateSpecEvaluation(ctx context.Context, id string, score int
 }
 
 // EvaluateSpec runs LLM-as-judge evaluation on a spec document.
+// Uses rubrics from specification-workflow-spec if a workflow is selected.
 func (s *Service) EvaluateSpec(ctx context.Context, initiativeID, specType, repoPath, model string, llmClient speceval.LLMClient) (*speceval.EvaluationResult, error) {
 	content, err := s.ReadSpecContent(ctx, initiativeID, specType, repoPath)
 	if err != nil {
 		return nil, fmt.Errorf("read spec content: %w", err)
 	}
 
-	evaluator := speceval.NewEvaluator(llmClient)
-	for st, r := range speceval.DefaultRubrics() {
-		evaluator.RegisterRubric(st, r)
+	// Try to load rubrics from the initiative's workflow
+	var evaluator *speceval.Evaluator
+	iw, _ := s.Store.GetWorkflowForInitiative(ctx, initiativeID)
+	if iw != nil && iw.WorkflowID != "" {
+		evaluator, err = speceval.NewEvaluatorWithWorkflow(llmClient, iw.WorkflowID)
+		if err != nil {
+			// Fall back to default rubrics if workflow load fails
+			evaluator = speceval.NewEvaluator(llmClient)
+			for st, r := range speceval.DefaultRubrics() {
+				evaluator.RegisterRubric(st, r)
+			}
+		}
+	} else {
+		evaluator = speceval.NewEvaluator(llmClient)
+		for st, r := range speceval.DefaultRubrics() {
+			evaluator.RegisterRubric(st, r)
+		}
 	}
 
 	result, err := evaluator.Evaluate(ctx, specType, content, model)
@@ -272,8 +288,27 @@ func (s *Service) CheckGates(ctx context.Context, initiativeID string) (bool, []
 }
 
 // SynthesizeSpec generates a spec document from source documents using LLM.
+// Uses templates and guidance from specification-workflow-spec if a workflow is selected.
 func (s *Service) SynthesizeSpec(ctx context.Context, req *synthesis.SynthesisRequest, llmClient synthesis.LLMClient) (*synthesis.SynthesisResult, error) {
 	executor := synthesis.NewExecutor(llmClient)
+
+	// Try to load templates from the initiative's workflow
+	if req.WorkflowID != "" {
+		loader := specworkflow.DefaultLoader()
+		templates, err := loader.GetTemplates(req.WorkflowID)
+		if err == nil {
+			for specType, tmpl := range templates {
+				executor.RegisterTemplate(specType, tmpl.Content)
+			}
+		}
+		// Also add synthesis guidance if available
+		sources, guidance, err := loader.GetSynthesisGuidance(req.WorkflowID, req.TargetSpecType)
+		if err == nil && guidance != "" {
+			_ = sources // sources are informational; caller provides actual sources
+			executor.RegisterTemplate(req.TargetSpecType, "# "+req.TargetSpecType+" Synthesis\n\n"+guidance)
+		}
+	}
+
 	return executor.Synthesize(ctx, req)
 }
 

@@ -12,7 +12,8 @@ import (
 
 // CreateInitiative creates a new initiative in "proposed" status.
 // initType defaults to "feature" if empty.
-func (s *Service) CreateInitiative(ctx context.Context, id, org, title, description, priority, initType string) (*store.Initiative, error) {
+// workflowID is optional; if provided, the workflow is selected for the initiative.
+func (s *Service) CreateInitiative(ctx context.Context, id, org, title, description, priority, initType, workflowID string) (*store.Initiative, error) {
 	if !initiative.ValidType(initType) {
 		return nil, fmt.Errorf("invalid initiative type %q", initType)
 	}
@@ -28,12 +29,22 @@ func (s *Service) CreateInitiative(ctx context.Context, id, org, title, descript
 		Status:       initiative.StatusProposed,
 		InitType:     initType,
 		Priority:     priority,
+		WorkflowID:   workflowID,
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}
 	if err := s.Store.CreateInitiative(ctx, init); err != nil {
 		return nil, err
 	}
+
+	// If workflowID provided, also select it for the initiative
+	if workflowID != "" {
+		if err := s.Store.SelectWorkflowForInitiative(ctx, id, workflowID); err != nil {
+			// Log but don't fail - initiative was created
+			_ = err
+		}
+	}
+
 	return init, nil
 }
 

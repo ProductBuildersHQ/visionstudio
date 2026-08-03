@@ -1,5 +1,3 @@
-//go:build dolt
-
 package main
 
 import (
@@ -116,7 +114,7 @@ func (pc *PeriodicCommitter) commitOnce(ctx context.Context) {
 	var err error
 
 	if pc.dataDir != "" {
-		ds, err = doltstore.NewEmbedded(pc.dataDir)
+		ds, err = connectEmbedded(pc.dataDir)
 	} else {
 		ds, err = doltstore.New(pc.dsn)
 	}

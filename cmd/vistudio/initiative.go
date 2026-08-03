@@ -62,6 +62,7 @@ func initiativeCreateCmd() *cobra.Command {
 			workspace, _ := cmd.Flags().GetString("workspace")
 			program, _ := cmd.Flags().GetString("program")
 			specFlags, _ := cmd.Flags().GetStringSlice("spec")
+			workflowID, _ := cmd.Flags().GetString("workflow")
 
 			if id == "" || title == "" {
 				return fmt.Errorf("--id and --title are required")
@@ -72,7 +73,7 @@ func initiativeCreateCmd() *cobra.Command {
 
 			specs := parseSpecs(specFlags)
 
-			init, err := svc.CreateInitiative(cmd.Context(), id, org, title, desc, priority, initType)
+			init, err := svc.CreateInitiative(cmd.Context(), id, org, title, desc, priority, initType, workflowID)
 			if err != nil {
 				return err
 			}
@@ -101,6 +102,7 @@ func initiativeCreateCmd() *cobra.Command {
 	cmd.Flags().String("workspace", "", "Workspace identifier (e.g. tmux session name)")
 	cmd.Flags().String("program", "", "Program ID (e.g. PROG-DELIVERY)")
 	cmd.Flags().StringSlice("spec", nil, "Spec reference as key=path (repeatable, e.g. --spec prd=docs/specs/PRD.md)")
+	cmd.Flags().String("workflow", "", "Spec workflow ID (e.g. pbhq-lite, aws-product, big-tech-essentials)")
 	return cmd
 }
 

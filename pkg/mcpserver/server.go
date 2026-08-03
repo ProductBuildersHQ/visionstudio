@@ -16,6 +16,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/report"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/speceval"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/synthesis"
 )
@@ -179,7 +180,7 @@ func initiativeGetHandler(svc *service.Service) mcp.ToolHandler {
 func initiativeCreateTool() *mcp.Tool {
 	return &mcp.Tool{
 		Name:        "initiative_create",
-		Description: "Create a new initiative in proposed status.",
+		Description: "Create a new initiative in proposed status. Use workflow_id to select a spec workflow (e.g. pbhq-lite, aws-product).",
 		InputSchema: json.RawMessage(`{
 			"type":"object",
 			"properties":{
@@ -188,7 +189,8 @@ func initiativeCreateTool() *mcp.Tool {
 				"title":{"type":"string","description":"Short title"},
 				"description":{"type":"string","description":"Full description"},
 				"priority":{"type":"string","description":"Priority level"},
-				"program_id":{"type":"string","description":"Program ID to associate (e.g. PROG-DELIVERY)"}
+				"program_id":{"type":"string","description":"Program ID to associate (e.g. PROG-DELIVERY)"},
+				"workflow_id":{"type":"string","description":"Spec workflow ID (e.g. pbhq-lite, aws-product, big-tech-essentials)"}
 			},
 			"required":["id","organization","title"]
 		}`),
@@ -205,11 +207,12 @@ func initiativeCreateHandler(svc *service.Service) mcp.ToolHandler {
 			Priority     string `json:"priority"`
 			InitType     string `json:"init_type"`
 			ProgramID    string `json:"program_id"`
+			WorkflowID   string `json:"workflow_id"`
 		}
 		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
 			return nil, fmt.Errorf("parse arguments: %w", err)
 		}
-		init, err := svc.CreateInitiative(ctx, args.ID, args.Organization, args.Title, args.Description, args.Priority, args.InitType)
+		init, err := svc.CreateInitiative(ctx, args.ID, args.Organization, args.Title, args.Description, args.Priority, args.InitType, args.WorkflowID)
 		if err != nil {
 			return nil, err
 		}
@@ -641,11 +644,20 @@ func workflowListTool() *mcp.Tool {
 
 func workflowListHandler(svc *service.Service) mcp.ToolHandler {
 	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		workflows, err := svc.ListWorkflows(ctx)
+		// Get embedded workflows from specification-workflow-spec
+		loader := specworkflow.DefaultLoader()
+		embeddedWorkflows, err := loader.List()
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("list embedded workflows: %w", err)
 		}
-		return jsonResult(map[string]any{"workflows": workflows})
+
+		// Also get any custom workflows from the database
+		dbWorkflows, _ := svc.ListWorkflows(ctx)
+
+		return jsonResult(map[string]any{
+			"embedded_workflows": embeddedWorkflows,
+			"custom_workflows":   dbWorkflows,
+		})
 	}
 }
 

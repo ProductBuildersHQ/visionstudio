@@ -2,6 +2,7 @@ package reposcan
 
 import (
 	"context"
+	"path/filepath"
 	"testing"
 
 	"github.com/grokify/gogit/scanner"
@@ -21,7 +22,9 @@ func TestResultToRepository(t *testing.T) {
 		HasGoMod:   true,
 		ModuleName: "github.com/plexusone/omnidevx",
 	}
-	repo := resultToRepository("plexusone", r, "/home/user/go/src/github.com/plexusone")
+	// Use filepath.Join for cross-platform path construction
+	orgDir := filepath.Join("home", "user", "go", "src", "github.com", "plexusone")
+	repo := resultToRepository("plexusone", r, orgDir)
 
 	if repo.ID != "github.com/plexusone/omnidevx" {
 		t.Fatalf("expected ID github.com/plexusone/omnidevx, got %s", repo.ID)
@@ -32,8 +35,9 @@ func TestResultToRepository(t *testing.T) {
 	if repo.GoModule != "github.com/plexusone/omnidevx" {
 		t.Fatalf("expected module github.com/plexusone/omnidevx, got %s", repo.GoModule)
 	}
-	if repo.LocalPath != "/home/user/go/src/github.com/plexusone/omnidevx" {
-		t.Fatalf("unexpected local path: %s", repo.LocalPath)
+	expectedPath := filepath.Join(orgDir, "omnidevx")
+	if repo.LocalPath != expectedPath {
+		t.Fatalf("unexpected local path: got %s, want %s", repo.LocalPath, expectedPath)
 	}
 	if repo.Status != "active" {
 		t.Fatalf("expected status active, got %s", repo.Status)

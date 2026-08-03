@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"syscall"
 	"time"
 
+	"github.com/grokify/oscompat/process"
 	"github.com/spf13/cobra"
 
 	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
@@ -81,13 +81,7 @@ func removePIDFile() {
 	os.Remove(path)
 }
 
-func isProcessAlive(pid int) bool {
-	proc, err := os.FindProcess(pid)
-	if err != nil {
-		return false
-	}
-	return proc.Signal(syscall.Signal(0)) == nil
-}
+// isProcessAlive is implemented in db_signal_unix.go and db_signal_windows.go
 
 func isPortListening(port int) bool {
 	conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), time.Second)
@@ -182,7 +176,7 @@ DSN to the config file. Use 'vistudio db stop' to shut it down.`,
 			proc.Dir = absDir
 			proc.Stdout = nil
 			proc.Stderr = nil
-			proc.SysProcAttr = &syscall.SysProcAttr{Setsid: true}
+			process.SetDetached(proc)
 
 			if err := proc.Start(); err != nil {
 				return fmt.Errorf("start dolt server: %w", err)
@@ -239,8 +233,8 @@ func dbStopCmd() *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("find process %d: %w", pid, err)
 			}
-			if err := proc.Signal(syscall.SIGTERM); err != nil {
-				return fmt.Errorf("send SIGTERM to PID %d: %w", pid, err)
+			if err := signalTerminate(proc); err != nil {
+				return fmt.Errorf("terminate PID %d: %w", pid, err)
 			}
 
 			deadline := time.Now().Add(10 * time.Second)
@@ -253,8 +247,8 @@ func dbStopCmd() *cobra.Command {
 				time.Sleep(200 * time.Millisecond)
 			}
 
-			if err := proc.Signal(syscall.SIGKILL); err != nil {
-				return fmt.Errorf("send SIGKILL to PID %d: %w", pid, err)
+			if err := signalKill(proc); err != nil {
+				return fmt.Errorf("kill PID %d: %w", pid, err)
 			}
 			removePIDFile()
 			cmd.Printf("Dolt server killed (PID %d).\n", pid)
@@ -272,7 +266,7 @@ func dbRestartCmd() *cobra.Command {
 			if err == nil && isProcessAlive(pid) {
 				proc, findErr := os.FindProcess(pid)
 				if findErr == nil {
-					_ = proc.Signal(syscall.SIGTERM)
+					_ = signalTerminate(proc)
 					deadline := time.Now().Add(10 * time.Second)
 					for time.Now().Before(deadline) {
 						if !isProcessAlive(pid) {
@@ -281,7 +275,7 @@ func dbRestartCmd() *cobra.Command {
 						time.Sleep(200 * time.Millisecond)
 					}
 					if isProcessAlive(pid) {
-						_ = proc.Signal(syscall.SIGKILL)
+						_ = signalKill(proc)
 						time.Sleep(500 * time.Millisecond)
 					}
 				}

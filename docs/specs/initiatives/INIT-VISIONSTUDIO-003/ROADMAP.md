@@ -72,7 +72,7 @@
   - Depends on: `RMI-VISIONSTUDIO-051`
 - [x] `RMI-VISIONSTUDIO-053` Add PDF download for specs
   - Depends on: `RMI-VISIONSTUDIO-052`
-- [ ] `RMI-VISIONSTUDIO-054` Integrate @grokify/markdown-editor for reusable markdown components
+- [x] `RMI-VISIONSTUDIO-054` Integrate @grokify/markdown-editor for reusable markdown components
   - Depends on: `RMI-VISIONSTUDIO-052`
 
 ## Notes

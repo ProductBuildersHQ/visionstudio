@@ -1,0 +1,368 @@
+/**
+ * Markdown Editor Styles
+ * Based on @grokify/markdown-editor theming API
+ * CSS custom properties for easy theming
+ */
+
+:root {
+  /* MDE Theme Variables - Dark mode defaults */
+  --mde-bg-primary: #0f172a;
+  --mde-bg-secondary: #1e293b;
+  --mde-bg-tertiary: #334155;
+  --mde-border: #475569;
+  --mde-text-primary: #f1f5f9;
+  --mde-text-secondary: #cbd5e1;
+  --mde-text-muted: #64748b;
+  --mde-accent: #a855f7;
+  --mde-accent-hover: #9333ea;
+  --mde-success: #22c55e;
+  --mde-error: #ef4444;
+
+  /* Typography */
+  --mde-font-sans: 'Inter', system-ui, sans-serif;
+  --mde-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --mde-font-size-sm: 13px;
+  --mde-font-size-md: 14px;
+  --mde-font-size-lg: 16px;
+
+  /* Spacing */
+  --mde-spacing-xs: 4px;
+  --mde-spacing-sm: 8px;
+  --mde-spacing-md: 16px;
+  --mde-spacing-lg: 24px;
+
+  /* Border radius */
+  --mde-radius-sm: 4px;
+  --mde-radius-md: 8px;
+  --mde-radius-lg: 12px;
+}
+
+/* ========================================
+   Prose / Typography Styles
+   ======================================== */
+
+.mde-prose {
+  line-height: 1.75;
+  color: var(--mde-text-primary);
+  font-family: var(--mde-font-sans);
+}
+
+.mde-prose h1,
+.mde-prose h2,
+.mde-prose h3,
+.mde-prose h4,
+.mde-prose h5,
+.mde-prose h6 {
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--mde-text-primary);
+}
+
+.mde-prose h1:first-child,
+.mde-prose h2:first-child,
+.mde-prose h3:first-child {
+  margin-top: 0;
+}
+
+.mde-prose h1 {
+  font-size: 2em;
+  border-bottom: 1px solid var(--mde-border);
+  padding-bottom: 0.3em;
+}
+
+.mde-prose h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid var(--mde-border);
+  padding-bottom: 0.3em;
+}
+
+.mde-prose h3 {
+  font-size: 1.25em;
+}
+
+.mde-prose h4 {
+  font-size: 1.1em;
+}
+
+.mde-prose p {
+  margin: 1em 0;
+}
+
+.mde-prose a {
+  color: var(--mde-accent);
+  text-decoration: none;
+}
+
+.mde-prose a:hover {
+  text-decoration: underline;
+}
+
+.mde-prose strong {
+  font-weight: 600;
+}
+
+.mde-prose em {
+  font-style: italic;
+}
+
+.mde-prose code {
+  background: var(--mde-bg-tertiary);
+  padding: 0.2em 0.4em;
+  border-radius: var(--mde-radius-sm);
+  font-family: var(--mde-font-mono);
+  font-size: 0.875em;
+}
+
+.mde-prose pre {
+  background: var(--mde-bg-secondary);
+  border: 1px solid var(--mde-border);
+  border-radius: var(--mde-radius-md);
+  padding: var(--mde-spacing-md);
+  overflow-x: auto;
+  margin: 1.5em 0;
+}
+
+.mde-prose pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875em;
+  line-height: 1.7;
+}
+
+.mde-prose blockquote {
+  border-left: 4px solid var(--mde-accent);
+  margin: 1.5em 0;
+  padding: 0.5em 0 0.5em 1em;
+  color: var(--mde-text-secondary);
+  background: var(--mde-bg-secondary);
+  border-radius: 0 var(--mde-radius-sm) var(--mde-radius-sm) 0;
+}
+
+.mde-prose blockquote p {
+  margin: 0;
+}
+
+.mde-prose ul,
+.mde-prose ol {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.mde-prose li {
+  margin: 0.5em 0;
+}
+
+.mde-prose ul ul,
+.mde-prose ul ol,
+.mde-prose ol ul,
+.mde-prose ol ol {
+  margin: 0.5em 0;
+}
+
+.mde-prose hr {
+  border: none;
+  border-top: 1px solid var(--mde-border);
+  margin: 2em 0;
+}
+
+.mde-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  overflow-x: auto;
+  display: block;
+}
+
+.mde-prose th,
+.mde-prose td {
+  border: 1px solid var(--mde-border);
+  padding: 0.5em 1em;
+  text-align: left;
+}
+
+.mde-prose th {
+  background: var(--mde-bg-secondary);
+  font-weight: 600;
+}
+
+.mde-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--mde-radius-md);
+}
+
+/* Task lists */
+.mde-prose .task-list-item {
+  list-style: none;
+  margin-left: -1.5em;
+}
+
+.mde-prose .task-list-item input {
+  margin-right: 0.5em;
+}
+
+/* ========================================
+   Source View Styles
+   ======================================== */
+
+.mde-source {
+  background: var(--mde-bg-secondary);
+  border-radius: var(--mde-radius-md);
+  padding: var(--mde-spacing-md);
+  overflow: auto;
+}
+
+.mde-source-pre {
+  margin: 0;
+  font-family: var(--mde-font-mono);
+  font-size: var(--mde-font-size-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--mde-text-secondary);
+}
+
+/* ========================================
+   Viewer Component Styles
+   ======================================== */
+
+.mde-viewer {
+  background: var(--mde-bg-primary);
+  border-radius: var(--mde-radius-lg);
+  overflow: hidden;
+}
+
+.mde-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--mde-spacing-sm) var(--mde-spacing-md);
+  border-bottom: 1px solid var(--mde-border);
+}
+
+.mde-viewer-title {
+  font-size: var(--mde-font-size-lg);
+  font-weight: 600;
+  color: var(--mde-text-primary);
+  margin: 0;
+}
+
+.mde-viewer-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--mde-spacing-sm);
+}
+
+.mde-mode-toggle {
+  display: flex;
+  border-radius: var(--mde-radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--mde-border);
+}
+
+.mde-mode-btn {
+  padding: var(--mde-spacing-xs) var(--mde-spacing-sm);
+  font-size: var(--mde-font-size-sm);
+  font-weight: 500;
+  border: none;
+  background: var(--mde-bg-secondary);
+  color: var(--mde-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mde-mode-btn:hover {
+  background: var(--mde-bg-tertiary);
+  color: var(--mde-text-primary);
+}
+
+.mde-mode-btn.active {
+  background: var(--mde-accent);
+  color: white;
+}
+
+.mde-action-btn {
+  padding: var(--mde-spacing-xs) var(--mde-spacing-sm);
+  font-size: var(--mde-font-size-sm);
+  font-weight: 500;
+  border: none;
+  background: var(--mde-bg-secondary);
+  color: var(--mde-text-secondary);
+  border-radius: var(--mde-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mde-action-btn:hover {
+  background: var(--mde-bg-tertiary);
+  color: var(--mde-text-primary);
+}
+
+.mde-viewer-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--mde-spacing-xs) var(--mde-spacing-md);
+  border-bottom: 1px solid var(--mde-border);
+  font-size: var(--mde-font-size-sm);
+  color: var(--mde-text-muted);
+}
+
+.mde-meta-path {
+  font-family: var(--mde-font-mono);
+}
+
+.mde-viewer-content {
+  padding: var(--mde-spacing-md);
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* ========================================
+   Toolbar Styles
+   ======================================== */
+
+.mde-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--mde-spacing-xs);
+  padding: var(--mde-spacing-xs);
+  background: var(--mde-bg-secondary);
+  border-bottom: 1px solid var(--mde-border);
+}
+
+.mde-toolbar-btn {
+  padding: var(--mde-spacing-xs) var(--mde-spacing-sm);
+  font-size: var(--mde-font-size-sm);
+  border: none;
+  background: transparent;
+  color: var(--mde-text-secondary);
+  border-radius: var(--mde-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mde-toolbar-btn:hover {
+  background: var(--mde-bg-tertiary);
+  color: var(--mde-text-primary);
+}
+
+.mde-toolbar-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.mde-preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--mde-text-muted);
+}

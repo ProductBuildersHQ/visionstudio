@@ -44,9 +44,16 @@ func configShowCmd() *cobra.Command {
 
 			cmd.Printf("Config file: %s\n\n", path)
 
+			hasValues := false
 			if cfg.DSN != "" {
 				cmd.Printf("dsn = %s\n", cfg.DSN)
-			} else {
+				hasValues = true
+			}
+			if cfg.Defaults.Workflow != "" {
+				cmd.Printf("defaults.workflow = %s\n", cfg.Defaults.Workflow)
+				hasValues = true
+			}
+			if !hasValues {
 				cmd.Println("(no values set)")
 			}
 
@@ -71,7 +78,8 @@ func configSetCmd() *cobra.Command {
 		Use:   "set <key> <value>",
 		Short: "Set a configuration value",
 		Long: `Set a configuration value. Supported keys:
-  dsn    MySQL-compatible DSN for Dolt server mode`,
+  dsn                MySQL-compatible DSN for Dolt server mode
+  defaults.workflow  Default spec workflow ID (e.g. pbhq-lite, aws-product)`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key, value := args[0], args[1]
@@ -84,8 +92,10 @@ func configSetCmd() *cobra.Command {
 			switch key {
 			case "dsn":
 				cfg.DSN = value
+			case "defaults.workflow":
+				cfg.Defaults.Workflow = value
 			default:
-				return fmt.Errorf("unknown config key: %s (supported: dsn)", key)
+				return fmt.Errorf("unknown config key: %s (supported: dsn, defaults.workflow)", key)
 			}
 
 			if err := cfg.Save(); err != nil {
@@ -113,8 +123,10 @@ func configUnsetCmd() *cobra.Command {
 			switch key {
 			case "dsn":
 				cfg.DSN = ""
+			case "defaults.workflow":
+				cfg.Defaults.Workflow = ""
 			default:
-				return fmt.Errorf("unknown config key: %s (supported: dsn)", key)
+				return fmt.Errorf("unknown config key: %s (supported: dsn, defaults.workflow)", key)
 			}
 
 			if err := cfg.Save(); err != nil {

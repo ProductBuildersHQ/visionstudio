@@ -6,6 +6,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/spf13/cobra"
 )
@@ -66,6 +67,15 @@ func initiativeCreateCmd() *cobra.Command {
 
 			if id == "" || title == "" {
 				return fmt.Errorf("--id and --title are required")
+			}
+
+			// Workflow is required; fall back to config default if not specified
+			if workflowID == "" {
+				if cfg, err := cliconfig.Load(); err == nil && cfg.Defaults.Workflow != "" {
+					workflowID = cfg.Defaults.Workflow
+				} else {
+					return fmt.Errorf("--workflow is required (or set defaults.workflow in ~/.productbuildershq/visionstudio/config.json)")
+				}
 			}
 			if org == "" {
 				org = "default"

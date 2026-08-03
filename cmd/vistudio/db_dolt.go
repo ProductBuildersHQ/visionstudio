@@ -1,5 +1,3 @@
-//go:build dolt
-
 package main
 
 import (
@@ -52,26 +50,6 @@ and the --migrate flag.`,
 	return cmd
 }
 
-func dbInitEmbedded(cmd *cobra.Command, dataDir string) error {
-	absDir, err := filepath.Abs(dataDir)
-	if err != nil {
-		return fmt.Errorf("resolve path: %w", err)
-	}
-
-	cmd.Printf("Initializing embedded Dolt database at %s...\n", absDir)
-	ds, err := doltstore.NewEmbedded(dataDir)
-	if err != nil {
-		return fmt.Errorf("init embedded: %w", err)
-	}
-	defer func() { printCloseWarning(ds.Close()) }()
-
-	cmd.Println("Running schema migration...")
-	if err := ds.Migrate(cmd.Context()); err != nil {
-		return fmt.Errorf("migrate: %w", err)
-	}
-	cmd.Println("Embedded Dolt database initialized and migrated.")
-	return nil
-}
 
 func dbInitServer(cmd *cobra.Command, dir string) error {
 	absDir, err := filepath.Abs(dir)
@@ -129,7 +107,7 @@ for read-only consumers such as VisionStudio.`,
 			var ds *doltstore.DoltStore
 			var err error
 			if dataDir != "" {
-				ds, err = doltstore.NewEmbedded(dataDir)
+				ds, err = connectEmbedded(dataDir)
 			} else {
 				ds, err = doltstore.New(getDSN(cmd))
 			}
@@ -194,7 +172,7 @@ The ingest is idempotent — duplicate event IDs are skipped via INSERT IGNORE.`
 			var ds *doltstore.DoltStore
 			var err error
 			if dataDir != "" {
-				ds, err = doltstore.NewEmbedded(dataDir)
+				ds, err = connectEmbedded(dataDir)
 			} else {
 				ds, err = doltstore.New(getDSN(cmd))
 			}
@@ -260,7 +238,7 @@ or after bulk operations that don't commit individually.`,
 			var ds *doltstore.DoltStore
 			var err error
 			if dataDir != "" {
-				ds, err = doltstore.NewEmbedded(dataDir)
+				ds, err = connectEmbedded(dataDir)
 			} else {
 				ds, err = doltstore.New(getDSN(cmd))
 			}

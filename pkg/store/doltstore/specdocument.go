@@ -1,4 +1,4 @@
-//go:build dolt
+
 
 package doltstore
 

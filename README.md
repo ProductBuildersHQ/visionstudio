@@ -181,9 +181,18 @@ visionstudio/
 └── go.mod
 ```
 
+## Ecosystem
+
+VisionStudio is the top layer of the ProductBuildersHQ spec stack
+(`visionstudio → visionspec → specification-workflow-spec`); see the
+[Ecosystem architecture page](docs/architecture/ecosystem.md) for how the
+layers interact.
+
+- [specification-workflow-spec](https://github.com/ProductBuildersHQ/specification-workflow-spec) - The contract: workflow types, schemas, and the embedded 24-workflow library (configs, templates, rubrics) VisionStudio loads directly
+- [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) - The engine: scaffolding, LLM synthesis, LLM-as-Judge evaluation, lint/drift/status, and MCP server, consumed as an imported SDK
+
 ## Related Projects
 
-- [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) - Spec orchestration library
 - [OmniAgent](https://github.com/plexusone/omniagent) - LLM agent interface
 - [omnidevx-core](https://github.com/plexusone/omnidevx-core) - Canonical developer-experience telemetry model, the source of the DevX dashboard's data
 - [devfolio](https://github.com/plexusone/devfolio) - Generates the DevX dashboard file VisionStudio renders (`devfolio devx dashboard`)

@@ -71,6 +71,7 @@ nav:
       - AIDLC API: guide/aidlc-api.md
   - Architecture:
       - Overview: architecture/overview.md
+      - Ecosystem: architecture/ecosystem.md
       - Go Daemon: architecture/daemon.md
       - Frontend: architecture/frontend.md
   - Development:

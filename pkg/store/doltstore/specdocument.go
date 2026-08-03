@@ -17,11 +17,14 @@ func entSpecDocumentToStore(e *ent.SpecDocument) *store.SpecDocument {
 		Organization: e.Organization,
 		RepositoryID: e.RepositoryID,
 		InitiativeID: e.InitiativeID,
+		WorkflowID:   e.WorkflowID,
 		SpecType:     e.SpecType,
 		FilePath:     e.FilePath,
 		Title:        e.Title,
 		Status:       e.Status,
 		ContentHash:  e.ContentHash,
+		EvalScore:    e.EvalScore,
+		EvalVerdict:  e.EvalVerdict,
 		SyncedAt:     e.SyncedAt,
 		CreatedAt:    e.CreatedAt,
 		UpdatedAt:    e.UpdatedAt,
@@ -51,6 +54,15 @@ func (d *DoltStore) CreateSpecDocument(ctx context.Context, doc *store.SpecDocum
 	}
 	if doc.ContentHash != "" {
 		b.SetContentHash(doc.ContentHash)
+	}
+	if doc.WorkflowID != "" {
+		b.SetWorkflowID(doc.WorkflowID)
+	}
+	if doc.EvalScore != nil {
+		b.SetEvalScore(*doc.EvalScore)
+	}
+	if doc.EvalVerdict != "" {
+		b.SetEvalVerdict(doc.EvalVerdict)
 	}
 	_, err := b.Save(ctx)
 	if err != nil {
@@ -133,13 +145,26 @@ func (d *DoltStore) UpdateSpecDocument(ctx context.Context, doc *store.SpecDocum
 	}
 	if doc.Status != "" {
 		b.SetStatus(doc.Status)
-	} else {
-		b.ClearStatus()
 	}
 	if doc.ContentHash != "" {
 		b.SetContentHash(doc.ContentHash)
 	} else {
 		b.ClearContentHash()
+	}
+	if doc.WorkflowID != "" {
+		b.SetWorkflowID(doc.WorkflowID)
+	} else {
+		b.ClearWorkflowID()
+	}
+	if doc.EvalScore != nil {
+		b.SetEvalScore(*doc.EvalScore)
+	} else {
+		b.ClearEvalScore()
+	}
+	if doc.EvalVerdict != "" {
+		b.SetEvalVerdict(doc.EvalVerdict)
+	} else {
+		b.ClearEvalVerdict()
 	}
 	_, err := b.Save(ctx)
 	if err != nil {

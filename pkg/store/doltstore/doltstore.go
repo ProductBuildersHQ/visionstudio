@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
@@ -90,6 +91,47 @@ func ensureParseTime(dsn string) string {
 // Migrate runs Ent auto-migration against the Dolt database.
 func (d *DoltStore) Migrate(ctx context.Context) error {
 	return d.client.Schema.Create(ctx)
+}
+
+// Commit stages all changes and creates a Dolt commit with the given message.
+// This is useful for explicit commits outside of UnitOfWork, or for
+// committing accumulated changes from multiple operations.
+func (d *DoltStore) Commit(ctx context.Context, message string) error {
+	if _, err := d.db.ExecContext(ctx, "CALL DOLT_ADD('.')"); err != nil {
+		return fmt.Errorf("dolt add: %w", err)
+	}
+	if _, err := d.db.ExecContext(ctx, "CALL DOLT_COMMIT('-m', ?, '--allow-empty')", message); err != nil {
+		// Ignore "nothing to commit" errors
+		if !strings.Contains(err.Error(), "nothing to commit") {
+			return fmt.Errorf("dolt commit: %w", err)
+		}
+	}
+	return nil
+}
+
+// HasUncommittedChanges returns true if there are uncommitted changes in the working set.
+func (d *DoltStore) HasUncommittedChanges(ctx context.Context) (bool, error) {
+	var count int
+	err := d.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM dolt_status").Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("check dolt status: %w", err)
+	}
+	return count > 0, nil
+}
+
+// CommitIfDirty commits only if there are uncommitted changes.
+func (d *DoltStore) CommitIfDirty(ctx context.Context, message string) (bool, error) {
+	dirty, err := d.HasUncommittedChanges(ctx)
+	if err != nil {
+		return false, err
+	}
+	if !dirty {
+		return false, nil
+	}
+	if err := d.Commit(ctx, message); err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // DoltUnitOfWork implements store.UnitOfWork with Ent transactions
@@ -1172,6 +1214,42 @@ func (d *DoltStore) UpdateSpecWorkflow(ctx context.Context, wf *store.SpecWorkfl
 		return fmt.Errorf("update spec workflow %s: %w", wf.ID, err)
 	}
 	return nil
+}
+
+func (d *DoltStore) SelectWorkflowForInitiative(ctx context.Context, initiativeID, workflowID string) error {
+	now := time.Now()
+	_, err := d.client.InitiativeWorkflow.Get(ctx, initiativeID)
+	if ent.IsNotFound(err) {
+		_, err = d.client.InitiativeWorkflow.Create().
+			SetID(initiativeID).
+			SetWorkflowID(workflowID).
+			SetSelectedAt(now).
+			Save(ctx)
+	} else if err == nil {
+		_, err = d.client.InitiativeWorkflow.UpdateOneID(initiativeID).
+			SetWorkflowID(workflowID).
+			SetSelectedAt(now).
+			Save(ctx)
+	}
+	if err != nil {
+		return fmt.Errorf("select workflow for initiative %s: %w", initiativeID, err)
+	}
+	return nil
+}
+
+func (d *DoltStore) GetWorkflowForInitiative(ctx context.Context, initiativeID string) (*store.InitiativeWorkflow, error) {
+	row, err := d.client.InitiativeWorkflow.Get(ctx, initiativeID)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("get workflow for initiative %s: %w", initiativeID, err)
+	}
+	return &store.InitiativeWorkflow{
+		InitiativeID: row.ID,
+		WorkflowID:   row.WorkflowID,
+		SelectedAt:   row.SelectedAt,
+	}, nil
 }
 
 // ---------------------------------------------------------------------------

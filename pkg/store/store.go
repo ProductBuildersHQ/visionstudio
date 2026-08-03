@@ -284,6 +284,10 @@ type SpecWorkflowStore interface {
 	GetSpecWorkflow(ctx context.Context, id string) (*SpecWorkflow, error)
 	ListSpecWorkflows(ctx context.Context) ([]*SpecWorkflow, error)
 	UpdateSpecWorkflow(ctx context.Context, wf *SpecWorkflow) error
+
+	// Initiative workflow selection
+	SelectWorkflowForInitiative(ctx context.Context, initiativeID, workflowID string) error
+	GetWorkflowForInitiative(ctx context.Context, initiativeID string) (*InitiativeWorkflow, error)
 }
 
 // JudgeStore defines persistence for judge rubrics and results.
@@ -447,14 +451,24 @@ type SpecDocument struct {
 	Organization string    `json:"organization,omitempty"`
 	RepositoryID string    `json:"repository_id"`
 	InitiativeID string    `json:"initiative_id,omitempty"`
+	WorkflowID   string    `json:"workflow_id,omitempty"`
 	SpecType     string    `json:"spec_type"`
 	FilePath     string    `json:"file_path"`
 	Title        string    `json:"title,omitempty"`
 	Status       string    `json:"status,omitempty"`
 	ContentHash  string    `json:"content_hash,omitempty"`
+	EvalScore    *int      `json:"eval_score,omitempty"`
+	EvalVerdict  string    `json:"eval_verdict,omitempty"`
 	SyncedAt     time.Time `json:"synced_at"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
+}
+
+// InitiativeWorkflow records which workflow is selected for an initiative.
+type InitiativeWorkflow struct {
+	InitiativeID string    `json:"initiative_id"`
+	WorkflowID   string    `json:"workflow_id"`
+	SelectedAt   time.Time `json:"selected_at"`
 }
 
 // SpecDocumentStore defines persistence for the spec document registry.

@@ -18,6 +18,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/devxperiodreport"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiativeworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
@@ -98,6 +99,7 @@ func checkColumn(t, c string) error {
 			devxperiodreport.Table:     devxperiodreport.ValidColumn,
 			initiative.Table:           initiative.ValidColumn,
 			initiativedependency.Table: initiativedependency.ValidColumn,
+			initiativeworkflow.Table:   initiativeworkflow.ValidColumn,
 			judgeresult.Table:          judgeresult.ValidColumn,
 			judgerubric.Table:          judgerubric.ValidColumn,
 			maturityassessment.Table:   maturityassessment.ValidColumn,

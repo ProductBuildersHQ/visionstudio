@@ -21,6 +21,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/devxperiodreport"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiativeworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
@@ -54,6 +55,8 @@ type Client struct {
 	Initiative *InitiativeClient
 	// InitiativeDependency is the client for interacting with the InitiativeDependency builders.
 	InitiativeDependency *InitiativeDependencyClient
+	// InitiativeWorkflow is the client for interacting with the InitiativeWorkflow builders.
+	InitiativeWorkflow *InitiativeWorkflowClient
 	// JudgeResult is the client for interacting with the JudgeResult builders.
 	JudgeResult *JudgeResultClient
 	// JudgeRubric is the client for interacting with the JudgeRubric builders.
@@ -99,6 +102,7 @@ func (c *Client) init() {
 	c.DevXPeriodReport = NewDevXPeriodReportClient(c.config)
 	c.Initiative = NewInitiativeClient(c.config)
 	c.InitiativeDependency = NewInitiativeDependencyClient(c.config)
+	c.InitiativeWorkflow = NewInitiativeWorkflowClient(c.config)
 	c.JudgeResult = NewJudgeResultClient(c.config)
 	c.JudgeRubric = NewJudgeRubricClient(c.config)
 	c.MaturityAssessment = NewMaturityAssessmentClient(c.config)
@@ -211,6 +215,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DevXPeriodReport:     NewDevXPeriodReportClient(cfg),
 		Initiative:           NewInitiativeClient(cfg),
 		InitiativeDependency: NewInitiativeDependencyClient(cfg),
+		InitiativeWorkflow:   NewInitiativeWorkflowClient(cfg),
 		JudgeResult:          NewJudgeResultClient(cfg),
 		JudgeRubric:          NewJudgeRubricClient(cfg),
 		MaturityAssessment:   NewMaturityAssessmentClient(cfg),
@@ -250,6 +255,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DevXPeriodReport:     NewDevXPeriodReportClient(cfg),
 		Initiative:           NewInitiativeClient(cfg),
 		InitiativeDependency: NewInitiativeDependencyClient(cfg),
+		InitiativeWorkflow:   NewInitiativeWorkflowClient(cfg),
 		JudgeResult:          NewJudgeResultClient(cfg),
 		JudgeRubric:          NewJudgeRubricClient(cfg),
 		MaturityAssessment:   NewMaturityAssessmentClient(cfg),
@@ -294,10 +300,10 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Assignment, c.CapabilityModel, c.DeliveryEvidence, c.DevXPeriodReport,
-		c.Initiative, c.InitiativeDependency, c.JudgeResult, c.JudgeRubric,
-		c.MaturityAssessment, c.PRISMDocument, c.PRISMGoal, c.PRISMRoadmap, c.Phase,
-		c.Program, c.RMIDependency, c.Repository, c.RepositoryDependency,
-		c.RoadmapItem, c.SpecDocument, c.SpecWorkflow,
+		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
+		c.JudgeRubric, c.MaturityAssessment, c.PRISMDocument, c.PRISMGoal,
+		c.PRISMRoadmap, c.Phase, c.Program, c.RMIDependency, c.Repository,
+		c.RepositoryDependency, c.RoadmapItem, c.SpecDocument, c.SpecWorkflow,
 	} {
 		n.Use(hooks...)
 	}
@@ -308,10 +314,10 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Assignment, c.CapabilityModel, c.DeliveryEvidence, c.DevXPeriodReport,
-		c.Initiative, c.InitiativeDependency, c.JudgeResult, c.JudgeRubric,
-		c.MaturityAssessment, c.PRISMDocument, c.PRISMGoal, c.PRISMRoadmap, c.Phase,
-		c.Program, c.RMIDependency, c.Repository, c.RepositoryDependency,
-		c.RoadmapItem, c.SpecDocument, c.SpecWorkflow,
+		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
+		c.JudgeRubric, c.MaturityAssessment, c.PRISMDocument, c.PRISMGoal,
+		c.PRISMRoadmap, c.Phase, c.Program, c.RMIDependency, c.Repository,
+		c.RepositoryDependency, c.RoadmapItem, c.SpecDocument, c.SpecWorkflow,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -332,6 +338,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Initiative.mutate(ctx, m)
 	case *InitiativeDependencyMutation:
 		return c.InitiativeDependency.mutate(ctx, m)
+	case *InitiativeWorkflowMutation:
+		return c.InitiativeWorkflow.mutate(ctx, m)
 	case *JudgeResultMutation:
 		return c.JudgeResult.mutate(ctx, m)
 	case *JudgeRubricMutation:
@@ -1304,6 +1312,139 @@ func (c *InitiativeDependencyClient) mutate(ctx context.Context, m *InitiativeDe
 		return (&InitiativeDependencyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown InitiativeDependency mutation op: %q", m.Op())
+	}
+}
+
+// InitiativeWorkflowClient is a client for the InitiativeWorkflow schema.
+type InitiativeWorkflowClient struct {
+	config
+}
+
+// NewInitiativeWorkflowClient returns a client for the InitiativeWorkflow from the given config.
+func NewInitiativeWorkflowClient(c config) *InitiativeWorkflowClient {
+	return &InitiativeWorkflowClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `initiativeworkflow.Hooks(f(g(h())))`.
+func (c *InitiativeWorkflowClient) Use(hooks ...Hook) {
+	c.hooks.InitiativeWorkflow = append(c.hooks.InitiativeWorkflow, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `initiativeworkflow.Intercept(f(g(h())))`.
+func (c *InitiativeWorkflowClient) Intercept(interceptors ...Interceptor) {
+	c.inters.InitiativeWorkflow = append(c.inters.InitiativeWorkflow, interceptors...)
+}
+
+// Create returns a builder for creating a InitiativeWorkflow entity.
+func (c *InitiativeWorkflowClient) Create() *InitiativeWorkflowCreate {
+	mutation := newInitiativeWorkflowMutation(c.config, OpCreate)
+	return &InitiativeWorkflowCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of InitiativeWorkflow entities.
+func (c *InitiativeWorkflowClient) CreateBulk(builders ...*InitiativeWorkflowCreate) *InitiativeWorkflowCreateBulk {
+	return &InitiativeWorkflowCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *InitiativeWorkflowClient) MapCreateBulk(slice any, setFunc func(*InitiativeWorkflowCreate, int)) *InitiativeWorkflowCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &InitiativeWorkflowCreateBulk{err: fmt.Errorf("calling to InitiativeWorkflowClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*InitiativeWorkflowCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &InitiativeWorkflowCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for InitiativeWorkflow.
+func (c *InitiativeWorkflowClient) Update() *InitiativeWorkflowUpdate {
+	mutation := newInitiativeWorkflowMutation(c.config, OpUpdate)
+	return &InitiativeWorkflowUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *InitiativeWorkflowClient) UpdateOne(_m *InitiativeWorkflow) *InitiativeWorkflowUpdateOne {
+	mutation := newInitiativeWorkflowMutation(c.config, OpUpdateOne, withInitiativeWorkflow(_m))
+	return &InitiativeWorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *InitiativeWorkflowClient) UpdateOneID(id string) *InitiativeWorkflowUpdateOne {
+	mutation := newInitiativeWorkflowMutation(c.config, OpUpdateOne, withInitiativeWorkflowID(id))
+	return &InitiativeWorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for InitiativeWorkflow.
+func (c *InitiativeWorkflowClient) Delete() *InitiativeWorkflowDelete {
+	mutation := newInitiativeWorkflowMutation(c.config, OpDelete)
+	return &InitiativeWorkflowDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *InitiativeWorkflowClient) DeleteOne(_m *InitiativeWorkflow) *InitiativeWorkflowDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *InitiativeWorkflowClient) DeleteOneID(id string) *InitiativeWorkflowDeleteOne {
+	builder := c.Delete().Where(initiativeworkflow.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &InitiativeWorkflowDeleteOne{builder}
+}
+
+// Query returns a query builder for InitiativeWorkflow.
+func (c *InitiativeWorkflowClient) Query() *InitiativeWorkflowQuery {
+	return &InitiativeWorkflowQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeInitiativeWorkflow},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a InitiativeWorkflow entity by its id.
+func (c *InitiativeWorkflowClient) Get(ctx context.Context, id string) (*InitiativeWorkflow, error) {
+	return c.Query().Where(initiativeworkflow.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *InitiativeWorkflowClient) GetX(ctx context.Context, id string) *InitiativeWorkflow {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *InitiativeWorkflowClient) Hooks() []Hook {
+	return c.hooks.InitiativeWorkflow
+}
+
+// Interceptors returns the client interceptors.
+func (c *InitiativeWorkflowClient) Interceptors() []Interceptor {
+	return c.inters.InitiativeWorkflow
+}
+
+func (c *InitiativeWorkflowClient) mutate(ctx context.Context, m *InitiativeWorkflowMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&InitiativeWorkflowCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&InitiativeWorkflowUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&InitiativeWorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&InitiativeWorkflowDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown InitiativeWorkflow mutation op: %q", m.Op())
 	}
 }
 
@@ -3283,6 +3424,22 @@ func (c *SpecDocumentClient) QueryRepository(_m *SpecDocument) *RepositoryQuery 
 	return query
 }
 
+// QueryWorkflow queries the workflow edge of a SpecDocument.
+func (c *SpecDocumentClient) QueryWorkflow(_m *SpecDocument) *SpecWorkflowQuery {
+	query := (&SpecWorkflowClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specdocument.Table, specdocument.FieldID, id),
+			sqlgraph.To(specworkflow.Table, specworkflow.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.WorkflowTable, specdocument.WorkflowColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SpecDocumentClient) Hooks() []Hook {
 	return c.hooks.SpecDocument
@@ -3448,6 +3605,22 @@ func (c *SpecWorkflowClient) QueryRubrics(_m *SpecWorkflow) *JudgeRubricQuery {
 	return query
 }
 
+// QuerySpecDocuments queries the spec_documents edge of a SpecWorkflow.
+func (c *SpecWorkflowClient) QuerySpecDocuments(_m *SpecWorkflow) *SpecDocumentQuery {
+	query := (&SpecDocumentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specworkflow.Table, specworkflow.FieldID, id),
+			sqlgraph.To(specdocument.Table, specdocument.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, specworkflow.SpecDocumentsTable, specworkflow.SpecDocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *SpecWorkflowClient) Hooks() []Hook {
 	return c.hooks.SpecWorkflow
@@ -3477,16 +3650,16 @@ func (c *SpecWorkflowClient) mutate(ctx context.Context, m *SpecWorkflowMutation
 type (
 	hooks struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
-		InitiativeDependency, JudgeResult, JudgeRubric, MaturityAssessment,
-		PRISMDocument, PRISMGoal, PRISMRoadmap, Phase, Program, RMIDependency,
-		Repository, RepositoryDependency, RoadmapItem, SpecDocument,
+		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
+		MaturityAssessment, PRISMDocument, PRISMGoal, PRISMRoadmap, Phase, Program,
+		RMIDependency, Repository, RepositoryDependency, RoadmapItem, SpecDocument,
 		SpecWorkflow []ent.Hook
 	}
 	inters struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
-		InitiativeDependency, JudgeResult, JudgeRubric, MaturityAssessment,
-		PRISMDocument, PRISMGoal, PRISMRoadmap, Phase, Program, RMIDependency,
-		Repository, RepositoryDependency, RoadmapItem, SpecDocument,
+		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
+		MaturityAssessment, PRISMDocument, PRISMGoal, PRISMRoadmap, Phase, Program,
+		RMIDependency, Repository, RepositoryDependency, RoadmapItem, SpecDocument,
 		SpecWorkflow []ent.Interceptor
 	}
 )

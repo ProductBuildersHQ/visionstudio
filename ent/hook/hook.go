@@ -81,6 +81,18 @@ func (f InitiativeDependencyFunc) Mutate(ctx context.Context, m ent.Mutation) (e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InitiativeDependencyMutation", m)
 }
 
+// The InitiativeWorkflowFunc type is an adapter to allow the use of ordinary
+// function as InitiativeWorkflow mutator.
+type InitiativeWorkflowFunc func(context.Context, *ent.InitiativeWorkflowMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f InitiativeWorkflowFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.InitiativeWorkflowMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.InitiativeWorkflowMutation", m)
+}
+
 // The JudgeResultFunc type is an adapter to allow the use of ordinary
 // function as JudgeResult mutator.
 type JudgeResultFunc func(context.Context, *ent.JudgeResultMutation) (ent.Value, error)

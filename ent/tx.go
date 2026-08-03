@@ -24,6 +24,8 @@ type Tx struct {
 	Initiative *InitiativeClient
 	// InitiativeDependency is the client for interacting with the InitiativeDependency builders.
 	InitiativeDependency *InitiativeDependencyClient
+	// InitiativeWorkflow is the client for interacting with the InitiativeWorkflow builders.
+	InitiativeWorkflow *InitiativeWorkflowClient
 	// JudgeResult is the client for interacting with the JudgeResult builders.
 	JudgeResult *JudgeResultClient
 	// JudgeRubric is the client for interacting with the JudgeRubric builders.
@@ -189,6 +191,7 @@ func (tx *Tx) init() {
 	tx.DevXPeriodReport = NewDevXPeriodReportClient(tx.config)
 	tx.Initiative = NewInitiativeClient(tx.config)
 	tx.InitiativeDependency = NewInitiativeDependencyClient(tx.config)
+	tx.InitiativeWorkflow = NewInitiativeWorkflowClient(tx.config)
 	tx.JudgeResult = NewJudgeResultClient(tx.config)
 	tx.JudgeRubric = NewJudgeRubricClient(tx.config)
 	tx.MaturityAssessment = NewMaturityAssessmentClient(tx.config)

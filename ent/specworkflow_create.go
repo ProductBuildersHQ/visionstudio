@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
@@ -93,6 +94,21 @@ func (_c *SpecWorkflowCreate) AddRubrics(v ...*JudgeRubric) *SpecWorkflowCreate 
 		ids[i] = v[i].ID
 	}
 	return _c.AddRubricIDs(ids...)
+}
+
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_c *SpecWorkflowCreate) AddSpecDocumentIDs(ids ...string) *SpecWorkflowCreate {
+	_c.mutation.AddSpecDocumentIDs(ids...)
+	return _c
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_c *SpecWorkflowCreate) AddSpecDocuments(v ...*SpecDocument) *SpecWorkflowCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddSpecDocumentIDs(ids...)
 }
 
 // Mutation returns the SpecWorkflowMutation object of the builder.
@@ -222,6 +238,22 @@ func (_c *SpecWorkflowCreate) createSpec() (*SpecWorkflow, *sqlgraph.CreateSpec)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

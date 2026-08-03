@@ -24,6 +24,9 @@ type Initiative func(*sql.Selector)
 // InitiativeDependency is the predicate function for initiativedependency builders.
 type InitiativeDependency func(*sql.Selector)
 
+// InitiativeWorkflow is the predicate function for initiativeworkflow builders.
+type InitiativeWorkflow func(*sql.Selector)
+
 // JudgeResult is the predicate function for judgeresult builders.
 type JudgeResult func(*sql.Selector)
 

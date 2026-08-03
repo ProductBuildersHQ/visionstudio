@@ -13,6 +13,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
 // SpecDocumentCreate is the builder for creating a SpecDocument entity.
@@ -52,6 +53,20 @@ func (_c *SpecDocumentCreate) SetInitiativeID(v string) *SpecDocumentCreate {
 func (_c *SpecDocumentCreate) SetNillableInitiativeID(v *string) *SpecDocumentCreate {
 	if v != nil {
 		_c.SetInitiativeID(*v)
+	}
+	return _c
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (_c *SpecDocumentCreate) SetWorkflowID(v string) *SpecDocumentCreate {
+	_c.mutation.SetWorkflowID(v)
+	return _c
+}
+
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (_c *SpecDocumentCreate) SetNillableWorkflowID(v *string) *SpecDocumentCreate {
+	if v != nil {
+		_c.SetWorkflowID(*v)
 	}
 	return _c
 }
@@ -110,6 +125,34 @@ func (_c *SpecDocumentCreate) SetNillableContentHash(v *string) *SpecDocumentCre
 	return _c
 }
 
+// SetEvalScore sets the "eval_score" field.
+func (_c *SpecDocumentCreate) SetEvalScore(v int) *SpecDocumentCreate {
+	_c.mutation.SetEvalScore(v)
+	return _c
+}
+
+// SetNillableEvalScore sets the "eval_score" field if the given value is not nil.
+func (_c *SpecDocumentCreate) SetNillableEvalScore(v *int) *SpecDocumentCreate {
+	if v != nil {
+		_c.SetEvalScore(*v)
+	}
+	return _c
+}
+
+// SetEvalVerdict sets the "eval_verdict" field.
+func (_c *SpecDocumentCreate) SetEvalVerdict(v string) *SpecDocumentCreate {
+	_c.mutation.SetEvalVerdict(v)
+	return _c
+}
+
+// SetNillableEvalVerdict sets the "eval_verdict" field if the given value is not nil.
+func (_c *SpecDocumentCreate) SetNillableEvalVerdict(v *string) *SpecDocumentCreate {
+	if v != nil {
+		_c.SetEvalVerdict(*v)
+	}
+	return _c
+}
+
 // SetSyncedAt sets the "synced_at" field.
 func (_c *SpecDocumentCreate) SetSyncedAt(v time.Time) *SpecDocumentCreate {
 	_c.mutation.SetSyncedAt(v)
@@ -144,6 +187,11 @@ func (_c *SpecDocumentCreate) SetRepository(v *Repository) *SpecDocumentCreate {
 	return _c.SetRepositoryID(v.ID)
 }
 
+// SetWorkflow sets the "workflow" edge to the SpecWorkflow entity.
+func (_c *SpecDocumentCreate) SetWorkflow(v *SpecWorkflow) *SpecDocumentCreate {
+	return _c.SetWorkflowID(v.ID)
+}
+
 // Mutation returns the SpecDocumentMutation object of the builder.
 func (_c *SpecDocumentCreate) Mutation() *SpecDocumentMutation {
 	return _c.mutation
@@ -151,6 +199,7 @@ func (_c *SpecDocumentCreate) Mutation() *SpecDocumentMutation {
 
 // Save creates the SpecDocument in the database.
 func (_c *SpecDocumentCreate) Save(ctx context.Context) (*SpecDocument, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -176,6 +225,14 @@ func (_c *SpecDocumentCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *SpecDocumentCreate) defaults() {
+	if _, ok := _c.mutation.Status(); !ok {
+		v := specdocument.DefaultStatus
+		_c.mutation.SetStatus(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *SpecDocumentCreate) check() error {
 	if _, ok := _c.mutation.RepositoryID(); !ok {
@@ -186,6 +243,9 @@ func (_c *SpecDocumentCreate) check() error {
 	}
 	if _, ok := _c.mutation.FilePath(); !ok {
 		return &ValidationError{Name: "file_path", err: errors.New(`ent: missing required field "SpecDocument.file_path"`)}
+	}
+	if _, ok := _c.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "SpecDocument.status"`)}
 	}
 	if _, ok := _c.mutation.SyncedAt(); !ok {
 		return &ValidationError{Name: "synced_at", err: errors.New(`ent: missing required field "SpecDocument.synced_at"`)}
@@ -258,6 +318,14 @@ func (_c *SpecDocumentCreate) createSpec() (*SpecDocument, *sqlgraph.CreateSpec)
 		_spec.SetField(specdocument.FieldContentHash, field.TypeString, value)
 		_node.ContentHash = value
 	}
+	if value, ok := _c.mutation.EvalScore(); ok {
+		_spec.SetField(specdocument.FieldEvalScore, field.TypeInt, value)
+		_node.EvalScore = &value
+	}
+	if value, ok := _c.mutation.EvalVerdict(); ok {
+		_spec.SetField(specdocument.FieldEvalVerdict, field.TypeString, value)
+		_node.EvalVerdict = value
+	}
 	if value, ok := _c.mutation.SyncedAt(); ok {
 		_spec.SetField(specdocument.FieldSyncedAt, field.TypeTime, value)
 		_node.SyncedAt = value
@@ -304,6 +372,23 @@ func (_c *SpecDocumentCreate) createSpec() (*SpecDocument, *sqlgraph.CreateSpec)
 		_node.RepositoryID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := _c.mutation.WorkflowIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.WorkflowTable,
+			Columns: []string{specdocument.WorkflowColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.WorkflowID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -325,6 +410,7 @@ func (_c *SpecDocumentCreateBulk) Save(ctx context.Context) ([]*SpecDocument, er
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SpecDocumentMutation)
 				if !ok {

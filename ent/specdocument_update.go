@@ -15,6 +15,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
 // SpecDocumentUpdate is the builder for updating SpecDocument entities.
@@ -84,6 +85,26 @@ func (_u *SpecDocumentUpdate) ClearInitiativeID() *SpecDocumentUpdate {
 	return _u
 }
 
+// SetWorkflowID sets the "workflow_id" field.
+func (_u *SpecDocumentUpdate) SetWorkflowID(v string) *SpecDocumentUpdate {
+	_u.mutation.SetWorkflowID(v)
+	return _u
+}
+
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (_u *SpecDocumentUpdate) SetNillableWorkflowID(v *string) *SpecDocumentUpdate {
+	if v != nil {
+		_u.SetWorkflowID(*v)
+	}
+	return _u
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (_u *SpecDocumentUpdate) ClearWorkflowID() *SpecDocumentUpdate {
+	_u.mutation.ClearWorkflowID()
+	return _u
+}
+
 // SetSpecType sets the "spec_type" field.
 func (_u *SpecDocumentUpdate) SetSpecType(v string) *SpecDocumentUpdate {
 	_u.mutation.SetSpecType(v)
@@ -146,12 +167,6 @@ func (_u *SpecDocumentUpdate) SetNillableStatus(v *string) *SpecDocumentUpdate {
 	return _u
 }
 
-// ClearStatus clears the value of the "status" field.
-func (_u *SpecDocumentUpdate) ClearStatus() *SpecDocumentUpdate {
-	_u.mutation.ClearStatus()
-	return _u
-}
-
 // SetContentHash sets the "content_hash" field.
 func (_u *SpecDocumentUpdate) SetContentHash(v string) *SpecDocumentUpdate {
 	_u.mutation.SetContentHash(v)
@@ -169,6 +184,53 @@ func (_u *SpecDocumentUpdate) SetNillableContentHash(v *string) *SpecDocumentUpd
 // ClearContentHash clears the value of the "content_hash" field.
 func (_u *SpecDocumentUpdate) ClearContentHash() *SpecDocumentUpdate {
 	_u.mutation.ClearContentHash()
+	return _u
+}
+
+// SetEvalScore sets the "eval_score" field.
+func (_u *SpecDocumentUpdate) SetEvalScore(v int) *SpecDocumentUpdate {
+	_u.mutation.ResetEvalScore()
+	_u.mutation.SetEvalScore(v)
+	return _u
+}
+
+// SetNillableEvalScore sets the "eval_score" field if the given value is not nil.
+func (_u *SpecDocumentUpdate) SetNillableEvalScore(v *int) *SpecDocumentUpdate {
+	if v != nil {
+		_u.SetEvalScore(*v)
+	}
+	return _u
+}
+
+// AddEvalScore adds value to the "eval_score" field.
+func (_u *SpecDocumentUpdate) AddEvalScore(v int) *SpecDocumentUpdate {
+	_u.mutation.AddEvalScore(v)
+	return _u
+}
+
+// ClearEvalScore clears the value of the "eval_score" field.
+func (_u *SpecDocumentUpdate) ClearEvalScore() *SpecDocumentUpdate {
+	_u.mutation.ClearEvalScore()
+	return _u
+}
+
+// SetEvalVerdict sets the "eval_verdict" field.
+func (_u *SpecDocumentUpdate) SetEvalVerdict(v string) *SpecDocumentUpdate {
+	_u.mutation.SetEvalVerdict(v)
+	return _u
+}
+
+// SetNillableEvalVerdict sets the "eval_verdict" field if the given value is not nil.
+func (_u *SpecDocumentUpdate) SetNillableEvalVerdict(v *string) *SpecDocumentUpdate {
+	if v != nil {
+		_u.SetEvalVerdict(*v)
+	}
+	return _u
+}
+
+// ClearEvalVerdict clears the value of the "eval_verdict" field.
+func (_u *SpecDocumentUpdate) ClearEvalVerdict() *SpecDocumentUpdate {
+	_u.mutation.ClearEvalVerdict()
 	return _u
 }
 
@@ -224,6 +286,11 @@ func (_u *SpecDocumentUpdate) SetRepository(v *Repository) *SpecDocumentUpdate {
 	return _u.SetRepositoryID(v.ID)
 }
 
+// SetWorkflow sets the "workflow" edge to the SpecWorkflow entity.
+func (_u *SpecDocumentUpdate) SetWorkflow(v *SpecWorkflow) *SpecDocumentUpdate {
+	return _u.SetWorkflowID(v.ID)
+}
+
 // Mutation returns the SpecDocumentMutation object of the builder.
 func (_u *SpecDocumentUpdate) Mutation() *SpecDocumentMutation {
 	return _u.mutation
@@ -238,6 +305,12 @@ func (_u *SpecDocumentUpdate) ClearInitiative() *SpecDocumentUpdate {
 // ClearRepository clears the "repository" edge to the Repository entity.
 func (_u *SpecDocumentUpdate) ClearRepository() *SpecDocumentUpdate {
 	_u.mutation.ClearRepository()
+	return _u
+}
+
+// ClearWorkflow clears the "workflow" edge to the SpecWorkflow entity.
+func (_u *SpecDocumentUpdate) ClearWorkflow() *SpecDocumentUpdate {
+	_u.mutation.ClearWorkflow()
 	return _u
 }
 
@@ -309,14 +382,26 @@ func (_u *SpecDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(specdocument.FieldStatus, field.TypeString, value)
 	}
-	if _u.mutation.StatusCleared() {
-		_spec.ClearField(specdocument.FieldStatus, field.TypeString)
-	}
 	if value, ok := _u.mutation.ContentHash(); ok {
 		_spec.SetField(specdocument.FieldContentHash, field.TypeString, value)
 	}
 	if _u.mutation.ContentHashCleared() {
 		_spec.ClearField(specdocument.FieldContentHash, field.TypeString)
+	}
+	if value, ok := _u.mutation.EvalScore(); ok {
+		_spec.SetField(specdocument.FieldEvalScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedEvalScore(); ok {
+		_spec.AddField(specdocument.FieldEvalScore, field.TypeInt, value)
+	}
+	if _u.mutation.EvalScoreCleared() {
+		_spec.ClearField(specdocument.FieldEvalScore, field.TypeInt)
+	}
+	if value, ok := _u.mutation.EvalVerdict(); ok {
+		_spec.SetField(specdocument.FieldEvalVerdict, field.TypeString, value)
+	}
+	if _u.mutation.EvalVerdictCleared() {
+		_spec.ClearField(specdocument.FieldEvalVerdict, field.TypeString)
 	}
 	if value, ok := _u.mutation.SyncedAt(); ok {
 		_spec.SetField(specdocument.FieldSyncedAt, field.TypeTime, value)
@@ -378,6 +463,35 @@ func (_u *SpecDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.WorkflowCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.WorkflowTable,
+			Columns: []string{specdocument.WorkflowColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.WorkflowIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.WorkflowTable,
+			Columns: []string{specdocument.WorkflowColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -459,6 +573,26 @@ func (_u *SpecDocumentUpdateOne) ClearInitiativeID() *SpecDocumentUpdateOne {
 	return _u
 }
 
+// SetWorkflowID sets the "workflow_id" field.
+func (_u *SpecDocumentUpdateOne) SetWorkflowID(v string) *SpecDocumentUpdateOne {
+	_u.mutation.SetWorkflowID(v)
+	return _u
+}
+
+// SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
+func (_u *SpecDocumentUpdateOne) SetNillableWorkflowID(v *string) *SpecDocumentUpdateOne {
+	if v != nil {
+		_u.SetWorkflowID(*v)
+	}
+	return _u
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (_u *SpecDocumentUpdateOne) ClearWorkflowID() *SpecDocumentUpdateOne {
+	_u.mutation.ClearWorkflowID()
+	return _u
+}
+
 // SetSpecType sets the "spec_type" field.
 func (_u *SpecDocumentUpdateOne) SetSpecType(v string) *SpecDocumentUpdateOne {
 	_u.mutation.SetSpecType(v)
@@ -521,12 +655,6 @@ func (_u *SpecDocumentUpdateOne) SetNillableStatus(v *string) *SpecDocumentUpdat
 	return _u
 }
 
-// ClearStatus clears the value of the "status" field.
-func (_u *SpecDocumentUpdateOne) ClearStatus() *SpecDocumentUpdateOne {
-	_u.mutation.ClearStatus()
-	return _u
-}
-
 // SetContentHash sets the "content_hash" field.
 func (_u *SpecDocumentUpdateOne) SetContentHash(v string) *SpecDocumentUpdateOne {
 	_u.mutation.SetContentHash(v)
@@ -544,6 +672,53 @@ func (_u *SpecDocumentUpdateOne) SetNillableContentHash(v *string) *SpecDocument
 // ClearContentHash clears the value of the "content_hash" field.
 func (_u *SpecDocumentUpdateOne) ClearContentHash() *SpecDocumentUpdateOne {
 	_u.mutation.ClearContentHash()
+	return _u
+}
+
+// SetEvalScore sets the "eval_score" field.
+func (_u *SpecDocumentUpdateOne) SetEvalScore(v int) *SpecDocumentUpdateOne {
+	_u.mutation.ResetEvalScore()
+	_u.mutation.SetEvalScore(v)
+	return _u
+}
+
+// SetNillableEvalScore sets the "eval_score" field if the given value is not nil.
+func (_u *SpecDocumentUpdateOne) SetNillableEvalScore(v *int) *SpecDocumentUpdateOne {
+	if v != nil {
+		_u.SetEvalScore(*v)
+	}
+	return _u
+}
+
+// AddEvalScore adds value to the "eval_score" field.
+func (_u *SpecDocumentUpdateOne) AddEvalScore(v int) *SpecDocumentUpdateOne {
+	_u.mutation.AddEvalScore(v)
+	return _u
+}
+
+// ClearEvalScore clears the value of the "eval_score" field.
+func (_u *SpecDocumentUpdateOne) ClearEvalScore() *SpecDocumentUpdateOne {
+	_u.mutation.ClearEvalScore()
+	return _u
+}
+
+// SetEvalVerdict sets the "eval_verdict" field.
+func (_u *SpecDocumentUpdateOne) SetEvalVerdict(v string) *SpecDocumentUpdateOne {
+	_u.mutation.SetEvalVerdict(v)
+	return _u
+}
+
+// SetNillableEvalVerdict sets the "eval_verdict" field if the given value is not nil.
+func (_u *SpecDocumentUpdateOne) SetNillableEvalVerdict(v *string) *SpecDocumentUpdateOne {
+	if v != nil {
+		_u.SetEvalVerdict(*v)
+	}
+	return _u
+}
+
+// ClearEvalVerdict clears the value of the "eval_verdict" field.
+func (_u *SpecDocumentUpdateOne) ClearEvalVerdict() *SpecDocumentUpdateOne {
+	_u.mutation.ClearEvalVerdict()
 	return _u
 }
 
@@ -599,6 +774,11 @@ func (_u *SpecDocumentUpdateOne) SetRepository(v *Repository) *SpecDocumentUpdat
 	return _u.SetRepositoryID(v.ID)
 }
 
+// SetWorkflow sets the "workflow" edge to the SpecWorkflow entity.
+func (_u *SpecDocumentUpdateOne) SetWorkflow(v *SpecWorkflow) *SpecDocumentUpdateOne {
+	return _u.SetWorkflowID(v.ID)
+}
+
 // Mutation returns the SpecDocumentMutation object of the builder.
 func (_u *SpecDocumentUpdateOne) Mutation() *SpecDocumentMutation {
 	return _u.mutation
@@ -613,6 +793,12 @@ func (_u *SpecDocumentUpdateOne) ClearInitiative() *SpecDocumentUpdateOne {
 // ClearRepository clears the "repository" edge to the Repository entity.
 func (_u *SpecDocumentUpdateOne) ClearRepository() *SpecDocumentUpdateOne {
 	_u.mutation.ClearRepository()
+	return _u
+}
+
+// ClearWorkflow clears the "workflow" edge to the SpecWorkflow entity.
+func (_u *SpecDocumentUpdateOne) ClearWorkflow() *SpecDocumentUpdateOne {
+	_u.mutation.ClearWorkflow()
 	return _u
 }
 
@@ -714,14 +900,26 @@ func (_u *SpecDocumentUpdateOne) sqlSave(ctx context.Context) (_node *SpecDocume
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(specdocument.FieldStatus, field.TypeString, value)
 	}
-	if _u.mutation.StatusCleared() {
-		_spec.ClearField(specdocument.FieldStatus, field.TypeString)
-	}
 	if value, ok := _u.mutation.ContentHash(); ok {
 		_spec.SetField(specdocument.FieldContentHash, field.TypeString, value)
 	}
 	if _u.mutation.ContentHashCleared() {
 		_spec.ClearField(specdocument.FieldContentHash, field.TypeString)
+	}
+	if value, ok := _u.mutation.EvalScore(); ok {
+		_spec.SetField(specdocument.FieldEvalScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedEvalScore(); ok {
+		_spec.AddField(specdocument.FieldEvalScore, field.TypeInt, value)
+	}
+	if _u.mutation.EvalScoreCleared() {
+		_spec.ClearField(specdocument.FieldEvalScore, field.TypeInt)
+	}
+	if value, ok := _u.mutation.EvalVerdict(); ok {
+		_spec.SetField(specdocument.FieldEvalVerdict, field.TypeString, value)
+	}
+	if _u.mutation.EvalVerdictCleared() {
+		_spec.ClearField(specdocument.FieldEvalVerdict, field.TypeString)
 	}
 	if value, ok := _u.mutation.SyncedAt(); ok {
 		_spec.SetField(specdocument.FieldSyncedAt, field.TypeTime, value)
@@ -783,6 +981,35 @@ func (_u *SpecDocumentUpdateOne) sqlSave(ctx context.Context) (_node *SpecDocume
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(repository.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.WorkflowCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.WorkflowTable,
+			Columns: []string{specdocument.WorkflowColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.WorkflowIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   specdocument.WorkflowTable,
+			Columns: []string{specdocument.WorkflowColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

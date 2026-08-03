@@ -18,6 +18,8 @@ const (
 	FieldRepositoryID = "repository_id"
 	// FieldInitiativeID holds the string denoting the initiative_id field in the database.
 	FieldInitiativeID = "initiative_id"
+	// FieldWorkflowID holds the string denoting the workflow_id field in the database.
+	FieldWorkflowID = "workflow_id"
 	// FieldSpecType holds the string denoting the spec_type field in the database.
 	FieldSpecType = "spec_type"
 	// FieldFilePath holds the string denoting the file_path field in the database.
@@ -28,6 +30,10 @@ const (
 	FieldStatus = "status"
 	// FieldContentHash holds the string denoting the content_hash field in the database.
 	FieldContentHash = "content_hash"
+	// FieldEvalScore holds the string denoting the eval_score field in the database.
+	FieldEvalScore = "eval_score"
+	// FieldEvalVerdict holds the string denoting the eval_verdict field in the database.
+	FieldEvalVerdict = "eval_verdict"
 	// FieldSyncedAt holds the string denoting the synced_at field in the database.
 	FieldSyncedAt = "synced_at"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -38,10 +44,14 @@ const (
 	EdgeInitiative = "initiative"
 	// EdgeRepository holds the string denoting the repository edge name in mutations.
 	EdgeRepository = "repository"
+	// EdgeWorkflow holds the string denoting the workflow edge name in mutations.
+	EdgeWorkflow = "workflow"
 	// InitiativeFieldID holds the string denoting the ID field of the Initiative.
 	InitiativeFieldID = "initiative_id"
 	// RepositoryFieldID holds the string denoting the ID field of the Repository.
 	RepositoryFieldID = "repository_id"
+	// SpecWorkflowFieldID holds the string denoting the ID field of the SpecWorkflow.
+	SpecWorkflowFieldID = "workflow_id"
 	// Table holds the table name of the specdocument in the database.
 	Table = "spec_documents"
 	// InitiativeTable is the table that holds the initiative relation/edge.
@@ -58,6 +68,13 @@ const (
 	RepositoryInverseTable = "repositories"
 	// RepositoryColumn is the table column denoting the repository relation/edge.
 	RepositoryColumn = "repository_id"
+	// WorkflowTable is the table that holds the workflow relation/edge.
+	WorkflowTable = "spec_documents"
+	// WorkflowInverseTable is the table name for the SpecWorkflow entity.
+	// It exists in this package in order to avoid circular dependency with the "specworkflow" package.
+	WorkflowInverseTable = "spec_workflows"
+	// WorkflowColumn is the table column denoting the workflow relation/edge.
+	WorkflowColumn = "workflow_id"
 )
 
 // Columns holds all SQL columns for specdocument fields.
@@ -66,11 +83,14 @@ var Columns = []string{
 	FieldOrganization,
 	FieldRepositoryID,
 	FieldInitiativeID,
+	FieldWorkflowID,
 	FieldSpecType,
 	FieldFilePath,
 	FieldTitle,
 	FieldStatus,
 	FieldContentHash,
+	FieldEvalScore,
+	FieldEvalVerdict,
 	FieldSyncedAt,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -85,6 +105,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultStatus holds the default value on creation for the "status" field.
+	DefaultStatus string
+)
 
 // OrderOption defines the ordering options for the SpecDocument queries.
 type OrderOption func(*sql.Selector)
@@ -107,6 +132,11 @@ func ByRepositoryID(opts ...sql.OrderTermOption) OrderOption {
 // ByInitiativeID orders the results by the initiative_id field.
 func ByInitiativeID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldInitiativeID, opts...).ToFunc()
+}
+
+// ByWorkflowID orders the results by the workflow_id field.
+func ByWorkflowID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldWorkflowID, opts...).ToFunc()
 }
 
 // BySpecType orders the results by the spec_type field.
@@ -132,6 +162,16 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByContentHash orders the results by the content_hash field.
 func ByContentHash(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldContentHash, opts...).ToFunc()
+}
+
+// ByEvalScore orders the results by the eval_score field.
+func ByEvalScore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEvalScore, opts...).ToFunc()
+}
+
+// ByEvalVerdict orders the results by the eval_verdict field.
+func ByEvalVerdict(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEvalVerdict, opts...).ToFunc()
 }
 
 // BySyncedAt orders the results by the synced_at field.
@@ -162,6 +202,13 @@ func ByRepositoryField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newRepositoryStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByWorkflowField orders the results by workflow field.
+func ByWorkflowField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newWorkflowStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newInitiativeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -174,5 +221,12 @@ func newRepositoryStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(RepositoryInverseTable, RepositoryFieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, RepositoryTable, RepositoryColumn),
+	)
+}
+func newWorkflowStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(WorkflowInverseTable, SpecWorkflowFieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, WorkflowTable, WorkflowColumn),
 	)
 }

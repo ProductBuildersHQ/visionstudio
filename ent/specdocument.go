@@ -12,6 +12,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
 // SpecDocument is the model entity for the SpecDocument schema.
@@ -25,6 +26,8 @@ type SpecDocument struct {
 	RepositoryID string `json:"repository_id,omitempty"`
 	// InitiativeID holds the value of the "initiative_id" field.
 	InitiativeID string `json:"initiative_id,omitempty"`
+	// WorkflowID holds the value of the "workflow_id" field.
+	WorkflowID string `json:"workflow_id,omitempty"`
 	// SpecType holds the value of the "spec_type" field.
 	SpecType string `json:"spec_type,omitempty"`
 	// FilePath holds the value of the "file_path" field.
@@ -35,6 +38,10 @@ type SpecDocument struct {
 	Status string `json:"status,omitempty"`
 	// ContentHash holds the value of the "content_hash" field.
 	ContentHash string `json:"content_hash,omitempty"`
+	// EvalScore holds the value of the "eval_score" field.
+	EvalScore *int `json:"eval_score,omitempty"`
+	// EvalVerdict holds the value of the "eval_verdict" field.
+	EvalVerdict string `json:"eval_verdict,omitempty"`
 	// SyncedAt holds the value of the "synced_at" field.
 	SyncedAt time.Time `json:"synced_at,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -53,9 +60,11 @@ type SpecDocumentEdges struct {
 	Initiative *Initiative `json:"initiative,omitempty"`
 	// Repository holds the value of the repository edge.
 	Repository *Repository `json:"repository,omitempty"`
+	// Workflow holds the value of the workflow edge.
+	Workflow *SpecWorkflow `json:"workflow,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // InitiativeOrErr returns the Initiative value or an error if the edge
@@ -80,12 +89,25 @@ func (e SpecDocumentEdges) RepositoryOrErr() (*Repository, error) {
 	return nil, &NotLoadedError{edge: "repository"}
 }
 
+// WorkflowOrErr returns the Workflow value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SpecDocumentEdges) WorkflowOrErr() (*SpecWorkflow, error) {
+	if e.Workflow != nil {
+		return e.Workflow, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: specworkflow.Label}
+	}
+	return nil, &NotLoadedError{edge: "workflow"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*SpecDocument) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case specdocument.FieldID, specdocument.FieldOrganization, specdocument.FieldRepositoryID, specdocument.FieldInitiativeID, specdocument.FieldSpecType, specdocument.FieldFilePath, specdocument.FieldTitle, specdocument.FieldStatus, specdocument.FieldContentHash:
+		case specdocument.FieldEvalScore:
+			values[i] = new(sql.NullInt64)
+		case specdocument.FieldID, specdocument.FieldOrganization, specdocument.FieldRepositoryID, specdocument.FieldInitiativeID, specdocument.FieldWorkflowID, specdocument.FieldSpecType, specdocument.FieldFilePath, specdocument.FieldTitle, specdocument.FieldStatus, specdocument.FieldContentHash, specdocument.FieldEvalVerdict:
 			values[i] = new(sql.NullString)
 		case specdocument.FieldSyncedAt, specdocument.FieldCreatedAt, specdocument.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -128,6 +150,12 @@ func (_m *SpecDocument) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.InitiativeID = value.String
 			}
+		case specdocument.FieldWorkflowID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field workflow_id", values[i])
+			} else if value.Valid {
+				_m.WorkflowID = value.String
+			}
 		case specdocument.FieldSpecType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field spec_type", values[i])
@@ -157,6 +185,19 @@ func (_m *SpecDocument) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field content_hash", values[i])
 			} else if value.Valid {
 				_m.ContentHash = value.String
+			}
+		case specdocument.FieldEvalScore:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field eval_score", values[i])
+			} else if value.Valid {
+				_m.EvalScore = new(int)
+				*_m.EvalScore = int(value.Int64)
+			}
+		case specdocument.FieldEvalVerdict:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field eval_verdict", values[i])
+			} else if value.Valid {
+				_m.EvalVerdict = value.String
 			}
 		case specdocument.FieldSyncedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -199,6 +240,11 @@ func (_m *SpecDocument) QueryRepository() *RepositoryQuery {
 	return NewSpecDocumentClient(_m.config).QueryRepository(_m)
 }
 
+// QueryWorkflow queries the "workflow" edge of the SpecDocument entity.
+func (_m *SpecDocument) QueryWorkflow() *SpecWorkflowQuery {
+	return NewSpecDocumentClient(_m.config).QueryWorkflow(_m)
+}
+
 // Update returns a builder for updating this SpecDocument.
 // Note that you need to call SpecDocument.Unwrap() before calling this method if this SpecDocument
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -231,6 +277,9 @@ func (_m *SpecDocument) String() string {
 	builder.WriteString("initiative_id=")
 	builder.WriteString(_m.InitiativeID)
 	builder.WriteString(", ")
+	builder.WriteString("workflow_id=")
+	builder.WriteString(_m.WorkflowID)
+	builder.WriteString(", ")
 	builder.WriteString("spec_type=")
 	builder.WriteString(_m.SpecType)
 	builder.WriteString(", ")
@@ -245,6 +294,14 @@ func (_m *SpecDocument) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("content_hash=")
 	builder.WriteString(_m.ContentHash)
+	builder.WriteString(", ")
+	if v := _m.EvalScore; v != nil {
+		builder.WriteString("eval_score=")
+		builder.WriteString(fmt.Sprintf("%v", *v))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("eval_verdict=")
+	builder.WriteString(_m.EvalVerdict)
 	builder.WriteString(", ")
 	builder.WriteString("synced_at=")
 	builder.WriteString(_m.SyncedAt.Format(time.ANSIC))

@@ -27,5 +27,6 @@ func (SpecWorkflow) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("initiatives", Initiative.Type),
 		edge.To("rubrics", JudgeRubric.Type),
+		edge.To("spec_documents", SpecDocument.Type),
 	}
 }

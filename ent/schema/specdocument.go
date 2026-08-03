@@ -18,11 +18,14 @@ func (SpecDocument) Fields() []ent.Field {
 		field.String("organization").Optional(),
 		field.String("repository_id"),
 		field.String("initiative_id").Optional(),
+		field.String("workflow_id").Optional(),
 		field.String("spec_type"),
 		field.String("file_path"),
 		field.String("title").Optional(),
-		field.String("status").Optional(),
+		field.String("status").Default("draft"),
 		field.String("content_hash").Optional(),
+		field.Int("eval_score").Optional().Nillable(),
+		field.String("eval_verdict").Optional(),
 		field.Time("synced_at"),
 		field.Time("created_at"),
 		field.Time("updated_at"),
@@ -33,5 +36,6 @@ func (SpecDocument) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("initiative", Initiative.Type).Ref("spec_documents").Unique().Field("initiative_id"),
 		edge.From("repository", Repository.Type).Ref("spec_documents").Unique().Required().Field("repository_id"),
+		edge.From("workflow", SpecWorkflow.Type).Ref("spec_documents").Unique().Field("workflow_id"),
 	}
 }

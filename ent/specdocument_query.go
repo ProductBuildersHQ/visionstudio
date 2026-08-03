@@ -15,6 +15,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
 // SpecDocumentQuery is the builder for querying SpecDocument entities.
@@ -26,6 +27,7 @@ type SpecDocumentQuery struct {
 	predicates     []predicate.SpecDocument
 	withInitiative *InitiativeQuery
 	withRepository *RepositoryQuery
+	withWorkflow   *SpecWorkflowQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -99,6 +101,28 @@ func (_q *SpecDocumentQuery) QueryRepository() *RepositoryQuery {
 			sqlgraph.From(specdocument.Table, specdocument.FieldID, selector),
 			sqlgraph.To(repository.Table, repository.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.RepositoryTable, specdocument.RepositoryColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryWorkflow chains the current query on the "workflow" edge.
+func (_q *SpecDocumentQuery) QueryWorkflow() *SpecWorkflowQuery {
+	query := (&SpecWorkflowClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specdocument.Table, specdocument.FieldID, selector),
+			sqlgraph.To(specworkflow.Table, specworkflow.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, specdocument.WorkflowTable, specdocument.WorkflowColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -300,6 +324,7 @@ func (_q *SpecDocumentQuery) Clone() *SpecDocumentQuery {
 		predicates:     append([]predicate.SpecDocument{}, _q.predicates...),
 		withInitiative: _q.withInitiative.Clone(),
 		withRepository: _q.withRepository.Clone(),
+		withWorkflow:   _q.withWorkflow.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -325,6 +350,17 @@ func (_q *SpecDocumentQuery) WithRepository(opts ...func(*RepositoryQuery)) *Spe
 		opt(query)
 	}
 	_q.withRepository = query
+	return _q
+}
+
+// WithWorkflow tells the query-builder to eager-load the nodes that are connected to
+// the "workflow" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpecDocumentQuery) WithWorkflow(opts ...func(*SpecWorkflowQuery)) *SpecDocumentQuery {
+	query := (&SpecWorkflowClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withWorkflow = query
 	return _q
 }
 
@@ -406,9 +442,10 @@ func (_q *SpecDocumentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*SpecDocument{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withInitiative != nil,
 			_q.withRepository != nil,
+			_q.withWorkflow != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -438,6 +475,12 @@ func (_q *SpecDocumentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if query := _q.withRepository; query != nil {
 		if err := _q.loadRepository(ctx, query, nodes, nil,
 			func(n *SpecDocument, e *Repository) { n.Edges.Repository = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withWorkflow; query != nil {
+		if err := _q.loadWorkflow(ctx, query, nodes, nil,
+			func(n *SpecDocument, e *SpecWorkflow) { n.Edges.Workflow = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -502,6 +545,35 @@ func (_q *SpecDocumentQuery) loadRepository(ctx context.Context, query *Reposito
 	}
 	return nil
 }
+func (_q *SpecDocumentQuery) loadWorkflow(ctx context.Context, query *SpecWorkflowQuery, nodes []*SpecDocument, init func(*SpecDocument), assign func(*SpecDocument, *SpecWorkflow)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*SpecDocument)
+	for i := range nodes {
+		fk := nodes[i].WorkflowID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(specworkflow.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "workflow_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *SpecDocumentQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -533,6 +605,9 @@ func (_q *SpecDocumentQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withRepository != nil {
 			_spec.Node.AddColumnOnce(specdocument.FieldRepositoryID)
+		}
+		if _q.withWorkflow != nil {
+			_spec.Node.AddColumnOnce(specdocument.FieldWorkflowID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

@@ -15,18 +15,20 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
 // SpecWorkflowQuery is the builder for querying SpecWorkflow entities.
 type SpecWorkflowQuery struct {
 	config
-	ctx             *QueryContext
-	order           []specworkflow.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.SpecWorkflow
-	withInitiatives *InitiativeQuery
-	withRubrics     *JudgeRubricQuery
+	ctx               *QueryContext
+	order             []specworkflow.OrderOption
+	inters            []Interceptor
+	predicates        []predicate.SpecWorkflow
+	withInitiatives   *InitiativeQuery
+	withRubrics       *JudgeRubricQuery
+	withSpecDocuments *SpecDocumentQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -100,6 +102,28 @@ func (_q *SpecWorkflowQuery) QueryRubrics() *JudgeRubricQuery {
 			sqlgraph.From(specworkflow.Table, specworkflow.FieldID, selector),
 			sqlgraph.To(judgerubric.Table, judgerubric.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, specworkflow.RubricsTable, specworkflow.RubricsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QuerySpecDocuments chains the current query on the "spec_documents" edge.
+func (_q *SpecWorkflowQuery) QuerySpecDocuments() *SpecDocumentQuery {
+	query := (&SpecDocumentClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(specworkflow.Table, specworkflow.FieldID, selector),
+			sqlgraph.To(specdocument.Table, specdocument.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, specworkflow.SpecDocumentsTable, specworkflow.SpecDocumentsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -294,13 +318,14 @@ func (_q *SpecWorkflowQuery) Clone() *SpecWorkflowQuery {
 		return nil
 	}
 	return &SpecWorkflowQuery{
-		config:          _q.config,
-		ctx:             _q.ctx.Clone(),
-		order:           append([]specworkflow.OrderOption{}, _q.order...),
-		inters:          append([]Interceptor{}, _q.inters...),
-		predicates:      append([]predicate.SpecWorkflow{}, _q.predicates...),
-		withInitiatives: _q.withInitiatives.Clone(),
-		withRubrics:     _q.withRubrics.Clone(),
+		config:            _q.config,
+		ctx:               _q.ctx.Clone(),
+		order:             append([]specworkflow.OrderOption{}, _q.order...),
+		inters:            append([]Interceptor{}, _q.inters...),
+		predicates:        append([]predicate.SpecWorkflow{}, _q.predicates...),
+		withInitiatives:   _q.withInitiatives.Clone(),
+		withRubrics:       _q.withRubrics.Clone(),
+		withSpecDocuments: _q.withSpecDocuments.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -326,6 +351,17 @@ func (_q *SpecWorkflowQuery) WithRubrics(opts ...func(*JudgeRubricQuery)) *SpecW
 		opt(query)
 	}
 	_q.withRubrics = query
+	return _q
+}
+
+// WithSpecDocuments tells the query-builder to eager-load the nodes that are connected to
+// the "spec_documents" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *SpecWorkflowQuery) WithSpecDocuments(opts ...func(*SpecDocumentQuery)) *SpecWorkflowQuery {
+	query := (&SpecDocumentClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withSpecDocuments = query
 	return _q
 }
 
@@ -407,9 +443,10 @@ func (_q *SpecWorkflowQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*SpecWorkflow{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withInitiatives != nil,
 			_q.withRubrics != nil,
+			_q.withSpecDocuments != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,6 +478,13 @@ func (_q *SpecWorkflowQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := _q.loadRubrics(ctx, query, nodes,
 			func(n *SpecWorkflow) { n.Edges.Rubrics = []*JudgeRubric{} },
 			func(n *SpecWorkflow, e *JudgeRubric) { n.Edges.Rubrics = append(n.Edges.Rubrics, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withSpecDocuments; query != nil {
+		if err := _q.loadSpecDocuments(ctx, query, nodes,
+			func(n *SpecWorkflow) { n.Edges.SpecDocuments = []*SpecDocument{} },
+			func(n *SpecWorkflow, e *SpecDocument) { n.Edges.SpecDocuments = append(n.Edges.SpecDocuments, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -504,6 +548,36 @@ func (_q *SpecWorkflowQuery) loadRubrics(ctx context.Context, query *JudgeRubric
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "spec_workflow_rubrics" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *SpecWorkflowQuery) loadSpecDocuments(ctx context.Context, query *SpecDocumentQuery, nodes []*SpecWorkflow, init func(*SpecWorkflow), assign func(*SpecWorkflow, *SpecDocument)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*SpecWorkflow)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(specdocument.FieldWorkflowID)
+	}
+	query.Where(predicate.SpecDocument(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(specworkflow.SpecDocumentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.WorkflowID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "workflow_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

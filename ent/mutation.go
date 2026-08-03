@@ -17,6 +17,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/devxperiodreport"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiativeworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
@@ -50,6 +51,7 @@ const (
 	TypeDevXPeriodReport     = "DevXPeriodReport"
 	TypeInitiative           = "Initiative"
 	TypeInitiativeDependency = "InitiativeDependency"
+	TypeInitiativeWorkflow   = "InitiativeWorkflow"
 	TypeJudgeResult          = "JudgeResult"
 	TypeJudgeRubric          = "JudgeRubric"
 	TypeMaturityAssessment   = "MaturityAssessment"
@@ -5547,6 +5549,392 @@ func (m *InitiativeDependencyMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *InitiativeDependencyMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown InitiativeDependency edge %s", name)
+}
+
+// InitiativeWorkflowMutation represents an operation that mutates the InitiativeWorkflow nodes in the graph.
+type InitiativeWorkflowMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *string
+	workflow_id   *string
+	selected_at   *time.Time
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*InitiativeWorkflow, error)
+	predicates    []predicate.InitiativeWorkflow
+}
+
+var _ ent.Mutation = (*InitiativeWorkflowMutation)(nil)
+
+// initiativeworkflowOption allows management of the mutation configuration using functional options.
+type initiativeworkflowOption func(*InitiativeWorkflowMutation)
+
+// newInitiativeWorkflowMutation creates new mutation for the InitiativeWorkflow entity.
+func newInitiativeWorkflowMutation(c config, op Op, opts ...initiativeworkflowOption) *InitiativeWorkflowMutation {
+	m := &InitiativeWorkflowMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeInitiativeWorkflow,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withInitiativeWorkflowID sets the ID field of the mutation.
+func withInitiativeWorkflowID(id string) initiativeworkflowOption {
+	return func(m *InitiativeWorkflowMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *InitiativeWorkflow
+		)
+		m.oldValue = func(ctx context.Context) (*InitiativeWorkflow, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().InitiativeWorkflow.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withInitiativeWorkflow sets the old InitiativeWorkflow of the mutation.
+func withInitiativeWorkflow(node *InitiativeWorkflow) initiativeworkflowOption {
+	return func(m *InitiativeWorkflowMutation) {
+		m.oldValue = func(context.Context) (*InitiativeWorkflow, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m InitiativeWorkflowMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m InitiativeWorkflowMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of InitiativeWorkflow entities.
+func (m *InitiativeWorkflowMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *InitiativeWorkflowMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *InitiativeWorkflowMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().InitiativeWorkflow.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (m *InitiativeWorkflowMutation) SetWorkflowID(s string) {
+	m.workflow_id = &s
+}
+
+// WorkflowID returns the value of the "workflow_id" field in the mutation.
+func (m *InitiativeWorkflowMutation) WorkflowID() (r string, exists bool) {
+	v := m.workflow_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWorkflowID returns the old "workflow_id" field's value of the InitiativeWorkflow entity.
+// If the InitiativeWorkflow object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InitiativeWorkflowMutation) OldWorkflowID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
+	}
+	return oldValue.WorkflowID, nil
+}
+
+// ResetWorkflowID resets all changes to the "workflow_id" field.
+func (m *InitiativeWorkflowMutation) ResetWorkflowID() {
+	m.workflow_id = nil
+}
+
+// SetSelectedAt sets the "selected_at" field.
+func (m *InitiativeWorkflowMutation) SetSelectedAt(t time.Time) {
+	m.selected_at = &t
+}
+
+// SelectedAt returns the value of the "selected_at" field in the mutation.
+func (m *InitiativeWorkflowMutation) SelectedAt() (r time.Time, exists bool) {
+	v := m.selected_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSelectedAt returns the old "selected_at" field's value of the InitiativeWorkflow entity.
+// If the InitiativeWorkflow object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InitiativeWorkflowMutation) OldSelectedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSelectedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSelectedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSelectedAt: %w", err)
+	}
+	return oldValue.SelectedAt, nil
+}
+
+// ResetSelectedAt resets all changes to the "selected_at" field.
+func (m *InitiativeWorkflowMutation) ResetSelectedAt() {
+	m.selected_at = nil
+}
+
+// Where appends a list predicates to the InitiativeWorkflowMutation builder.
+func (m *InitiativeWorkflowMutation) Where(ps ...predicate.InitiativeWorkflow) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the InitiativeWorkflowMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *InitiativeWorkflowMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.InitiativeWorkflow, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *InitiativeWorkflowMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *InitiativeWorkflowMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (InitiativeWorkflow).
+func (m *InitiativeWorkflowMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *InitiativeWorkflowMutation) Fields() []string {
+	fields := make([]string, 0, 2)
+	if m.workflow_id != nil {
+		fields = append(fields, initiativeworkflow.FieldWorkflowID)
+	}
+	if m.selected_at != nil {
+		fields = append(fields, initiativeworkflow.FieldSelectedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *InitiativeWorkflowMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case initiativeworkflow.FieldWorkflowID:
+		return m.WorkflowID()
+	case initiativeworkflow.FieldSelectedAt:
+		return m.SelectedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *InitiativeWorkflowMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case initiativeworkflow.FieldWorkflowID:
+		return m.OldWorkflowID(ctx)
+	case initiativeworkflow.FieldSelectedAt:
+		return m.OldSelectedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown InitiativeWorkflow field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *InitiativeWorkflowMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case initiativeworkflow.FieldWorkflowID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWorkflowID(v)
+		return nil
+	case initiativeworkflow.FieldSelectedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSelectedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown InitiativeWorkflow field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *InitiativeWorkflowMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *InitiativeWorkflowMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *InitiativeWorkflowMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown InitiativeWorkflow numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *InitiativeWorkflowMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *InitiativeWorkflowMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *InitiativeWorkflowMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown InitiativeWorkflow nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *InitiativeWorkflowMutation) ResetField(name string) error {
+	switch name {
+	case initiativeworkflow.FieldWorkflowID:
+		m.ResetWorkflowID()
+		return nil
+	case initiativeworkflow.FieldSelectedAt:
+		m.ResetSelectedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown InitiativeWorkflow field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *InitiativeWorkflowMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *InitiativeWorkflowMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *InitiativeWorkflowMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *InitiativeWorkflowMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *InitiativeWorkflowMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *InitiativeWorkflowMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *InitiativeWorkflowMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown InitiativeWorkflow unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *InitiativeWorkflowMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown InitiativeWorkflow edge %s", name)
 }
 
 // JudgeResultMutation represents an operation that mutates the JudgeResult nodes in the graph.
@@ -15079,6 +15467,9 @@ type SpecDocumentMutation struct {
 	title             *string
 	status            *string
 	content_hash      *string
+	eval_score        *int
+	addeval_score     *int
+	eval_verdict      *string
 	synced_at         *time.Time
 	created_at        *time.Time
 	updated_at        *time.Time
@@ -15087,6 +15478,8 @@ type SpecDocumentMutation struct {
 	clearedinitiative bool
 	repository        *string
 	clearedrepository bool
+	workflow          *string
+	clearedworkflow   bool
 	done              bool
 	oldValue          func(context.Context) (*SpecDocument, error)
 	predicates        []predicate.SpecDocument
@@ -15330,6 +15723,55 @@ func (m *SpecDocumentMutation) ResetInitiativeID() {
 	delete(m.clearedFields, specdocument.FieldInitiativeID)
 }
 
+// SetWorkflowID sets the "workflow_id" field.
+func (m *SpecDocumentMutation) SetWorkflowID(s string) {
+	m.workflow = &s
+}
+
+// WorkflowID returns the value of the "workflow_id" field in the mutation.
+func (m *SpecDocumentMutation) WorkflowID() (r string, exists bool) {
+	v := m.workflow
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWorkflowID returns the old "workflow_id" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldWorkflowID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldWorkflowID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldWorkflowID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWorkflowID: %w", err)
+	}
+	return oldValue.WorkflowID, nil
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (m *SpecDocumentMutation) ClearWorkflowID() {
+	m.workflow = nil
+	m.clearedFields[specdocument.FieldWorkflowID] = struct{}{}
+}
+
+// WorkflowIDCleared returns if the "workflow_id" field was cleared in this mutation.
+func (m *SpecDocumentMutation) WorkflowIDCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldWorkflowID]
+	return ok
+}
+
+// ResetWorkflowID resets all changes to the "workflow_id" field.
+func (m *SpecDocumentMutation) ResetWorkflowID() {
+	m.workflow = nil
+	delete(m.clearedFields, specdocument.FieldWorkflowID)
+}
+
 // SetSpecType sets the "spec_type" field.
 func (m *SpecDocumentMutation) SetSpecType(s string) {
 	m.spec_type = &s
@@ -15482,22 +15924,9 @@ func (m *SpecDocumentMutation) OldStatus(ctx context.Context) (v string, err err
 	return oldValue.Status, nil
 }
 
-// ClearStatus clears the value of the "status" field.
-func (m *SpecDocumentMutation) ClearStatus() {
-	m.status = nil
-	m.clearedFields[specdocument.FieldStatus] = struct{}{}
-}
-
-// StatusCleared returns if the "status" field was cleared in this mutation.
-func (m *SpecDocumentMutation) StatusCleared() bool {
-	_, ok := m.clearedFields[specdocument.FieldStatus]
-	return ok
-}
-
 // ResetStatus resets all changes to the "status" field.
 func (m *SpecDocumentMutation) ResetStatus() {
 	m.status = nil
-	delete(m.clearedFields, specdocument.FieldStatus)
 }
 
 // SetContentHash sets the "content_hash" field.
@@ -15547,6 +15976,125 @@ func (m *SpecDocumentMutation) ContentHashCleared() bool {
 func (m *SpecDocumentMutation) ResetContentHash() {
 	m.content_hash = nil
 	delete(m.clearedFields, specdocument.FieldContentHash)
+}
+
+// SetEvalScore sets the "eval_score" field.
+func (m *SpecDocumentMutation) SetEvalScore(i int) {
+	m.eval_score = &i
+	m.addeval_score = nil
+}
+
+// EvalScore returns the value of the "eval_score" field in the mutation.
+func (m *SpecDocumentMutation) EvalScore() (r int, exists bool) {
+	v := m.eval_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEvalScore returns the old "eval_score" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldEvalScore(ctx context.Context) (v *int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEvalScore is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEvalScore requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEvalScore: %w", err)
+	}
+	return oldValue.EvalScore, nil
+}
+
+// AddEvalScore adds i to the "eval_score" field.
+func (m *SpecDocumentMutation) AddEvalScore(i int) {
+	if m.addeval_score != nil {
+		*m.addeval_score += i
+	} else {
+		m.addeval_score = &i
+	}
+}
+
+// AddedEvalScore returns the value that was added to the "eval_score" field in this mutation.
+func (m *SpecDocumentMutation) AddedEvalScore() (r int, exists bool) {
+	v := m.addeval_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearEvalScore clears the value of the "eval_score" field.
+func (m *SpecDocumentMutation) ClearEvalScore() {
+	m.eval_score = nil
+	m.addeval_score = nil
+	m.clearedFields[specdocument.FieldEvalScore] = struct{}{}
+}
+
+// EvalScoreCleared returns if the "eval_score" field was cleared in this mutation.
+func (m *SpecDocumentMutation) EvalScoreCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldEvalScore]
+	return ok
+}
+
+// ResetEvalScore resets all changes to the "eval_score" field.
+func (m *SpecDocumentMutation) ResetEvalScore() {
+	m.eval_score = nil
+	m.addeval_score = nil
+	delete(m.clearedFields, specdocument.FieldEvalScore)
+}
+
+// SetEvalVerdict sets the "eval_verdict" field.
+func (m *SpecDocumentMutation) SetEvalVerdict(s string) {
+	m.eval_verdict = &s
+}
+
+// EvalVerdict returns the value of the "eval_verdict" field in the mutation.
+func (m *SpecDocumentMutation) EvalVerdict() (r string, exists bool) {
+	v := m.eval_verdict
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEvalVerdict returns the old "eval_verdict" field's value of the SpecDocument entity.
+// If the SpecDocument object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SpecDocumentMutation) OldEvalVerdict(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEvalVerdict is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEvalVerdict requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEvalVerdict: %w", err)
+	}
+	return oldValue.EvalVerdict, nil
+}
+
+// ClearEvalVerdict clears the value of the "eval_verdict" field.
+func (m *SpecDocumentMutation) ClearEvalVerdict() {
+	m.eval_verdict = nil
+	m.clearedFields[specdocument.FieldEvalVerdict] = struct{}{}
+}
+
+// EvalVerdictCleared returns if the "eval_verdict" field was cleared in this mutation.
+func (m *SpecDocumentMutation) EvalVerdictCleared() bool {
+	_, ok := m.clearedFields[specdocument.FieldEvalVerdict]
+	return ok
+}
+
+// ResetEvalVerdict resets all changes to the "eval_verdict" field.
+func (m *SpecDocumentMutation) ResetEvalVerdict() {
+	m.eval_verdict = nil
+	delete(m.clearedFields, specdocument.FieldEvalVerdict)
 }
 
 // SetSyncedAt sets the "synced_at" field.
@@ -15711,6 +16259,33 @@ func (m *SpecDocumentMutation) ResetRepository() {
 	m.clearedrepository = false
 }
 
+// ClearWorkflow clears the "workflow" edge to the SpecWorkflow entity.
+func (m *SpecDocumentMutation) ClearWorkflow() {
+	m.clearedworkflow = true
+	m.clearedFields[specdocument.FieldWorkflowID] = struct{}{}
+}
+
+// WorkflowCleared reports if the "workflow" edge to the SpecWorkflow entity was cleared.
+func (m *SpecDocumentMutation) WorkflowCleared() bool {
+	return m.WorkflowIDCleared() || m.clearedworkflow
+}
+
+// WorkflowIDs returns the "workflow" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// WorkflowID instead. It exists only for internal usage by the builders.
+func (m *SpecDocumentMutation) WorkflowIDs() (ids []string) {
+	if id := m.workflow; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetWorkflow resets all changes to the "workflow" edge.
+func (m *SpecDocumentMutation) ResetWorkflow() {
+	m.workflow = nil
+	m.clearedworkflow = false
+}
+
 // Where appends a list predicates to the SpecDocumentMutation builder.
 func (m *SpecDocumentMutation) Where(ps ...predicate.SpecDocument) {
 	m.predicates = append(m.predicates, ps...)
@@ -15745,7 +16320,7 @@ func (m *SpecDocumentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SpecDocumentMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 14)
 	if m.organization != nil {
 		fields = append(fields, specdocument.FieldOrganization)
 	}
@@ -15754,6 +16329,9 @@ func (m *SpecDocumentMutation) Fields() []string {
 	}
 	if m.initiative != nil {
 		fields = append(fields, specdocument.FieldInitiativeID)
+	}
+	if m.workflow != nil {
+		fields = append(fields, specdocument.FieldWorkflowID)
 	}
 	if m.spec_type != nil {
 		fields = append(fields, specdocument.FieldSpecType)
@@ -15769,6 +16347,12 @@ func (m *SpecDocumentMutation) Fields() []string {
 	}
 	if m.content_hash != nil {
 		fields = append(fields, specdocument.FieldContentHash)
+	}
+	if m.eval_score != nil {
+		fields = append(fields, specdocument.FieldEvalScore)
+	}
+	if m.eval_verdict != nil {
+		fields = append(fields, specdocument.FieldEvalVerdict)
 	}
 	if m.synced_at != nil {
 		fields = append(fields, specdocument.FieldSyncedAt)
@@ -15793,6 +16377,8 @@ func (m *SpecDocumentMutation) Field(name string) (ent.Value, bool) {
 		return m.RepositoryID()
 	case specdocument.FieldInitiativeID:
 		return m.InitiativeID()
+	case specdocument.FieldWorkflowID:
+		return m.WorkflowID()
 	case specdocument.FieldSpecType:
 		return m.SpecType()
 	case specdocument.FieldFilePath:
@@ -15803,6 +16389,10 @@ func (m *SpecDocumentMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case specdocument.FieldContentHash:
 		return m.ContentHash()
+	case specdocument.FieldEvalScore:
+		return m.EvalScore()
+	case specdocument.FieldEvalVerdict:
+		return m.EvalVerdict()
 	case specdocument.FieldSyncedAt:
 		return m.SyncedAt()
 	case specdocument.FieldCreatedAt:
@@ -15824,6 +16414,8 @@ func (m *SpecDocumentMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldRepositoryID(ctx)
 	case specdocument.FieldInitiativeID:
 		return m.OldInitiativeID(ctx)
+	case specdocument.FieldWorkflowID:
+		return m.OldWorkflowID(ctx)
 	case specdocument.FieldSpecType:
 		return m.OldSpecType(ctx)
 	case specdocument.FieldFilePath:
@@ -15834,6 +16426,10 @@ func (m *SpecDocumentMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldStatus(ctx)
 	case specdocument.FieldContentHash:
 		return m.OldContentHash(ctx)
+	case specdocument.FieldEvalScore:
+		return m.OldEvalScore(ctx)
+	case specdocument.FieldEvalVerdict:
+		return m.OldEvalVerdict(ctx)
 	case specdocument.FieldSyncedAt:
 		return m.OldSyncedAt(ctx)
 	case specdocument.FieldCreatedAt:
@@ -15870,6 +16466,13 @@ func (m *SpecDocumentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetInitiativeID(v)
 		return nil
+	case specdocument.FieldWorkflowID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWorkflowID(v)
+		return nil
 	case specdocument.FieldSpecType:
 		v, ok := value.(string)
 		if !ok {
@@ -15905,6 +16508,20 @@ func (m *SpecDocumentMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetContentHash(v)
 		return nil
+	case specdocument.FieldEvalScore:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEvalScore(v)
+		return nil
+	case specdocument.FieldEvalVerdict:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEvalVerdict(v)
+		return nil
 	case specdocument.FieldSyncedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -15933,13 +16550,21 @@ func (m *SpecDocumentMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *SpecDocumentMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addeval_score != nil {
+		fields = append(fields, specdocument.FieldEvalScore)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *SpecDocumentMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case specdocument.FieldEvalScore:
+		return m.AddedEvalScore()
+	}
 	return nil, false
 }
 
@@ -15948,6 +16573,13 @@ func (m *SpecDocumentMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *SpecDocumentMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case specdocument.FieldEvalScore:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddEvalScore(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SpecDocument numeric field %s", name)
 }
@@ -15962,14 +16594,20 @@ func (m *SpecDocumentMutation) ClearedFields() []string {
 	if m.FieldCleared(specdocument.FieldInitiativeID) {
 		fields = append(fields, specdocument.FieldInitiativeID)
 	}
+	if m.FieldCleared(specdocument.FieldWorkflowID) {
+		fields = append(fields, specdocument.FieldWorkflowID)
+	}
 	if m.FieldCleared(specdocument.FieldTitle) {
 		fields = append(fields, specdocument.FieldTitle)
 	}
-	if m.FieldCleared(specdocument.FieldStatus) {
-		fields = append(fields, specdocument.FieldStatus)
-	}
 	if m.FieldCleared(specdocument.FieldContentHash) {
 		fields = append(fields, specdocument.FieldContentHash)
+	}
+	if m.FieldCleared(specdocument.FieldEvalScore) {
+		fields = append(fields, specdocument.FieldEvalScore)
+	}
+	if m.FieldCleared(specdocument.FieldEvalVerdict) {
+		fields = append(fields, specdocument.FieldEvalVerdict)
 	}
 	return fields
 }
@@ -15991,14 +16629,20 @@ func (m *SpecDocumentMutation) ClearField(name string) error {
 	case specdocument.FieldInitiativeID:
 		m.ClearInitiativeID()
 		return nil
+	case specdocument.FieldWorkflowID:
+		m.ClearWorkflowID()
+		return nil
 	case specdocument.FieldTitle:
 		m.ClearTitle()
 		return nil
-	case specdocument.FieldStatus:
-		m.ClearStatus()
-		return nil
 	case specdocument.FieldContentHash:
 		m.ClearContentHash()
+		return nil
+	case specdocument.FieldEvalScore:
+		m.ClearEvalScore()
+		return nil
+	case specdocument.FieldEvalVerdict:
+		m.ClearEvalVerdict()
 		return nil
 	}
 	return fmt.Errorf("unknown SpecDocument nullable field %s", name)
@@ -16017,6 +16661,9 @@ func (m *SpecDocumentMutation) ResetField(name string) error {
 	case specdocument.FieldInitiativeID:
 		m.ResetInitiativeID()
 		return nil
+	case specdocument.FieldWorkflowID:
+		m.ResetWorkflowID()
+		return nil
 	case specdocument.FieldSpecType:
 		m.ResetSpecType()
 		return nil
@@ -16031,6 +16678,12 @@ func (m *SpecDocumentMutation) ResetField(name string) error {
 		return nil
 	case specdocument.FieldContentHash:
 		m.ResetContentHash()
+		return nil
+	case specdocument.FieldEvalScore:
+		m.ResetEvalScore()
+		return nil
+	case specdocument.FieldEvalVerdict:
+		m.ResetEvalVerdict()
 		return nil
 	case specdocument.FieldSyncedAt:
 		m.ResetSyncedAt()
@@ -16047,12 +16700,15 @@ func (m *SpecDocumentMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SpecDocumentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.initiative != nil {
 		edges = append(edges, specdocument.EdgeInitiative)
 	}
 	if m.repository != nil {
 		edges = append(edges, specdocument.EdgeRepository)
+	}
+	if m.workflow != nil {
+		edges = append(edges, specdocument.EdgeWorkflow)
 	}
 	return edges
 }
@@ -16069,13 +16725,17 @@ func (m *SpecDocumentMutation) AddedIDs(name string) []ent.Value {
 		if id := m.repository; id != nil {
 			return []ent.Value{*id}
 		}
+	case specdocument.EdgeWorkflow:
+		if id := m.workflow; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SpecDocumentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	return edges
 }
 
@@ -16087,12 +16747,15 @@ func (m *SpecDocumentMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SpecDocumentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedinitiative {
 		edges = append(edges, specdocument.EdgeInitiative)
 	}
 	if m.clearedrepository {
 		edges = append(edges, specdocument.EdgeRepository)
+	}
+	if m.clearedworkflow {
+		edges = append(edges, specdocument.EdgeWorkflow)
 	}
 	return edges
 }
@@ -16105,6 +16768,8 @@ func (m *SpecDocumentMutation) EdgeCleared(name string) bool {
 		return m.clearedinitiative
 	case specdocument.EdgeRepository:
 		return m.clearedrepository
+	case specdocument.EdgeWorkflow:
+		return m.clearedworkflow
 	}
 	return false
 }
@@ -16118,6 +16783,9 @@ func (m *SpecDocumentMutation) ClearEdge(name string) error {
 		return nil
 	case specdocument.EdgeRepository:
 		m.ClearRepository()
+		return nil
+	case specdocument.EdgeWorkflow:
+		m.ClearWorkflow()
 		return nil
 	}
 	return fmt.Errorf("unknown SpecDocument unique edge %s", name)
@@ -16133,6 +16801,9 @@ func (m *SpecDocumentMutation) ResetEdge(name string) error {
 	case specdocument.EdgeRepository:
 		m.ResetRepository()
 		return nil
+	case specdocument.EdgeWorkflow:
+		m.ResetWorkflow()
+		return nil
 	}
 	return fmt.Errorf("unknown SpecDocument edge %s", name)
 }
@@ -16140,27 +16811,30 @@ func (m *SpecDocumentMutation) ResetEdge(name string) error {
 // SpecWorkflowMutation represents an operation that mutates the SpecWorkflow nodes in the graph.
 type SpecWorkflowMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *string
-	name                 *string
-	description          *string
-	specs_required       *[]string
-	appendspecs_required []string
-	specs_optional       *[]string
-	appendspecs_optional []string
-	init_types           *[]string
-	appendinit_types     []string
-	clearedFields        map[string]struct{}
-	initiatives          map[string]struct{}
-	removedinitiatives   map[string]struct{}
-	clearedinitiatives   bool
-	rubrics              map[string]struct{}
-	removedrubrics       map[string]struct{}
-	clearedrubrics       bool
-	done                 bool
-	oldValue             func(context.Context) (*SpecWorkflow, error)
-	predicates           []predicate.SpecWorkflow
+	op                    Op
+	typ                   string
+	id                    *string
+	name                  *string
+	description           *string
+	specs_required        *[]string
+	appendspecs_required  []string
+	specs_optional        *[]string
+	appendspecs_optional  []string
+	init_types            *[]string
+	appendinit_types      []string
+	clearedFields         map[string]struct{}
+	initiatives           map[string]struct{}
+	removedinitiatives    map[string]struct{}
+	clearedinitiatives    bool
+	rubrics               map[string]struct{}
+	removedrubrics        map[string]struct{}
+	clearedrubrics        bool
+	spec_documents        map[string]struct{}
+	removedspec_documents map[string]struct{}
+	clearedspec_documents bool
+	done                  bool
+	oldValue              func(context.Context) (*SpecWorkflow, error)
+	predicates            []predicate.SpecWorkflow
 }
 
 var _ ent.Mutation = (*SpecWorkflowMutation)(nil)
@@ -16655,6 +17329,60 @@ func (m *SpecWorkflowMutation) ResetRubrics() {
 	m.removedrubrics = nil
 }
 
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by ids.
+func (m *SpecWorkflowMutation) AddSpecDocumentIDs(ids ...string) {
+	if m.spec_documents == nil {
+		m.spec_documents = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.spec_documents[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSpecDocuments clears the "spec_documents" edge to the SpecDocument entity.
+func (m *SpecWorkflowMutation) ClearSpecDocuments() {
+	m.clearedspec_documents = true
+}
+
+// SpecDocumentsCleared reports if the "spec_documents" edge to the SpecDocument entity was cleared.
+func (m *SpecWorkflowMutation) SpecDocumentsCleared() bool {
+	return m.clearedspec_documents
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to the SpecDocument entity by IDs.
+func (m *SpecWorkflowMutation) RemoveSpecDocumentIDs(ids ...string) {
+	if m.removedspec_documents == nil {
+		m.removedspec_documents = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.spec_documents, ids[i])
+		m.removedspec_documents[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSpecDocuments returns the removed IDs of the "spec_documents" edge to the SpecDocument entity.
+func (m *SpecWorkflowMutation) RemovedSpecDocumentsIDs() (ids []string) {
+	for id := range m.removedspec_documents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SpecDocumentsIDs returns the "spec_documents" edge IDs in the mutation.
+func (m *SpecWorkflowMutation) SpecDocumentsIDs() (ids []string) {
+	for id := range m.spec_documents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSpecDocuments resets all changes to the "spec_documents" edge.
+func (m *SpecWorkflowMutation) ResetSpecDocuments() {
+	m.spec_documents = nil
+	m.clearedspec_documents = false
+	m.removedspec_documents = nil
+}
+
 // Where appends a list predicates to the SpecWorkflowMutation builder.
 func (m *SpecWorkflowMutation) Where(ps ...predicate.SpecWorkflow) {
 	m.predicates = append(m.predicates, ps...)
@@ -16883,12 +17611,15 @@ func (m *SpecWorkflowMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SpecWorkflowMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.initiatives != nil {
 		edges = append(edges, specworkflow.EdgeInitiatives)
 	}
 	if m.rubrics != nil {
 		edges = append(edges, specworkflow.EdgeRubrics)
+	}
+	if m.spec_documents != nil {
+		edges = append(edges, specworkflow.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -16909,18 +17640,27 @@ func (m *SpecWorkflowMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case specworkflow.EdgeSpecDocuments:
+		ids := make([]ent.Value, 0, len(m.spec_documents))
+		for id := range m.spec_documents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SpecWorkflowMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedinitiatives != nil {
 		edges = append(edges, specworkflow.EdgeInitiatives)
 	}
 	if m.removedrubrics != nil {
 		edges = append(edges, specworkflow.EdgeRubrics)
+	}
+	if m.removedspec_documents != nil {
+		edges = append(edges, specworkflow.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -16941,18 +17681,27 @@ func (m *SpecWorkflowMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case specworkflow.EdgeSpecDocuments:
+		ids := make([]ent.Value, 0, len(m.removedspec_documents))
+		for id := range m.removedspec_documents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SpecWorkflowMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedinitiatives {
 		edges = append(edges, specworkflow.EdgeInitiatives)
 	}
 	if m.clearedrubrics {
 		edges = append(edges, specworkflow.EdgeRubrics)
+	}
+	if m.clearedspec_documents {
+		edges = append(edges, specworkflow.EdgeSpecDocuments)
 	}
 	return edges
 }
@@ -16965,6 +17714,8 @@ func (m *SpecWorkflowMutation) EdgeCleared(name string) bool {
 		return m.clearedinitiatives
 	case specworkflow.EdgeRubrics:
 		return m.clearedrubrics
+	case specworkflow.EdgeSpecDocuments:
+		return m.clearedspec_documents
 	}
 	return false
 }
@@ -16986,6 +17737,9 @@ func (m *SpecWorkflowMutation) ResetEdge(name string) error {
 		return nil
 	case specworkflow.EdgeRubrics:
 		m.ResetRubrics()
+		return nil
+	case specworkflow.EdgeSpecDocuments:
+		m.ResetSpecDocuments()
 		return nil
 	}
 	return fmt.Errorf("unknown SpecWorkflow edge %s", name)

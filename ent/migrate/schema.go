@@ -157,6 +157,18 @@ var (
 			},
 		},
 	}
+	// InitiativeWorkflowsColumns holds the columns for the "initiative_workflows" table.
+	InitiativeWorkflowsColumns = []*schema.Column{
+		{Name: "initiative_id", Type: field.TypeString},
+		{Name: "workflow_id", Type: field.TypeString},
+		{Name: "selected_at", Type: field.TypeTime},
+	}
+	// InitiativeWorkflowsTable holds the schema information for the "initiative_workflows" table.
+	InitiativeWorkflowsTable = &schema.Table{
+		Name:       "initiative_workflows",
+		Columns:    InitiativeWorkflowsColumns,
+		PrimaryKey: []*schema.Column{InitiativeWorkflowsColumns[0]},
+	}
 	// JudgeResultsColumns holds the columns for the "judge_results" table.
 	JudgeResultsColumns = []*schema.Column{
 		{Name: "result_id", Type: field.TypeString, Size: 64},
@@ -439,13 +451,16 @@ var (
 		{Name: "spec_type", Type: field.TypeString},
 		{Name: "file_path", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString, Nullable: true},
-		{Name: "status", Type: field.TypeString, Nullable: true},
+		{Name: "status", Type: field.TypeString, Default: "draft"},
 		{Name: "content_hash", Type: field.TypeString, Nullable: true},
+		{Name: "eval_score", Type: field.TypeInt, Nullable: true},
+		{Name: "eval_verdict", Type: field.TypeString, Nullable: true},
 		{Name: "synced_at", Type: field.TypeTime},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "initiative_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "repository_id", Type: field.TypeString, Size: 128},
+		{Name: "workflow_id", Type: field.TypeString, Nullable: true, Size: 64},
 	}
 	// SpecDocumentsTable holds the schema information for the "spec_documents" table.
 	SpecDocumentsTable = &schema.Table{
@@ -455,15 +470,21 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "spec_documents_initiatives_spec_documents",
-				Columns:    []*schema.Column{SpecDocumentsColumns[10]},
+				Columns:    []*schema.Column{SpecDocumentsColumns[12]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "spec_documents_repositories_spec_documents",
-				Columns:    []*schema.Column{SpecDocumentsColumns[11]},
+				Columns:    []*schema.Column{SpecDocumentsColumns[13]},
 				RefColumns: []*schema.Column{RepositoriesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "spec_documents_spec_workflows_spec_documents",
+				Columns:    []*schema.Column{SpecDocumentsColumns[14]},
+				RefColumns: []*schema.Column{SpecWorkflowsColumns[0]},
+				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -490,6 +511,7 @@ var (
 		DevXperiodReportsTable,
 		InitiativesTable,
 		InitiativeDependenciesTable,
+		InitiativeWorkflowsTable,
 		JudgeResultsTable,
 		JudgeRubricsTable,
 		MaturityAssessmentsTable,
@@ -522,4 +544,5 @@ func init() {
 	RoadmapItemsTable.ForeignKeys[2].RefTable = RepositoriesTable
 	SpecDocumentsTable.ForeignKeys[0].RefTable = InitiativesTable
 	SpecDocumentsTable.ForeignKeys[1].RefTable = RepositoriesTable
+	SpecDocumentsTable.ForeignKeys[2].RefTable = SpecWorkflowsTable
 }

@@ -80,6 +80,11 @@ func InitiativeID(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldEQ(FieldInitiativeID, v))
 }
 
+// WorkflowID applies equality check predicate on the "workflow_id" field. It's identical to WorkflowIDEQ.
+func WorkflowID(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldWorkflowID, v))
+}
+
 // SpecType applies equality check predicate on the "spec_type" field. It's identical to SpecTypeEQ.
 func SpecType(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldEQ(FieldSpecType, v))
@@ -103,6 +108,16 @@ func Status(v string) predicate.SpecDocument {
 // ContentHash applies equality check predicate on the "content_hash" field. It's identical to ContentHashEQ.
 func ContentHash(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldEQ(FieldContentHash, v))
+}
+
+// EvalScore applies equality check predicate on the "eval_score" field. It's identical to EvalScoreEQ.
+func EvalScore(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldEvalScore, v))
+}
+
+// EvalVerdict applies equality check predicate on the "eval_verdict" field. It's identical to EvalVerdictEQ.
+func EvalVerdict(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldEvalVerdict, v))
 }
 
 // SyncedAt applies equality check predicate on the "synced_at" field. It's identical to SyncedAtEQ.
@@ -333,6 +348,81 @@ func InitiativeIDEqualFold(v string) predicate.SpecDocument {
 // InitiativeIDContainsFold applies the ContainsFold predicate on the "initiative_id" field.
 func InitiativeIDContainsFold(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldContainsFold(FieldInitiativeID, v))
+}
+
+// WorkflowIDEQ applies the EQ predicate on the "workflow_id" field.
+func WorkflowIDEQ(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldWorkflowID, v))
+}
+
+// WorkflowIDNEQ applies the NEQ predicate on the "workflow_id" field.
+func WorkflowIDNEQ(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNEQ(FieldWorkflowID, v))
+}
+
+// WorkflowIDIn applies the In predicate on the "workflow_id" field.
+func WorkflowIDIn(vs ...string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIn(FieldWorkflowID, vs...))
+}
+
+// WorkflowIDNotIn applies the NotIn predicate on the "workflow_id" field.
+func WorkflowIDNotIn(vs ...string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotIn(FieldWorkflowID, vs...))
+}
+
+// WorkflowIDGT applies the GT predicate on the "workflow_id" field.
+func WorkflowIDGT(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGT(FieldWorkflowID, v))
+}
+
+// WorkflowIDGTE applies the GTE predicate on the "workflow_id" field.
+func WorkflowIDGTE(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGTE(FieldWorkflowID, v))
+}
+
+// WorkflowIDLT applies the LT predicate on the "workflow_id" field.
+func WorkflowIDLT(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLT(FieldWorkflowID, v))
+}
+
+// WorkflowIDLTE applies the LTE predicate on the "workflow_id" field.
+func WorkflowIDLTE(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLTE(FieldWorkflowID, v))
+}
+
+// WorkflowIDContains applies the Contains predicate on the "workflow_id" field.
+func WorkflowIDContains(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldContains(FieldWorkflowID, v))
+}
+
+// WorkflowIDHasPrefix applies the HasPrefix predicate on the "workflow_id" field.
+func WorkflowIDHasPrefix(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldHasPrefix(FieldWorkflowID, v))
+}
+
+// WorkflowIDHasSuffix applies the HasSuffix predicate on the "workflow_id" field.
+func WorkflowIDHasSuffix(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldHasSuffix(FieldWorkflowID, v))
+}
+
+// WorkflowIDIsNil applies the IsNil predicate on the "workflow_id" field.
+func WorkflowIDIsNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIsNull(FieldWorkflowID))
+}
+
+// WorkflowIDNotNil applies the NotNil predicate on the "workflow_id" field.
+func WorkflowIDNotNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotNull(FieldWorkflowID))
+}
+
+// WorkflowIDEqualFold applies the EqualFold predicate on the "workflow_id" field.
+func WorkflowIDEqualFold(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEqualFold(FieldWorkflowID, v))
+}
+
+// WorkflowIDContainsFold applies the ContainsFold predicate on the "workflow_id" field.
+func WorkflowIDContainsFold(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldContainsFold(FieldWorkflowID, v))
 }
 
 // SpecTypeEQ applies the EQ predicate on the "spec_type" field.
@@ -595,16 +685,6 @@ func StatusHasSuffix(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldHasSuffix(FieldStatus, v))
 }
 
-// StatusIsNil applies the IsNil predicate on the "status" field.
-func StatusIsNil() predicate.SpecDocument {
-	return predicate.SpecDocument(sql.FieldIsNull(FieldStatus))
-}
-
-// StatusNotNil applies the NotNil predicate on the "status" field.
-func StatusNotNil() predicate.SpecDocument {
-	return predicate.SpecDocument(sql.FieldNotNull(FieldStatus))
-}
-
 // StatusEqualFold applies the EqualFold predicate on the "status" field.
 func StatusEqualFold(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldEqualFold(FieldStatus, v))
@@ -688,6 +768,131 @@ func ContentHashEqualFold(v string) predicate.SpecDocument {
 // ContentHashContainsFold applies the ContainsFold predicate on the "content_hash" field.
 func ContentHashContainsFold(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldContainsFold(FieldContentHash, v))
+}
+
+// EvalScoreEQ applies the EQ predicate on the "eval_score" field.
+func EvalScoreEQ(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldEvalScore, v))
+}
+
+// EvalScoreNEQ applies the NEQ predicate on the "eval_score" field.
+func EvalScoreNEQ(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNEQ(FieldEvalScore, v))
+}
+
+// EvalScoreIn applies the In predicate on the "eval_score" field.
+func EvalScoreIn(vs ...int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIn(FieldEvalScore, vs...))
+}
+
+// EvalScoreNotIn applies the NotIn predicate on the "eval_score" field.
+func EvalScoreNotIn(vs ...int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotIn(FieldEvalScore, vs...))
+}
+
+// EvalScoreGT applies the GT predicate on the "eval_score" field.
+func EvalScoreGT(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGT(FieldEvalScore, v))
+}
+
+// EvalScoreGTE applies the GTE predicate on the "eval_score" field.
+func EvalScoreGTE(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGTE(FieldEvalScore, v))
+}
+
+// EvalScoreLT applies the LT predicate on the "eval_score" field.
+func EvalScoreLT(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLT(FieldEvalScore, v))
+}
+
+// EvalScoreLTE applies the LTE predicate on the "eval_score" field.
+func EvalScoreLTE(v int) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLTE(FieldEvalScore, v))
+}
+
+// EvalScoreIsNil applies the IsNil predicate on the "eval_score" field.
+func EvalScoreIsNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIsNull(FieldEvalScore))
+}
+
+// EvalScoreNotNil applies the NotNil predicate on the "eval_score" field.
+func EvalScoreNotNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotNull(FieldEvalScore))
+}
+
+// EvalVerdictEQ applies the EQ predicate on the "eval_verdict" field.
+func EvalVerdictEQ(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldEvalVerdict, v))
+}
+
+// EvalVerdictNEQ applies the NEQ predicate on the "eval_verdict" field.
+func EvalVerdictNEQ(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNEQ(FieldEvalVerdict, v))
+}
+
+// EvalVerdictIn applies the In predicate on the "eval_verdict" field.
+func EvalVerdictIn(vs ...string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIn(FieldEvalVerdict, vs...))
+}
+
+// EvalVerdictNotIn applies the NotIn predicate on the "eval_verdict" field.
+func EvalVerdictNotIn(vs ...string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotIn(FieldEvalVerdict, vs...))
+}
+
+// EvalVerdictGT applies the GT predicate on the "eval_verdict" field.
+func EvalVerdictGT(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGT(FieldEvalVerdict, v))
+}
+
+// EvalVerdictGTE applies the GTE predicate on the "eval_verdict" field.
+func EvalVerdictGTE(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGTE(FieldEvalVerdict, v))
+}
+
+// EvalVerdictLT applies the LT predicate on the "eval_verdict" field.
+func EvalVerdictLT(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLT(FieldEvalVerdict, v))
+}
+
+// EvalVerdictLTE applies the LTE predicate on the "eval_verdict" field.
+func EvalVerdictLTE(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLTE(FieldEvalVerdict, v))
+}
+
+// EvalVerdictContains applies the Contains predicate on the "eval_verdict" field.
+func EvalVerdictContains(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldContains(FieldEvalVerdict, v))
+}
+
+// EvalVerdictHasPrefix applies the HasPrefix predicate on the "eval_verdict" field.
+func EvalVerdictHasPrefix(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldHasPrefix(FieldEvalVerdict, v))
+}
+
+// EvalVerdictHasSuffix applies the HasSuffix predicate on the "eval_verdict" field.
+func EvalVerdictHasSuffix(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldHasSuffix(FieldEvalVerdict, v))
+}
+
+// EvalVerdictIsNil applies the IsNil predicate on the "eval_verdict" field.
+func EvalVerdictIsNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIsNull(FieldEvalVerdict))
+}
+
+// EvalVerdictNotNil applies the NotNil predicate on the "eval_verdict" field.
+func EvalVerdictNotNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotNull(FieldEvalVerdict))
+}
+
+// EvalVerdictEqualFold applies the EqualFold predicate on the "eval_verdict" field.
+func EvalVerdictEqualFold(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEqualFold(FieldEvalVerdict, v))
+}
+
+// EvalVerdictContainsFold applies the ContainsFold predicate on the "eval_verdict" field.
+func EvalVerdictContainsFold(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldContainsFold(FieldEvalVerdict, v))
 }
 
 // SyncedAtEQ applies the EQ predicate on the "synced_at" field.
@@ -848,6 +1053,29 @@ func HasRepository() predicate.SpecDocument {
 func HasRepositoryWith(preds ...predicate.Repository) predicate.SpecDocument {
 	return predicate.SpecDocument(func(s *sql.Selector) {
 		step := newRepositoryStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasWorkflow applies the HasEdge predicate on the "workflow" edge.
+func HasWorkflow() predicate.SpecDocument {
+	return predicate.SpecDocument(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, WorkflowTable, WorkflowColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasWorkflowWith applies the HasEdge predicate on the "workflow" edge with a given conditions (other predicates).
+func HasWorkflowWith(preds ...predicate.SpecWorkflow) predicate.SpecDocument {
+	return predicate.SpecDocument(func(s *sql.Selector) {
+		step := newWorkflowStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

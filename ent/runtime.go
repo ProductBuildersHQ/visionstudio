@@ -18,6 +18,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/schema"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
@@ -305,6 +306,12 @@ func init() {
 	roadmapitemDescID := roadmapitemFields[0].Descriptor()
 	// roadmapitem.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	roadmapitem.IDValidator = roadmapitemDescID.Validators[0].(func(string) error)
+	specdocumentFields := schema.SpecDocument{}.Fields()
+	_ = specdocumentFields
+	// specdocumentDescStatus is the schema descriptor for status field.
+	specdocumentDescStatus := specdocumentFields[8].Descriptor()
+	// specdocument.DefaultStatus holds the default value on creation for the status field.
+	specdocument.DefaultStatus = specdocumentDescStatus.Default.(string)
 	specworkflowFields := schema.SpecWorkflow{}.Fields()
 	_ = specworkflowFields
 	// specworkflowDescName is the schema descriptor for name field.

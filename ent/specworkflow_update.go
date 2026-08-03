@@ -14,6 +14,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
 
@@ -148,6 +149,21 @@ func (_u *SpecWorkflowUpdate) AddRubrics(v ...*JudgeRubric) *SpecWorkflowUpdate 
 	return _u.AddRubricIDs(ids...)
 }
 
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_u *SpecWorkflowUpdate) AddSpecDocumentIDs(ids ...string) *SpecWorkflowUpdate {
+	_u.mutation.AddSpecDocumentIDs(ids...)
+	return _u
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_u *SpecWorkflowUpdate) AddSpecDocuments(v ...*SpecDocument) *SpecWorkflowUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpecDocumentIDs(ids...)
+}
+
 // Mutation returns the SpecWorkflowMutation object of the builder.
 func (_u *SpecWorkflowUpdate) Mutation() *SpecWorkflowMutation {
 	return _u.mutation
@@ -193,6 +209,27 @@ func (_u *SpecWorkflowUpdate) RemoveRubrics(v ...*JudgeRubric) *SpecWorkflowUpda
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRubricIDs(ids...)
+}
+
+// ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
+func (_u *SpecWorkflowUpdate) ClearSpecDocuments() *SpecWorkflowUpdate {
+	_u.mutation.ClearSpecDocuments()
+	return _u
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to SpecDocument entities by IDs.
+func (_u *SpecWorkflowUpdate) RemoveSpecDocumentIDs(ids ...string) *SpecWorkflowUpdate {
+	_u.mutation.RemoveSpecDocumentIDs(ids...)
+	return _u
+}
+
+// RemoveSpecDocuments removes "spec_documents" edges to SpecDocument entities.
+func (_u *SpecWorkflowUpdate) RemoveSpecDocuments(v ...*SpecDocument) *SpecWorkflowUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpecDocumentIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -376,6 +413,51 @@ func (_u *SpecWorkflowUpdate) sqlSave(ctx context.Context) (_node int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpecDocumentsIDs(); len(nodes) > 0 && !_u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{specworkflow.Label}
@@ -514,6 +596,21 @@ func (_u *SpecWorkflowUpdateOne) AddRubrics(v ...*JudgeRubric) *SpecWorkflowUpda
 	return _u.AddRubricIDs(ids...)
 }
 
+// AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
+func (_u *SpecWorkflowUpdateOne) AddSpecDocumentIDs(ids ...string) *SpecWorkflowUpdateOne {
+	_u.mutation.AddSpecDocumentIDs(ids...)
+	return _u
+}
+
+// AddSpecDocuments adds the "spec_documents" edges to the SpecDocument entity.
+func (_u *SpecWorkflowUpdateOne) AddSpecDocuments(v ...*SpecDocument) *SpecWorkflowUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddSpecDocumentIDs(ids...)
+}
+
 // Mutation returns the SpecWorkflowMutation object of the builder.
 func (_u *SpecWorkflowUpdateOne) Mutation() *SpecWorkflowMutation {
 	return _u.mutation
@@ -559,6 +656,27 @@ func (_u *SpecWorkflowUpdateOne) RemoveRubrics(v ...*JudgeRubric) *SpecWorkflowU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveRubricIDs(ids...)
+}
+
+// ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
+func (_u *SpecWorkflowUpdateOne) ClearSpecDocuments() *SpecWorkflowUpdateOne {
+	_u.mutation.ClearSpecDocuments()
+	return _u
+}
+
+// RemoveSpecDocumentIDs removes the "spec_documents" edge to SpecDocument entities by IDs.
+func (_u *SpecWorkflowUpdateOne) RemoveSpecDocumentIDs(ids ...string) *SpecWorkflowUpdateOne {
+	_u.mutation.RemoveSpecDocumentIDs(ids...)
+	return _u
+}
+
+// RemoveSpecDocuments removes "spec_documents" edges to SpecDocument entities.
+func (_u *SpecWorkflowUpdateOne) RemoveSpecDocuments(v ...*SpecDocument) *SpecWorkflowUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveSpecDocumentIDs(ids...)
 }
 
 // Where appends a list predicates to the SpecWorkflowUpdate builder.
@@ -765,6 +883,51 @@ func (_u *SpecWorkflowUpdateOne) sqlSave(ctx context.Context) (_node *SpecWorkfl
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedSpecDocumentsIDs(); len(nodes) > 0 && !_u.mutation.SpecDocumentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.SpecDocumentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   specworkflow.SpecDocumentsTable,
+			Columns: []string{specworkflow.SpecDocumentsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

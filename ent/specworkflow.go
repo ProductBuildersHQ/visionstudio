@@ -39,9 +39,11 @@ type SpecWorkflowEdges struct {
 	Initiatives []*Initiative `json:"initiatives,omitempty"`
 	// Rubrics holds the value of the rubrics edge.
 	Rubrics []*JudgeRubric `json:"rubrics,omitempty"`
+	// SpecDocuments holds the value of the spec_documents edge.
+	SpecDocuments []*SpecDocument `json:"spec_documents,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // InitiativesOrErr returns the Initiatives value or an error if the edge
@@ -60,6 +62,15 @@ func (e SpecWorkflowEdges) RubricsOrErr() ([]*JudgeRubric, error) {
 		return e.Rubrics, nil
 	}
 	return nil, &NotLoadedError{edge: "rubrics"}
+}
+
+// SpecDocumentsOrErr returns the SpecDocuments value or an error if the edge
+// was not loaded in eager-loading.
+func (e SpecWorkflowEdges) SpecDocumentsOrErr() ([]*SpecDocument, error) {
+	if e.loadedTypes[2] {
+		return e.SpecDocuments, nil
+	}
+	return nil, &NotLoadedError{edge: "spec_documents"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -149,6 +160,11 @@ func (_m *SpecWorkflow) QueryInitiatives() *InitiativeQuery {
 // QueryRubrics queries the "rubrics" edge of the SpecWorkflow entity.
 func (_m *SpecWorkflow) QueryRubrics() *JudgeRubricQuery {
 	return NewSpecWorkflowClient(_m.config).QueryRubrics(_m)
+}
+
+// QuerySpecDocuments queries the "spec_documents" edge of the SpecWorkflow entity.
+func (_m *SpecWorkflow) QuerySpecDocuments() *SpecDocumentQuery {
+	return NewSpecWorkflowClient(_m.config).QuerySpecDocuments(_m)
 }
 
 // Update returns a builder for updating this SpecWorkflow.

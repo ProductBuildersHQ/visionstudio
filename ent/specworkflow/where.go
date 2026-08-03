@@ -289,6 +289,29 @@ func HasRubricsWith(preds ...predicate.JudgeRubric) predicate.SpecWorkflow {
 	})
 }
 
+// HasSpecDocuments applies the HasEdge predicate on the "spec_documents" edge.
+func HasSpecDocuments() predicate.SpecWorkflow {
+	return predicate.SpecWorkflow(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, SpecDocumentsTable, SpecDocumentsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasSpecDocumentsWith applies the HasEdge predicate on the "spec_documents" edge with a given conditions (other predicates).
+func HasSpecDocumentsWith(preds ...predicate.SpecDocument) predicate.SpecWorkflow {
+	return predicate.SpecWorkflow(func(s *sql.Selector) {
+		step := newSpecDocumentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.SpecWorkflow) predicate.SpecWorkflow {
 	return predicate.SpecWorkflow(sql.AndPredicates(predicates...))

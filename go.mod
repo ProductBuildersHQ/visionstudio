@@ -5,6 +5,7 @@ go 1.26.5
 require (
 	entgo.io/ent v0.14.6
 	github.com/ProductBuildersHQ/prism-build v0.2.0
+	github.com/ProductBuildersHQ/specification-workflow-spec v0.2.0
 	github.com/ProductBuildersHQ/visionspec v0.14.0
 	github.com/dolthub/driver v1.88.1
 	github.com/fsnotify/fsnotify v1.10.1
@@ -133,6 +134,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.19 // indirect
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
 	github.com/grokify/gogithub v0.17.0 // indirect
+	github.com/grokify/oscompat v0.5.0 // indirect
 	github.com/grokify/pidl v0.5.0 // indirect
 	github.com/grokify/prism-core v0.4.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect

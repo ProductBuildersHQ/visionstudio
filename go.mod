@@ -11,13 +11,13 @@ require (
 	github.com/go-chi/chi/v5 v5.3.1
 	github.com/go-chi/cors v1.2.2
 	github.com/go-sql-driver/mysql v1.10.0
-	github.com/grokify/gogit v0.7.0
+	github.com/grokify/gogit v0.8.0
 	github.com/grokify/mogo v0.74.6
 	github.com/grokify/prism-maturity v0.14.0
 	github.com/grokify/prism-roadmap v0.16.1
 	github.com/invopop/jsonschema v0.14.0
 	github.com/modelcontextprotocol/go-sdk v1.7.0
-	github.com/plexusone/devfolio v0.2.0
+	github.com/plexusone/devfolio v0.3.0
 	github.com/plexusone/omnidevx-core v0.3.0
 	github.com/plexusone/structured-evaluation v0.11.0
 	github.com/plexusone/uiforge v0.4.0
@@ -34,7 +34,7 @@ exclude (
 )
 
 require (
-	ariga.io/atlas v1.2.3 // indirect
+	ariga.io/atlas v1.3.0 // indirect
 	cel.dev/expr v0.25.2 // indirect
 	cloud.google.com/go v0.123.0 // indirect
 	cloud.google.com/go/auth v0.22.0 // indirect
@@ -123,16 +123,16 @@ require (
 	github.com/google/btree v1.1.3 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-github/v57 v57.0.0 // indirect
-	github.com/google/go-github/v88 v88.0.0 // indirect
+	github.com/google/go-github/v89 v89.0.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/google/jsonschema-go v0.4.3 // indirect
-	github.com/google/pprof v0.0.0-20260709232956-b9395ee17fa0 // indirect
+	github.com/google/pprof v0.0.0-20260802004507-5106ece31595 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.19 // indirect
 	github.com/googleapis/gax-go/v2 v2.23.0 // indirect
-	github.com/grokify/gogithub v0.13.0 // indirect
+	github.com/grokify/gogithub v0.17.0 // indirect
 	github.com/grokify/pidl v0.5.0 // indirect
 	github.com/grokify/prism-core v0.4.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
@@ -158,7 +158,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.7.0 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240917153116-6f2963f01587 // indirect
-	github.com/plexusone/dashforge v0.3.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

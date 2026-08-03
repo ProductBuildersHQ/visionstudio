@@ -12,8 +12,13 @@ const (
 	FileName = "config.json"
 )
 
+type Defaults struct {
+	Workflow string `json:"workflow,omitempty"`
+}
+
 type Config struct {
-	DSN string `json:"dsn,omitempty"`
+	DSN      string   `json:"dsn,omitempty"`
+	Defaults Defaults `json:"defaults,omitempty"`
 }
 
 func DefaultPath() (string, error) {

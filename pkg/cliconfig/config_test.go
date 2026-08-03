@@ -32,6 +32,25 @@ func TestRoundTrip(t *testing.T) {
 	}
 }
 
+func TestDefaultsWorkflow(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.json")
+	orig := &Config{
+		DSN:      "root:@tcp(127.0.0.1:13306)/prismcontrol",
+		Defaults: Defaults{Workflow: "pbhq-lite"},
+	}
+	if err := orig.SaveTo(path); err != nil {
+		t.Fatal(err)
+	}
+
+	loaded, err := LoadFrom(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if loaded.Defaults.Workflow != "pbhq-lite" {
+		t.Fatalf("workflow mismatch: got %q, want %q", loaded.Defaults.Workflow, "pbhq-lite")
+	}
+}
+
 func TestSaveCreatesDir(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "nested", "deep")
 	path := filepath.Join(dir, "config.json")

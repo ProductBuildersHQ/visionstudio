@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/APIPhase.schema.json",
+  "$ref": "#/$defs/APIPhase",
+  "$defs": {
+    "APIPhase": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "initiativeId": {
+          "type": "string"
+        },
+        "sequenceNumber": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        },
+        "progress": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

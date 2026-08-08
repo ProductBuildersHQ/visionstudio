@@ -1,59 +1,141 @@
 {
-  "id": "eval-visionstudio-003-roadmap-001",
-  "initiative_id": "INIT-VISIONSTUDIO-003",
-  "spec_path": "docs/specs/initiatives/INIT-VISIONSTUDIO-003/ROADMAP.md",
-  "spec_type": "roadmap",
-  "rubric_id": "pbhq-roadmap-rubric",
-  "score": 78,
-  "verdict": "partial",
-  "model": "claude-opus-4-5-20250514",
-  "evaluated_at": "2026-08-02T23:30:00Z",
-  "rationale": "ROADMAP has excellent RMI structure and phase organization. Critical gap: no acceptance criteria on RMIs.",
+  "schemaVersion": "v2",
+  "metadata": {
+    "document": "docs/specs/initiatives/INIT-VISIONSTUDIO-003/ROADMAP.md",
+    "documentId": "INIT-VISIONSTUDIO-003-ROADMAP",
+    "generatedAt": "2026-08-02T23:30:00Z",
+    "generatedBy": "structured-evaluation"
+  },
+  "reviewType": "roadmap",
+  "judge": {
+    "model": "claude-opus-4-5-20250514",
+    "evaluatedAt": "2026-08-02T23:30:00Z"
+  },
+  "rubricId": "pbhq-roadmap-rubric",
+  "intScore": 3,
+  "confidence": 0.85,
+  "pass": false,
+  "blocking": ["missing-acceptance-criteria"],
   "categories": [
     {
-      "name": "RMI Structure",
-      "score": 95,
-      "verdict": "pass",
-      "weight": 0.30,
-      "rationale": "Proper IDs (RMI-VISIONSTUDIO-030 through 054), clear titles, consistent format"
+      "category": "RMI Structure",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.95,
+      "reasoning": "Proper IDs (RMI-VISIONSTUDIO-030 through 054), clear titles, consistent format",
+      "findings": [
+        {
+          "id": "finding-rmi-1",
+          "category": "RMI Structure",
+          "severity": "low",
+          "title": "Missing effort estimates",
+          "description": "Consider adding effort estimates per RMI",
+          "recommendation": "Add T-shirt size (S/M/L) or story points to each RMI"
+        }
+      ]
     },
     {
-      "name": "Phase Organization",
-      "score": 92,
-      "verdict": "pass",
-      "weight": 0.25,
-      "rationale": "5 phases with themes; logical grouping matches PLAN phases"
+      "category": "Phase Organization",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "5 phases with themes; logical grouping matches PLAN phases",
+      "findings": []
     },
     {
-      "name": "Acceptance Criteria",
-      "score": 60,
-      "verdict": "fail",
-      "weight": 0.25,
-      "rationale": "No acceptance criteria on any RMI; only titles and dependencies"
+      "category": "Acceptance Criteria",
+      "intScore": 2,
+      "score": "fail",
+      "severity": "high",
+      "confidence": 0.9,
+      "reasoning": "No acceptance criteria on any RMI; only titles and dependencies",
+      "findings": [
+        {
+          "id": "finding-ac-1",
+          "category": "Acceptance Criteria",
+          "severity": "high",
+          "title": "Missing acceptance criteria",
+          "description": "Add testable AC to each RMI (e.g., 'AC: workflow_list returns all 3 built-in workflows')",
+          "recommendation": "Add 1-3 testable acceptance criteria per RMI"
+        }
+      ]
     },
     {
-      "name": "Priorities",
-      "score": 85,
-      "verdict": "pass",
-      "weight": 0.20,
-      "rationale": "Dependencies marked; checkboxes show completion status; implied sequencing"
+      "category": "Priorities",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Dependencies marked; checkboxes show completion status; implied sequencing",
+      "findings": [
+        {
+          "id": "finding-priorities-1",
+          "category": "Priorities",
+          "severity": "medium",
+          "title": "Missing required/optional markers",
+          "description": "Mark RMIs as required vs optional",
+          "recommendation": "Add [required] or [optional] tag to each RMI"
+        }
+      ]
     }
   ],
   "findings": [
     {
+      "id": "finding-ac-1",
+      "category": "Acceptance Criteria",
       "severity": "high",
-      "section": "Acceptance Criteria",
-      "message": "Add testable AC to each RMI (e.g., 'AC: workflow_list returns all 3 built-in workflows')"
+      "title": "Missing acceptance criteria",
+      "description": "Add testable AC to each RMI (e.g., 'AC: workflow_list returns all 3 built-in workflows')",
+      "recommendation": "Add 1-3 testable acceptance criteria per RMI"
     },
     {
+      "id": "finding-priorities-1",
+      "category": "Priorities",
       "severity": "medium",
-      "section": "Priorities",
-      "message": "Mark RMIs as required vs optional"
+      "title": "Missing required/optional markers",
+      "description": "Mark RMIs as required vs optional",
+      "recommendation": "Add [required] or [optional] tag to each RMI"
     },
     {
+      "id": "finding-rmi-1",
+      "category": "RMI Structure",
       "severity": "low",
-      "section": "RMI Structure",
-      "message": "Consider adding effort estimates per RMI"
+      "title": "Missing effort estimates",
+      "description": "Consider adding effort estimates per RMI",
+      "recommendation": "Add T-shirt size (S/M/L) or story points to each RMI"
     }
-  ]
+  ],
+  "passCriteria": {
+    "maxBlockingFindings": 0,
+    "maxHighFindings": 0,
+    "minCategoryScore": "partial"
+  },
+  "decision": {
+    "status": "conditional",
+    "passed": false,
+    "rationale": "Acceptance Criteria category failed; high-severity finding blocks approval"
+  },
+  "overallDecision": "conditional",
+  "summary": "ROADMAP has excellent RMI structure and phase organization. Critical gap: no acceptance criteria on RMIs.",
+  "nextSteps": {
+    "rerunCommand": "vistudio eval roadmap",
+    "immediate": [
+      {
+        "action": "Add acceptance criteria to each RMI",
+        "category": "Acceptance Criteria",
+        "severity": "high"
+      }
+    ],
+    "recommended": [
+      {
+        "action": "Mark RMIs as required vs optional",
+        "category": "Priorities",
+        "severity": "medium"
+      },
+      {
+        "action": "Add effort estimates per RMI",
+        "category": "RMI Structure",
+        "severity": "low"
+      }
+    ]
+  }
 }

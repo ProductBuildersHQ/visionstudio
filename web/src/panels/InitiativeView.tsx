@@ -10,6 +10,7 @@ import type {
   APIRMI,
   JudgeResult,
   MaturityAssessment,
+  SpecWorkflow,
 } from '../api/types'
 import { StatusBadge, ProgressBar, LoadingState, ErrorState, EmptyState } from '../components'
 import { PieChart, RadarChart, type RadarAxis, type RadarDataset } from '../components/charts'
@@ -157,7 +158,7 @@ function ComposedView({
 }) {
   const phases = execution.phases.filter((p) => p.initiativeId === initiative.id)
   const rmis = execution.rmis.filter((r) => r.initiativeId === initiative.id)
-  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiative_id === initiative.id)
+  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiativeId === initiative.id)
   const assessments = (maturity.assessments ?? []).filter((a) => a.initiative_id === initiative.id)
   const initSpend = spend.byInitiative?.[initiative.id]
 
@@ -341,15 +342,16 @@ function SpecsQuadrant({
   workflows,
 }: {
   judgeResults: JudgeResult[]
-  workflows: { id: string; name: string; specs_required?: string[] }[]
+  workflows: SpecWorkflow[]
 }) {
+  const getScore = (r: JudgeResult): number => r.report?.intScore ?? 0
   const avgScore = judgeResults.length > 0
-    ? judgeResults.reduce((sum, r) => sum + r.score, 0) / judgeResults.length
+    ? judgeResults.reduce((sum, r) => sum + getScore(r), 0) / judgeResults.length
     : 0
 
-  const specTypes = [...new Set(judgeResults.map((r) => specType(r.spec_path)))]
+  const specTypes = [...new Set(judgeResults.map((r) => specType(r.specPath)))]
   const workflow = workflows[0]
-  const requiredSpecs = new Set(workflow?.specs_required ?? [])
+  const requiredSpecs = new Set(workflow?.specsRequired ?? [])
   const missingRequired = [...requiredSpecs].filter((s) => !specTypes.includes(s))
 
   return (
@@ -358,9 +360,9 @@ function SpecsQuadrant({
         <h3 className="font-medium text-purple-400">Specs</h3>
         {judgeResults.length > 0 && (
           <span className={`text-lg font-semibold ${
-            avgScore >= 7 ? 'text-green-400' : avgScore >= 4 ? 'text-yellow-400' : 'text-red-400'
+            avgScore >= 4 ? 'text-green-400' : avgScore >= 3 ? 'text-yellow-400' : 'text-red-400'
           }`}>
-            {avgScore.toFixed(1)}
+            {avgScore.toFixed(1)}/5
           </span>
         )}
       </div>
@@ -390,18 +392,21 @@ function SpecsQuadrant({
 
           <div className="space-y-1 max-h-32 overflow-y-auto">
             {judgeResults
-              .sort((a, b) => b.score - a.score)
+              .sort((a, b) => getScore(b) - getScore(a))
               .slice(0, 5)
-              .map((r) => (
-                <div key={r.id} className="flex justify-between text-xs">
-                  <span className="text-gray-300">{r.spec_path.split('/').pop()}</span>
-                  <span className={`px-1.5 py-0.5 rounded ${
-                    r.score >= 7 ? 'bg-green-500/30' : r.score >= 4 ? 'bg-yellow-500/30' : 'bg-red-500/30'
-                  }`}>
-                    {r.score.toFixed(1)}
-                  </span>
-                </div>
-              ))}
+              .map((r) => {
+                const score = getScore(r)
+                return (
+                  <div key={r.id} className="flex justify-between text-xs">
+                    <span className="text-gray-300">{r.specPath.split('/').pop()}</span>
+                    <span className={`px-1.5 py-0.5 rounded ${
+                      score >= 4 ? 'bg-green-500/30' : score >= 3 ? 'bg-yellow-500/30' : 'bg-red-500/30'
+                    }`}>
+                      {score}/5
+                    </span>
+                  </div>
+                )
+              })}
           </div>
         </>
       )}

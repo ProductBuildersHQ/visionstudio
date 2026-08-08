@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/plexusone/structured-evaluation/rubric"
 
 	"github.com/ProductBuildersHQ/visionstudio/ent"
 	"github.com/ProductBuildersHQ/visionstudio/ent/assignment"
@@ -1323,13 +1324,26 @@ func (d *DoltStore) CreateJudgeResult(ctx context.Context, result *store.JudgeRe
 		SetID(result.ID).
 		SetInitiativeID(result.InitiativeID).
 		SetSpecPath(result.SpecPath).
-		SetScore(result.Score).
-		SetRationale(result.Rationale).
-		SetModel(result.Model).
 		SetEvaluatedAt(result.EvaluatedAt)
+
+	if result.SpecType != "" {
+		builder = builder.SetSpecType(result.SpecType)
+	}
 	if result.RubricID != "" {
 		builder = builder.SetRubricID(result.RubricID)
 	}
+
+	// Store the full report as JSON and extract indexed fields
+	if result.Report != nil {
+		reportMap := rubricToMap(result.Report)
+		builder = builder.SetReport(reportMap)
+		builder = builder.SetIntScore(int(result.Report.IntScore))
+		builder = builder.SetPass(result.Report.Pass)
+		if result.Report.Judge != nil {
+			builder = builder.SetModel(result.Report.Judge.Model)
+		}
+	}
+
 	_, err := builder.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("create judge result: %w", err)
@@ -1350,15 +1364,20 @@ func (d *DoltStore) ListJudgeResults(ctx context.Context, initiativeID string) (
 		if rb, err := r.QueryRubric().Only(ctx); err == nil && rb != nil {
 			rubricID = rb.ID
 		}
+
+		var report *rubric.Rubric
+		if r.Report != nil {
+			report = mapToRubric(r.Report)
+		}
+
 		result[i] = &store.JudgeResult{
 			ID:           r.ID,
 			InitiativeID: r.InitiativeID,
 			SpecPath:     r.SpecPath,
+			SpecType:     r.SpecType,
 			RubricID:     rubricID,
-			Score:        r.Score,
-			Rationale:    r.Rationale,
-			Model:        r.Model,
 			EvaluatedAt:  r.EvaluatedAt,
+			Report:       report,
 		}
 	}
 	return result, nil
@@ -1614,4 +1633,41 @@ func (d *DoltStore) ListMaturityAssessmentsByOrg(ctx context.Context, org string
 		}
 	}
 	return result, nil
+}
+
+
+// ---------------------------------------------------------------------------
+// Rubric conversion helpers
+// ---------------------------------------------------------------------------
+
+// rubricToMap converts a rubric.Rubric to a map for JSON storage.
+func rubricToMap(r *rubric.Rubric) map[string]any {
+	if r == nil {
+		return nil
+	}
+	data, err := json.Marshal(r)
+	if err != nil {
+		return nil
+	}
+	var m map[string]any
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil
+	}
+	return m
+}
+
+// mapToRubric converts a stored map back to a rubric.Rubric.
+func mapToRubric(m map[string]any) *rubric.Rubric {
+	if m == nil {
+		return nil
+	}
+	data, err := json.Marshal(m)
+	if err != nil {
+		return nil
+	}
+	var r rubric.Rubric
+	if err := json.Unmarshal(data, &r); err != nil {
+		return nil
+	}
+	return &r
 }

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/ContextSpec.schema.json",
+  "$ref": "#/$defs/ContextSpec",
+  "$defs": {
+    "ContextSpec": {
+      "properties": {
+        "extraRepos": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "includeSpecs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "excludeSpecs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

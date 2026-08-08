@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/Initiative.schema.json",
+  "$ref": "#/$defs/Initiative",
+  "$defs": {
+    "Initiative": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "organization": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "initType": {
+          "type": "string"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "homeRepo": {
+          "type": "string"
+        },
+        "workspace": {
+          "type": "string"
+        },
+        "programId": {
+          "type": "string"
+        },
+        "specs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "plannedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "executingAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deliveryCompleteAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "releasedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "closedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

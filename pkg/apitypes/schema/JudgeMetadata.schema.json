@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/JudgeMetadata.schema.json",
+  "$ref": "#/$defs/JudgeMetadata",
+  "$defs": {
+    "JudgeMetadata": {
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "evaluatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

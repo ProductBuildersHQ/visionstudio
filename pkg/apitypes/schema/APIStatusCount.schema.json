@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/APIStatusCount.schema.json",
+  "$ref": "#/$defs/APIStatusCount",
+  "$defs": {
+    "APIStatusCount": {
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/RoadmapItem.schema.json",
+  "$ref": "#/$defs/RoadmapItem",
+  "$defs": {
+    "ContextSpec": {
+      "properties": {
+        "extraRepos": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "includeSpecs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "excludeSpecs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "RoadmapItem": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "repositoryId": {
+          "type": "string"
+        },
+        "initiativeId": {
+          "type": "string"
+        },
+        "phaseId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "itemType": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "sequenceNumber": {
+          "type": "integer"
+        },
+        "acceptanceCriteria": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "contextSpec": {
+          "$ref": "#/$defs/ContextSpec"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

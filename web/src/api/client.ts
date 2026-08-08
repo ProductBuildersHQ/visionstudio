@@ -1,10 +1,17 @@
+import type { SpendResponse, MaturityResponse, ScaleResponse, LeverageGraph } from './types'
 import type {
-  ExecutionResponse,
-  SpendResponse,
-  MaturityResponse,
-  SpecsResponse,
-  SpecFilesResponse,
-} from './types'
+  ExecutionResponse as GenExecutionResponse,
+  SpecsResponse as GenSpecsResponse,
+  SpecFilesResponse as GenSpecFilesResponse,
+} from './types.gen'
+import {
+  toExecutionResponse,
+  toSpecsResponse,
+  toSpecFilesResponse,
+  type ExecutionResponse,
+  type SpecsResponse,
+  type SpecFilesResponse,
+} from './compat'
 
 const BASE_URL = '/api'
 
@@ -17,7 +24,8 @@ async function fetchJSON<T>(path: string): Promise<T> {
 }
 
 export async function getExecution(): Promise<ExecutionResponse> {
-  return fetchJSON<ExecutionResponse>('/execution')
+  const raw = await fetchJSON<GenExecutionResponse>('/execution')
+  return toExecutionResponse(raw)
 }
 
 export async function getSpend(): Promise<SpendResponse> {
@@ -29,9 +37,19 @@ export async function getMaturity(): Promise<MaturityResponse> {
 }
 
 export async function getSpecs(): Promise<SpecsResponse> {
-  return fetchJSON<SpecsResponse>('/specs')
+  const raw = await fetchJSON<GenSpecsResponse>('/specs')
+  return toSpecsResponse(raw)
 }
 
 export async function getSpecFiles(initiativeId: string): Promise<SpecFilesResponse> {
-  return fetchJSON<SpecFilesResponse>(`/spec-files/${encodeURIComponent(initiativeId)}`)
+  const raw = await fetchJSON<GenSpecFilesResponse>(`/spec-files/${encodeURIComponent(initiativeId)}`)
+  return toSpecFilesResponse(raw)
+}
+
+export async function getScale(): Promise<ScaleResponse> {
+  return fetchJSON<ScaleResponse>('/scale')
+}
+
+export async function getLeverage(): Promise<LeverageGraph> {
+  return fetchJSON<LeverageGraph>('/leverage')
 }

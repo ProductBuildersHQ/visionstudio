@@ -173,10 +173,12 @@ var (
 	JudgeResultsColumns = []*schema.Column{
 		{Name: "result_id", Type: field.TypeString, Size: 64},
 		{Name: "spec_path", Type: field.TypeString, Size: 512},
-		{Name: "score", Type: field.TypeFloat64, Nullable: true},
-		{Name: "rationale", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "model", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "spec_type", Type: field.TypeString, Nullable: true, Size: 32},
 		{Name: "evaluated_at", Type: field.TypeTime},
+		{Name: "report", Type: field.TypeJSON, Nullable: true},
+		{Name: "int_score", Type: field.TypeInt, Nullable: true},
+		{Name: "pass", Type: field.TypeBool, Default: false},
+		{Name: "model", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "initiative_id", Type: field.TypeString, Size: 64},
 		{Name: "judge_rubric_results", Type: field.TypeString, Nullable: true, Size: 64},
 	}
@@ -188,13 +190,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "judge_results_initiatives_judge_results",
-				Columns:    []*schema.Column{JudgeResultsColumns[6]},
+				Columns:    []*schema.Column{JudgeResultsColumns[8]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "judge_results_judge_rubrics_results",
-				Columns:    []*schema.Column{JudgeResultsColumns[7]},
+				Columns:    []*schema.Column{JudgeResultsColumns[9]},
 				RefColumns: []*schema.Column{JudgeRubricsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

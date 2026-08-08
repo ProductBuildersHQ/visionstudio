@@ -34,30 +34,56 @@ func (_c *JudgeResultCreate) SetSpecPath(v string) *JudgeResultCreate {
 	return _c
 }
 
-// SetScore sets the "score" field.
-func (_c *JudgeResultCreate) SetScore(v float64) *JudgeResultCreate {
-	_c.mutation.SetScore(v)
+// SetSpecType sets the "spec_type" field.
+func (_c *JudgeResultCreate) SetSpecType(v string) *JudgeResultCreate {
+	_c.mutation.SetSpecType(v)
 	return _c
 }
 
-// SetNillableScore sets the "score" field if the given value is not nil.
-func (_c *JudgeResultCreate) SetNillableScore(v *float64) *JudgeResultCreate {
+// SetNillableSpecType sets the "spec_type" field if the given value is not nil.
+func (_c *JudgeResultCreate) SetNillableSpecType(v *string) *JudgeResultCreate {
 	if v != nil {
-		_c.SetScore(*v)
+		_c.SetSpecType(*v)
 	}
 	return _c
 }
 
-// SetRationale sets the "rationale" field.
-func (_c *JudgeResultCreate) SetRationale(v string) *JudgeResultCreate {
-	_c.mutation.SetRationale(v)
+// SetEvaluatedAt sets the "evaluated_at" field.
+func (_c *JudgeResultCreate) SetEvaluatedAt(v time.Time) *JudgeResultCreate {
+	_c.mutation.SetEvaluatedAt(v)
 	return _c
 }
 
-// SetNillableRationale sets the "rationale" field if the given value is not nil.
-func (_c *JudgeResultCreate) SetNillableRationale(v *string) *JudgeResultCreate {
+// SetReport sets the "report" field.
+func (_c *JudgeResultCreate) SetReport(v map[string]interface{}) *JudgeResultCreate {
+	_c.mutation.SetReport(v)
+	return _c
+}
+
+// SetIntScore sets the "int_score" field.
+func (_c *JudgeResultCreate) SetIntScore(v int) *JudgeResultCreate {
+	_c.mutation.SetIntScore(v)
+	return _c
+}
+
+// SetNillableIntScore sets the "int_score" field if the given value is not nil.
+func (_c *JudgeResultCreate) SetNillableIntScore(v *int) *JudgeResultCreate {
 	if v != nil {
-		_c.SetRationale(*v)
+		_c.SetIntScore(*v)
+	}
+	return _c
+}
+
+// SetPass sets the "pass" field.
+func (_c *JudgeResultCreate) SetPass(v bool) *JudgeResultCreate {
+	_c.mutation.SetPass(v)
+	return _c
+}
+
+// SetNillablePass sets the "pass" field if the given value is not nil.
+func (_c *JudgeResultCreate) SetNillablePass(v *bool) *JudgeResultCreate {
+	if v != nil {
+		_c.SetPass(*v)
 	}
 	return _c
 }
@@ -73,12 +99,6 @@ func (_c *JudgeResultCreate) SetNillableModel(v *string) *JudgeResultCreate {
 	if v != nil {
 		_c.SetModel(*v)
 	}
-	return _c
-}
-
-// SetEvaluatedAt sets the "evaluated_at" field.
-func (_c *JudgeResultCreate) SetEvaluatedAt(v time.Time) *JudgeResultCreate {
-	_c.mutation.SetEvaluatedAt(v)
 	return _c
 }
 
@@ -119,6 +139,7 @@ func (_c *JudgeResultCreate) Mutation() *JudgeResultMutation {
 
 // Save creates the JudgeResult in the database.
 func (_c *JudgeResultCreate) Save(ctx context.Context) (*JudgeResult, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -144,6 +165,14 @@ func (_c *JudgeResultCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *JudgeResultCreate) defaults() {
+	if _, ok := _c.mutation.Pass(); !ok {
+		v := judgeresult.DefaultPass
+		_c.mutation.SetPass(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *JudgeResultCreate) check() error {
 	if _, ok := _c.mutation.InitiativeID(); !ok {
@@ -162,13 +191,21 @@ func (_c *JudgeResultCreate) check() error {
 			return &ValidationError{Name: "spec_path", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.spec_path": %w`, err)}
 		}
 	}
-	if v, ok := _c.mutation.Model(); ok {
-		if err := judgeresult.ModelValidator(v); err != nil {
-			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
+	if v, ok := _c.mutation.SpecType(); ok {
+		if err := judgeresult.SpecTypeValidator(v); err != nil {
+			return &ValidationError{Name: "spec_type", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.spec_type": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.EvaluatedAt(); !ok {
 		return &ValidationError{Name: "evaluated_at", err: errors.New(`ent: missing required field "JudgeResult.evaluated_at"`)}
+	}
+	if _, ok := _c.mutation.Pass(); !ok {
+		return &ValidationError{Name: "pass", err: errors.New(`ent: missing required field "JudgeResult.pass"`)}
+	}
+	if v, ok := _c.mutation.Model(); ok {
+		if err := judgeresult.ModelValidator(v); err != nil {
+			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
+		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := judgeresult.IDValidator(v); err != nil {
@@ -217,21 +254,29 @@ func (_c *JudgeResultCreate) createSpec() (*JudgeResult, *sqlgraph.CreateSpec) {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
 		_node.SpecPath = value
 	}
-	if value, ok := _c.mutation.Score(); ok {
-		_spec.SetField(judgeresult.FieldScore, field.TypeFloat64, value)
-		_node.Score = value
-	}
-	if value, ok := _c.mutation.Rationale(); ok {
-		_spec.SetField(judgeresult.FieldRationale, field.TypeString, value)
-		_node.Rationale = value
-	}
-	if value, ok := _c.mutation.Model(); ok {
-		_spec.SetField(judgeresult.FieldModel, field.TypeString, value)
-		_node.Model = value
+	if value, ok := _c.mutation.SpecType(); ok {
+		_spec.SetField(judgeresult.FieldSpecType, field.TypeString, value)
+		_node.SpecType = value
 	}
 	if value, ok := _c.mutation.EvaluatedAt(); ok {
 		_spec.SetField(judgeresult.FieldEvaluatedAt, field.TypeTime, value)
 		_node.EvaluatedAt = value
+	}
+	if value, ok := _c.mutation.Report(); ok {
+		_spec.SetField(judgeresult.FieldReport, field.TypeJSON, value)
+		_node.Report = value
+	}
+	if value, ok := _c.mutation.IntScore(); ok {
+		_spec.SetField(judgeresult.FieldIntScore, field.TypeInt, value)
+		_node.IntScore = value
+	}
+	if value, ok := _c.mutation.Pass(); ok {
+		_spec.SetField(judgeresult.FieldPass, field.TypeBool, value)
+		_node.Pass = value
+	}
+	if value, ok := _c.mutation.Model(); ok {
+		_spec.SetField(judgeresult.FieldModel, field.TypeString, value)
+		_node.Model = value
 	}
 	if nodes := _c.mutation.RubricIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -288,6 +333,7 @@ func (_c *JudgeResultCreateBulk) Save(ctx context.Context) ([]*JudgeResult, erro
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*JudgeResultMutation)
 				if !ok {

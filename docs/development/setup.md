@@ -13,48 +13,73 @@ git clone https://github.com/ProductBuildersHQ/visionstudio.git
 cd visionstudio
 ```
 
-## Build Go Daemon
+## Build CLI
 
 ```bash
 go mod tidy
-go build -o bin/daemon ./cmd/daemon/
+go build ./cmd/vistudio
+```
+
+## Initialize Database
+
+VisionStudio uses Dolt (MySQL-compatible) for persistent storage:
+
+```bash
+# Initialize and migrate database
+go run ./cmd/vistudio db init --migrate
 ```
 
 ## Install Frontend Dependencies
 
 ```bash
-cd desktop
+cd web
 npm install
 ```
 
+## Regenerate Types
+
+After modifying Go API types in `pkg/apitypes/types.go`:
+
+```bash
+# Generate JSON schemas from Go types
+go generate ./pkg/apitypes
+
+# Generate Zod/TypeScript from JSON schemas
+cd web && npm run generate:types
+```
+
+See [Type Pipeline](../architecture/types.md) for details.
+
 ## Development Workflow
 
-### Terminal 1: Go Daemon
+### Unified Dashboard (Recommended)
+
+Run the Go daemon with embedded frontend:
 
 ```bash
-./bin/daemon
+go run ./cmd/vistudio dashboard --port 9401 --unified
 ```
 
-### Terminal 2: Vite Dev Server
+Open http://127.0.0.1:9401 in your browser.
+
+### Frontend Hot Reload
+
+For frontend development with hot reload:
+
+**Terminal 1: Go API Server**
 
 ```bash
-cd desktop
-npm run dev:renderer
+go run ./cmd/vistudio dashboard --port 9401
 ```
 
-### Terminal 3: Electron
+**Terminal 2: Vite Dev Server**
 
 ```bash
-cd desktop
-npm run dev:main
-```
-
-Or use the combined command:
-
-```bash
-cd desktop
+cd web
 npm run dev
 ```
+
+Open http://localhost:5173 (Vite proxies API calls to port 9401).
 
 ## Hot Reload
 
@@ -64,14 +89,12 @@ npm run dev
 ## Building for Production
 
 ```bash
-# Build Go daemon
-go build -o bin/daemon ./cmd/daemon/
+# Build CLI
+go build -o bin/vistudio ./cmd/vistudio
 
-# Build frontend
-cd desktop
+# Build frontend (embedded in unified mode)
+cd web
 npm run build
-
-# Package Electron app (TODO)
 ```
 
 ## Running Tests
@@ -80,6 +103,19 @@ npm run build
 # Go tests
 go test ./...
 
-# Frontend tests (TODO)
-cd desktop && npm test
+# Lint
+golangci-lint run
+
+# Frontend tests
+cd web && npm test
 ```
+
+## Common Tasks
+
+| Task | Command |
+|------|---------|
+| Run dashboard | `go run ./cmd/vistudio dashboard --port 9401 --unified` |
+| Initialize DB | `go run ./cmd/vistudio db init --migrate` |
+| Regenerate Go→TS types | `go generate ./pkg/apitypes && cd web && npm run generate:types` |
+| Lint | `golangci-lint run` |
+| Test | `go test ./...` |

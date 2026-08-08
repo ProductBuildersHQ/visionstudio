@@ -5944,11 +5944,13 @@ type JudgeResultMutation struct {
 	typ               string
 	id                *string
 	spec_path         *string
-	score             *float64
-	addscore          *float64
-	rationale         *string
-	model             *string
+	spec_type         *string
 	evaluated_at      *time.Time
+	report            *map[string]interface{}
+	int_score         *int
+	addint_score      *int
+	pass              *bool
+	model             *string
 	clearedFields     map[string]struct{}
 	rubric            *string
 	clearedrubric     bool
@@ -6135,123 +6137,244 @@ func (m *JudgeResultMutation) ResetSpecPath() {
 	m.spec_path = nil
 }
 
-// SetScore sets the "score" field.
-func (m *JudgeResultMutation) SetScore(f float64) {
-	m.score = &f
-	m.addscore = nil
+// SetSpecType sets the "spec_type" field.
+func (m *JudgeResultMutation) SetSpecType(s string) {
+	m.spec_type = &s
 }
 
-// Score returns the value of the "score" field in the mutation.
-func (m *JudgeResultMutation) Score() (r float64, exists bool) {
-	v := m.score
+// SpecType returns the value of the "spec_type" field in the mutation.
+func (m *JudgeResultMutation) SpecType() (r string, exists bool) {
+	v := m.spec_type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldScore returns the old "score" field's value of the JudgeResult entity.
+// OldSpecType returns the old "spec_type" field's value of the JudgeResult entity.
 // If the JudgeResult object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *JudgeResultMutation) OldScore(ctx context.Context) (v float64, err error) {
+func (m *JudgeResultMutation) OldSpecType(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldScore is only allowed on UpdateOne operations")
+		return v, errors.New("OldSpecType is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldScore requires an ID field in the mutation")
+		return v, errors.New("OldSpecType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldScore: %w", err)
+		return v, fmt.Errorf("querying old value for OldSpecType: %w", err)
 	}
-	return oldValue.Score, nil
+	return oldValue.SpecType, nil
 }
 
-// AddScore adds f to the "score" field.
-func (m *JudgeResultMutation) AddScore(f float64) {
-	if m.addscore != nil {
-		*m.addscore += f
+// ClearSpecType clears the value of the "spec_type" field.
+func (m *JudgeResultMutation) ClearSpecType() {
+	m.spec_type = nil
+	m.clearedFields[judgeresult.FieldSpecType] = struct{}{}
+}
+
+// SpecTypeCleared returns if the "spec_type" field was cleared in this mutation.
+func (m *JudgeResultMutation) SpecTypeCleared() bool {
+	_, ok := m.clearedFields[judgeresult.FieldSpecType]
+	return ok
+}
+
+// ResetSpecType resets all changes to the "spec_type" field.
+func (m *JudgeResultMutation) ResetSpecType() {
+	m.spec_type = nil
+	delete(m.clearedFields, judgeresult.FieldSpecType)
+}
+
+// SetEvaluatedAt sets the "evaluated_at" field.
+func (m *JudgeResultMutation) SetEvaluatedAt(t time.Time) {
+	m.evaluated_at = &t
+}
+
+// EvaluatedAt returns the value of the "evaluated_at" field in the mutation.
+func (m *JudgeResultMutation) EvaluatedAt() (r time.Time, exists bool) {
+	v := m.evaluated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEvaluatedAt returns the old "evaluated_at" field's value of the JudgeResult entity.
+// If the JudgeResult object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *JudgeResultMutation) OldEvaluatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEvaluatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEvaluatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEvaluatedAt: %w", err)
+	}
+	return oldValue.EvaluatedAt, nil
+}
+
+// ResetEvaluatedAt resets all changes to the "evaluated_at" field.
+func (m *JudgeResultMutation) ResetEvaluatedAt() {
+	m.evaluated_at = nil
+}
+
+// SetReport sets the "report" field.
+func (m *JudgeResultMutation) SetReport(value map[string]interface{}) {
+	m.report = &value
+}
+
+// Report returns the value of the "report" field in the mutation.
+func (m *JudgeResultMutation) Report() (r map[string]interface{}, exists bool) {
+	v := m.report
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReport returns the old "report" field's value of the JudgeResult entity.
+// If the JudgeResult object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *JudgeResultMutation) OldReport(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReport is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReport requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReport: %w", err)
+	}
+	return oldValue.Report, nil
+}
+
+// ClearReport clears the value of the "report" field.
+func (m *JudgeResultMutation) ClearReport() {
+	m.report = nil
+	m.clearedFields[judgeresult.FieldReport] = struct{}{}
+}
+
+// ReportCleared returns if the "report" field was cleared in this mutation.
+func (m *JudgeResultMutation) ReportCleared() bool {
+	_, ok := m.clearedFields[judgeresult.FieldReport]
+	return ok
+}
+
+// ResetReport resets all changes to the "report" field.
+func (m *JudgeResultMutation) ResetReport() {
+	m.report = nil
+	delete(m.clearedFields, judgeresult.FieldReport)
+}
+
+// SetIntScore sets the "int_score" field.
+func (m *JudgeResultMutation) SetIntScore(i int) {
+	m.int_score = &i
+	m.addint_score = nil
+}
+
+// IntScore returns the value of the "int_score" field in the mutation.
+func (m *JudgeResultMutation) IntScore() (r int, exists bool) {
+	v := m.int_score
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIntScore returns the old "int_score" field's value of the JudgeResult entity.
+// If the JudgeResult object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *JudgeResultMutation) OldIntScore(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIntScore is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIntScore requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIntScore: %w", err)
+	}
+	return oldValue.IntScore, nil
+}
+
+// AddIntScore adds i to the "int_score" field.
+func (m *JudgeResultMutation) AddIntScore(i int) {
+	if m.addint_score != nil {
+		*m.addint_score += i
 	} else {
-		m.addscore = &f
+		m.addint_score = &i
 	}
 }
 
-// AddedScore returns the value that was added to the "score" field in this mutation.
-func (m *JudgeResultMutation) AddedScore() (r float64, exists bool) {
-	v := m.addscore
+// AddedIntScore returns the value that was added to the "int_score" field in this mutation.
+func (m *JudgeResultMutation) AddedIntScore() (r int, exists bool) {
+	v := m.addint_score
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// ClearScore clears the value of the "score" field.
-func (m *JudgeResultMutation) ClearScore() {
-	m.score = nil
-	m.addscore = nil
-	m.clearedFields[judgeresult.FieldScore] = struct{}{}
+// ClearIntScore clears the value of the "int_score" field.
+func (m *JudgeResultMutation) ClearIntScore() {
+	m.int_score = nil
+	m.addint_score = nil
+	m.clearedFields[judgeresult.FieldIntScore] = struct{}{}
 }
 
-// ScoreCleared returns if the "score" field was cleared in this mutation.
-func (m *JudgeResultMutation) ScoreCleared() bool {
-	_, ok := m.clearedFields[judgeresult.FieldScore]
+// IntScoreCleared returns if the "int_score" field was cleared in this mutation.
+func (m *JudgeResultMutation) IntScoreCleared() bool {
+	_, ok := m.clearedFields[judgeresult.FieldIntScore]
 	return ok
 }
 
-// ResetScore resets all changes to the "score" field.
-func (m *JudgeResultMutation) ResetScore() {
-	m.score = nil
-	m.addscore = nil
-	delete(m.clearedFields, judgeresult.FieldScore)
+// ResetIntScore resets all changes to the "int_score" field.
+func (m *JudgeResultMutation) ResetIntScore() {
+	m.int_score = nil
+	m.addint_score = nil
+	delete(m.clearedFields, judgeresult.FieldIntScore)
 }
 
-// SetRationale sets the "rationale" field.
-func (m *JudgeResultMutation) SetRationale(s string) {
-	m.rationale = &s
+// SetPass sets the "pass" field.
+func (m *JudgeResultMutation) SetPass(b bool) {
+	m.pass = &b
 }
 
-// Rationale returns the value of the "rationale" field in the mutation.
-func (m *JudgeResultMutation) Rationale() (r string, exists bool) {
-	v := m.rationale
+// Pass returns the value of the "pass" field in the mutation.
+func (m *JudgeResultMutation) Pass() (r bool, exists bool) {
+	v := m.pass
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldRationale returns the old "rationale" field's value of the JudgeResult entity.
+// OldPass returns the old "pass" field's value of the JudgeResult entity.
 // If the JudgeResult object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *JudgeResultMutation) OldRationale(ctx context.Context) (v string, err error) {
+func (m *JudgeResultMutation) OldPass(ctx context.Context) (v bool, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldRationale is only allowed on UpdateOne operations")
+		return v, errors.New("OldPass is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldRationale requires an ID field in the mutation")
+		return v, errors.New("OldPass requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldRationale: %w", err)
+		return v, fmt.Errorf("querying old value for OldPass: %w", err)
 	}
-	return oldValue.Rationale, nil
+	return oldValue.Pass, nil
 }
 
-// ClearRationale clears the value of the "rationale" field.
-func (m *JudgeResultMutation) ClearRationale() {
-	m.rationale = nil
-	m.clearedFields[judgeresult.FieldRationale] = struct{}{}
-}
-
-// RationaleCleared returns if the "rationale" field was cleared in this mutation.
-func (m *JudgeResultMutation) RationaleCleared() bool {
-	_, ok := m.clearedFields[judgeresult.FieldRationale]
-	return ok
-}
-
-// ResetRationale resets all changes to the "rationale" field.
-func (m *JudgeResultMutation) ResetRationale() {
-	m.rationale = nil
-	delete(m.clearedFields, judgeresult.FieldRationale)
+// ResetPass resets all changes to the "pass" field.
+func (m *JudgeResultMutation) ResetPass() {
+	m.pass = nil
 }
 
 // SetModel sets the "model" field.
@@ -6301,42 +6424,6 @@ func (m *JudgeResultMutation) ModelCleared() bool {
 func (m *JudgeResultMutation) ResetModel() {
 	m.model = nil
 	delete(m.clearedFields, judgeresult.FieldModel)
-}
-
-// SetEvaluatedAt sets the "evaluated_at" field.
-func (m *JudgeResultMutation) SetEvaluatedAt(t time.Time) {
-	m.evaluated_at = &t
-}
-
-// EvaluatedAt returns the value of the "evaluated_at" field in the mutation.
-func (m *JudgeResultMutation) EvaluatedAt() (r time.Time, exists bool) {
-	v := m.evaluated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEvaluatedAt returns the old "evaluated_at" field's value of the JudgeResult entity.
-// If the JudgeResult object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *JudgeResultMutation) OldEvaluatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEvaluatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEvaluatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEvaluatedAt: %w", err)
-	}
-	return oldValue.EvaluatedAt, nil
-}
-
-// ResetEvaluatedAt resets all changes to the "evaluated_at" field.
-func (m *JudgeResultMutation) ResetEvaluatedAt() {
-	m.evaluated_at = nil
 }
 
 // SetRubricID sets the "rubric" edge to the JudgeRubric entity by id.
@@ -6439,24 +6526,30 @@ func (m *JudgeResultMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *JudgeResultMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.initiative != nil {
 		fields = append(fields, judgeresult.FieldInitiativeID)
 	}
 	if m.spec_path != nil {
 		fields = append(fields, judgeresult.FieldSpecPath)
 	}
-	if m.score != nil {
-		fields = append(fields, judgeresult.FieldScore)
-	}
-	if m.rationale != nil {
-		fields = append(fields, judgeresult.FieldRationale)
-	}
-	if m.model != nil {
-		fields = append(fields, judgeresult.FieldModel)
+	if m.spec_type != nil {
+		fields = append(fields, judgeresult.FieldSpecType)
 	}
 	if m.evaluated_at != nil {
 		fields = append(fields, judgeresult.FieldEvaluatedAt)
+	}
+	if m.report != nil {
+		fields = append(fields, judgeresult.FieldReport)
+	}
+	if m.int_score != nil {
+		fields = append(fields, judgeresult.FieldIntScore)
+	}
+	if m.pass != nil {
+		fields = append(fields, judgeresult.FieldPass)
+	}
+	if m.model != nil {
+		fields = append(fields, judgeresult.FieldModel)
 	}
 	return fields
 }
@@ -6470,14 +6563,18 @@ func (m *JudgeResultMutation) Field(name string) (ent.Value, bool) {
 		return m.InitiativeID()
 	case judgeresult.FieldSpecPath:
 		return m.SpecPath()
-	case judgeresult.FieldScore:
-		return m.Score()
-	case judgeresult.FieldRationale:
-		return m.Rationale()
-	case judgeresult.FieldModel:
-		return m.Model()
+	case judgeresult.FieldSpecType:
+		return m.SpecType()
 	case judgeresult.FieldEvaluatedAt:
 		return m.EvaluatedAt()
+	case judgeresult.FieldReport:
+		return m.Report()
+	case judgeresult.FieldIntScore:
+		return m.IntScore()
+	case judgeresult.FieldPass:
+		return m.Pass()
+	case judgeresult.FieldModel:
+		return m.Model()
 	}
 	return nil, false
 }
@@ -6491,14 +6588,18 @@ func (m *JudgeResultMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldInitiativeID(ctx)
 	case judgeresult.FieldSpecPath:
 		return m.OldSpecPath(ctx)
-	case judgeresult.FieldScore:
-		return m.OldScore(ctx)
-	case judgeresult.FieldRationale:
-		return m.OldRationale(ctx)
-	case judgeresult.FieldModel:
-		return m.OldModel(ctx)
+	case judgeresult.FieldSpecType:
+		return m.OldSpecType(ctx)
 	case judgeresult.FieldEvaluatedAt:
 		return m.OldEvaluatedAt(ctx)
+	case judgeresult.FieldReport:
+		return m.OldReport(ctx)
+	case judgeresult.FieldIntScore:
+		return m.OldIntScore(ctx)
+	case judgeresult.FieldPass:
+		return m.OldPass(ctx)
+	case judgeresult.FieldModel:
+		return m.OldModel(ctx)
 	}
 	return nil, fmt.Errorf("unknown JudgeResult field %s", name)
 }
@@ -6522,26 +6623,12 @@ func (m *JudgeResultMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetSpecPath(v)
 		return nil
-	case judgeresult.FieldScore:
-		v, ok := value.(float64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetScore(v)
-		return nil
-	case judgeresult.FieldRationale:
+	case judgeresult.FieldSpecType:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetRationale(v)
-		return nil
-	case judgeresult.FieldModel:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetModel(v)
+		m.SetSpecType(v)
 		return nil
 	case judgeresult.FieldEvaluatedAt:
 		v, ok := value.(time.Time)
@@ -6549,6 +6636,34 @@ func (m *JudgeResultMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEvaluatedAt(v)
+		return nil
+	case judgeresult.FieldReport:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReport(v)
+		return nil
+	case judgeresult.FieldIntScore:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIntScore(v)
+		return nil
+	case judgeresult.FieldPass:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPass(v)
+		return nil
+	case judgeresult.FieldModel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModel(v)
 		return nil
 	}
 	return fmt.Errorf("unknown JudgeResult field %s", name)
@@ -6558,8 +6673,8 @@ func (m *JudgeResultMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *JudgeResultMutation) AddedFields() []string {
 	var fields []string
-	if m.addscore != nil {
-		fields = append(fields, judgeresult.FieldScore)
+	if m.addint_score != nil {
+		fields = append(fields, judgeresult.FieldIntScore)
 	}
 	return fields
 }
@@ -6569,8 +6684,8 @@ func (m *JudgeResultMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *JudgeResultMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case judgeresult.FieldScore:
-		return m.AddedScore()
+	case judgeresult.FieldIntScore:
+		return m.AddedIntScore()
 	}
 	return nil, false
 }
@@ -6580,12 +6695,12 @@ func (m *JudgeResultMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *JudgeResultMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case judgeresult.FieldScore:
-		v, ok := value.(float64)
+	case judgeresult.FieldIntScore:
+		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.AddScore(v)
+		m.AddIntScore(v)
 		return nil
 	}
 	return fmt.Errorf("unknown JudgeResult numeric field %s", name)
@@ -6595,11 +6710,14 @@ func (m *JudgeResultMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *JudgeResultMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(judgeresult.FieldScore) {
-		fields = append(fields, judgeresult.FieldScore)
+	if m.FieldCleared(judgeresult.FieldSpecType) {
+		fields = append(fields, judgeresult.FieldSpecType)
 	}
-	if m.FieldCleared(judgeresult.FieldRationale) {
-		fields = append(fields, judgeresult.FieldRationale)
+	if m.FieldCleared(judgeresult.FieldReport) {
+		fields = append(fields, judgeresult.FieldReport)
+	}
+	if m.FieldCleared(judgeresult.FieldIntScore) {
+		fields = append(fields, judgeresult.FieldIntScore)
 	}
 	if m.FieldCleared(judgeresult.FieldModel) {
 		fields = append(fields, judgeresult.FieldModel)
@@ -6618,11 +6736,14 @@ func (m *JudgeResultMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *JudgeResultMutation) ClearField(name string) error {
 	switch name {
-	case judgeresult.FieldScore:
-		m.ClearScore()
+	case judgeresult.FieldSpecType:
+		m.ClearSpecType()
 		return nil
-	case judgeresult.FieldRationale:
-		m.ClearRationale()
+	case judgeresult.FieldReport:
+		m.ClearReport()
+		return nil
+	case judgeresult.FieldIntScore:
+		m.ClearIntScore()
 		return nil
 	case judgeresult.FieldModel:
 		m.ClearModel()
@@ -6641,17 +6762,23 @@ func (m *JudgeResultMutation) ResetField(name string) error {
 	case judgeresult.FieldSpecPath:
 		m.ResetSpecPath()
 		return nil
-	case judgeresult.FieldScore:
-		m.ResetScore()
-		return nil
-	case judgeresult.FieldRationale:
-		m.ResetRationale()
-		return nil
-	case judgeresult.FieldModel:
-		m.ResetModel()
+	case judgeresult.FieldSpecType:
+		m.ResetSpecType()
 		return nil
 	case judgeresult.FieldEvaluatedAt:
 		m.ResetEvaluatedAt()
+		return nil
+	case judgeresult.FieldReport:
+		m.ResetReport()
+		return nil
+	case judgeresult.FieldIntScore:
+		m.ResetIntScore()
+		return nil
+	case judgeresult.FieldPass:
+		m.ResetPass()
+		return nil
+	case judgeresult.FieldModel:
+		m.ResetModel()
 		return nil
 	}
 	return fmt.Errorf("unknown JudgeResult field %s", name)

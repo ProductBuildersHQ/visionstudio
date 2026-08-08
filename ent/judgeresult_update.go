@@ -58,50 +58,90 @@ func (_u *JudgeResultUpdate) SetNillableSpecPath(v *string) *JudgeResultUpdate {
 	return _u
 }
 
-// SetScore sets the "score" field.
-func (_u *JudgeResultUpdate) SetScore(v float64) *JudgeResultUpdate {
-	_u.mutation.ResetScore()
-	_u.mutation.SetScore(v)
+// SetSpecType sets the "spec_type" field.
+func (_u *JudgeResultUpdate) SetSpecType(v string) *JudgeResultUpdate {
+	_u.mutation.SetSpecType(v)
 	return _u
 }
 
-// SetNillableScore sets the "score" field if the given value is not nil.
-func (_u *JudgeResultUpdate) SetNillableScore(v *float64) *JudgeResultUpdate {
+// SetNillableSpecType sets the "spec_type" field if the given value is not nil.
+func (_u *JudgeResultUpdate) SetNillableSpecType(v *string) *JudgeResultUpdate {
 	if v != nil {
-		_u.SetScore(*v)
+		_u.SetSpecType(*v)
 	}
 	return _u
 }
 
-// AddScore adds value to the "score" field.
-func (_u *JudgeResultUpdate) AddScore(v float64) *JudgeResultUpdate {
-	_u.mutation.AddScore(v)
+// ClearSpecType clears the value of the "spec_type" field.
+func (_u *JudgeResultUpdate) ClearSpecType() *JudgeResultUpdate {
+	_u.mutation.ClearSpecType()
 	return _u
 }
 
-// ClearScore clears the value of the "score" field.
-func (_u *JudgeResultUpdate) ClearScore() *JudgeResultUpdate {
-	_u.mutation.ClearScore()
+// SetEvaluatedAt sets the "evaluated_at" field.
+func (_u *JudgeResultUpdate) SetEvaluatedAt(v time.Time) *JudgeResultUpdate {
+	_u.mutation.SetEvaluatedAt(v)
 	return _u
 }
 
-// SetRationale sets the "rationale" field.
-func (_u *JudgeResultUpdate) SetRationale(v string) *JudgeResultUpdate {
-	_u.mutation.SetRationale(v)
-	return _u
-}
-
-// SetNillableRationale sets the "rationale" field if the given value is not nil.
-func (_u *JudgeResultUpdate) SetNillableRationale(v *string) *JudgeResultUpdate {
+// SetNillableEvaluatedAt sets the "evaluated_at" field if the given value is not nil.
+func (_u *JudgeResultUpdate) SetNillableEvaluatedAt(v *time.Time) *JudgeResultUpdate {
 	if v != nil {
-		_u.SetRationale(*v)
+		_u.SetEvaluatedAt(*v)
 	}
 	return _u
 }
 
-// ClearRationale clears the value of the "rationale" field.
-func (_u *JudgeResultUpdate) ClearRationale() *JudgeResultUpdate {
-	_u.mutation.ClearRationale()
+// SetReport sets the "report" field.
+func (_u *JudgeResultUpdate) SetReport(v map[string]interface{}) *JudgeResultUpdate {
+	_u.mutation.SetReport(v)
+	return _u
+}
+
+// ClearReport clears the value of the "report" field.
+func (_u *JudgeResultUpdate) ClearReport() *JudgeResultUpdate {
+	_u.mutation.ClearReport()
+	return _u
+}
+
+// SetIntScore sets the "int_score" field.
+func (_u *JudgeResultUpdate) SetIntScore(v int) *JudgeResultUpdate {
+	_u.mutation.ResetIntScore()
+	_u.mutation.SetIntScore(v)
+	return _u
+}
+
+// SetNillableIntScore sets the "int_score" field if the given value is not nil.
+func (_u *JudgeResultUpdate) SetNillableIntScore(v *int) *JudgeResultUpdate {
+	if v != nil {
+		_u.SetIntScore(*v)
+	}
+	return _u
+}
+
+// AddIntScore adds value to the "int_score" field.
+func (_u *JudgeResultUpdate) AddIntScore(v int) *JudgeResultUpdate {
+	_u.mutation.AddIntScore(v)
+	return _u
+}
+
+// ClearIntScore clears the value of the "int_score" field.
+func (_u *JudgeResultUpdate) ClearIntScore() *JudgeResultUpdate {
+	_u.mutation.ClearIntScore()
+	return _u
+}
+
+// SetPass sets the "pass" field.
+func (_u *JudgeResultUpdate) SetPass(v bool) *JudgeResultUpdate {
+	_u.mutation.SetPass(v)
+	return _u
+}
+
+// SetNillablePass sets the "pass" field if the given value is not nil.
+func (_u *JudgeResultUpdate) SetNillablePass(v *bool) *JudgeResultUpdate {
+	if v != nil {
+		_u.SetPass(*v)
+	}
 	return _u
 }
 
@@ -122,20 +162,6 @@ func (_u *JudgeResultUpdate) SetNillableModel(v *string) *JudgeResultUpdate {
 // ClearModel clears the value of the "model" field.
 func (_u *JudgeResultUpdate) ClearModel() *JudgeResultUpdate {
 	_u.mutation.ClearModel()
-	return _u
-}
-
-// SetEvaluatedAt sets the "evaluated_at" field.
-func (_u *JudgeResultUpdate) SetEvaluatedAt(v time.Time) *JudgeResultUpdate {
-	_u.mutation.SetEvaluatedAt(v)
-	return _u
-}
-
-// SetNillableEvaluatedAt sets the "evaluated_at" field if the given value is not nil.
-func (_u *JudgeResultUpdate) SetNillableEvaluatedAt(v *time.Time) *JudgeResultUpdate {
-	if v != nil {
-		_u.SetEvaluatedAt(*v)
-	}
 	return _u
 }
 
@@ -219,6 +245,11 @@ func (_u *JudgeResultUpdate) check() error {
 			return &ValidationError{Name: "spec_path", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.spec_path": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SpecType(); ok {
+		if err := judgeresult.SpecTypeValidator(v); err != nil {
+			return &ValidationError{Name: "spec_type", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.spec_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Model(); ok {
 		if err := judgeresult.ModelValidator(v); err != nil {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
@@ -245,29 +276,38 @@ func (_u *JudgeResultUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Score(); ok {
-		_spec.SetField(judgeresult.FieldScore, field.TypeFloat64, value)
+	if value, ok := _u.mutation.SpecType(); ok {
+		_spec.SetField(judgeresult.FieldSpecType, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.AddedScore(); ok {
-		_spec.AddField(judgeresult.FieldScore, field.TypeFloat64, value)
+	if _u.mutation.SpecTypeCleared() {
+		_spec.ClearField(judgeresult.FieldSpecType, field.TypeString)
 	}
-	if _u.mutation.ScoreCleared() {
-		_spec.ClearField(judgeresult.FieldScore, field.TypeFloat64)
+	if value, ok := _u.mutation.EvaluatedAt(); ok {
+		_spec.SetField(judgeresult.FieldEvaluatedAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.Rationale(); ok {
-		_spec.SetField(judgeresult.FieldRationale, field.TypeString, value)
+	if value, ok := _u.mutation.Report(); ok {
+		_spec.SetField(judgeresult.FieldReport, field.TypeJSON, value)
 	}
-	if _u.mutation.RationaleCleared() {
-		_spec.ClearField(judgeresult.FieldRationale, field.TypeString)
+	if _u.mutation.ReportCleared() {
+		_spec.ClearField(judgeresult.FieldReport, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.IntScore(); ok {
+		_spec.SetField(judgeresult.FieldIntScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedIntScore(); ok {
+		_spec.AddField(judgeresult.FieldIntScore, field.TypeInt, value)
+	}
+	if _u.mutation.IntScoreCleared() {
+		_spec.ClearField(judgeresult.FieldIntScore, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Pass(); ok {
+		_spec.SetField(judgeresult.FieldPass, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Model(); ok {
 		_spec.SetField(judgeresult.FieldModel, field.TypeString, value)
 	}
 	if _u.mutation.ModelCleared() {
 		_spec.ClearField(judgeresult.FieldModel, field.TypeString)
-	}
-	if value, ok := _u.mutation.EvaluatedAt(); ok {
-		_spec.SetField(judgeresult.FieldEvaluatedAt, field.TypeTime, value)
 	}
 	if _u.mutation.RubricCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -375,50 +415,90 @@ func (_u *JudgeResultUpdateOne) SetNillableSpecPath(v *string) *JudgeResultUpdat
 	return _u
 }
 
-// SetScore sets the "score" field.
-func (_u *JudgeResultUpdateOne) SetScore(v float64) *JudgeResultUpdateOne {
-	_u.mutation.ResetScore()
-	_u.mutation.SetScore(v)
+// SetSpecType sets the "spec_type" field.
+func (_u *JudgeResultUpdateOne) SetSpecType(v string) *JudgeResultUpdateOne {
+	_u.mutation.SetSpecType(v)
 	return _u
 }
 
-// SetNillableScore sets the "score" field if the given value is not nil.
-func (_u *JudgeResultUpdateOne) SetNillableScore(v *float64) *JudgeResultUpdateOne {
+// SetNillableSpecType sets the "spec_type" field if the given value is not nil.
+func (_u *JudgeResultUpdateOne) SetNillableSpecType(v *string) *JudgeResultUpdateOne {
 	if v != nil {
-		_u.SetScore(*v)
+		_u.SetSpecType(*v)
 	}
 	return _u
 }
 
-// AddScore adds value to the "score" field.
-func (_u *JudgeResultUpdateOne) AddScore(v float64) *JudgeResultUpdateOne {
-	_u.mutation.AddScore(v)
+// ClearSpecType clears the value of the "spec_type" field.
+func (_u *JudgeResultUpdateOne) ClearSpecType() *JudgeResultUpdateOne {
+	_u.mutation.ClearSpecType()
 	return _u
 }
 
-// ClearScore clears the value of the "score" field.
-func (_u *JudgeResultUpdateOne) ClearScore() *JudgeResultUpdateOne {
-	_u.mutation.ClearScore()
+// SetEvaluatedAt sets the "evaluated_at" field.
+func (_u *JudgeResultUpdateOne) SetEvaluatedAt(v time.Time) *JudgeResultUpdateOne {
+	_u.mutation.SetEvaluatedAt(v)
 	return _u
 }
 
-// SetRationale sets the "rationale" field.
-func (_u *JudgeResultUpdateOne) SetRationale(v string) *JudgeResultUpdateOne {
-	_u.mutation.SetRationale(v)
-	return _u
-}
-
-// SetNillableRationale sets the "rationale" field if the given value is not nil.
-func (_u *JudgeResultUpdateOne) SetNillableRationale(v *string) *JudgeResultUpdateOne {
+// SetNillableEvaluatedAt sets the "evaluated_at" field if the given value is not nil.
+func (_u *JudgeResultUpdateOne) SetNillableEvaluatedAt(v *time.Time) *JudgeResultUpdateOne {
 	if v != nil {
-		_u.SetRationale(*v)
+		_u.SetEvaluatedAt(*v)
 	}
 	return _u
 }
 
-// ClearRationale clears the value of the "rationale" field.
-func (_u *JudgeResultUpdateOne) ClearRationale() *JudgeResultUpdateOne {
-	_u.mutation.ClearRationale()
+// SetReport sets the "report" field.
+func (_u *JudgeResultUpdateOne) SetReport(v map[string]interface{}) *JudgeResultUpdateOne {
+	_u.mutation.SetReport(v)
+	return _u
+}
+
+// ClearReport clears the value of the "report" field.
+func (_u *JudgeResultUpdateOne) ClearReport() *JudgeResultUpdateOne {
+	_u.mutation.ClearReport()
+	return _u
+}
+
+// SetIntScore sets the "int_score" field.
+func (_u *JudgeResultUpdateOne) SetIntScore(v int) *JudgeResultUpdateOne {
+	_u.mutation.ResetIntScore()
+	_u.mutation.SetIntScore(v)
+	return _u
+}
+
+// SetNillableIntScore sets the "int_score" field if the given value is not nil.
+func (_u *JudgeResultUpdateOne) SetNillableIntScore(v *int) *JudgeResultUpdateOne {
+	if v != nil {
+		_u.SetIntScore(*v)
+	}
+	return _u
+}
+
+// AddIntScore adds value to the "int_score" field.
+func (_u *JudgeResultUpdateOne) AddIntScore(v int) *JudgeResultUpdateOne {
+	_u.mutation.AddIntScore(v)
+	return _u
+}
+
+// ClearIntScore clears the value of the "int_score" field.
+func (_u *JudgeResultUpdateOne) ClearIntScore() *JudgeResultUpdateOne {
+	_u.mutation.ClearIntScore()
+	return _u
+}
+
+// SetPass sets the "pass" field.
+func (_u *JudgeResultUpdateOne) SetPass(v bool) *JudgeResultUpdateOne {
+	_u.mutation.SetPass(v)
+	return _u
+}
+
+// SetNillablePass sets the "pass" field if the given value is not nil.
+func (_u *JudgeResultUpdateOne) SetNillablePass(v *bool) *JudgeResultUpdateOne {
+	if v != nil {
+		_u.SetPass(*v)
+	}
 	return _u
 }
 
@@ -439,20 +519,6 @@ func (_u *JudgeResultUpdateOne) SetNillableModel(v *string) *JudgeResultUpdateOn
 // ClearModel clears the value of the "model" field.
 func (_u *JudgeResultUpdateOne) ClearModel() *JudgeResultUpdateOne {
 	_u.mutation.ClearModel()
-	return _u
-}
-
-// SetEvaluatedAt sets the "evaluated_at" field.
-func (_u *JudgeResultUpdateOne) SetEvaluatedAt(v time.Time) *JudgeResultUpdateOne {
-	_u.mutation.SetEvaluatedAt(v)
-	return _u
-}
-
-// SetNillableEvaluatedAt sets the "evaluated_at" field if the given value is not nil.
-func (_u *JudgeResultUpdateOne) SetNillableEvaluatedAt(v *time.Time) *JudgeResultUpdateOne {
-	if v != nil {
-		_u.SetEvaluatedAt(*v)
-	}
 	return _u
 }
 
@@ -549,6 +615,11 @@ func (_u *JudgeResultUpdateOne) check() error {
 			return &ValidationError{Name: "spec_path", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.spec_path": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SpecType(); ok {
+		if err := judgeresult.SpecTypeValidator(v); err != nil {
+			return &ValidationError{Name: "spec_type", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.spec_type": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Model(); ok {
 		if err := judgeresult.ModelValidator(v); err != nil {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
@@ -592,29 +663,38 @@ func (_u *JudgeResultUpdateOne) sqlSave(ctx context.Context) (_node *JudgeResult
 	if value, ok := _u.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.Score(); ok {
-		_spec.SetField(judgeresult.FieldScore, field.TypeFloat64, value)
+	if value, ok := _u.mutation.SpecType(); ok {
+		_spec.SetField(judgeresult.FieldSpecType, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.AddedScore(); ok {
-		_spec.AddField(judgeresult.FieldScore, field.TypeFloat64, value)
+	if _u.mutation.SpecTypeCleared() {
+		_spec.ClearField(judgeresult.FieldSpecType, field.TypeString)
 	}
-	if _u.mutation.ScoreCleared() {
-		_spec.ClearField(judgeresult.FieldScore, field.TypeFloat64)
+	if value, ok := _u.mutation.EvaluatedAt(); ok {
+		_spec.SetField(judgeresult.FieldEvaluatedAt, field.TypeTime, value)
 	}
-	if value, ok := _u.mutation.Rationale(); ok {
-		_spec.SetField(judgeresult.FieldRationale, field.TypeString, value)
+	if value, ok := _u.mutation.Report(); ok {
+		_spec.SetField(judgeresult.FieldReport, field.TypeJSON, value)
 	}
-	if _u.mutation.RationaleCleared() {
-		_spec.ClearField(judgeresult.FieldRationale, field.TypeString)
+	if _u.mutation.ReportCleared() {
+		_spec.ClearField(judgeresult.FieldReport, field.TypeJSON)
+	}
+	if value, ok := _u.mutation.IntScore(); ok {
+		_spec.SetField(judgeresult.FieldIntScore, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedIntScore(); ok {
+		_spec.AddField(judgeresult.FieldIntScore, field.TypeInt, value)
+	}
+	if _u.mutation.IntScoreCleared() {
+		_spec.ClearField(judgeresult.FieldIntScore, field.TypeInt)
+	}
+	if value, ok := _u.mutation.Pass(); ok {
+		_spec.SetField(judgeresult.FieldPass, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Model(); ok {
 		_spec.SetField(judgeresult.FieldModel, field.TypeString, value)
 	}
 	if _u.mutation.ModelCleared() {
 		_spec.ClearField(judgeresult.FieldModel, field.TypeString)
-	}
-	if value, ok := _u.mutation.EvaluatedAt(); ok {
-		_spec.SetField(judgeresult.FieldEvaluatedAt, field.TypeTime, value)
 	}
 	if _u.mutation.RubricCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { getSpecs, getExecution } from '../api/client'
-import type { SpecsResponse, ExecutionResponse, JudgeResult, SpecWorkflow, APIInitiative } from '../api/types'
+import type { SpecsResponse, ExecutionResponse, JudgeResult, SpecWorkflow, APIInitiative } from '../api/compat'
 import { LoadingState, ErrorState, EmptyState } from '../components'
 
 export function SpecsPanel() {
@@ -15,8 +15,8 @@ export function SpecsPanel() {
       .then(([s, e]) => {
         setSpecs(s)
         setExecution(e)
-        if ((s.workflows?.length ?? 0) > 0 && !selectedWorkflow) {
-          setSelectedWorkflow(s.workflows[0].id)
+        if ((s.workflows?.length ?? 0) > 0 && !selectedWorkflow && s.workflows) {
+          setSelectedWorkflow(s.workflows[0]?.id ?? null)
         }
       })
       .catch((err: Error) => setError(err.message))
@@ -44,15 +44,15 @@ export function SpecsPanel() {
       <WorkflowSection
         workflows={specs.workflows ?? []}
         selectedWorkflow={selectedWorkflow}
-        onSelect={setSelectedWorkflow}
-        initiatives={execution.initiatives}
+        onSelect={(id) => setSelectedWorkflow(id ?? null)}
+        initiatives={execution.initiatives ?? []}
         judgeResults={specs.judgeResults ?? []}
       />
 
       {/* Judge Results by Initiative */}
       <JudgeResultsSection
         judgeResults={specs.judgeResults ?? []}
-        initiatives={execution.initiatives}
+        initiatives={execution.initiatives ?? []}
         workflow={(specs.workflows ?? []).find((w) => w.id === selectedWorkflow)}
       />
     </div>
@@ -91,7 +91,7 @@ function WorkflowSection({
             key={wf.id}
             workflow={wf}
             selected={selectedWorkflow === wf.id}
-            onClick={() => onSelect(wf.id)}
+            onClick={() => onSelect(wf.id ?? '')}
             initiatives={initiatives}
             judgeResults={judgeResults}
           />
@@ -114,8 +114,8 @@ function WorkflowCard({
   initiatives: APIInitiative[]
   judgeResults: JudgeResult[]
 }) {
-  const requiredSpecs = workflow.specs_required ?? []
-  const optionalSpecs = workflow.specs_optional ?? []
+  const requiredSpecs = workflow.specsRequired ?? []
+  const optionalSpecs = workflow.specsOptional ?? []
 
   const compliance = useMemo(() => {
     if (requiredSpecs.length === 0 || initiatives.length === 0) {
@@ -127,8 +127,8 @@ function WorkflowCard({
     let missing = 0
 
     for (const init of initiatives) {
-      const initResults = judgeResults.filter((r) => r.initiative_id === init.id)
-      const specsPresent = new Set(initResults.map((r) => specType(r.spec_path)))
+      const initResults = judgeResults.filter((r) => r.initiativeId === init.id)
+      const specsPresent = new Set(initResults.map((r) => specType(r.specPath ?? '')))
       const requiredPresent = requiredSpecs.filter((s) => specsPresent.has(s)).length
 
       if (requiredPresent === requiredSpecs.length) {
@@ -203,16 +203,19 @@ function JudgeResultsSection({
   const resultsByInit = useMemo(() => {
     const map: Record<string, JudgeResult[]> = {}
     for (const r of judgeResults) {
-      if (!map[r.initiative_id]) map[r.initiative_id] = []
-      map[r.initiative_id].push(r)
+      const initId = r.initiativeId ?? ''
+      if (!map[initId]) map[initId] = []
+      map[initId].push(r)
     }
     return map
   }, [judgeResults])
 
+  const getScore = (r: JudgeResult): number => r.report?.intScore ?? 0
+
   const sorted = useMemo(() => {
     return Object.entries(resultsByInit).sort((a, b) => {
-      const avgA = a[1].reduce((sum, r) => sum + r.score, 0) / a[1].length
-      const avgB = b[1].reduce((sum, r) => sum + r.score, 0) / b[1].length
+      const avgA = a[1].reduce((sum, r) => sum + getScore(r), 0) / a[1].length
+      const avgB = b[1].reduce((sum, r) => sum + getScore(r), 0) / b[1].length
       return avgB - avgA
     })
   }, [resultsByInit])
@@ -227,7 +230,7 @@ function JudgeResultsSection({
     )
   }
 
-  const requiredSpecs = new Set(workflow?.specs_required ?? [])
+  const requiredSpecs = new Set(workflow?.specsRequired ?? [])
 
   return (
     <div className="space-y-4">
@@ -237,8 +240,8 @@ function JudgeResultsSection({
       <div className="space-y-4">
         {sorted.map(([initId, results]) => {
           const init = initiatives.find((i) => i.id === initId)
-          const avgScore = results.reduce((sum, r) => sum + r.score, 0) / results.length
-          const specsPresent = new Set(results.map((r) => specType(r.spec_path)))
+          const avgScore = results.reduce((sum, r) => sum + getScore(r), 0) / results.length
+          const specsPresent = new Set(results.map((r) => specType(r.specPath ?? '')))
           const missingRequired = [...requiredSpecs].filter((s) => !specsPresent.has(s))
 
           return (
@@ -264,9 +267,9 @@ function JudgeResultsSection({
 
               <div className="space-y-2">
                 {results
-                  .sort((a, b) => new Date(b.evaluated_at).getTime() - new Date(a.evaluated_at).getTime())
+                  .sort((a, b) => new Date(b.evaluatedAt ?? '').getTime() - new Date(a.evaluatedAt ?? '').getTime())
                   .map((r) => (
-                    <JudgeResultRow key={r.id} result={r} isRequired={requiredSpecs.has(specType(r.spec_path))} />
+                    <JudgeResultRow key={r.id} result={r} isRequired={requiredSpecs.has(specType(r.specPath ?? ''))} />
                   ))}
               </div>
             </div>
@@ -279,8 +282,17 @@ function JudgeResultsSection({
 
 function JudgeResultRow({ result, isRequired }: { result: JudgeResult; isRequired: boolean }) {
   const [expanded, setExpanded] = useState(false)
-  const specName = result.spec_path.split('/').pop() ?? result.spec_path
-  const specTypeName = specType(result.spec_path)
+  const specPath = result.specPath ?? ''
+  const specName = specPath.split('/').pop() ?? specPath
+  const specTypeName = result.specType ?? specType(specPath)
+  const score = result.report?.intScore ?? 0
+  const model = result.report?.judge?.model
+  const rationale = result.report?.summary
+  const categories = result.report?.categories ?? []
+  const findings = result.report?.findings ?? []
+  const decision = result.report?.decision
+  const nextSteps = result.report?.nextSteps
+  const confidence = result.report?.confidence
 
   return (
     <div className="bg-gray-900 rounded">
@@ -296,32 +308,152 @@ function JudgeResultRow({ result, isRequired }: { result: JudgeResult; isRequire
             {specTypeName}
           </span>
           <span className="text-sm font-medium">{specName}</span>
-          {result.model && (
-            <span className="text-xs text-gray-500">{result.model}</span>
+          {model && (
+            <span className="text-xs text-gray-500">{model}</span>
           )}
         </div>
         <div className="flex items-center gap-3">
+          {findings.length > 0 && (
+            <span className="text-xs text-yellow-400">{findings.length} findings</span>
+          )}
           <span className="text-xs text-gray-500">
-            {new Date(result.evaluated_at).toLocaleDateString()}
+            {result.evaluatedAt ? new Date(result.evaluatedAt).toLocaleDateString() : ''}
           </span>
-          <ScoreBadge score={result.score} />
+          <DecisionBadge status={decision?.status} />
+          <ScoreBadge score={score} />
         </div>
       </button>
-      {expanded && result.rationale && (
-        <div className="px-3 pb-3 pt-1 text-sm text-gray-400 border-t border-gray-800">
-          {result.rationale}
+      {expanded && (
+        <div className="px-3 pb-3 pt-1 border-t border-gray-800 space-y-3">
+          {/* Summary & Confidence */}
+          <div className="flex items-start justify-between">
+            {rationale && (
+              <p className="text-sm text-gray-400 flex-1">{rationale}</p>
+            )}
+            {confidence !== undefined && confidence > 0 && (
+              <span className="text-xs text-gray-500 ml-2">
+                {Math.round(confidence * 100)}% confidence
+              </span>
+            )}
+          </div>
+
+          {/* Categories */}
+          {categories.length > 0 && (
+            <div className="space-y-2">
+              <h5 className="text-xs font-medium text-gray-500 uppercase">Categories</h5>
+              <div className="grid gap-2">
+                {categories.map((cat, i) => (
+                  <div key={i} className="bg-gray-800 rounded p-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">{cat.category}</span>
+                      <div className="flex items-center gap-2">
+                        {cat.confidence !== undefined && cat.confidence > 0 && (
+                          <span className="text-xs text-gray-500">{Math.round(cat.confidence * 100)}%</span>
+                        )}
+                        <ScoreBadge score={cat.intScore ?? 0} />
+                      </div>
+                    </div>
+                    {cat.reasoning && (
+                      <p className="text-xs text-gray-400">{cat.reasoning}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Findings */}
+          {findings.length > 0 && (
+            <div className="space-y-2">
+              <h5 className="text-xs font-medium text-gray-500 uppercase">Findings</h5>
+              <div className="space-y-2">
+                {findings.map((f, i) => (
+                  <div key={i} className="bg-gray-800 rounded p-2">
+                    <div className="flex items-center gap-2 mb-1">
+                      <SeverityBadge severity={f.severity ?? 'medium'} />
+                      <span className="text-xs text-gray-500">{f.category}</span>
+                    </div>
+                    <p className="text-sm">{f.title}</p>
+                    {f.description && f.description !== f.title && (
+                      <p className="text-xs text-gray-400 mt-1">{f.description}</p>
+                    )}
+                    {f.recommendation && (
+                      <p className="text-xs text-blue-400 mt-1">{f.recommendation}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Next Steps */}
+          {nextSteps && ((nextSteps.immediate?.length ?? 0) > 0 || (nextSteps.recommended?.length ?? 0) > 0) && (
+            <div className="space-y-2">
+              <h5 className="text-xs font-medium text-gray-500 uppercase">Next Steps</h5>
+              {(nextSteps.immediate?.length ?? 0) > 0 && (
+                <div className="space-y-1">
+                  <span className="text-xs text-red-400">Immediate:</span>
+                  {nextSteps.immediate?.map((a, i) => (
+                    <div key={i} className="text-sm text-gray-300 pl-2 border-l-2 border-red-500">
+                      {a.action}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {(nextSteps.recommended?.length ?? 0) > 0 && (
+                <div className="space-y-1">
+                  <span className="text-xs text-blue-400">Recommended:</span>
+                  {nextSteps.recommended?.map((a, i) => (
+                    <div key={i} className="text-sm text-gray-300 pl-2 border-l-2 border-blue-500">
+                      {a.action}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
 
+function DecisionBadge({ status }: { status?: string }) {
+  if (!status) return null
+  const colors: Record<string, string> = {
+    pass: 'bg-green-500/20 text-green-400',
+    conditional: 'bg-yellow-500/20 text-yellow-400',
+    fail: 'bg-red-500/20 text-red-400',
+    human_review: 'bg-purple-500/20 text-purple-400',
+  }
+  return (
+    <span className={`px-1.5 py-0.5 rounded text-xs ${colors[status] ?? colors.conditional}`}>
+      {status}
+    </span>
+  )
+}
+
+function SeverityBadge({ severity }: { severity: string }) {
+  const colors: Record<string, string> = {
+    critical: 'bg-red-600 text-white',
+    high: 'bg-red-500 text-white',
+    medium: 'bg-yellow-500 text-black',
+    low: 'bg-blue-500 text-white',
+    info: 'bg-gray-500 text-white',
+  }
+  return (
+    <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${colors[severity] ?? colors.medium}`}>
+      {severity}
+    </span>
+  )
+}
+
 function ScoreBadge({ score }: { score: number }) {
   const color =
-    score >= 7 ? 'bg-green-500' : score >= 4 ? 'bg-yellow-500' : 'bg-red-500'
+    score >= 4 ? 'bg-green-500' : score >= 3 ? 'bg-yellow-500' : 'bg-red-500'
   return (
     <span className={`px-2 py-0.5 rounded text-xs font-medium text-white ${color}`}>
-      {score.toFixed(1)}
+      {score}/5
     </span>
   )
 }

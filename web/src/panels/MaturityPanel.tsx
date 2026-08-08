@@ -1,21 +1,28 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getMaturity } from '../api/client'
-import type { MaturityResponse, MaturityAssessment, CapabilityModel } from '../api/types'
+import { getMaturity, getScale, getLeverage } from '../api/client'
+import type { MaturityResponse, MaturityAssessment, CapabilityModel, ScaleResponse, ScaleMetric, LeverageGraph } from '../api/types'
 import { RadarChart, type RadarAxis, type RadarDataset } from '../components/charts'
 import { LoadingState, ErrorState, EmptyState } from '../components'
 
+type ViewMode = 'scale' | 'leverage' | 'models'
+
 export function MaturityPanel() {
-  const [data, setData] = useState<MaturityResponse | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('scale')
+  const [maturityData, setMaturityData] = useState<MaturityResponse | null>(null)
+  const [scaleData, setScaleData] = useState<ScaleResponse | null>(null)
+  const [leverageData, setLeverageData] = useState<LeverageGraph | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
 
   const reload = () => {
     setError(null)
-    getMaturity()
-      .then((d) => {
-        setData(d)
-        if (d.models.length > 0 && !selectedModel) {
-          setSelectedModel(d.models[0].id)
+    Promise.all([getMaturity(), getScale(), getLeverage()])
+      .then(([m, s, l]) => {
+        setMaturityData(m)
+        setScaleData(s)
+        setLeverageData(l)
+        if (m.models.length > 0 && !selectedModel) {
+          setSelectedModel(m.models[0].id)
         }
       })
       .catch((err: Error) => setError(err.message))
@@ -29,10 +36,298 @@ export function MaturityPanel() {
     return <ErrorState message={error} onRetry={reload} />
   }
 
-  if (!data) {
+  if (!maturityData || !scaleData) {
     return <LoadingState message="Loading maturity data..." />
   }
 
+  return (
+    <div className="space-y-6">
+      {/* View Mode Selector */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Maturity</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setViewMode('scale')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'scale'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            SCALE Platform
+          </button>
+          <button
+            onClick={() => setViewMode('leverage')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'leverage'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Leverage Graph
+          </button>
+          <button
+            onClick={() => setViewMode('models')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              viewMode === 'models'
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            Capability Models
+          </button>
+        </div>
+      </div>
+
+      {viewMode === 'scale' && <ScaleView data={scaleData} />}
+
+      {viewMode === 'leverage' && leverageData && <LeverageView data={leverageData} />}
+
+      {viewMode === 'models' && (
+        <ModelsView
+          data={maturityData}
+          selectedModel={selectedModel}
+          onSelectModel={setSelectedModel}
+        />
+      )}
+    </div>
+  )
+}
+
+function ScaleView({ data }: { data: ScaleResponse }) {
+  const [expandedCap, setExpandedCap] = useState<string | null>(null)
+
+  if (!data.hasData || !data.framework) {
+    return (
+      <EmptyState
+        title="SCALE data unavailable"
+        description={data.dataNote ?? 'Platform adoption metrics not available.'}
+        hint="Check SCALE catalog configuration"
+      />
+    )
+  }
+
+  const domain = data.framework.domains[0]
+  if (!domain) {
+    return <EmptyState title="No domains" description="No SCALE domains found" />
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* SCALE Aspect Tiles */}
+      {data.rollup && (
+        <div className="grid grid-cols-5 gap-3">
+          {data.rollup.aspects.map((aspect) => (
+            <AspectTile key={aspect.aspect} aspect={aspect} />
+          ))}
+        </div>
+      )}
+
+      {/* Assessment Info */}
+      {data.assessment && (
+        <div className="bg-gray-800 rounded-lg p-4 flex items-center justify-between">
+          <div>
+            <span className="text-sm text-gray-400">Period: </span>
+            <span className="font-medium">{data.assessment.period}</span>
+          </div>
+          <div>
+            <span className="text-sm text-gray-400">As of: </span>
+            <span className="font-medium">{data.assessment.asOf}</span>
+          </div>
+          <div>
+            <span className="text-sm text-gray-400">Observations: </span>
+            <span className="font-medium">{data.assessment.observations}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Domain Header */}
+      <div className="bg-gray-800 rounded-lg p-4">
+        <h3 className="text-xl font-semibold">{domain.name}</h3>
+        {domain.description && (
+          <p className="text-gray-400 mt-1 text-sm">{domain.description}</p>
+        )}
+      </div>
+
+      {/* Capabilities */}
+      <div className="space-y-3">
+        {domain.capabilities.map((cap) => (
+          <CapabilityCard
+            key={cap.id}
+            capability={cap}
+            expanded={expandedCap === cap.id}
+            onToggle={() => setExpandedCap(expandedCap === cap.id ? null : cap.id)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function AspectTile({ aspect }: { aspect: { aspect: string; letter: string; displayName: string; score: number; eligible: number; observed: number } }) {
+  const getColor = (score: number) => {
+    if (score >= 80) return 'bg-green-600'
+    if (score >= 60) return 'bg-blue-600'
+    if (score >= 40) return 'bg-yellow-600'
+    if (score > 0) return 'bg-orange-600'
+    return 'bg-gray-600'
+  }
+
+  return (
+    <div className={`${getColor(aspect.score)} rounded-lg p-4 text-center`}>
+      <div className="text-3xl font-bold">{aspect.letter}</div>
+      <div className="text-sm font-medium mt-1">{aspect.displayName}</div>
+      <div className="text-2xl font-semibold mt-2">{aspect.score.toFixed(0)}%</div>
+      <div className="text-xs opacity-75 mt-1">
+        {aspect.observed}/{aspect.eligible} metrics
+      </div>
+    </div>
+  )
+}
+
+function CapabilityCard({
+  capability,
+  expanded,
+  onToggle,
+}: {
+  capability: { id: string; name: string; description?: string; metrics: ScaleMetric[] }
+  expanded: boolean
+  onToggle: () => void
+}) {
+  const metricsByAspect = useMemo(() => {
+    const groups: Record<string, ScaleMetric[]> = {}
+    for (const m of capability.metrics) {
+      if (!groups[m.aspect]) groups[m.aspect] = []
+      groups[m.aspect].push(m)
+    }
+    return groups
+  }, [capability.metrics])
+
+  const observedCount = capability.metrics.filter((m) => m.value !== undefined).length
+  const avgAttainment = useMemo(() => {
+    const withAttainment = capability.metrics.filter((m) => m.attainment !== undefined)
+    if (withAttainment.length === 0) return null
+    return withAttainment.reduce((sum, m) => sum + (m.attainment ?? 0), 0) / withAttainment.length
+  }, [capability.metrics])
+
+  return (
+    <div className="bg-gray-800 rounded-lg overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full p-4 flex items-center justify-between text-left hover:bg-gray-750"
+      >
+        <div>
+          <h4 className="font-medium">{capability.name}</h4>
+          {capability.description && (
+            <p className="text-sm text-gray-400 mt-1">{capability.description}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="text-right">
+            <div className="text-sm text-gray-400">{observedCount}/{capability.metrics.length} observed</div>
+            {avgAttainment !== null && (
+              <div className="text-lg font-semibold">{(avgAttainment * 100).toFixed(0)}%</div>
+            )}
+          </div>
+          <span className="text-gray-500">{expanded ? '▼' : '▶'}</span>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="border-t border-gray-700 p-4">
+          {Object.entries(metricsByAspect).map(([aspect, metrics]) => (
+            <div key={aspect} className="mb-4 last:mb-0">
+              <div className="text-xs font-medium text-gray-500 uppercase mb-2">
+                {aspectDisplayName(aspect)}
+              </div>
+              <div className="space-y-2">
+                {metrics.map((m) => (
+                  <MetricRow key={m.id} metric={m} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MetricRow({ metric }: { metric: ScaleMetric }) {
+  const hasValue = metric.value !== undefined
+
+  return (
+    <div className="flex items-center justify-between py-2 px-3 bg-gray-900 rounded">
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium truncate">{metric.name}</div>
+        {metric.note && (
+          <div className="text-xs text-gray-500 truncate">{metric.note}</div>
+        )}
+      </div>
+      <div className="flex items-center gap-4 ml-4">
+        {hasValue && (
+          <div className="text-right">
+            <div className="font-mono text-sm">
+              {metric.numerator !== undefined && metric.denominator !== undefined
+                ? `${metric.numerator}/${metric.denominator}`
+                : formatValue(metric.value!, metric.unit)}
+            </div>
+            {metric.attainment !== undefined && (
+              <AttainmentBar attainment={metric.attainment} />
+            )}
+          </div>
+        )}
+        {!hasValue && (
+          <span className="text-xs text-gray-600">No data</span>
+        )}
+        {metric.targetValue !== undefined && (
+          <div className="text-xs text-gray-500">
+            Target: {formatValue(metric.targetValue, metric.unit)}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function AttainmentBar({ attainment }: { attainment: number }) {
+  const pct = Math.min(attainment * 100, 100)
+  const color = pct >= 80 ? 'bg-green-500' : pct >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+
+  return (
+    <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+      <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
+    </div>
+  )
+}
+
+function formatValue(value: number, unit?: string): string {
+  if (unit === 'percent') return `${value.toFixed(1)}%`
+  if (unit === 'count') return value.toFixed(0)
+  if (value >= 1000) return `${(value / 1000).toFixed(1)}K`
+  return value.toFixed(1)
+}
+
+function aspectDisplayName(aspect: string): string {
+  const names: Record<string, string> = {
+    standards: 'Standards',
+    consumption: 'Consumption',
+    automation: 'Automation',
+    leverage: 'Leverage',
+    effectiveness: 'Effectiveness',
+  }
+  return names[aspect] ?? aspect
+}
+
+function ModelsView({
+  data,
+  selectedModel,
+  onSelectModel,
+}: {
+  data: MaturityResponse
+  selectedModel: string | null
+  onSelectModel: (id: string) => void
+}) {
   if (data.models.length === 0) {
     return (
       <EmptyState
@@ -49,28 +344,23 @@ export function MaturityPanel() {
   return (
     <div className="space-y-6">
       {/* Model Selector */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Maturity Assessments</h2>
-        <div className="flex gap-2">
-          {data.models.map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setSelectedModel(m.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedModel === m.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              {m.name}
-            </button>
-          ))}
-        </div>
+      <div className="flex gap-2 flex-wrap">
+        {data.models.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => onSelectModel(m.id)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              selectedModel === m.id
+                ? 'bg-blue-500 text-white'
+                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+            }`}
+          >
+            {m.name}
+          </button>
+        ))}
       </div>
 
-      {model && (
-        <ModelView model={model} assessments={modelAssessments} />
-      )}
+      {model && <ModelView model={model} assessments={modelAssessments} />}
     </div>
   )
 }
@@ -322,5 +612,215 @@ function LevelBadge({ level, max }: { level: number; max: number }) {
     <span className={`px-2 py-0.5 rounded text-xs font-medium text-white ${color}`}>
       {level.toFixed(1)}
     </span>
+  )
+}
+
+function trimModulePath(path: string): string {
+  return path.replace(/^github\.com\//, '')
+}
+
+function LeverageView({ data }: { data: LeverageGraph }) {
+  const [filter, setFilter] = useState<'all' | 'internal' | 'orphans'>('internal')
+  const [expandedOrg, setExpandedOrg] = useState<string | null>(null)
+
+  const { summary } = data
+
+  const internalModules = useMemo(() => {
+    return data.modules.filter(m => m.kind === 'internal')
+  }, [data.modules])
+
+  const modulesByOrg = useMemo(() => {
+    const orgs: Record<string, typeof internalModules> = {}
+    for (const m of internalModules) {
+      const org = m.org || 'unknown'
+      if (!orgs[org]) orgs[org] = []
+      orgs[org].push(m)
+    }
+    for (const org of Object.keys(orgs)) {
+      orgs[org].sort((a, b) => b.stats.directDependents - a.stats.directDependents)
+    }
+    return orgs
+  }, [internalModules])
+
+  const orphanModules = useMemo(() => {
+    return (summary.orphans ?? []).map(id => data.modules.find(m => m.id === id)).filter(Boolean)
+  }, [summary.orphans, data.modules])
+
+  return (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="bg-gray-800 rounded-lg p-4">
+          <div className="text-sm text-gray-400">Total Modules</div>
+          <div className="text-2xl font-bold">{summary.totalModules}</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-4">
+          <div className="text-sm text-gray-400">Internal</div>
+          <div className="text-2xl font-bold text-blue-400">{summary.internalModules}</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-4">
+          <div className="text-sm text-gray-400">Internal Ratio</div>
+          <div className="text-2xl font-bold text-green-400">{summary.internalRatio.toFixed(1)}%</div>
+        </div>
+        <div className="bg-gray-800 rounded-lg p-4">
+          <div className="text-sm text-gray-400">Orphans</div>
+          <div className="text-2xl font-bold text-orange-400">{summary.orphans?.length ?? 0}</div>
+          <div className="text-xs text-gray-500">reuse opportunities</div>
+        </div>
+      </div>
+
+      {/* Top Leveraged and Top Consumers side by side */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Top Leveraged */}
+        {summary.topLeveraged && summary.topLeveraged.length > 0 && (
+          <div className="bg-gray-800 rounded-lg p-4">
+            <h3 className="font-semibold mb-3">Top Leveraged <span className="text-gray-400 font-normal text-sm">(most depended upon)</span></h3>
+            <div className="space-y-2">
+              {summary.topLeveraged.map((m, i) => (
+                <div key={m.moduleId} className="flex items-center gap-3">
+                  <span className="text-gray-500 w-6 text-right">{i + 1}.</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-sm truncate" title={m.moduleId}>{trimModulePath(m.moduleId)}</div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-green-400 font-bold">{m.dependents}</span>
+                    <div className="w-16 bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-green-500 h-2 rounded-full"
+                        style={{ width: `${Math.min((m.dependents / (summary.topLeveraged![0].dependents || 1)) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Top Consumers */}
+        {summary.topConsumers && summary.topConsumers.length > 0 && (
+          <div className="bg-gray-800 rounded-lg p-4">
+            <h3 className="font-semibold mb-3">Top Consumers <span className="text-gray-400 font-normal text-sm">(most internal deps)</span></h3>
+            <div className="space-y-2">
+              {summary.topConsumers.map((m, i) => (
+                <div key={m.moduleId} className="flex items-center gap-3">
+                  <span className="text-gray-500 w-6 text-right">{i + 1}.</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-sm truncate" title={m.moduleId}>{trimModulePath(m.moduleId)}</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right min-w-[90px]">
+                      <span className="text-blue-400 font-bold">{m.dependents}</span>
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({m.direct ?? 0}d/{m.indirect ?? 0}i)
+                      </span>
+                    </div>
+                    <div className="w-16 bg-gray-700 rounded-full h-2">
+                      <div
+                        className="bg-blue-500 h-2 rounded-full"
+                        style={{ width: `${Math.min((m.dependents / (summary.topConsumers![0].dependents || 1)) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setFilter('internal')}
+          className={`px-3 py-1.5 rounded text-sm ${filter === 'internal' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+        >
+          By Organization ({Object.keys(modulesByOrg).length})
+        </button>
+        <button
+          onClick={() => setFilter('orphans')}
+          className={`px-3 py-1.5 rounded text-sm ${filter === 'orphans' ? 'bg-orange-600' : 'bg-gray-700 hover:bg-gray-600'}`}
+        >
+          Orphans ({orphanModules.length})
+        </button>
+      </div>
+
+      {/* Modules by Org */}
+      {filter === 'internal' && (
+        <div className="space-y-3">
+          {Object.entries(modulesByOrg).map(([org, modules]) => (
+            <div key={org} className="bg-gray-800 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setExpandedOrg(expandedOrg === org ? null : org)}
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-700"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold">{org}</span>
+                  <span className="text-sm text-gray-400">{modules.length} modules</span>
+                </div>
+                <span className={`transition-transform ${expandedOrg === org ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {expandedOrg === org && (
+                <div className="border-t border-gray-700 max-h-80 overflow-y-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-900 sticky top-0">
+                      <tr>
+                        <th className="px-4 py-2 text-left">Module</th>
+                        <th className="px-4 py-2 text-right">Dependents</th>
+                        <th className="px-4 py-2 text-right">Dependencies</th>
+                        <th className="px-4 py-2 text-right">Leverage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {modules.map(m => (
+                        <tr key={m.id} className="border-t border-gray-700 hover:bg-gray-750">
+                          <td className="px-4 py-2 font-mono truncate max-w-xs">{m.name}</td>
+                          <td className="px-4 py-2 text-right">
+                            {m.stats.directDependents > 0 ? (
+                              <span className="text-green-400">{m.stats.directDependents}</span>
+                            ) : (
+                              <span className="text-gray-500">0</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-right text-gray-400">{m.stats.directDependencies}</td>
+                          <td className="px-4 py-2 text-right">
+                            {(m.stats.leverageScore ?? 0) > 1 ? (
+                              <span className="text-green-400">{(m.stats.leverageScore ?? 0).toFixed(1)}x</span>
+                            ) : (
+                              <span className="text-gray-500">{(m.stats.leverageScore ?? 0).toFixed(1)}x</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Orphans */}
+      {filter === 'orphans' && (
+        <div className="bg-gray-800 rounded-lg p-4">
+          <p className="text-sm text-gray-400 mb-4">
+            Internal modules with no dependents. These represent potential reuse opportunities.
+          </p>
+          <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto">
+            {orphanModules.map(m => m && (
+              <div key={m.id} className="px-3 py-2 bg-gray-700 rounded font-mono text-sm truncate">
+                {m.path}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Meta */}
+      <div className="text-xs text-gray-500 text-right">
+        Generated {new Date(data.generatedAt).toLocaleString()} • {data.ecosystem} • {data.scope}
+      </div>
+    </div>
   )
 }

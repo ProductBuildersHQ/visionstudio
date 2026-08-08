@@ -15,7 +15,8 @@ import type {
 import { getSpecFiles } from '../api/client'
 import { StatusBadge } from '../components/StatusBadge'
 import { ProgressBar } from '../components/ProgressBar'
-import { PieChart } from '../components/charts'
+import { PieChart as _PieChart } from '../components/charts'
+void _PieChart
 
 interface InitiativeDetailProps {
   initiative: APIInitiative
@@ -40,7 +41,7 @@ export function InitiativeDetail({
   const initDeps = (execution.initiativeDependencies ?? []).filter(
     (d) => d.sourceInitiativeId === initiative.id || d.targetInitiativeId === initiative.id
   )
-  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiative_id === initiative.id)
+  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiativeId === initiative.id)
 
   const hasExecution = phases.length > 0 || rmis.length > 0
   const [activeTab, setActiveTab] = useState<DetailTab>(hasExecution ? 'execution' : 'definition')
@@ -521,9 +522,9 @@ function WorkflowDiagram({
   const resultsByType = useMemo(() => {
     const map: Record<string, JudgeResult> = {}
     for (const r of judgeResults) {
-      const type = specType(r.spec_path)
+      const type = specType(r.specPath)
       const existing = map[type]
-      if (!existing || new Date(r.evaluated_at) > new Date(existing.evaluated_at)) {
+      if (!existing || new Date(r.evaluatedAt) > new Date(existing.evaluatedAt)) {
         map[type] = r
       }
     }
@@ -539,9 +540,10 @@ function WorkflowDiagram({
   }, [specFiles])
 
   const pbhqWorkflow = workflows.find((w) => w.name === 'pbhq-lite')
+  const getScore = (r: JudgeResult): number => r.report?.intScore ?? 0
   const avgScore =
     judgeResults.length > 0
-      ? judgeResults.reduce((sum, r) => sum + r.score, 0) / judgeResults.length
+      ? judgeResults.reduce((sum, r) => sum + getScore(r), 0) / judgeResults.length
       : 0
 
   return (
@@ -570,7 +572,7 @@ function WorkflowDiagram({
           const result = resultsByType[spec]
           const hasJudgeResult = !!result
           const hasSpecFile = !!specFilesByType[spec]
-          const score = result?.score ?? 0
+          const score = result ? getScore(result) : 0
 
           // Determine state: evaluated (with score), present (file exists), or missing
           let stateClass: string
@@ -578,13 +580,13 @@ function WorkflowDiagram({
           let bottomText: string | null = null
 
           if (hasJudgeResult) {
-            stateClass = score >= 7
+            stateClass = score >= 4
               ? 'bg-green-500/20 border-green-500 text-green-300'
-              : score >= 4
+              : score >= 3
               ? 'bg-yellow-500/20 border-yellow-500 text-yellow-300'
               : 'bg-red-500/20 border-red-500 text-red-300'
-            tooltip = `Score: ${score.toFixed(1)}`
-            bottomText = score.toFixed(1)
+            tooltip = `Score: ${score}/5`
+            bottomText = `${score}/5`
           } else if (hasSpecFile) {
             stateClass = 'bg-blue-500/20 border-blue-500 text-blue-300'
             tooltip = 'Spec exists (not evaluated)'
@@ -618,6 +620,7 @@ function WorkflowDiagram({
 
 function JudgeResultsDetail({ judgeResults }: { judgeResults: JudgeResult[] }) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const getScore = (r: JudgeResult): number => r.report?.intScore ?? 0
 
   if (judgeResults.length === 0) {
     return (
@@ -631,7 +634,7 @@ function JudgeResultsDetail({ judgeResults }: { judgeResults: JudgeResult[] }) {
   }
 
   const sorted = [...judgeResults].sort(
-    (a, b) => new Date(b.evaluated_at).getTime() - new Date(a.evaluated_at).getTime()
+    (a, b) => new Date(b.evaluatedAt).getTime() - new Date(a.evaluatedAt).getTime()
   )
 
   return (
@@ -640,44 +643,54 @@ function JudgeResultsDetail({ judgeResults }: { judgeResults: JudgeResult[] }) {
         <h3 className="font-medium">LLM-as-a-Judge Results</h3>
       </div>
       <div className="divide-y divide-gray-700">
-        {sorted.map((r) => (
-          <div key={r.id}>
-            <button
-              onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
-              className="w-full flex items-center justify-between p-4 hover:bg-gray-750 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <span className="text-gray-500">{expandedId === r.id ? '▼' : '▶'}</span>
-                <span className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
-                  {specType(r.spec_path)}
-                </span>
-                <span className="text-sm text-gray-300">{r.spec_path.split('/').pop()}</span>
-                {r.model && <span className="text-xs text-gray-500">{r.model}</span>}
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-500">
-                  {new Date(r.evaluated_at).toLocaleDateString()}
-                </span>
-                <span
-                  className={`px-2 py-1 rounded text-sm font-medium ${
-                    r.score >= 7
-                      ? 'bg-green-500/30 text-green-300'
-                      : r.score >= 4
-                      ? 'bg-yellow-500/30 text-yellow-300'
-                      : 'bg-red-500/30 text-red-300'
-                  }`}
-                >
-                  {r.score.toFixed(1)}
-                </span>
-              </div>
-            </button>
-            {expandedId === r.id && r.rationale && (
-              <div className="px-4 pb-4 pt-0 ml-8 text-sm text-gray-400 whitespace-pre-wrap">
-                {r.rationale}
-              </div>
-            )}
-          </div>
-        ))}
+        {sorted.map((r) => {
+          const score = getScore(r)
+          const model = r.report?.judge?.model
+          const rationale = r.report?.summary
+          const pass = r.report?.pass
+          return (
+            <div key={r.id}>
+              <button
+                onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                className="w-full flex items-center justify-between p-4 hover:bg-gray-750 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-gray-500">{expandedId === r.id ? '▼' : '▶'}</span>
+                  <span className="text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
+                    {r.specType ?? specType(r.specPath)}
+                  </span>
+                  <span className="text-sm text-gray-300">{r.specPath.split('/').pop()}</span>
+                  {model && <span className="text-xs text-gray-500">{model}</span>}
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-gray-500">
+                    {new Date(r.evaluatedAt).toLocaleDateString()}
+                  </span>
+                  <span
+                    className={`px-2 py-1 rounded text-sm font-medium ${
+                      pass !== undefined
+                        ? pass
+                          ? 'bg-green-500/30 text-green-300'
+                          : 'bg-red-500/30 text-red-300'
+                        : score >= 4
+                        ? 'bg-green-500/30 text-green-300'
+                        : score >= 3
+                        ? 'bg-yellow-500/30 text-yellow-300'
+                        : 'bg-red-500/30 text-red-300'
+                    }`}
+                  >
+                    {score}/5
+                  </span>
+                </div>
+              </button>
+              {expandedId === r.id && rationale && (
+                <div className="px-4 pb-4 pt-0 ml-8 text-sm text-gray-400 whitespace-pre-wrap">
+                  {rationale}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

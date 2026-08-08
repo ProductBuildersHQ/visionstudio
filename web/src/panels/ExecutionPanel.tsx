@@ -78,7 +78,7 @@ export function ExecutionPanel() {
       <div className="col-span-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">Initiatives</h2>
-          <StatusDistributionMini statusDist={data.statusDistribution} />
+          <StatusDistributionMini rmis={data.rmis} />
         </div>
         <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto pr-2">
           {data.programs.map((prog) => {
@@ -143,10 +143,19 @@ export function ExecutionPanel() {
 }
 
 function StatusDistributionMini({
-  statusDist,
+  rmis,
 }: {
-  statusDist: { status: string; count: number }[]
+  rmis: APIRMI[]
 }) {
+  const statusDist = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const r of rmis) {
+      const s = r.status.toLowerCase()
+      counts[s] = (counts[s] ?? 0) + 1
+    }
+    return Object.entries(counts).map(([status, count]) => ({ status, count }))
+  }, [rmis])
+
   const total = statusDist.reduce((sum, s) => sum + s.count, 0)
   if (total === 0) return null
 

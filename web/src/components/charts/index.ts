@@ -11,3 +11,5 @@ export { RadarChart } from './RadarChart'
 export type { RadarAxis, RadarDataset } from './RadarChart'
 
 export { CHART_COLORS, getColor, formatLargeNumber, niceCeil } from './colors'
+
+export { EChartify, DonutChart, StackedBarChart } from './EChartify'

@@ -6,18 +6,22 @@ import { Sidebar } from './components/Sidebar'
 import { InitiativesOverview } from './panels/InitiativesOverview'
 import { InitiativeDetail } from './panels/InitiativeDetail'
 import { MaturityPanel } from './panels/MaturityPanel'
-import { SpendPanel } from './panels/SpendPanel'
+import { PerformancePanel } from './panels/PerformancePanel'
 import { SpecViewer } from './panels/SpecViewer'
+import { RepositoriesPanel } from './panels/RepositoriesPanel'
+import { RepositoryDetail } from './panels/RepositoryDetail'
 import { LoadingState, ErrorState } from './components'
 
-export type NavSection = 'initiatives' | 'maturity' | 'spend'
+export type NavSection = 'initiatives' | 'repositories' | 'maturity' | 'performance'
 export type NavTarget =
   | { section: 'initiatives'; view: 'all' }
   | { section: 'initiatives'; view: 'program'; programId: string }
   | { section: 'initiatives'; view: 'standalone' }
   | { section: 'initiatives'; view: 'initiative'; initiativeId: string }
+  | { section: 'repositories'; view?: 'all' }
+  | { section: 'repositories'; view: 'repository'; repositoryId: string }
   | { section: 'maturity' }
-  | { section: 'spend' }
+  | { section: 'performance' }
 
 export default function App() {
   return (
@@ -57,8 +61,14 @@ function AppContent() {
   const handleNavigate = (target: NavTarget) => {
     if (target.section === 'maturity') {
       navigate('/maturity')
-    } else if (target.section === 'spend') {
-      navigate('/spend')
+    } else if (target.section === 'performance') {
+      navigate('/performance')
+    } else if (target.section === 'repositories') {
+      if (target.view === 'repository') {
+        navigate(`/repository/${target.repositoryId}`)
+      } else {
+        navigate('/repositories')
+      }
     } else if (target.view === 'all') {
       navigate('/')
     } else if (target.view === 'program') {
@@ -146,8 +156,27 @@ function AppContent() {
             />
             <Route path="/initiative/:initiativeId/spec/:specType" element={<SpecViewer />} />
             <Route path="/initiative/:initiativeId/spec" element={<SpecViewer />} />
+            <Route
+              path="/repositories"
+              element={
+                <RepositoriesPanel
+                  execution={execution}
+                  onRepositoryClick={(id) => navigate(`/repository/${id}`)}
+                />
+              }
+            />
+            <Route
+              path="/repository/*"
+              element={
+                <RepositoryView
+                  execution={execution}
+                  onBack={() => navigate('/repositories')}
+                  onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                />
+              }
+            />
             <Route path="/maturity" element={<MaturityPanel />} />
-            <Route path="/spend" element={<SpendPanel />} />
+            <Route path="/performance" element={<PerformancePanel />} />
           </Routes>
         </div>
       </main>
@@ -204,6 +233,36 @@ function InitiativeView({
       execution={execution}
       specs={specs}
       onBack={onBack}
+    />
+  )
+}
+
+function RepositoryView({
+  execution,
+  onBack,
+  onInitiativeClick,
+}: {
+  execution: ExecutionResponse
+  onBack: () => void
+  onInitiativeClick: (id: string) => void
+}) {
+  const { '*': repositoryId } = useParams()
+  const repository = execution.repositories.find((r) => r.id === repositoryId)
+
+  if (!repository) {
+    return (
+      <div className="text-center text-gray-400 py-12">
+        <p>Repository not found: {repositoryId}</p>
+      </div>
+    )
+  }
+
+  return (
+    <RepositoryDetail
+      repository={repository}
+      execution={execution}
+      onBack={onBack}
+      onInitiativeClick={onInitiativeClick}
     />
   )
 }

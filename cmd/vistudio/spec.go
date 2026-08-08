@@ -8,6 +8,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/plexusone/structured-evaluation/rubric"
 	"github.com/spf13/cobra"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
@@ -262,7 +263,7 @@ func specJudgeRecordCmd() *cobra.Command {
 			if !cmd.Flags().Changed("score") {
 				return fmt.Errorf("--score is required")
 			}
-			score, _ := cmd.Flags().GetFloat64("score")
+			score, _ := cmd.Flags().GetInt("score")
 			rationale, _ := cmd.Flags().GetString("rationale")
 			model, _ := cmd.Flags().GetString("model")
 			if rationale == "" {
@@ -291,24 +292,49 @@ func specJudgeRecordCmd() *cobra.Command {
 			}
 
 			now := time.Now()
+			specType := strings.TrimSuffix(specFile, filepath.Ext(specFile))
+
+			// Build structured-evaluation report
+			intScore := rubric.IntegerScore(score)
+			if intScore < 1 {
+				intScore = 1
+			}
+			if intScore > 5 {
+				intScore = 5
+			}
+
+			report := &rubric.Rubric{
+				Metadata: rubric.ReportMetadata{
+					Document:    filepath.Join(specworkflow.SpecDir(initID), specFile),
+					GeneratedAt: now,
+				},
+				ReviewType: specType,
+				RubricID:   rubricID,
+				IntScore:   intScore,
+				Pass:       intScore >= 3,
+				Summary:    rationale,
+			}
+			if model != "" {
+				report.Judge = &rubric.JudgeMetadata{Model: model}
+			}
+
 			result := &store.JudgeResult{
-				ID:           fmt.Sprintf("%s-%s-%d", initID, strings.TrimSuffix(specFile, filepath.Ext(specFile)), now.Unix()),
+				ID:           fmt.Sprintf("%s-%s-%d", initID, specType, now.Unix()),
 				InitiativeID: initID,
 				SpecPath:     filepath.Join(specworkflow.SpecDir(initID), specFile),
+				SpecType:     specType,
 				RubricID:     rubricID,
-				Score:        score,
-				Rationale:    rationale,
-				Model:        model,
 				EvaluatedAt:  now,
+				Report:       report,
 			}
 			if err := svc.Store.CreateJudgeResult(cmd.Context(), result); err != nil {
 				return err
 			}
-			cmd.Printf("Recorded judge result %s (score: %.1f)\n", result.ID, result.Score)
+			cmd.Printf("Recorded judge result %s (score: %d/5)\n", result.ID, result.Score())
 			return nil
 		},
 	}
-	cmd.Flags().Float64("score", 0, "Score, e.g. 0-10 (required)")
+	cmd.Flags().Int("score", 0, "Score 1-5 (required)")
 	cmd.Flags().String("rationale", "", "Rationale for the score (required)")
 	cmd.Flags().String("model", "", "Model/agent identifier that produced this judgment")
 	return cmd
@@ -338,7 +364,7 @@ func specJudgeListCmd() *cobra.Command {
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 			_, _ = fmt.Fprintln(w, "ID\tSPEC\tSCORE\tMODEL\tEVALUATED")
 			for _, r := range results {
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%.1f\t%s\t%s\n", r.ID, r.SpecPath, r.Score, r.Model, r.EvaluatedAt.Format("2006-01-02 15:04"))
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%d\t%s\t%s\n", r.ID, r.SpecPath, r.Score(), r.Model(), r.EvaluatedAt.Format("2006-01-02 15:04"))
 			}
 			return w.Flush()
 		},

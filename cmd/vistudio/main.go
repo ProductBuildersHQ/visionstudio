@@ -12,7 +12,13 @@ import (
 	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
 )
 
-const defaultDSN = "root:@tcp(127.0.0.1:3306)/visionstudio"
+// defaultPort is the single default port for the local Dolt SQL server. The
+// client DSN and the `db serve`/`start`/`restart` commands all fall back to it,
+// so a freshly-started server and the CLI agree without any configuration. A
+// saved config.json DSN takes precedence — see defaultServerPort and getDSN.
+// Keep defaultDSN's port in sync with this value.
+const defaultPort = 13306
+const defaultDSN = "root:@tcp(127.0.0.1:13306)/visionstudio"
 const defaultDataDir = "~/.productbuildershq/visionstudio"
 
 func main() {

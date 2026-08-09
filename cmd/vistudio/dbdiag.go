@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -20,6 +21,20 @@ func dsnAddr(dsn string) string {
 		return "the configured address"
 	}
 	return addr
+}
+
+// portFromDSN extracts the numeric port from a MySQL DSN's host:port segment.
+// It returns 0 when the port cannot be determined.
+func portFromDSN(dsn string) int {
+	_, portStr, ok := strings.Cut(dsnAddr(dsn), ":")
+	if !ok {
+		return 0
+	}
+	p, err := strconv.Atoi(portStr)
+	if err != nil {
+		return 0
+	}
+	return p
 }
 
 // diagnoseDBError inspects an error from connecting to (or pinging) the Dolt

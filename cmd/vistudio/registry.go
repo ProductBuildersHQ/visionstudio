@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -230,6 +232,21 @@ func connectService(cmd *cobra.Command) (*service.Service, func(), error) {
 	ds, err := doltstore.New(dsn)
 	if err != nil {
 		return nil, nil, fmt.Errorf("connect (server): %w", err)
+	}
+	// sql.Open is lazy, so New succeeds even when Dolt is down. Ping now to
+	// surface an actionable "the server is not running" message instead of a
+	// raw driver error deep inside the first query.
+	baseCtx := cmd.Context()
+	if baseCtx == nil {
+		baseCtx = context.Background()
+	}
+	pingCtx, cancel := context.WithTimeout(baseCtx, 5*time.Second)
+	defer cancel()
+	if err := ds.Ping(pingCtx); err != nil {
+		if closeErr := ds.Close(); closeErr != nil {
+			fmt.Fprintf(os.Stderr, "warning: close database: %v\n", closeErr)
+		}
+		return nil, nil, diagnoseDBError(dsn, err)
 	}
 	svc := service.New(ds)
 	return svc, func() {

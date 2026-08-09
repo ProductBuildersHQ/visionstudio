@@ -315,7 +315,18 @@ func dbStatusCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pid, port, err := readPIDFile()
 			if err != nil {
+				// No PID file, but a server may still be running (started via
+				// `db serve` or an external `dolt sql-server`). Probe the
+				// configured DSN before reporting it as down.
+				dsn := getDSN(cmd)
+				if pingDSN(dsn) {
+					cmd.Println("Server: running (detected via DSN; no PID file)")
+					cmd.Printf("  Addr: %s\n", dsnAddr(dsn))
+					return nil
+				}
 				cmd.Println("Server: not running (no PID file)")
+				cmd.Printf("  Tried: %s\n", dsnAddr(dsn))
+				cmd.Println("  Start it with: vistudio db start")
 				return nil
 			}
 
@@ -325,6 +336,7 @@ func dbStatusCmd() *cobra.Command {
 			if !alive {
 				removePIDFile()
 				cmd.Printf("Server: not running (stale PID file for %d removed)\n", pid)
+				cmd.Println("  Start it with: vistudio db start")
 				return nil
 			}
 

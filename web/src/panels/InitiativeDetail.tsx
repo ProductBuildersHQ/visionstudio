@@ -15,8 +15,6 @@ import type {
 import { getSpecFiles } from '../api/client'
 import { StatusBadge } from '../components/StatusBadge'
 import { ProgressBar } from '../components/ProgressBar'
-import { PieChart as _PieChart } from '../components/charts'
-void _PieChart
 
 interface InitiativeDetailProps {
   initiative: APIInitiative

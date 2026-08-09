@@ -47,6 +47,8 @@ func rootCmd() *cobra.Command {
 		versionCmd(),
 		configCmd(),
 		dbCmd(),
+		appCmd(),
+		uiCmd(),
 		registryCmd(),
 		programCmd(),
 		initiativeCmd(),

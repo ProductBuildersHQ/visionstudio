@@ -43,6 +43,19 @@ func pingDSN(dsn string) bool {
 	return ds.Ping(ctx) == nil
 }
 
+// defaultServerPort returns the port the local Dolt server should use. It
+// prefers the port encoded in the saved config.json DSN, so the `db` lifecycle
+// commands and the client stay on the same port across runs, and falls back to
+// defaultPort when no config DSN is set. An explicit --port flag still wins.
+func defaultServerPort() int {
+	if cfg, err := config.Load(); err == nil && cfg.DSN != "" {
+		if p := portFromDSN(cfg.DSN); p > 0 {
+			return p
+		}
+	}
+	return defaultPort
+}
+
 func splitSQLStatements(sql string) []string {
 	raw := strings.Split(sql, ";")
 	var stmts []string

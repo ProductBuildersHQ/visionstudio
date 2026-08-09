@@ -138,7 +138,7 @@ For background operation, use 'vistudio db start' instead.`,
 			return service.DBServe(cmd.Context(), absDir, port)
 		},
 	}
-	cmd.Flags().Int("port", 3306, "Port for the SQL server")
+	cmd.Flags().Int("port", defaultServerPort(), "Port for the SQL server (default: config.json DSN port or the built-in default)")
 	return cmd
 }
 
@@ -209,7 +209,7 @@ DSN to the config file. Use 'vistudio db stop' to shut it down.`,
 			return nil
 		},
 	}
-	cmd.Flags().Int("port", 13306, "Port for the SQL server")
+	cmd.Flags().Int("port", defaultServerPort(), "Port for the SQL server (default: config.json DSN port or the built-in default)")
 	return cmd
 }
 
@@ -288,7 +288,7 @@ func dbRestartCmd() *cobra.Command {
 				port = oldPort
 			}
 			if port == 0 {
-				port = 13306
+				port = defaultServerPort()
 			}
 
 			if err := cmd.Flags().Set("port", fmt.Sprintf("%d", port)); err != nil {
@@ -304,7 +304,7 @@ func dbRestartCmd() *cobra.Command {
 			return startCmd.RunE(startCmd, nil)
 		},
 	}
-	cmd.Flags().Int("port", 0, "Port for the SQL server (default: previous port or 13306)")
+	cmd.Flags().Int("port", 0, "Port for the SQL server (default: previous port, else config.json DSN port or the built-in default)")
 	return cmd
 }
 

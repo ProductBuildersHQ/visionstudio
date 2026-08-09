@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { ExecutionResponse, APIRepository } from '../api/types'
+import type { ExecutionResponse, APIRepository, APIRMI } from '../api/types'
 import { StatusBadge } from '../components/StatusBadge'
 import { PieChart } from '../components/charts'
 
@@ -33,6 +33,19 @@ export function RepositoriesPanel({ execution, onRepositoryClick }: Repositories
     return Object.entries(counts).map(([name, value]) => ({ name, value }))
   }, [rmis])
 
+  // Pre-group RMIs by repository once so each repo card is a map lookup
+  // instead of a full rmis.filter() scan per repository.
+  const rmisByRepoId = useMemo(() => {
+    const map = new Map<string, APIRMI[]>()
+    for (const r of rmis) {
+      if (!r.repositoryId) continue
+      const arr = map.get(r.repositoryId)
+      if (arr) arr.push(r)
+      else map.set(r.repositoryId, [r])
+    }
+    return map
+  }, [rmis])
+
   if (repositories.length === 0) {
     return (
       <div className="text-center text-gray-400 py-12">
@@ -62,7 +75,7 @@ export function RepositoriesPanel({ execution, onRepositoryClick }: Repositories
           <h2 className="text-lg font-medium text-gray-300">{org}</h2>
           <div className="grid gap-3 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {repos.map((repo) => {
-              const repoRMIs = rmis.filter((r) => r.repositoryId === repo.id)
+              const repoRMIs = rmisByRepoId.get(repo.id) ?? []
               const completedCount = repoRMIs.filter((r) =>
                 ['completed', 'released', 'done'].includes(r.status.toLowerCase())
               ).length

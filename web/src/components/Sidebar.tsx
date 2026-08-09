@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import type { ExecutionResponse } from '../api/types'
 import type { NavTarget } from '../App'
@@ -41,6 +41,17 @@ export function Sidebar({
     }
     setExpandedPrograms(next)
   }
+
+  // Precompute RMI counts per repository once, so the repo sort/render below
+  // don't re-filter execution.rmis for every repository.
+  const rmiCountByRepoId = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const r of execution.rmis) {
+      if (!r.repositoryId) continue
+      counts.set(r.repositoryId, (counts.get(r.repositoryId) ?? 0) + 1)
+    }
+    return counts
+  }, [execution.rmis])
 
   const visiblePrograms = execution.programs.filter((p) => !p.hidden)
   const standaloneInitiatives = execution.initiatives.filter((i) => !i.programId)
@@ -180,25 +191,18 @@ export function Sidebar({
             >
               {execution.repositories
                 .slice()
-                .sort((a, b) => {
-                  const aCount = execution.rmis.filter((r) => r.repositoryId === a.id).length
-                  const bCount = execution.rmis.filter((r) => r.repositoryId === b.id).length
-                  return bCount - aCount
-                })
+                .sort((a, b) => (rmiCountByRepoId.get(b.id) ?? 0) - (rmiCountByRepoId.get(a.id) ?? 0))
                 .slice(0, 10)
-                .map((repo) => {
-                  const repoRMIs = execution.rmis.filter((r) => r.repositoryId === repo.id)
-                  return (
-                    <NavRepoItem
-                      key={repo.id}
-                      label={repo.repositoryName}
-                      organization={repo.organization}
-                      rmiCount={repoRMIs.length}
-                      active={location.pathname === `/repository/${repo.id}`}
-                      onClick={() => onNavigate({ section: 'repositories', view: 'repository', repositoryId: repo.id })}
-                    />
-                  )
-                })}
+                .map((repo) => (
+                  <NavRepoItem
+                    key={repo.id}
+                    label={repo.repositoryName}
+                    organization={repo.organization}
+                    rmiCount={rmiCountByRepoId.get(repo.id) ?? 0}
+                    active={location.pathname === `/repository/${repo.id}`}
+                    onClick={() => onNavigate({ section: 'repositories', view: 'repository', repositoryId: repo.id })}
+                  />
+                ))}
               {execution.repositories.length > 10 && (
                 <button
                   onClick={() => onNavigate({ section: 'repositories' })}

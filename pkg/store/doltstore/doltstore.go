@@ -1583,26 +1583,7 @@ func (d *DoltStore) ListMaturityAssessments(ctx context.Context, initiativeID st
 	if err != nil {
 		return nil, fmt.Errorf("list maturity assessments for %s: %w", initiativeID, err)
 	}
-	result := make([]*store.MaturityAssessment, len(rows))
-	for i, r := range rows {
-		modelID := ""
-		if cm, err := r.Edges.CapabilityModelOrErr(); err == nil {
-			modelID = cm.ID
-		}
-		result[i] = &store.MaturityAssessment{
-			ID:           r.ID,
-			ModelID:      modelID,
-			InitiativeID: r.InitiativeID,
-			Organization: r.Organization,
-			Scores:       entScoresToStore(r.Scores),
-			OverallScore: r.OverallScore,
-			Summary:      r.Summary,
-			AssessedBy:   r.AssessedBy,
-			Model:        r.Model,
-			AssessedAt:   r.AssessedAt,
-		}
-	}
-	return result, nil
+	return mapMaturityAssessments(rows), nil
 }
 
 func (d *DoltStore) ListMaturityAssessmentsByOrg(ctx context.Context, org string) ([]*store.MaturityAssessment, error) {
@@ -1613,6 +1594,12 @@ func (d *DoltStore) ListMaturityAssessmentsByOrg(ctx context.Context, org string
 	if err != nil {
 		return nil, fmt.Errorf("list maturity assessments for org %s: %w", org, err)
 	}
+	return mapMaturityAssessments(rows), nil
+}
+
+// mapMaturityAssessments converts ent rows (with the capability-model edge
+// loaded) into store.MaturityAssessment values.
+func mapMaturityAssessments(rows []*ent.MaturityAssessment) []*store.MaturityAssessment {
 	result := make([]*store.MaturityAssessment, len(rows))
 	for i, r := range rows {
 		modelID := ""
@@ -1632,9 +1619,8 @@ func (d *DoltStore) ListMaturityAssessmentsByOrg(ctx context.Context, org string
 			AssessedAt:   r.AssessedAt,
 		}
 	}
-	return result, nil
+	return result
 }
-
 
 // ---------------------------------------------------------------------------
 // Rubric conversion helpers

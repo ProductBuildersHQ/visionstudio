@@ -1,4 +1,4 @@
-// Package main is the entry point for the vistudio CLI — the VisionStudio
+// Package main is the entry point for the visionstudio CLI — the VisionStudio
 // control plane, successor to prismctl with the full command surface.
 package main
 
@@ -30,7 +30,7 @@ func main() {
 
 func rootCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "vistudio",
+		Use:   "visionstudio",
 		Short: "VisionStudio — Product Delivery Control Plane",
 		Long:  "Coordinate cross-repository initiatives, roadmap items, assignments, and delivery evidence.",
 		// main() prints the returned error once. Silence cobra's own error and
@@ -106,7 +106,7 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print the version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("vistudio v0.1.0-dev")
+			fmt.Println("visionstudio v0.1.0-dev")
 		},
 	}
 }

@@ -212,7 +212,7 @@ func maturityAssessShowCmd() *cobra.Command {
 			}
 
 			fmt.Println("---")
-			fmt.Println("After assessment, use 'vistudio maturity assess record' to persist results.")
+			fmt.Println("After assessment, use 'visionstudio maturity assess record' to persist results.")
 			return nil
 		},
 	}
@@ -235,7 +235,7 @@ Scores must be provided as JSON mapping dimension keys to scores:
   --scores '{"customer-obsession": {"level": 3, "rationale": "..."}, ...}'
 
 Example:
-  vistudio maturity assess record INIT-FOO-001 big-tech-essentials \
+  visionstudio maturity assess record INIT-FOO-001 big-tech-essentials \
     --scores '{"customer-obsession": {"level": 3, "rationale": "Regular user research"}}' \
     --overall 3.2 \
     --summary "Good customer focus, needs work on API design" \

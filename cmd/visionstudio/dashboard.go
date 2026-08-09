@@ -78,7 +78,7 @@ func runDashboardStatic(cmd *cobra.Command) error {
 	}
 
 	tmpDir := os.TempDir()
-	outPath := filepath.Join(tmpDir, "vistudio-dashboard.html")
+	outPath := filepath.Join(tmpDir, "visionstudio-dashboard.html")
 	if err := os.WriteFile(outPath, html, 0o600); err != nil {
 		return fmt.Errorf("write file: %w", err)
 	}

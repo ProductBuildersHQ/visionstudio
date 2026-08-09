@@ -12,8 +12,8 @@ import (
 func configCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",
-		Short: "Manage vistudio configuration",
-		Long: `View and modify the vistudio configuration file.
+		Short: "Manage visionstudio configuration",
+		Long: `View and modify the visionstudio configuration file.
 
 Configuration is stored at ~/.productbuildershq/visionstudio/config.json.
 Values are resolved in order: CLI flag > environment variable > config file > default.`,

@@ -67,7 +67,7 @@ Reports use the `rubric.Rubric` schema from `structured-evaluation`:
     "rationale": "All categories pass or partial, no blocking findings"
   },
   "nextSteps": {
-    "rerunCommand": "vistudio eval prd",
+    "rerunCommand": "visionstudio eval prd",
     "immediate": [],
     "recommended": [
       {

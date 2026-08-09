@@ -14,14 +14,14 @@ Deeper architecture docs live in `docs/architecture/` (`overview.md`, `daemon.md
 
 | Binary | Purpose |
 |--------|---------|
-| `cmd/vistudio` | Current cobra CLI + unified daemon (dashboard, db, ingest, spec/initiative/roadmap/maturity commands, MCP). This is the primary one. |
-| `cmd/daemon` | Legacy standalone REST server (aidlc/v2mom/capability/etc. handlers). Being superseded by `vistudio dashboard`. |
+| `cmd/visionstudio` | Current cobra CLI + unified daemon (dashboard, db, ingest, spec/initiative/roadmap/maturity commands, MCP). This is the primary one. |
+| `cmd/daemon` | Legacy standalone REST server (aidlc/v2mom/capability/etc. handlers). Being superseded by `visionstudio dashboard`. |
 
 **Two frontends** — a migration is in progress:
 
 | Dir | What it is |
 |-----|-----------|
-| `web/` (`visionstudio-web`) | Current React + Vite SPA served by the Go daemon (`vistudio dashboard --unified`). Prefer this for new UI work. |
+| `web/` (`visionstudio-web`) | Current React + Vite SPA served by the Go daemon (`visionstudio dashboard --unified`). Prefer this for new UI work. |
 | `desktop/` (`visionstudio`) | Electron app (own `main/` + `renderer/`). Matches the README architecture diagram; older. |
 
 **`go.work` multi-repo workspace** — building requires these sibling repos checked out alongside visionstudio (they are `use`d locally, not via published modules):
@@ -80,7 +80,7 @@ VisionStudio uses Dolt (MySQL-compatible) via Ent ORM for persistent storage. Th
 
 ```bash
 # Initialize or migrate database
-go run ./cmd/vistudio db init --migrate
+go run ./cmd/visionstudio db init --migrate
 
 # Generate Ent schema after changes
 go generate ./ent
@@ -93,7 +93,7 @@ go generate ./ent
 | Store | `pkg/store` | snake_case | Database/internal |
 | API | `pkg/apitypes` | camelCase | HTTP responses |
 
-Convert between them in API handlers (see `storeJudgeResultToAPI` in `cmd/vistudio/api.go`).
+Convert between them in API handlers (see `storeJudgeResultToAPI` in `cmd/visionstudio/api.go`).
 
 ## Dashboard
 
@@ -101,7 +101,7 @@ The unified dashboard serves both the React frontend and JSON API:
 
 ```bash
 # Run dashboard (serves frontend + API on same port)
-go run ./cmd/vistudio dashboard --port 9401 --unified
+go run ./cmd/visionstudio dashboard --port 9401 --unified
 
 # Frontend dev (hot reload)
 cd web && npm run dev
@@ -140,13 +140,13 @@ Judge results use `structured-evaluation/rubric.Rubric` format directly. Eval fi
 
 ```bash
 # Build
-go build ./cmd/vistudio
+go build ./cmd/visionstudio
 
 # Run dashboard
-go run ./cmd/vistudio dashboard --port 9401 --unified
+go run ./cmd/visionstudio dashboard --port 9401 --unified
 
 # Database migration
-go run ./cmd/vistudio db init --migrate
+go run ./cmd/visionstudio db init --migrate
 
 # Regenerate types
 go generate ./pkg/apitypes
@@ -165,7 +165,7 @@ cd web && npm test
 Key locations (not exhaustive — the tree changes; `ls pkg/` for the current package list):
 
 ```
-cmd/vistudio/          # Primary CLI + daemon (cobra)
+cmd/visionstudio/          # Primary CLI + daemon (cobra)
   api.go               # API handlers, store→API converters
 cmd/daemon/            # Legacy REST server (being superseded)
 pkg/                   # ~28 domain/service packages. Notable:

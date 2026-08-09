@@ -123,7 +123,7 @@
   "overallDecision": "pass",
   "summary": "PLAN has well-structured phases with clear progression. Milestones, risks, and resources could use more detail.",
   "nextSteps": {
-    "rerunCommand": "vistudio eval plan",
+    "rerunCommand": "visionstudio eval plan",
     "immediate": [],
     "recommended": [
       {

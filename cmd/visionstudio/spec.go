@@ -43,7 +43,7 @@ func specInitCmd() *cobra.Command {
 				return err
 			}
 			if init.HomeRepo == "" {
-				return fmt.Errorf("initiative %s has no home-repo set; run 'vistudio initiative update %s --home-repo <repo-id>' first", init.ID, init.ID)
+				return fmt.Errorf("initiative %s has no home-repo set; run 'visionstudio initiative update %s --home-repo <repo-id>' first", init.ID, init.ID)
 			}
 			repo, err := svc.Store.GetRepository(cmd.Context(), init.HomeRepo)
 			if err != nil {
@@ -240,7 +240,7 @@ func specJudgeShowCmd() *cobra.Command {
 			}
 			cmd.Printf("--- Content (%s) ---\n%s\n", specPath, string(content))
 			cmd.Printf("\n--- To record your evaluation ---\n")
-			cmd.Printf("vistudio spec judge record %s %s --score <0-10> --rationale \"<why>\" --model <your-model-id>\n", initID, specFile)
+			cmd.Printf("visionstudio spec judge record %s %s --score <0-10> --rationale \"<why>\" --model <your-model-id>\n", initID, specFile)
 			return nil
 		},
 	}

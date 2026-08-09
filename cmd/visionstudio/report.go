@@ -71,9 +71,9 @@ Modes:
   --since/--until     Report for a custom date range
 
 Examples:
-  vistudio report tokens --initiative INIT-PRISM-001
-  vistudio report tokens --quarter 2026-Q3
-  vistudio report tokens --since 2026-07-01 --until 2026-07-31`,
+  visionstudio report tokens --initiative INIT-PRISM-001
+  visionstudio report tokens --quarter 2026-Q3
+  visionstudio report tokens --since 2026-07-01 --until 2026-07-31`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {

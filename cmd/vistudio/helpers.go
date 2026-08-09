@@ -29,6 +29,20 @@ func getDSN(cmd *cobra.Command) string {
 	return defaultDSN
 }
 
+// pingDSN reports whether a Dolt server is reachable at the given DSN by
+// opening a short-lived connection and pinging it. Used by `db status` to
+// detect servers that were not started via `db start` (which have no PID file).
+func pingDSN(dsn string) bool {
+	ds, err := doltstore.New(dsn)
+	if err != nil {
+		return false
+	}
+	defer func() { _ = ds.Close() }()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return ds.Ping(ctx) == nil
+}
+
 func splitSQLStatements(sql string) []string {
 	raw := strings.Split(sql, ";")
 	var stmts []string

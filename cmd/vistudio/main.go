@@ -27,6 +27,11 @@ func rootCmd() *cobra.Command {
 		Use:   "vistudio",
 		Short: "VisionStudio — Product Delivery Control Plane",
 		Long:  "Coordinate cross-repository initiatives, roadmap items, assignments, and delivery evidence.",
+		// main() prints the returned error once. Silence cobra's own error and
+		// usage dumps so runtime failures (e.g. the DB being down) show a clean,
+		// actionable message instead of a duplicated error plus a usage tree.
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	cmd.PersistentFlags().String("dsn", "", "MySQL-compatible DSN for Dolt server mode (default: $VISIONSTUDIO_DSN or "+defaultDSN+")")

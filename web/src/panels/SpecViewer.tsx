@@ -60,6 +60,7 @@ export function SpecViewer() {
   }
 
   const handleSpecChange = (newSpecType: string) => {
+    if (!newSpecType) return // avoid navigating to a trailing-slash /spec/ route that won't match
     navigate(`/initiative/${initiativeId}/spec/${newSpecType.toLowerCase()}${mode === 'markdown' ? '?mode=markdown' : ''}`)
   }
 

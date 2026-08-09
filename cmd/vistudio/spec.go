@@ -311,7 +311,7 @@ func specJudgeRecordCmd() *cobra.Command {
 				ReviewType: specType,
 				RubricID:   rubricID,
 				IntScore:   intScore,
-				Pass:       intScore >= 3,
+				Pass:       intScore >= 4,
 				Summary:    rationale,
 			}
 			if model != "" {

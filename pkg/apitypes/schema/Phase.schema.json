@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/Phase.schema.json",
+  "$ref": "#/$defs/Phase",
+  "$defs": {
+    "Phase": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "initiativeId": {
+          "type": "string"
+        },
+        "sequenceNumber": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

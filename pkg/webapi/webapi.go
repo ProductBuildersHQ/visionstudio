@@ -104,6 +104,7 @@ type ExecutionResponse struct {
 // SpendResponse is the response for /api/spend.
 type SpendResponse struct {
 	Total        *APITokens            `json:"total,omitempty"`
+	ByModel      map[string]*APITokens `json:"byModel,omitempty"`
 	ByInitiative map[string]*APITokens `json:"byInitiative,omitempty"`
 	ByPhase      map[string]*APITokens `json:"byPhase,omitempty"`
 	ByRMI        map[string]*APITokens `json:"byRmi,omitempty"`
@@ -376,6 +377,7 @@ func addTotals(dst *APITokens, t report.TokenTotals) {
 // token events attributed to initiatives, phases, and RMIs.
 func BuildSpendResponse(ctx context.Context, svc *service.Service, dataDir string) (*SpendResponse, error) {
 	resp := &SpendResponse{
+		ByModel:      make(map[string]*APITokens),
 		ByInitiative: make(map[string]*APITokens),
 		ByPhase:      make(map[string]*APITokens),
 		ByRMI:        make(map[string]*APITokens),
@@ -409,6 +411,14 @@ func BuildSpendResponse(ctx context.Context, svc *service.Service, dataDir strin
 		}
 		addTotals(total, tr.Totals)
 		resp.ByInitiative[init.ID] = totalsToAPI(&tr.Totals)
+
+		// Aggregate model breakdown
+		for _, mt := range tr.ByModel {
+			if resp.ByModel[mt.Model] == nil {
+				resp.ByModel[mt.Model] = &APITokens{}
+			}
+			addTotals(resp.ByModel[mt.Model], mt.Totals)
+		}
 
 		for _, rt := range tr.ByRMI {
 			t := rt.Totals

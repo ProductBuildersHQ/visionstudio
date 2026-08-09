@@ -321,6 +321,7 @@ type initData struct {
 	TotalRMIs     int
 	CompletedRMIs int
 	Tokens        *report.TokenTotals // nil if no token data
+	TokenReport   *report.TokenReport // full report for model breakdown
 }
 
 type programData struct {
@@ -456,8 +457,10 @@ func loadDashboardData(ctx context.Context, svc *service.Service, dataDir string
 		rmiTokens := make(map[string]*report.TokenTotals)
 		phaseTokens := make(map[string]*report.TokenTotals)
 		var initTokens *report.TokenTotals
+		var initTokenReport *report.TokenReport
 		if tr, ok := tokenReports[init.ID]; ok {
 			initTokens = &tr.Totals
+			initTokenReport = tr
 			for _, rmiT := range tr.ByRMI {
 				t := rmiT.Totals // copy
 				rmiTokens[rmiT.RMIID] = &t
@@ -529,6 +532,7 @@ func loadDashboardData(ctx context.Context, svc *service.Service, dataDir string
 			TotalRMIs:     totalRMIs,
 			CompletedRMIs: completedRMIs,
 			Tokens:        initTokens,
+			TokenReport:   initTokenReport,
 		})
 	}
 

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/SpecWorkflow.schema.json",
+  "$ref": "#/$defs/SpecWorkflow",
+  "$defs": {
+    "SpecWorkflow": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "specsRequired": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "specsOptional": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "initTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

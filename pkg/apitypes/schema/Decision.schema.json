@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/Decision.schema.json",
+  "$ref": "#/$defs/Decision",
+  "$defs": {
+    "Decision": {
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

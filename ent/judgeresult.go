@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -23,14 +24,18 @@ type JudgeResult struct {
 	InitiativeID string `json:"initiative_id,omitempty"`
 	// SpecPath holds the value of the "spec_path" field.
 	SpecPath string `json:"spec_path,omitempty"`
-	// Score holds the value of the "score" field.
-	Score float64 `json:"score,omitempty"`
-	// Rationale holds the value of the "rationale" field.
-	Rationale string `json:"rationale,omitempty"`
-	// Model holds the value of the "model" field.
-	Model string `json:"model,omitempty"`
+	// SpecType holds the value of the "spec_type" field.
+	SpecType string `json:"spec_type,omitempty"`
 	// EvaluatedAt holds the value of the "evaluated_at" field.
 	EvaluatedAt time.Time `json:"evaluated_at,omitempty"`
+	// Report holds the value of the "report" field.
+	Report map[string]interface{} `json:"report,omitempty"`
+	// 1-5 integer score from report.IntScore
+	IntScore int `json:"int_score,omitempty"`
+	// Pass/fail from report.Pass
+	Pass bool `json:"pass,omitempty"`
+	// Judge model from report.Judge.Model
+	Model string `json:"model,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the JudgeResultQuery when eager-loading is set.
 	Edges                JudgeResultEdges `json:"edges"`
@@ -76,9 +81,13 @@ func (*JudgeResult) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case judgeresult.FieldScore:
-			values[i] = new(sql.NullFloat64)
-		case judgeresult.FieldID, judgeresult.FieldInitiativeID, judgeresult.FieldSpecPath, judgeresult.FieldRationale, judgeresult.FieldModel:
+		case judgeresult.FieldReport:
+			values[i] = new([]byte)
+		case judgeresult.FieldPass:
+			values[i] = new(sql.NullBool)
+		case judgeresult.FieldIntScore:
+			values[i] = new(sql.NullInt64)
+		case judgeresult.FieldID, judgeresult.FieldInitiativeID, judgeresult.FieldSpecPath, judgeresult.FieldSpecType, judgeresult.FieldModel:
 			values[i] = new(sql.NullString)
 		case judgeresult.FieldEvaluatedAt:
 			values[i] = new(sql.NullTime)
@@ -117,29 +126,43 @@ func (_m *JudgeResult) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.SpecPath = value.String
 			}
-		case judgeresult.FieldScore:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field score", values[i])
-			} else if value.Valid {
-				_m.Score = value.Float64
-			}
-		case judgeresult.FieldRationale:
+		case judgeresult.FieldSpecType:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field rationale", values[i])
+				return fmt.Errorf("unexpected type %T for field spec_type", values[i])
 			} else if value.Valid {
-				_m.Rationale = value.String
-			}
-		case judgeresult.FieldModel:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field model", values[i])
-			} else if value.Valid {
-				_m.Model = value.String
+				_m.SpecType = value.String
 			}
 		case judgeresult.FieldEvaluatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field evaluated_at", values[i])
 			} else if value.Valid {
 				_m.EvaluatedAt = value.Time
+			}
+		case judgeresult.FieldReport:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field report", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Report); err != nil {
+					return fmt.Errorf("unmarshal field report: %w", err)
+				}
+			}
+		case judgeresult.FieldIntScore:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field int_score", values[i])
+			} else if value.Valid {
+				_m.IntScore = int(value.Int64)
+			}
+		case judgeresult.FieldPass:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field pass", values[i])
+			} else if value.Valid {
+				_m.Pass = value.Bool
+			}
+		case judgeresult.FieldModel:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field model", values[i])
+			} else if value.Valid {
+				_m.Model = value.String
 			}
 		case judgeresult.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -200,17 +223,23 @@ func (_m *JudgeResult) String() string {
 	builder.WriteString("spec_path=")
 	builder.WriteString(_m.SpecPath)
 	builder.WriteString(", ")
-	builder.WriteString("score=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Score))
-	builder.WriteString(", ")
-	builder.WriteString("rationale=")
-	builder.WriteString(_m.Rationale)
-	builder.WriteString(", ")
-	builder.WriteString("model=")
-	builder.WriteString(_m.Model)
+	builder.WriteString("spec_type=")
+	builder.WriteString(_m.SpecType)
 	builder.WriteString(", ")
 	builder.WriteString("evaluated_at=")
 	builder.WriteString(_m.EvaluatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("report=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Report))
+	builder.WriteString(", ")
+	builder.WriteString("int_score=")
+	builder.WriteString(fmt.Sprintf("%v", _m.IntScore))
+	builder.WriteString(", ")
+	builder.WriteString("pass=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Pass))
+	builder.WriteString(", ")
+	builder.WriteString("model=")
+	builder.WriteString(_m.Model)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -251,7 +251,7 @@ function InitiativeDetailView({
   const initDeps = (execution.initiativeDependencies ?? []).filter(
     (d) => d.sourceInitiativeId === initiative.id || d.targetInitiativeId === initiative.id
   )
-  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiative_id === initiative.id)
+  const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiativeId === initiative.id)
 
   const sortedPhases = useMemo(
     () => [...phases].sort((a, b) => a.sequenceNumber - b.sequenceNumber),
@@ -409,18 +409,21 @@ function InitiativeDetailView({
 }
 
 function SpecsSection({ judgeResults }: { judgeResults: JudgeResult[] }) {
-  const avgScore = judgeResults.reduce((sum, r) => sum + r.score, 0) / judgeResults.length
+  const getScore = (r: JudgeResult): number => r.report?.intScore ?? 0
+  const avgScore = judgeResults.length > 0
+    ? judgeResults.reduce((sum, r) => sum + getScore(r), 0) / judgeResults.length
+    : 0
 
-  const specTypes = [...new Set(judgeResults.map((r) => specType(r.spec_path)))]
+  const specTypes = [...new Set(judgeResults.map((r) => specType(r.specPath)))]
 
   return (
     <div className="bg-gray-800 rounded-lg p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-medium text-purple-400">Spec Quality</h3>
         <span className={`text-lg font-semibold ${
-          avgScore >= 7 ? 'text-green-400' : avgScore >= 4 ? 'text-yellow-400' : 'text-red-400'
+          avgScore >= 4 ? 'text-green-400' : avgScore >= 3 ? 'text-yellow-400' : 'text-red-400'
         }`}>
-          {avgScore.toFixed(1)} avg
+          {avgScore.toFixed(1)}/5 avg
         </span>
       </div>
       <div className="flex flex-wrap gap-2 mb-3">
@@ -432,19 +435,22 @@ function SpecsSection({ judgeResults }: { judgeResults: JudgeResult[] }) {
       </div>
       <div className="space-y-2 max-h-48 overflow-y-auto">
         {judgeResults
-          .sort((a, b) => new Date(b.evaluated_at).getTime() - new Date(a.evaluated_at).getTime())
-          .map((r) => (
-            <div key={r.id} className="flex justify-between text-sm">
-              <span className="text-gray-300">{r.spec_path.split('/').pop()}</span>
-              <span className={`px-2 py-0.5 rounded ${
-                r.score >= 7 ? 'bg-green-500/30 text-green-300' :
-                r.score >= 4 ? 'bg-yellow-500/30 text-yellow-300' :
-                'bg-red-500/30 text-red-300'
-              }`}>
-                {r.score.toFixed(1)}
-              </span>
-            </div>
-          ))}
+          .sort((a, b) => new Date(b.evaluatedAt ?? '').getTime() - new Date(a.evaluatedAt ?? '').getTime())
+          .map((r) => {
+            const score = getScore(r)
+            return (
+              <div key={r.id} className="flex justify-between text-sm">
+                <span className="text-gray-300">{(r.specPath ?? '').split('/').pop()}</span>
+                <span className={`px-2 py-0.5 rounded ${
+                  score >= 4 ? 'bg-green-500/30 text-green-300' :
+                  score >= 3 ? 'bg-yellow-500/30 text-yellow-300' :
+                  'bg-red-500/30 text-red-300'
+                }`}>
+                  {score}/5
+                </span>
+              </div>
+            )
+          })}
       </div>
     </div>
   )
@@ -475,8 +481,8 @@ function PhaseCard({
           <span className="text-sm text-gray-500">({rmis.length} RMIs)</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-400">{Math.round(phase.progress * 100)}%</span>
-          <ProgressBar progress={phase.progress} className="w-24" size="sm" />
+          <span className="text-sm text-gray-400">{Math.round((phase.progress ?? 0) * 100)}%</span>
+          <ProgressBar progress={phase.progress ?? 0} className="w-24" size="sm" />
         </div>
       </button>
       {expanded && (
@@ -529,7 +535,7 @@ function RMIRow({
             {new Date(rmi.completedAt).toLocaleDateString()}
           </span>
         )}
-        <StatusBadge status={rmi.status} size="sm" />
+        <StatusBadge status={rmi.status ?? ''} size="sm" />
       </div>
     </div>
   )

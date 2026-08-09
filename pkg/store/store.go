@@ -7,6 +7,8 @@ package store
 import (
 	"context"
 	"time"
+
+	"github.com/plexusone/structured-evaluation/rubric"
 )
 
 // Store is the persistence interface shared by all service-layer operations.
@@ -267,15 +269,51 @@ type JudgeRubric struct {
 }
 
 // JudgeResult stores an LLM-as-a-Judge evaluation result.
+// It wraps structured-evaluation's rubric.Rubric with additional metadata
+// for persistence and querying.
 type JudgeResult struct {
 	ID           string    `json:"id"`
 	InitiativeID string    `json:"initiative_id"`
 	SpecPath     string    `json:"spec_path"`
+	SpecType     string    `json:"spec_type,omitempty"`
 	RubricID     string    `json:"rubric_id"`
-	Score        float64   `json:"score"`
-	Rationale    string    `json:"rationale,omitempty"`
-	Model        string    `json:"model,omitempty"`
 	EvaluatedAt  time.Time `json:"evaluated_at"`
+
+	// Report is the full structured-evaluation rubric report.
+	// Contains categories, findings, scores, confidence, and decision.
+	Report *rubric.Rubric `json:"report"`
+}
+
+// Score returns the overall integer score (1-5) from the report.
+func (j *JudgeResult) Score() int {
+	if j.Report == nil {
+		return 0
+	}
+	return int(j.Report.IntScore)
+}
+
+// Pass returns whether the evaluation passed.
+func (j *JudgeResult) Pass() bool {
+	if j.Report == nil {
+		return false
+	}
+	return j.Report.Pass
+}
+
+// Model returns the judge model from the report metadata.
+func (j *JudgeResult) Model() string {
+	if j.Report == nil || j.Report.Judge == nil {
+		return ""
+	}
+	return j.Report.Judge.Model
+}
+
+// Rationale returns the summary from the report.
+func (j *JudgeResult) Rationale() string {
+	if j.Report == nil {
+		return ""
+	}
+	return j.Report.Summary
 }
 
 // SpecWorkflowStore defines persistence for spec workflows.

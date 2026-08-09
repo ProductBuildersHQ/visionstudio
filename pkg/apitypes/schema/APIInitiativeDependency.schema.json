@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/APIInitiativeDependency.schema.json",
+  "$ref": "#/$defs/APIInitiativeDependency",
+  "$defs": {
+    "APIInitiativeDependency": {
+      "properties": {
+        "sourceInitiativeId": {
+          "type": "string"
+        },
+        "targetInitiativeId": {
+          "type": "string"
+        },
+        "relationship": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

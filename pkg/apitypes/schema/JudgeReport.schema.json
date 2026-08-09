@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/JudgeReport.schema.json",
+  "$ref": "#/$defs/JudgeReport",
+  "$defs": {
+    "ActionItem": {
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "effort": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "CategoryResult": {
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "intScore": {
+          "type": "integer"
+        },
+        "score": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "confidence": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Decision": {
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Finding": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "effort": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "JudgeMetadata": {
+      "properties": {
+        "model": {
+          "type": "string"
+        },
+        "evaluatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "JudgeReport": {
+      "properties": {
+        "intScore": {
+          "type": "integer"
+        },
+        "confidence": {
+          "type": "number"
+        },
+        "pass": {
+          "type": "boolean"
+        },
+        "blocking": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "overallDecision": {
+          "type": "string"
+        },
+        "judge": {
+          "$ref": "#/$defs/JudgeMetadata"
+        },
+        "categories": {
+          "items": {
+            "$ref": "#/$defs/CategoryResult"
+          },
+          "type": "array"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "type": "array"
+        },
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "nextSteps": {
+          "$ref": "#/$defs/NextSteps"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "NextSteps": {
+      "properties": {
+        "rerunCommand": {
+          "type": "string"
+        },
+        "immediate": {
+          "items": {
+            "$ref": "#/$defs/ActionItem"
+          },
+          "type": "array"
+        },
+        "recommended": {
+          "items": {
+            "$ref": "#/$defs/ActionItem"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

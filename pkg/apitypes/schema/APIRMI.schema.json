@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/APIRMI.schema.json",
+  "$ref": "#/$defs/APIRMI",
+  "$defs": {
+    "APIRMI": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "repositoryId": {
+          "type": "string"
+        },
+        "initiativeId": {
+          "type": "string"
+        },
+        "phaseId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "string"
+        },
+        "sequenceNumber": {
+          "type": "integer"
+        },
+        "claimedBy": {
+          "type": "string"
+        },
+        "claimedAt": {
+          "type": "string"
+        },
+        "completedAt": {
+          "type": "string"
+        },
+        "tokensTotal": {
+          "type": "integer"
+        },
+        "costUsd": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

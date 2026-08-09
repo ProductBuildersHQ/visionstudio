@@ -16,14 +16,18 @@ const (
 	FieldInitiativeID = "initiative_id"
 	// FieldSpecPath holds the string denoting the spec_path field in the database.
 	FieldSpecPath = "spec_path"
-	// FieldScore holds the string denoting the score field in the database.
-	FieldScore = "score"
-	// FieldRationale holds the string denoting the rationale field in the database.
-	FieldRationale = "rationale"
-	// FieldModel holds the string denoting the model field in the database.
-	FieldModel = "model"
+	// FieldSpecType holds the string denoting the spec_type field in the database.
+	FieldSpecType = "spec_type"
 	// FieldEvaluatedAt holds the string denoting the evaluated_at field in the database.
 	FieldEvaluatedAt = "evaluated_at"
+	// FieldReport holds the string denoting the report field in the database.
+	FieldReport = "report"
+	// FieldIntScore holds the string denoting the int_score field in the database.
+	FieldIntScore = "int_score"
+	// FieldPass holds the string denoting the pass field in the database.
+	FieldPass = "pass"
+	// FieldModel holds the string denoting the model field in the database.
+	FieldModel = "model"
 	// EdgeRubric holds the string denoting the rubric edge name in mutations.
 	EdgeRubric = "rubric"
 	// EdgeInitiative holds the string denoting the initiative edge name in mutations.
@@ -55,10 +59,12 @@ var Columns = []string{
 	FieldID,
 	FieldInitiativeID,
 	FieldSpecPath,
-	FieldScore,
-	FieldRationale,
-	FieldModel,
+	FieldSpecType,
 	FieldEvaluatedAt,
+	FieldReport,
+	FieldIntScore,
+	FieldPass,
+	FieldModel,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "judge_results"
@@ -87,6 +93,10 @@ var (
 	InitiativeIDValidator func(string) error
 	// SpecPathValidator is a validator for the "spec_path" field. It is called by the builders before save.
 	SpecPathValidator func(string) error
+	// SpecTypeValidator is a validator for the "spec_type" field. It is called by the builders before save.
+	SpecTypeValidator func(string) error
+	// DefaultPass holds the default value on creation for the "pass" field.
+	DefaultPass bool
 	// ModelValidator is a validator for the "model" field. It is called by the builders before save.
 	ModelValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -111,24 +121,29 @@ func BySpecPath(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldSpecPath, opts...).ToFunc()
 }
 
-// ByScore orders the results by the score field.
-func ByScore(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldScore, opts...).ToFunc()
-}
-
-// ByRationale orders the results by the rationale field.
-func ByRationale(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRationale, opts...).ToFunc()
-}
-
-// ByModel orders the results by the model field.
-func ByModel(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldModel, opts...).ToFunc()
+// BySpecType orders the results by the spec_type field.
+func BySpecType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSpecType, opts...).ToFunc()
 }
 
 // ByEvaluatedAt orders the results by the evaluated_at field.
 func ByEvaluatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEvaluatedAt, opts...).ToFunc()
+}
+
+// ByIntScore orders the results by the int_score field.
+func ByIntScore(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIntScore, opts...).ToFunc()
+}
+
+// ByPass orders the results by the pass field.
+func ByPass(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPass, opts...).ToFunc()
+}
+
+// ByModel orders the results by the model field.
+func ByModel(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldModel, opts...).ToFunc()
 }
 
 // ByRubricField orders the results by rubric field.

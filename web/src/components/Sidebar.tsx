@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import type { ExecutionResponse } from '../api/types'
 import type { NavTarget } from '../App'
@@ -42,12 +42,24 @@ export function Sidebar({
     setExpandedPrograms(next)
   }
 
+  // Precompute RMI counts per repository once, so the repo sort/render below
+  // don't re-filter execution.rmis for every repository.
+  const rmiCountByRepoId = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const r of execution.rmis) {
+      if (!r.repositoryId) continue
+      counts.set(r.repositoryId, (counts.get(r.repositoryId) ?? 0) + 1)
+    }
+    return counts
+  }, [execution.rmis])
+
   const visiblePrograms = execution.programs.filter((p) => !p.hidden)
   const standaloneInitiatives = execution.initiatives.filter((i) => !i.programId)
 
-  const currentSection = (): 'initiatives' | 'maturity' | 'spend' => {
+  const currentSection = (): 'initiatives' | 'repositories' | 'maturity' | 'performance' => {
     if (location.pathname === '/maturity') return 'maturity'
-    if (location.pathname === '/spend') return 'spend'
+    if (location.pathname === '/performance') return 'performance'
+    if (location.pathname.startsWith('/repositor')) return 'repositories'
     return 'initiatives'
   }
 
@@ -168,6 +180,39 @@ export function Sidebar({
               )}
             </NavSection>
 
+            {/* Repositories Section */}
+            <NavSection
+              label="Repositories"
+              icon="📦"
+              expanded={expandedSections.has('repositories')}
+              onToggle={() => toggleSection('repositories')}
+              active={currentSection() === 'repositories'}
+              onClick={() => onNavigate({ section: 'repositories' })}
+            >
+              {execution.repositories
+                .slice()
+                .sort((a, b) => (rmiCountByRepoId.get(b.id) ?? 0) - (rmiCountByRepoId.get(a.id) ?? 0))
+                .slice(0, 10)
+                .map((repo) => (
+                  <NavRepoItem
+                    key={repo.id}
+                    label={repo.repositoryName}
+                    organization={repo.organization}
+                    rmiCount={rmiCountByRepoId.get(repo.id) ?? 0}
+                    active={location.pathname === `/repository/${repo.id}`}
+                    onClick={() => onNavigate({ section: 'repositories', view: 'repository', repositoryId: repo.id })}
+                  />
+                ))}
+              {execution.repositories.length > 10 && (
+                <button
+                  onClick={() => onNavigate({ section: 'repositories' })}
+                  className="w-full text-left px-3 py-1.5 text-xs text-blue-400 hover:text-blue-300 hover:bg-gray-700 rounded"
+                >
+                  See all {execution.repositories.length} repositories →
+                </button>
+              )}
+            </NavSection>
+
             {/* Maturity Section */}
             <NavSection
               label="Maturity"
@@ -177,13 +222,13 @@ export function Sidebar({
               onClick={() => onNavigate({ section: 'maturity' })}
             />
 
-            {/* Spend Section */}
+            {/* Performance Section */}
             <NavSection
-              label="Spend"
-              icon="💰"
+              label="Performance"
+              icon="📊"
               expanded={false}
-              active={isActivePath('/spend')}
-              onClick={() => onNavigate({ section: 'spend' })}
+              active={isActivePath('/performance')}
+              onClick={() => onNavigate({ section: 'performance' })}
             />
           </>
         )}
@@ -196,7 +241,7 @@ function CollapsedNav({
   currentSection,
   onNavigate,
 }: {
-  currentSection: 'initiatives' | 'maturity' | 'spend'
+  currentSection: 'initiatives' | 'repositories' | 'maturity' | 'performance'
   onNavigate: (target: NavTarget) => void
 }) {
   return (
@@ -211,6 +256,15 @@ function CollapsedNav({
         📋
       </button>
       <button
+        onClick={() => onNavigate({ section: 'repositories' })}
+        className={`p-2 rounded hover:bg-gray-700 ${
+          currentSection === 'repositories' ? 'bg-gray-700' : ''
+        }`}
+        title="Repositories"
+      >
+        📦
+      </button>
+      <button
         onClick={() => onNavigate({ section: 'maturity' })}
         className={`p-2 rounded hover:bg-gray-700 ${
           currentSection === 'maturity' ? 'bg-gray-700' : ''
@@ -220,13 +274,13 @@ function CollapsedNav({
         📈
       </button>
       <button
-        onClick={() => onNavigate({ section: 'spend' })}
+        onClick={() => onNavigate({ section: 'performance' })}
         className={`p-2 rounded hover:bg-gray-700 ${
-          currentSection === 'spend' ? 'bg-gray-700' : ''
+          currentSection === 'performance' ? 'bg-gray-700' : ''
         }`}
-        title="Spend"
+        title="Performance"
       >
-        💰
+        📊
       </button>
     </div>
   )
@@ -253,16 +307,24 @@ function NavSection({
 
   return (
     <div className="mb-1">
-      <button
-        onClick={hasChildren ? onToggle : onClick}
+      <div
         className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-700 ${
           active ? 'bg-gray-700 text-white' : 'text-gray-300'
         }`}
       >
-        <span>{icon}</span>
-        <span className="flex-1 text-left font-medium">{label}</span>
-        {hasChildren && <span className="text-gray-500 text-xs">{expanded ? '▼' : '▶'}</span>}
-      </button>
+        <button onClick={onClick} className="flex items-center gap-2 flex-1 text-left">
+          <span>{icon}</span>
+          <span className="font-medium">{label}</span>
+        </button>
+        {hasChildren && (
+          <button
+            onClick={onToggle}
+            className="text-gray-500 hover:text-gray-300 px-1"
+          >
+            {expanded ? '▼' : '▶'}
+          </button>
+        )}
+      </div>
       {hasChildren && expanded && <div className="ml-2">{children}</div>}
     </div>
   )
@@ -337,6 +399,35 @@ function NavItem({
         <span className="text-gray-500">{Math.round(progress * 100)}%</span>
       </div>
       <div className="truncate text-gray-300">{sublabel}</div>
+    </button>
+  )
+}
+
+function NavRepoItem({
+  label,
+  organization,
+  rmiCount,
+  active,
+  onClick,
+}: {
+  label: string
+  organization: string
+  rmiCount: number
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left px-3 py-1.5 text-xs rounded hover:bg-gray-700 ${
+        active ? 'bg-blue-500/20 text-blue-300' : 'text-gray-400'
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="truncate">{label}</span>
+        <span className="text-gray-500">{rmiCount}</span>
+      </div>
+      <div className="text-gray-500 text-[10px]">{organization}</div>
     </button>
   )
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -162,7 +163,7 @@ func parseEvalFileData(data []byte, initiativeID, filename string) *store.JudgeR
 		},
 		ReviewType: legacy.SpecType,
 		RubricID:   legacy.RubricID,
-		IntScore:   rubric.IntegerScore(int(legacy.Score) / 20), // Convert 0-100 to 1-5
+		IntScore:   legacyScoreTo1to5(legacy.Score), // Convert 0-100 to 1-5
 		Pass:       legacy.Verdict == "pass",
 		Summary:    legacy.Rationale,
 		Categories: make([]rubric.CategoryResult, 0, len(legacy.Categories)),
@@ -175,7 +176,7 @@ func parseEvalFileData(data []byte, initiativeID, filename string) *store.JudgeR
 	for _, cat := range legacy.Categories {
 		catResult := rubric.CategoryResult{
 			Category:  cat.Name,
-			IntScore:  rubric.IntegerScore(int(cat.Score) / 20), // Convert 0-100 to 1-5
+			IntScore:  legacyScoreTo1to5(cat.Score), // Convert 0-100 to 1-5
 			Reasoning: cat.Rationale,
 		}
 		catResult.Score = catResult.IntScore.ToCategorical()
@@ -202,4 +203,12 @@ func parseEvalFileData(data []byte, initiativeID, filename string) *store.JudgeR
 		EvaluatedAt:  legacy.EvaluatedAt,
 		Report:       &report,
 	}
+}
+
+// legacyScoreTo1to5 converts a legacy 0-100 score to the rubric 1-5 integer
+// scale, rounding to the nearest integer and clamping into [1,5]. This is a
+// guardrail for ingesting old eval files: without it, scores below 20 collapse
+// to 0 (rendered as 0/5) and scores above 100 would exceed the scale.
+func legacyScoreTo1to5(score float64) rubric.IntegerScore {
+	return rubric.IntegerScore(max(1, min(5, int(math.Round(score/20.0)))))
 }

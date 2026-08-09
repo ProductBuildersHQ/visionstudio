@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/SpecFilesResponse.schema.json",
+  "$ref": "#/$defs/SpecFilesResponse",
+  "$defs": {
+    "SpecFile": {
+      "properties": {
+        "initiativeId": {
+          "type": "string"
+        },
+        "specType": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "modTime": {
+          "type": "string"
+        },
+        "evalJson": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "SpecFilesResponse": {
+      "properties": {
+        "files": {
+          "items": {
+            "$ref": "#/$defs/SpecFile"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

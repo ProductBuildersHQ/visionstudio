@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/plexusone/structured-evaluation/rubric"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -23,18 +26,18 @@ type EvalResult struct {
 
 // EvalFile represents the JSON structure of an evaluation file.
 type EvalFile struct {
-	ID           string          `json:"id"`
-	InitiativeID string          `json:"initiative_id"`
-	SpecPath     string          `json:"spec_path"`
-	SpecType     string          `json:"spec_type"`
-	RubricID     string          `json:"rubric_id"`
-	Score        float64         `json:"score"`
-	Verdict      string          `json:"verdict"`
-	Model        string          `json:"model"`
-	EvaluatedAt  time.Time       `json:"evaluated_at"`
-	Rationale    string          `json:"rationale"`
-	Categories   []EvalCategory  `json:"categories,omitempty"`
-	Findings     []EvalFinding   `json:"findings,omitempty"`
+	ID           string         `json:"id"`
+	InitiativeID string         `json:"initiative_id"`
+	SpecPath     string         `json:"spec_path"`
+	SpecType     string         `json:"spec_type"`
+	RubricID     string         `json:"rubric_id"`
+	Score        float64        `json:"score"`
+	Verdict      string         `json:"verdict"`
+	Model        string         `json:"model"`
+	EvaluatedAt  time.Time      `json:"evaluated_at"`
+	Rationale    string         `json:"rationale"`
+	Categories   []EvalCategory `json:"categories,omitempty"`
+	Findings     []EvalFinding  `json:"findings,omitempty"`
 }
 
 // EvalCategory is a rubric category evaluation result.
@@ -81,21 +84,10 @@ func Evals(ctx context.Context, svc *service.Service, initiativeID, repoPath str
 			continue
 		}
 
-		var evalFile EvalFile
-		if err := json.Unmarshal(data, &evalFile); err != nil {
-			result.Errors = append(result.Errors, fmt.Sprintf("%s: parse error: %v", entry.Name(), err))
+		judgeResult := parseEvalFileData(data, initiativeID, entry.Name())
+		if judgeResult == nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("%s: parse error", entry.Name()))
 			continue
-		}
-
-		judgeResult := &store.JudgeResult{
-			ID:           evalFile.ID,
-			InitiativeID: evalFile.InitiativeID,
-			SpecPath:     evalFile.SpecPath,
-			RubricID:     evalFile.RubricID,
-			Score:        evalFile.Score,
-			Rationale:    evalFile.Rationale,
-			Model:        evalFile.Model,
-			EvaluatedAt:  evalFile.EvaluatedAt,
 		}
 
 		if err := svc.Store.CreateJudgeResult(ctx, judgeResult); err != nil {
@@ -137,4 +129,86 @@ func EvalsFromRepo(ctx context.Context, svc *service.Service, repoPath string) (
 	}
 
 	return results, nil
+}
+
+// parseEvalFileData parses an eval file supporting both legacy and structured-evaluation formats.
+func parseEvalFileData(data []byte, initiativeID, filename string) *store.JudgeResult {
+	// Try structured-evaluation rubric.Rubric format first
+	var report rubric.Rubric
+	if err := json.Unmarshal(data, &report); err == nil && report.ReviewType != "" {
+		// Valid rubric report
+		specType := strings.TrimSuffix(filename, ".eval.json")
+		return &store.JudgeResult{
+			ID:           fmt.Sprintf("eval-%s-%s", initiativeID, specType),
+			InitiativeID: initiativeID,
+			SpecPath:     report.Metadata.Document,
+			SpecType:     specType,
+			RubricID:     report.RubricID,
+			EvaluatedAt:  report.Metadata.GeneratedAt,
+			Report:       &report,
+		}
+	}
+
+	// Fall back to legacy format
+	var legacy EvalFile
+	if err := json.Unmarshal(data, &legacy); err != nil {
+		return nil
+	}
+
+	// Convert legacy to rubric.Rubric
+	report = rubric.Rubric{
+		Metadata: rubric.ReportMetadata{
+			Document:    legacy.SpecPath,
+			GeneratedAt: legacy.EvaluatedAt,
+		},
+		ReviewType: legacy.SpecType,
+		RubricID:   legacy.RubricID,
+		IntScore:   legacyScoreTo1to5(legacy.Score), // Convert 0-100 to 1-5
+		Pass:       legacy.Verdict == "pass",
+		Summary:    legacy.Rationale,
+		Categories: make([]rubric.CategoryResult, 0, len(legacy.Categories)),
+		Findings:   make([]rubric.Finding, 0, len(legacy.Findings)),
+	}
+	if legacy.Model != "" {
+		report.Judge = &rubric.JudgeMetadata{Model: legacy.Model}
+	}
+
+	for _, cat := range legacy.Categories {
+		catResult := rubric.CategoryResult{
+			Category:  cat.Name,
+			IntScore:  legacyScoreTo1to5(cat.Score), // Convert 0-100 to 1-5
+			Reasoning: cat.Rationale,
+		}
+		catResult.Score = catResult.IntScore.ToCategorical()
+		report.Categories = append(report.Categories, catResult)
+	}
+
+	for i, f := range legacy.Findings {
+		finding := rubric.Finding{
+			ID:          fmt.Sprintf("finding-%d", i+1),
+			Category:    f.Section,
+			Severity:    rubric.Severity(f.Severity),
+			Title:       f.Message,
+			Description: f.Message,
+		}
+		report.Findings = append(report.Findings, finding)
+	}
+
+	return &store.JudgeResult{
+		ID:           legacy.ID,
+		InitiativeID: legacy.InitiativeID,
+		SpecPath:     legacy.SpecPath,
+		SpecType:     legacy.SpecType,
+		RubricID:     legacy.RubricID,
+		EvaluatedAt:  legacy.EvaluatedAt,
+		Report:       &report,
+	}
+}
+
+// legacyScoreTo1to5 converts a legacy 0-100 score to the rubric 1-5 integer
+// scale, rounding to the nearest integer and clamping into [1,5]. This is a
+// guardrail for ingesting old eval files: without it, scores below 20 collapse
+// to 0 (rendered as 0/5) and scores above 100 would exceed the scale.
+func legacyScoreTo1to5(score float64) rubric.IntegerScore {
+	return rubric.IntegerScore(max(1, min(5, int(math.Round(score/20.0)))))
 }

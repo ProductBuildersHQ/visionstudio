@@ -55,7 +55,25 @@ VisionStudio uses a desktop architecture with Electron frontend and Go backend.
 
 ## Data Storage
 
-VisionStudio stores data as files:
+VisionStudio uses a **hybrid storage** approach:
+
+### Database (Dolt/MySQL via Ent)
+
+Structured data is stored in Dolt (MySQL-compatible, Git-like versioning):
+
+- Programs, initiatives, phases, RMIs
+- Judge results and evaluations
+- Spec workflows and templates
+- Repository metadata
+
+```bash
+# Initialize/migrate database
+go run ./cmd/vistudio db init --migrate
+```
+
+### Filesystem
+
+Project files and specs remain on disk for Git compatibility:
 
 ```
 ~/.visionspec/
@@ -67,19 +85,29 @@ project-directory/
 ├── .visionspec/          # Project-specific config
 │   ├── project.json      # Project metadata
 │   └── maturity/         # Maturity models
-├── specs/                # Specification documents
-│   ├── mrd.md
-│   ├── prd.md
-│   └── ...
+├── docs/specs/           # Specification documents
+│   ├── PRD.md
+│   ├── TRD.md
+│   └── initiatives/
+│       └── INIT-*/
+│           ├── PLAN.md
+│           ├── ROADMAP.md
+│           └── evaluations/  # Judge results (*.eval.json)
 ├── aidlc-docs/           # AIDLC deliverables (if AIDLC selected)
-│   ├── inception/
-│   ├── construction/
-│   └── operations/
 ├── v2mom/                # V2MOM documents
 ├── capability/           # Capability definitions
-├── roadmap/              # Roadmap data
 └── maturity/             # Maturity assessments
 ```
+
+### Type Layers
+
+| Layer | Package | JSON Style | Purpose |
+|-------|---------|------------|---------|
+| Store | `pkg/store` | snake_case | Database/internal |
+| API | `pkg/apitypes` | camelCase | HTTP responses |
+| Frontend | `web/src/api/types.gen.ts` | camelCase | TypeScript |
+
+Conversion happens in API handlers (`cmd/vistudio/api.go`).
 
 ## Design Decisions
 

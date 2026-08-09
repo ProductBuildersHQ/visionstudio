@@ -75,24 +75,29 @@ func SpecPath(v string) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldEQ(FieldSpecPath, v))
 }
 
-// Score applies equality check predicate on the "score" field. It's identical to ScoreEQ.
-func Score(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEQ(FieldScore, v))
-}
-
-// Rationale applies equality check predicate on the "rationale" field. It's identical to RationaleEQ.
-func Rationale(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEQ(FieldRationale, v))
-}
-
-// Model applies equality check predicate on the "model" field. It's identical to ModelEQ.
-func Model(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEQ(FieldModel, v))
+// SpecType applies equality check predicate on the "spec_type" field. It's identical to SpecTypeEQ.
+func SpecType(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldSpecType, v))
 }
 
 // EvaluatedAt applies equality check predicate on the "evaluated_at" field. It's identical to EvaluatedAtEQ.
 func EvaluatedAt(v time.Time) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldEQ(FieldEvaluatedAt, v))
+}
+
+// IntScore applies equality check predicate on the "int_score" field. It's identical to IntScoreEQ.
+func IntScore(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldIntScore, v))
+}
+
+// Pass applies equality check predicate on the "pass" field. It's identical to PassEQ.
+func Pass(v bool) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldPass, v))
+}
+
+// Model applies equality check predicate on the "model" field. It's identical to ModelEQ.
+func Model(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldModel, v))
 }
 
 // InitiativeIDEQ applies the EQ predicate on the "initiative_id" field.
@@ -225,129 +230,189 @@ func SpecPathContainsFold(v string) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldContainsFold(FieldSpecPath, v))
 }
 
-// ScoreEQ applies the EQ predicate on the "score" field.
-func ScoreEQ(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEQ(FieldScore, v))
+// SpecTypeEQ applies the EQ predicate on the "spec_type" field.
+func SpecTypeEQ(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldSpecType, v))
 }
 
-// ScoreNEQ applies the NEQ predicate on the "score" field.
-func ScoreNEQ(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNEQ(FieldScore, v))
+// SpecTypeNEQ applies the NEQ predicate on the "spec_type" field.
+func SpecTypeNEQ(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNEQ(FieldSpecType, v))
 }
 
-// ScoreIn applies the In predicate on the "score" field.
-func ScoreIn(vs ...float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldIn(FieldScore, vs...))
+// SpecTypeIn applies the In predicate on the "spec_type" field.
+func SpecTypeIn(vs ...string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIn(FieldSpecType, vs...))
 }
 
-// ScoreNotIn applies the NotIn predicate on the "score" field.
-func ScoreNotIn(vs ...float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNotIn(FieldScore, vs...))
+// SpecTypeNotIn applies the NotIn predicate on the "spec_type" field.
+func SpecTypeNotIn(vs ...string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotIn(FieldSpecType, vs...))
 }
 
-// ScoreGT applies the GT predicate on the "score" field.
-func ScoreGT(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldGT(FieldScore, v))
+// SpecTypeGT applies the GT predicate on the "spec_type" field.
+func SpecTypeGT(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGT(FieldSpecType, v))
 }
 
-// ScoreGTE applies the GTE predicate on the "score" field.
-func ScoreGTE(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldGTE(FieldScore, v))
+// SpecTypeGTE applies the GTE predicate on the "spec_type" field.
+func SpecTypeGTE(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGTE(FieldSpecType, v))
 }
 
-// ScoreLT applies the LT predicate on the "score" field.
-func ScoreLT(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldLT(FieldScore, v))
+// SpecTypeLT applies the LT predicate on the "spec_type" field.
+func SpecTypeLT(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLT(FieldSpecType, v))
 }
 
-// ScoreLTE applies the LTE predicate on the "score" field.
-func ScoreLTE(v float64) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldLTE(FieldScore, v))
+// SpecTypeLTE applies the LTE predicate on the "spec_type" field.
+func SpecTypeLTE(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLTE(FieldSpecType, v))
 }
 
-// ScoreIsNil applies the IsNil predicate on the "score" field.
-func ScoreIsNil() predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldIsNull(FieldScore))
+// SpecTypeContains applies the Contains predicate on the "spec_type" field.
+func SpecTypeContains(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldContains(FieldSpecType, v))
 }
 
-// ScoreNotNil applies the NotNil predicate on the "score" field.
-func ScoreNotNil() predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNotNull(FieldScore))
+// SpecTypeHasPrefix applies the HasPrefix predicate on the "spec_type" field.
+func SpecTypeHasPrefix(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldHasPrefix(FieldSpecType, v))
 }
 
-// RationaleEQ applies the EQ predicate on the "rationale" field.
-func RationaleEQ(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEQ(FieldRationale, v))
+// SpecTypeHasSuffix applies the HasSuffix predicate on the "spec_type" field.
+func SpecTypeHasSuffix(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldHasSuffix(FieldSpecType, v))
 }
 
-// RationaleNEQ applies the NEQ predicate on the "rationale" field.
-func RationaleNEQ(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNEQ(FieldRationale, v))
+// SpecTypeIsNil applies the IsNil predicate on the "spec_type" field.
+func SpecTypeIsNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIsNull(FieldSpecType))
 }
 
-// RationaleIn applies the In predicate on the "rationale" field.
-func RationaleIn(vs ...string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldIn(FieldRationale, vs...))
+// SpecTypeNotNil applies the NotNil predicate on the "spec_type" field.
+func SpecTypeNotNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotNull(FieldSpecType))
 }
 
-// RationaleNotIn applies the NotIn predicate on the "rationale" field.
-func RationaleNotIn(vs ...string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNotIn(FieldRationale, vs...))
+// SpecTypeEqualFold applies the EqualFold predicate on the "spec_type" field.
+func SpecTypeEqualFold(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEqualFold(FieldSpecType, v))
 }
 
-// RationaleGT applies the GT predicate on the "rationale" field.
-func RationaleGT(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldGT(FieldRationale, v))
+// SpecTypeContainsFold applies the ContainsFold predicate on the "spec_type" field.
+func SpecTypeContainsFold(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldContainsFold(FieldSpecType, v))
 }
 
-// RationaleGTE applies the GTE predicate on the "rationale" field.
-func RationaleGTE(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldGTE(FieldRationale, v))
+// EvaluatedAtEQ applies the EQ predicate on the "evaluated_at" field.
+func EvaluatedAtEQ(v time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldEvaluatedAt, v))
 }
 
-// RationaleLT applies the LT predicate on the "rationale" field.
-func RationaleLT(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldLT(FieldRationale, v))
+// EvaluatedAtNEQ applies the NEQ predicate on the "evaluated_at" field.
+func EvaluatedAtNEQ(v time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNEQ(FieldEvaluatedAt, v))
 }
 
-// RationaleLTE applies the LTE predicate on the "rationale" field.
-func RationaleLTE(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldLTE(FieldRationale, v))
+// EvaluatedAtIn applies the In predicate on the "evaluated_at" field.
+func EvaluatedAtIn(vs ...time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIn(FieldEvaluatedAt, vs...))
 }
 
-// RationaleContains applies the Contains predicate on the "rationale" field.
-func RationaleContains(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldContains(FieldRationale, v))
+// EvaluatedAtNotIn applies the NotIn predicate on the "evaluated_at" field.
+func EvaluatedAtNotIn(vs ...time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotIn(FieldEvaluatedAt, vs...))
 }
 
-// RationaleHasPrefix applies the HasPrefix predicate on the "rationale" field.
-func RationaleHasPrefix(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldHasPrefix(FieldRationale, v))
+// EvaluatedAtGT applies the GT predicate on the "evaluated_at" field.
+func EvaluatedAtGT(v time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGT(FieldEvaluatedAt, v))
 }
 
-// RationaleHasSuffix applies the HasSuffix predicate on the "rationale" field.
-func RationaleHasSuffix(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldHasSuffix(FieldRationale, v))
+// EvaluatedAtGTE applies the GTE predicate on the "evaluated_at" field.
+func EvaluatedAtGTE(v time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGTE(FieldEvaluatedAt, v))
 }
 
-// RationaleIsNil applies the IsNil predicate on the "rationale" field.
-func RationaleIsNil() predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldIsNull(FieldRationale))
+// EvaluatedAtLT applies the LT predicate on the "evaluated_at" field.
+func EvaluatedAtLT(v time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLT(FieldEvaluatedAt, v))
 }
 
-// RationaleNotNil applies the NotNil predicate on the "rationale" field.
-func RationaleNotNil() predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNotNull(FieldRationale))
+// EvaluatedAtLTE applies the LTE predicate on the "evaluated_at" field.
+func EvaluatedAtLTE(v time.Time) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLTE(FieldEvaluatedAt, v))
 }
 
-// RationaleEqualFold applies the EqualFold predicate on the "rationale" field.
-func RationaleEqualFold(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEqualFold(FieldRationale, v))
+// ReportIsNil applies the IsNil predicate on the "report" field.
+func ReportIsNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIsNull(FieldReport))
 }
 
-// RationaleContainsFold applies the ContainsFold predicate on the "rationale" field.
-func RationaleContainsFold(v string) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldContainsFold(FieldRationale, v))
+// ReportNotNil applies the NotNil predicate on the "report" field.
+func ReportNotNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotNull(FieldReport))
+}
+
+// IntScoreEQ applies the EQ predicate on the "int_score" field.
+func IntScoreEQ(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldIntScore, v))
+}
+
+// IntScoreNEQ applies the NEQ predicate on the "int_score" field.
+func IntScoreNEQ(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNEQ(FieldIntScore, v))
+}
+
+// IntScoreIn applies the In predicate on the "int_score" field.
+func IntScoreIn(vs ...int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIn(FieldIntScore, vs...))
+}
+
+// IntScoreNotIn applies the NotIn predicate on the "int_score" field.
+func IntScoreNotIn(vs ...int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotIn(FieldIntScore, vs...))
+}
+
+// IntScoreGT applies the GT predicate on the "int_score" field.
+func IntScoreGT(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGT(FieldIntScore, v))
+}
+
+// IntScoreGTE applies the GTE predicate on the "int_score" field.
+func IntScoreGTE(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGTE(FieldIntScore, v))
+}
+
+// IntScoreLT applies the LT predicate on the "int_score" field.
+func IntScoreLT(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLT(FieldIntScore, v))
+}
+
+// IntScoreLTE applies the LTE predicate on the "int_score" field.
+func IntScoreLTE(v int) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLTE(FieldIntScore, v))
+}
+
+// IntScoreIsNil applies the IsNil predicate on the "int_score" field.
+func IntScoreIsNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIsNull(FieldIntScore))
+}
+
+// IntScoreNotNil applies the NotNil predicate on the "int_score" field.
+func IntScoreNotNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotNull(FieldIntScore))
+}
+
+// PassEQ applies the EQ predicate on the "pass" field.
+func PassEQ(v bool) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldPass, v))
+}
+
+// PassNEQ applies the NEQ predicate on the "pass" field.
+func PassNEQ(v bool) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNEQ(FieldPass, v))
 }
 
 // ModelEQ applies the EQ predicate on the "model" field.
@@ -423,46 +488,6 @@ func ModelEqualFold(v string) predicate.JudgeResult {
 // ModelContainsFold applies the ContainsFold predicate on the "model" field.
 func ModelContainsFold(v string) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldContainsFold(FieldModel, v))
-}
-
-// EvaluatedAtEQ applies the EQ predicate on the "evaluated_at" field.
-func EvaluatedAtEQ(v time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldEQ(FieldEvaluatedAt, v))
-}
-
-// EvaluatedAtNEQ applies the NEQ predicate on the "evaluated_at" field.
-func EvaluatedAtNEQ(v time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNEQ(FieldEvaluatedAt, v))
-}
-
-// EvaluatedAtIn applies the In predicate on the "evaluated_at" field.
-func EvaluatedAtIn(vs ...time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldIn(FieldEvaluatedAt, vs...))
-}
-
-// EvaluatedAtNotIn applies the NotIn predicate on the "evaluated_at" field.
-func EvaluatedAtNotIn(vs ...time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldNotIn(FieldEvaluatedAt, vs...))
-}
-
-// EvaluatedAtGT applies the GT predicate on the "evaluated_at" field.
-func EvaluatedAtGT(v time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldGT(FieldEvaluatedAt, v))
-}
-
-// EvaluatedAtGTE applies the GTE predicate on the "evaluated_at" field.
-func EvaluatedAtGTE(v time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldGTE(FieldEvaluatedAt, v))
-}
-
-// EvaluatedAtLT applies the LT predicate on the "evaluated_at" field.
-func EvaluatedAtLT(v time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldLT(FieldEvaluatedAt, v))
-}
-
-// EvaluatedAtLTE applies the LTE predicate on the "evaluated_at" field.
-func EvaluatedAtLTE(v time.Time) predicate.JudgeResult {
-	return predicate.JudgeResult(sql.FieldLTE(FieldEvaluatedAt, v))
 }
 
 // HasRubric applies the HasEdge predicate on the "rubric" edge.

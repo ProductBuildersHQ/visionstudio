@@ -140,8 +140,16 @@ func init() {
 	judgeresultDescSpecPath := judgeresultFields[2].Descriptor()
 	// judgeresult.SpecPathValidator is a validator for the "spec_path" field. It is called by the builders before save.
 	judgeresult.SpecPathValidator = judgeresultDescSpecPath.Validators[0].(func(string) error)
+	// judgeresultDescSpecType is the schema descriptor for spec_type field.
+	judgeresultDescSpecType := judgeresultFields[3].Descriptor()
+	// judgeresult.SpecTypeValidator is a validator for the "spec_type" field. It is called by the builders before save.
+	judgeresult.SpecTypeValidator = judgeresultDescSpecType.Validators[0].(func(string) error)
+	// judgeresultDescPass is the schema descriptor for pass field.
+	judgeresultDescPass := judgeresultFields[7].Descriptor()
+	// judgeresult.DefaultPass holds the default value on creation for the pass field.
+	judgeresult.DefaultPass = judgeresultDescPass.Default.(bool)
 	// judgeresultDescModel is the schema descriptor for model field.
-	judgeresultDescModel := judgeresultFields[5].Descriptor()
+	judgeresultDescModel := judgeresultFields[8].Descriptor()
 	// judgeresult.ModelValidator is a validator for the "model" field. It is called by the builders before save.
 	judgeresult.ModelValidator = judgeresultDescModel.Validators[0].(func(string) error)
 	// judgeresultDescID is the schema descriptor for id field.

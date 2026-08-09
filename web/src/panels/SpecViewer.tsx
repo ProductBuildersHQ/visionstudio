@@ -11,8 +11,8 @@ const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
 function sortSpecsByWorkflowOrder(specFiles: SpecFile[]): SpecFile[] {
   const order = PBHQ_LITE_SPECS.reduce((acc, spec, i) => ({ ...acc, [spec]: i }), {} as Record<string, number>)
   return [...specFiles].sort((a, b) => {
-    const aOrder = order[a.specType.toUpperCase()] ?? 999
-    const bOrder = order[b.specType.toUpperCase()] ?? 999
+    const aOrder = order[(a.specType ?? '').toUpperCase()] ?? 999
+    const bOrder = order[(b.specType ?? '').toUpperCase()] ?? 999
     return aOrder - bOrder
   })
 }
@@ -45,7 +45,7 @@ export function SpecViewer() {
 
   const selectedSpec = useMemo(() => {
     if (!specType) return sortedSpecFiles[0]
-    return sortedSpecFiles.find((f) => f.specType.toLowerCase() === specType.toLowerCase()) ?? sortedSpecFiles[0]
+    return sortedSpecFiles.find((f) => (f.specType ?? '').toLowerCase() === specType.toLowerCase()) ?? sortedSpecFiles[0]
   }, [sortedSpecFiles, specType])
 
   const handleModeChange = (newMode: ViewMode) => {
@@ -60,6 +60,7 @@ export function SpecViewer() {
   }
 
   const handleSpecChange = (newSpecType: string) => {
+    if (!newSpecType) return // avoid navigating to a trailing-slash /spec/ route that won't match
     navigate(`/initiative/${initiativeId}/spec/${newSpecType.toLowerCase()}${mode === 'markdown' ? '?mode=markdown' : ''}`)
   }
 
@@ -173,8 +174,8 @@ export function SpecViewer() {
           <div className="flex gap-1">
             {sortedSpecFiles.map((f) => (
               <button
-                key={f.specType}
-                onClick={() => handleSpecChange(f.specType)}
+                key={f.specType ?? f.path}
+                onClick={() => handleSpecChange(f.specType ?? '')}
                 className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
                   selectedSpec?.specType === f.specType
                     ? 'border-purple-500 text-purple-400'
@@ -232,7 +233,7 @@ export function SpecViewer() {
         {/* Spec Metadata */}
         {selectedSpec && (
           <div className="px-4 py-2 border-b border-gray-700 flex items-center justify-between text-xs text-gray-500">
-            <span className="font-mono">{selectedSpec.path.split('/').slice(-3).join('/')}</span>
+            <span className="font-mono">{(selectedSpec.path ?? '').split('/').slice(-3).join('/')}</span>
             {selectedSpec.modTime && (
               <span>Modified: {new Date(selectedSpec.modTime).toLocaleDateString()}</span>
             )}

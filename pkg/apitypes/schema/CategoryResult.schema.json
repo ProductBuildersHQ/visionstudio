@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/CategoryResult.schema.json",
+  "$ref": "#/$defs/CategoryResult",
+  "$defs": {
+    "CategoryResult": {
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "intScore": {
+          "type": "integer"
+        },
+        "score": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "severity": {
+          "type": "string"
+        },
+        "reasoning": {
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "confidence": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

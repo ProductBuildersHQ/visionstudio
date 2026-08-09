@@ -102,7 +102,7 @@ The server uses --data-dir (or VISIONSTUDIO_DATA, or the default data directory)
 as the multi-database root. Subdirectories containing .dolt are served as
 databases. Other sessions connect via VISIONSTUDIO_DSN.
 
-For background operation, use 'vistudio db start' instead.`,
+For background operation, use 'visionstudio db start' instead.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var dir string
@@ -131,7 +131,7 @@ For background operation, use 'vistudio db start' instead.`,
 			if err := cfg.Save(); err != nil {
 				cmd.PrintErrf("warning: could not save config: %v\n", err)
 			} else {
-				cmd.Printf("Saved DSN to config file (all vistudio sessions will use this server)\n")
+				cmd.Printf("Saved DSN to config file (all visionstudio sessions will use this server)\n")
 			}
 
 			cmd.Printf("Starting Dolt SQL server on 127.0.0.1:%d (dir: %s)...\n", port, absDir)
@@ -149,11 +149,11 @@ func dbStartCmd() *cobra.Command {
 		Long: `Start a Dolt SQL server as a background process.
 
 Writes a PID file to ~/.productbuildershq/visionstudio/server.pid and saves the
-DSN to the config file. Use 'vistudio db stop' to shut it down.`,
+DSN to the config file. Use 'visionstudio db stop' to shut it down.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pid, _, err := readPIDFile()
 			if err == nil && isProcessAlive(pid) {
-				return fmt.Errorf("server already running (PID %d). Use 'vistudio db restart' to restart", pid)
+				return fmt.Errorf("server already running (PID %d). Use 'visionstudio db restart' to restart", pid)
 			}
 
 			dir := getDataDir(cmd)
@@ -326,7 +326,7 @@ func dbStatusCmd() *cobra.Command {
 				}
 				cmd.Println("Server: not running (no PID file)")
 				cmd.Printf("  Tried: %s\n", dsnAddr(dsn))
-				cmd.Println("  Start it with: vistudio db start")
+				cmd.Println("  Start it with: visionstudio db start")
 				return nil
 			}
 
@@ -336,7 +336,7 @@ func dbStatusCmd() *cobra.Command {
 			if !alive {
 				removePIDFile()
 				cmd.Printf("Server: not running (stale PID file for %d removed)\n", pid)
-				cmd.Println("  Start it with: vistudio db start")
+				cmd.Println("  Start it with: visionstudio db start")
 				return nil
 			}
 

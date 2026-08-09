@@ -29,7 +29,7 @@ func dbInitCmd() *cobra.Command {
 In embedded mode (--data-dir or VISIONSTUDIO_DATA set), creates the database
 directory and runs migration automatically — no server needed.
 
-In server mode, requires a running Dolt SQL server (see 'vistudio db serve')
+In server mode, requires a running Dolt SQL server (see 'visionstudio db serve')
 and the --migrate flag.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -65,7 +65,7 @@ func dbInitServer(cmd *cobra.Command, dir string) error {
 
 	migrateFlag, _ := cmd.Flags().GetBool("migrate")
 	if !migrateFlag {
-		cmd.Println("Run 'vistudio db serve' then 'vistudio db init --migrate' to create tables.")
+		cmd.Println("Run 'visionstudio db serve' then 'visionstudio db init --migrate' to create tables.")
 		return nil
 	}
 
@@ -247,7 +247,7 @@ or after bulk operations that don't commit individually.`,
 			}
 			defer func() { printCloseWarning(ds.Close()) }()
 
-			message := "vistudio: manual commit"
+			message := "visionstudio: manual commit"
 			if len(args) > 0 {
 				message = args[0]
 			}

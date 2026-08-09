@@ -40,7 +40,7 @@ func portFromDSN(dsn string) int {
 // diagnoseDBError inspects an error from connecting to (or pinging) the Dolt
 // server and, when it looks like a lifecycle/setup problem, rewrites it into an
 // actionable message that tells the caller how to fix it. This is the message
-// other agents see when they reach vistudio expecting a live database.
+// other agents see when they reach visionstudio expecting a live database.
 // Errors that are not recognized connectivity problems are returned unchanged.
 func diagnoseDBError(dsn string, err error) error {
 	if err == nil {
@@ -61,10 +61,10 @@ func diagnoseDBError(dsn string, err error) error {
 
 Start it, then retry your command:
 
-    vistudio db start      # start the Dolt SQL server in the background
-    vistudio db status     # verify it is running
+    visionstudio db start      # start the Dolt SQL server in the background
+    visionstudio db status     # verify it is running
 
-If the server runs on a different port, point vistudio at it (this is also saved
+If the server runs on a different port, point visionstudio at it (this is also saved
 to ~/.productbuildershq/visionstudio/config.json by db start/serve), e.g.:
 
     export VISIONSTUDIO_DSN='root:@tcp(127.0.0.1:PORT)/visionstudio'
@@ -78,7 +78,7 @@ to ~/.productbuildershq/visionstudio/config.json by db start/serve), e.g.:
 
 Initialize and migrate it, then retry:
 
-    vistudio db init --migrate
+    visionstudio db init --migrate
 
 (underlying error: %w)`, addr, err)
 	}

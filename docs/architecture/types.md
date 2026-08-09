@@ -69,7 +69,7 @@ type JudgeResult struct {
 API handlers convert between store and API types:
 
 ```go
-// cmd/vistudio/api.go
+// cmd/visionstudio/api.go
 func storeJudgeResultToAPI(r *store.JudgeResult) apitypes.JudgeResult {
     return apitypes.JudgeResult{
         ID:           r.ID,

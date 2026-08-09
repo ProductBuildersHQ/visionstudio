@@ -117,7 +117,7 @@
   "overallDecision": "conditional",
   "summary": "ROADMAP has excellent RMI structure and phase organization. Critical gap: no acceptance criteria on RMIs.",
   "nextSteps": {
-    "rerunCommand": "vistudio eval roadmap",
+    "rerunCommand": "visionstudio eval roadmap",
     "immediate": [
       {
         "action": "Add acceptance criteria to each RMI",

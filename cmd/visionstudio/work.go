@@ -158,7 +158,7 @@ func checkRoadmapDrift(cmd *cobra.Command, svc *service.Service, initiativeID st
 	limit := 5
 	for i, d := range diffs {
 		if i >= limit {
-			cmd.Printf("  ... and %d more (run: vistudio roadmap diff %s)\n", len(diffs)-limit, roadmapPath)
+			cmd.Printf("  ... and %d more (run: visionstudio roadmap diff %s)\n", len(diffs)-limit, roadmapPath)
 			break
 		}
 		cmd.Printf("  %s %s\n", diffIcon(d.Kind), d.Message)
@@ -315,7 +315,7 @@ func workCompleteCmd() *cobra.Command {
 					if svc.CheckInitiativeAllComplete(cmd.Context(), initID) {
 						cmd.Printf("\n✓ All required RMIs in %s are now completed.\n", initID)
 						cmd.Printf("  Transition to delivery_complete with:\n")
-						cmd.Printf("    vistudio initiative transition %s delivery_complete\n", initID)
+						cmd.Printf("    visionstudio initiative transition %s delivery_complete\n", initID)
 					}
 				}
 			}
@@ -474,7 +474,7 @@ Phase ID format: INITIATIVE-ID/phase-N (e.g. INIT-PRISMCONTROL-001/phase-5).`,
 				cmd.Println("No in-progress RMIs with active assignments in phase.")
 				if len(result.NoAssignment) > 0 {
 					cmd.Printf("  In-progress but no active assignment: %s\n", strings.Join(result.NoAssignment, ", "))
-					cmd.Println("  These RMIs may have expired leases — reclaim with: vistudio work claim <RMI-ID> --worker <session-id>")
+					cmd.Println("  These RMIs may have expired leases — reclaim with: visionstudio work claim <RMI-ID> --worker <session-id>")
 				}
 				return nil
 			}
@@ -492,7 +492,7 @@ Phase ID format: INITIATIVE-ID/phase-N (e.g. INIT-PRISMCONTROL-001/phase-5).`,
 			if result.InitiativeAllComplete {
 				cmd.Printf("\n✓ All required RMIs in %s are now completed.\n", result.InitiativeID)
 				cmd.Printf("  Transition to delivery_complete with:\n")
-				cmd.Printf("    vistudio initiative transition %s delivery_complete\n", result.InitiativeID)
+				cmd.Printf("    visionstudio initiative transition %s delivery_complete\n", result.InitiativeID)
 			}
 			return nil
 		},

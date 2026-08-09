@@ -58,6 +58,13 @@ func (d *DoltStore) Close() error {
 	return d.client.Close()
 }
 
+// Ping verifies that the Dolt server is reachable. Because sql.Open is lazy,
+// New never dials the server; Ping is the cheapest way to confirm the
+// connection is live before issuing real queries.
+func (d *DoltStore) Ping(ctx context.Context) error {
+	return d.db.PingContext(ctx)
+}
+
 // Client returns the Ent client for direct query access.
 func (d *DoltStore) Client() *ent.Client {
 	return d.client

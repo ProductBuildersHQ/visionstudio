@@ -17,7 +17,7 @@ cd visionstudio
 
 ```bash
 go mod tidy
-go build ./cmd/vistudio
+go build ./cmd/visionstudio
 ```
 
 ## Initialize Database
@@ -26,7 +26,7 @@ VisionStudio uses Dolt (MySQL-compatible) for persistent storage:
 
 ```bash
 # Initialize and migrate database
-go run ./cmd/vistudio db init --migrate
+go run ./cmd/visionstudio db init --migrate
 ```
 
 ## Install Frontend Dependencies
@@ -57,7 +57,7 @@ See [Type Pipeline](../architecture/types.md) for details.
 Run the Go daemon with embedded frontend:
 
 ```bash
-go run ./cmd/vistudio dashboard --port 9401 --unified
+go run ./cmd/visionstudio dashboard --port 9401 --unified
 ```
 
 Open http://127.0.0.1:9401 in your browser.
@@ -69,7 +69,7 @@ For frontend development with hot reload:
 **Terminal 1: Go API Server**
 
 ```bash
-go run ./cmd/vistudio dashboard --port 9401
+go run ./cmd/visionstudio dashboard --port 9401
 ```
 
 **Terminal 2: Vite Dev Server**
@@ -90,7 +90,7 @@ Open http://localhost:5173 (Vite proxies API calls to port 9401).
 
 ```bash
 # Build CLI
-go build -o bin/vistudio ./cmd/vistudio
+go build -o bin/visionstudio ./cmd/visionstudio
 
 # Build frontend (embedded in unified mode)
 cd web
@@ -114,8 +114,8 @@ cd web && npm test
 
 | Task | Command |
 |------|---------|
-| Run dashboard | `go run ./cmd/vistudio dashboard --port 9401 --unified` |
-| Initialize DB | `go run ./cmd/vistudio db init --migrate` |
+| Run dashboard | `go run ./cmd/visionstudio dashboard --port 9401 --unified` |
+| Initialize DB | `go run ./cmd/visionstudio db init --migrate` |
 | Regenerate Go→TS types | `go generate ./pkg/apitypes && cd web && npm run generate:types` |
 | Lint | `golangci-lint run` |
 | Test | `go test ./...` |

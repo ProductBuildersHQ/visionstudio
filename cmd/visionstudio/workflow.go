@@ -38,7 +38,7 @@ func workflowListCmd() *cobra.Command {
 			}
 
 			if len(workflows) == 0 {
-				cmd.Println("No workflows found. Run 'vistudio workflow seed' to create built-in workflows.")
+				cmd.Println("No workflows found. Run 'visionstudio workflow seed' to create built-in workflows.")
 				return nil
 			}
 

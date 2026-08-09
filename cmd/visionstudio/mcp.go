@@ -16,7 +16,7 @@ Register it in .mcp.json for automatic agent integration:
   {
     "mcpServers": {
       "prism-build": {
-        "command": "vistudio",
+        "command": "visionstudio",
         "args": ["mcp", "--dsn", "root:@tcp(127.0.0.1:3306)/visionstudio"]
       }
     }

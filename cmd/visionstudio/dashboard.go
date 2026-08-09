@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/url"
@@ -47,14 +48,16 @@ Use --unified to serve the React SPA from web/dist/ instead of Go templates.`,
 				return runDashboardStatic(cmd)
 			}
 			if unified {
-				return runUnifiedDashboardServer(cmd, port)
+				return runUnifiedServer(cmd, true)
 			}
 			return runDashboardServer(cmd, port)
 		},
 	}
 	cmd.Flags().Bool("static", false, "Write a static HTML file instead of running a server")
-	cmd.Flags().Bool("unified", false, "Serve the unified React SPA from web/dist/")
-	cmd.Flags().Int("port", 9400, "Port for the dashboard server")
+	cmd.Flags().Bool("unified", false, "Serve the unified React SPA (embedded) plus the JSON API")
+	cmd.Flags().Int("port", 9400, "Port for the dashboard server (used when --address is unset)")
+	cmd.Flags().String("address", "", "Bind address as host:port (e.g. localhost:9401); overrides --port")
+	cmd.Flags().String("web-dist", "", "Serve the SPA from this built web/dist directory instead of the embedded copy")
 	cmd.Flags().String("data-dir", "", "Path to omnidevx data directory (default: ~/.plexusone/omnidevx/data)")
 	return cmd
 }
@@ -78,7 +81,7 @@ func runDashboardStatic(cmd *cobra.Command) error {
 	}
 
 	tmpDir := os.TempDir()
-	outPath := filepath.Join(tmpDir, "vistudio-dashboard.html")
+	outPath := filepath.Join(tmpDir, "visionstudio-dashboard.html")
 	if err := os.WriteFile(outPath, html, 0o600); err != nil {
 		return fmt.Errorf("write file: %w", err)
 	}
@@ -87,7 +90,11 @@ func runDashboardStatic(cmd *cobra.Command) error {
 	return openBrowser(outPath)
 }
 
-func runUnifiedDashboardServer(cmd *cobra.Command, port int) error {
+// runUnifiedServer serves the React SPA and the JSON API on a single listener.
+// The SPA is resolved via resolveWebUI (override / disk / embedded) so it works
+// from any directory, and the bind address via resolveListenAddr. When openUI
+// is true it also opens the browser.
+func runUnifiedServer(cmd *cobra.Command, openUI bool) error {
 	mux := http.NewServeMux()
 	dataDir, _ := cmd.Flags().GetString("data-dir")
 
@@ -100,39 +107,40 @@ func runUnifiedDashboardServer(cmd *cobra.Command, port int) error {
 	stopCommitter := startPeriodicCommitter(cmd.Context(), cmd)
 	defer stopCommitter()
 
-	// Find web/dist directory relative to the executable or working directory
-	webDistPath := findWebDistPath()
-	if webDistPath == "" {
-		return fmt.Errorf("web/dist not found; run 'npm run build' in the web directory first")
+	uiFS, uiSource, err := resolveWebUI(cmd)
+	if err != nil {
+		return err
 	}
 
-	// Serve the React SPA with fallback to index.html for client-side routing
-	fs := http.FileServer(http.Dir(webDistPath))
+	// Serve static assets from the resolved FS, falling back to index.html so
+	// client-side (SPA) routes resolve.
+	fileServer := http.FileServer(http.FS(uiFS))
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Clean the path to prevent directory traversal
-		cleanPath := filepath.Clean(r.URL.Path)
-		if cleanPath == "." {
-			cleanPath = "/"
+		name := strings.TrimPrefix(r.URL.Path, "/")
+		if name != "" && fs.ValidPath(name) {
+			if info, statErr := fs.Stat(uiFS, name); statErr == nil && !info.IsDir() {
+				fileServer.ServeHTTP(w, r)
+				return
+			}
 		}
-		fullPath := filepath.Join(webDistPath, cleanPath) //nolint:gosec // G703: path is cleaned and webDistPath is trusted
-		if _, err := os.Stat(fullPath); err == nil {
-			fs.ServeHTTP(w, r)
-			return
-		}
-		// Fall back to index.html for SPA routing
-		http.ServeFile(w, r, filepath.Join(webDistPath, "index.html"))
+		serveSPAIndex(w, uiFS)
 	})
 
-	addr := fmt.Sprintf("127.0.0.1:%d", port)
+	addr, err := resolveListenAddr(cmd)
+	if err != nil {
+		return err
+	}
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {
 		return fmt.Errorf("listen %s: %w", addr, err)
 	}
 
 	dashURL := fmt.Sprintf("http://%s", addr)
-	cmd.Printf("Unified dashboard server running at %s (Ctrl-C to stop)\n", dashURL)
-	if err := openBrowser(dashURL); err != nil {
-		cmd.Printf("Open %s in your browser\n", dashURL)
+	cmd.Printf("VisionStudio UI + API running at %s (ui: %s, Ctrl-C to stop)\n", dashURL, uiSource)
+	if openUI {
+		if err := openBrowser(dashURL); err != nil {
+			cmd.Printf("Open %s in your browser\n", dashURL)
+		}
 	}
 
 	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt)
@@ -151,6 +159,16 @@ func runUnifiedDashboardServer(cmd *cobra.Command, port int) error {
 		return fmt.Errorf("serve: %w", err)
 	}
 	return nil
+}
+
+func serveSPAIndex(w http.ResponseWriter, uiFS fs.FS) {
+	data, err := fs.ReadFile(uiFS, "index.html")
+	if err != nil {
+		http.Error(w, "web UI index.html not found (build the frontend or pass --web-dist)", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = w.Write(data)
 }
 
 func findWebDistPath() string {

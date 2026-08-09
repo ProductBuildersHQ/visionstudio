@@ -29,6 +29,33 @@ func getDSN(cmd *cobra.Command) string {
 	return defaultDSN
 }
 
+// pingDSN reports whether a Dolt server is reachable at the given DSN by
+// opening a short-lived connection and pinging it. Used by `db status` to
+// detect servers that were not started via `db start` (which have no PID file).
+func pingDSN(dsn string) bool {
+	ds, err := doltstore.New(dsn)
+	if err != nil {
+		return false
+	}
+	defer func() { _ = ds.Close() }()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	return ds.Ping(ctx) == nil
+}
+
+// defaultServerPort returns the port the local Dolt server should use. It
+// prefers the port encoded in the saved config.json DSN, so the `db` lifecycle
+// commands and the client stay on the same port across runs, and falls back to
+// defaultPort when no config DSN is set. An explicit --port flag still wins.
+func defaultServerPort() int {
+	if cfg, err := config.Load(); err == nil && cfg.DSN != "" {
+		if p := portFromDSN(cfg.DSN); p > 0 {
+			return p
+		}
+	}
+	return defaultPort
+}
+
 func splitSQLStatements(sql string) []string {
 	raw := strings.Split(sql, ";")
 	var stmts []string

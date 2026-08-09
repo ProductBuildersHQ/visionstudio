@@ -123,7 +123,7 @@
   "overallDecision": "pass",
   "summary": "PRD covers core requirements well with clear problem definition and user stories. Minor gaps in requirement traceability and success metric baselines.",
   "nextSteps": {
-    "rerunCommand": "vistudio eval prd",
+    "rerunCommand": "visionstudio eval prd",
     "immediate": [],
     "recommended": [
       {

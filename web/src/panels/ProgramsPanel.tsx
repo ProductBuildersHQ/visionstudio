@@ -61,7 +61,7 @@ export function ProgramsPanel() {
       <EmptyState
         title="No initiatives found"
         description="Create an initiative to get started."
-        hint="vistudio initiative create INIT-XXX-001"
+        hint="visionstudio initiative create INIT-XXX-001"
       />
     )
   }

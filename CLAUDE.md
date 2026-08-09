@@ -4,7 +4,33 @@ Project-specific guidelines for Claude Code in VisionStudio.
 
 ## Project Overview
 
-VisionStudio is an LLM-powered specification authoring and evaluation tool. It provides a dashboard for managing initiatives, roadmap items, and spec quality via LLM-as-a-Judge evaluations.
+VisionStudio is an LLM-powered specification authoring and evaluation tool. It provides a dashboard for managing initiatives, roadmap items, and spec quality via LLM-as-a-Judge evaluations. It is the top of the ProductBuildersHQ "spec stack" (`visionstudio → visionspec → specification-workflow-spec`).
+
+Deeper architecture docs live in `docs/architecture/` (`overview.md`, `daemon.md`, `frontend.md`, `types.md`, `ecosystem.md`). Read those for the full picture; this file is for durable conventions and gotchas, not a structural map.
+
+## Architecture & Entry Points
+
+**Two Go entry points** (`cmd/`):
+
+| Binary | Purpose |
+|--------|---------|
+| `cmd/visionstudio` | Current cobra CLI + unified daemon (dashboard, db, ingest, spec/initiative/roadmap/maturity commands, MCP). This is the primary one. |
+| `cmd/daemon` | Legacy standalone REST server (aidlc/v2mom/capability/etc. handlers). Being superseded by `visionstudio dashboard`. |
+
+**Two frontends** — a migration is in progress:
+
+| Dir | What it is |
+|-----|-----------|
+| `web/` (`visionstudio-web`) | Current React + Vite SPA served by the Go daemon (`visionstudio dashboard --unified`). Prefer this for new UI work. |
+| `desktop/` (`visionstudio`) | Electron app (own `main/` + `renderer/`). Matches the README architecture diagram; older. |
+
+**`go.work` multi-repo workspace** — building requires these sibling repos checked out alongside visionstudio (they are `use`d locally, not via published modules):
+
+- `../../grokify/prism-maturity`, `../../grokify/prism-roadmap`
+- `../../plexusone/devfolio`
+- `../prism-build`
+
+Do not add `replace` directives to `go.mod` for these — the workspace handles them, and `replace` directives must not be pushed (see Pre-Push Checklist in the global CLAUDE.md).
 
 ## Type Pipeline (Go → TypeScript)
 
@@ -54,7 +80,7 @@ VisionStudio uses Dolt (MySQL-compatible) via Ent ORM for persistent storage. Th
 
 ```bash
 # Initialize or migrate database
-go run ./cmd/vistudio db init --migrate
+go run ./cmd/visionstudio db init --migrate
 
 # Generate Ent schema after changes
 go generate ./ent
@@ -67,7 +93,7 @@ go generate ./ent
 | Store | `pkg/store` | snake_case | Database/internal |
 | API | `pkg/apitypes` | camelCase | HTTP responses |
 
-Convert between them in API handlers (see `storeJudgeResultToAPI` in `cmd/vistudio/api.go`).
+Convert between them in API handlers (see `storeJudgeResultToAPI` in `cmd/visionstudio/api.go`).
 
 ## Dashboard
 
@@ -75,7 +101,7 @@ The unified dashboard serves both the React frontend and JSON API:
 
 ```bash
 # Run dashboard (serves frontend + API on same port)
-go run ./cmd/vistudio dashboard --port 9401 --unified
+go run ./cmd/visionstudio dashboard --port 9401 --unified
 
 # Frontend dev (hot reload)
 cd web && npm run dev
@@ -114,13 +140,13 @@ Judge results use `structured-evaluation/rubric.Rubric` format directly. Eval fi
 
 ```bash
 # Build
-go build ./cmd/vistudio
+go build ./cmd/visionstudio
 
 # Run dashboard
-go run ./cmd/vistudio dashboard --port 9401 --unified
+go run ./cmd/visionstudio dashboard --port 9401 --unified
 
 # Database migration
-go run ./cmd/vistudio db init --migrate
+go run ./cmd/visionstudio db init --migrate
 
 # Regenerate types
 go generate ./pkg/apitypes
@@ -136,25 +162,41 @@ cd web && npm test
 
 ## File Structure
 
+Key locations (not exhaustive — the tree changes; `ls pkg/` for the current package list):
+
 ```
-cmd/vistudio/          # CLI entry point
+cmd/visionstudio/          # Primary CLI + daemon (cobra)
   api.go               # API handlers, store→API converters
-pkg/
-  apitypes/            # Canonical API types (camelCase JSON)
-    types.go           # Source of truth for frontend types
-    gen/main.go        # JSON Schema generator
-    schema/            # Generated JSON schemas
-  store/               # Database layer (snake_case JSON)
-  service/             # Business logic
-  webapi/              # Web API helpers
-web/
+cmd/daemon/            # Legacy REST server (being superseded)
+pkg/                   # ~28 domain/service packages. Notable:
+  apitypes/            #   Canonical API types (camelCase JSON) — source of truth for frontend types
+    types.go           #     Structs → JSON Schema
+    gen/main.go        #     JSON Schema generator
+    schema/            #     Generated JSON schemas
+  store/               #   Database layer over ent (snake_case JSON)
+  service/             #   Business logic
+  webapi/              #   Web API server/helpers
+  speceval/            #   LLM-as-a-Judge spec evaluation
+  synthesis/           #   LLM spec-document generation
+  specworkflow/        #   Workflow definitions
+  initiative/ roadmap/ rmi/ maturity/ release/ report/   # domain logic
+  assignment/          #   Lease-based agent work claims
+  mcpserver/           #   MCP server exposure
+  ingest/ reposcan/ evidence/ contextbuild/              # repo import & context assembly
+ent/                   # Generated Ent ORM code (~20 schemas; dominates Go LOC)
+web/                   # Current React + Vite SPA (visionstudio-web)
   src/api/
-    client.ts          # API client with compat converters
-    compat.ts          # Gen→normalized type converters
-    types.gen.ts       # Generated TypeScript types
-    schemas.gen.ts     # Generated Zod schemas
+    client.ts          #   API client with compat converters
+    compat.ts          #   Gen→normalized type converters
+    types.gen.ts       #   Generated TypeScript types (never hand-edit)
+    schemas.gen.ts     #   Generated Zod schemas (never hand-edit)
+  src/panels/          #   Top-level views
   scripts/
-    generate-types.mjs # JSON Schema → Zod/TS generator
+    generate-types.mjs #   JSON Schema → Zod/TS generator
+desktop/               # Older Electron app (visionstudio) — own main/ + renderer/
+docs/
+  architecture/        # Read these for the deep structural picture
+  specs/               # PRD/TRD/PLAN/ROADMAP + initiatives/ + *.eval.json gates
 ```
 
 ## Dependencies

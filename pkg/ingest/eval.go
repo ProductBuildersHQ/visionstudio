@@ -26,18 +26,18 @@ type EvalResult struct {
 
 // EvalFile represents the JSON structure of an evaluation file.
 type EvalFile struct {
-	ID           string          `json:"id"`
-	InitiativeID string          `json:"initiative_id"`
-	SpecPath     string          `json:"spec_path"`
-	SpecType     string          `json:"spec_type"`
-	RubricID     string          `json:"rubric_id"`
-	Score        float64         `json:"score"`
-	Verdict      string          `json:"verdict"`
-	Model        string          `json:"model"`
-	EvaluatedAt  time.Time       `json:"evaluated_at"`
-	Rationale    string          `json:"rationale"`
-	Categories   []EvalCategory  `json:"categories,omitempty"`
-	Findings     []EvalFinding   `json:"findings,omitempty"`
+	ID           string         `json:"id"`
+	InitiativeID string         `json:"initiative_id"`
+	SpecPath     string         `json:"spec_path"`
+	SpecType     string         `json:"spec_type"`
+	RubricID     string         `json:"rubric_id"`
+	Score        float64        `json:"score"`
+	Verdict      string         `json:"verdict"`
+	Model        string         `json:"model"`
+	EvaluatedAt  time.Time      `json:"evaluated_at"`
+	Rationale    string         `json:"rationale"`
+	Categories   []EvalCategory `json:"categories,omitempty"`
+	Findings     []EvalFinding  `json:"findings,omitempty"`
 }
 
 // EvalCategory is a rubric category evaluation result.

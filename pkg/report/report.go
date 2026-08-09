@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 	"time"
 
@@ -85,6 +86,11 @@ func Generate(ctx context.Context, s store.Store, initiativeID string) (*Report,
 	if err != nil {
 		return nil, fmt.Errorf("list phases: %w", err)
 	}
+	// ListPhases order is store-dependent (MemStore iterates a map), so sort by
+	// sequence to present phases deterministically in the report.
+	sort.Slice(phases, func(i, j int) bool {
+		return phases[i].SequenceNumber < phases[j].SequenceNumber
+	})
 
 	rmis, err := s.ListRMIs(ctx, initiativeID)
 	if err != nil {

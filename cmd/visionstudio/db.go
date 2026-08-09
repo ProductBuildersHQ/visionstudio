@@ -102,7 +102,7 @@ The server uses --data-dir (or VISIONSTUDIO_DATA, or the default data directory)
 as the multi-database root. Subdirectories containing .dolt are served as
 databases. Other sessions connect via VISIONSTUDIO_DSN.
 
-For background operation, use 'vistudio db start' instead.`,
+For background operation, use 'visionstudio db start' instead.`,
 		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var dir string
@@ -131,14 +131,14 @@ For background operation, use 'vistudio db start' instead.`,
 			if err := cfg.Save(); err != nil {
 				cmd.PrintErrf("warning: could not save config: %v\n", err)
 			} else {
-				cmd.Printf("Saved DSN to config file (all vistudio sessions will use this server)\n")
+				cmd.Printf("Saved DSN to config file (all visionstudio sessions will use this server)\n")
 			}
 
 			cmd.Printf("Starting Dolt SQL server on 127.0.0.1:%d (dir: %s)...\n", port, absDir)
 			return service.DBServe(cmd.Context(), absDir, port)
 		},
 	}
-	cmd.Flags().Int("port", 3306, "Port for the SQL server")
+	cmd.Flags().Int("port", defaultServerPort(), "Port for the SQL server (default: config.json DSN port or the built-in default)")
 	return cmd
 }
 
@@ -149,11 +149,11 @@ func dbStartCmd() *cobra.Command {
 		Long: `Start a Dolt SQL server as a background process.
 
 Writes a PID file to ~/.productbuildershq/visionstudio/server.pid and saves the
-DSN to the config file. Use 'vistudio db stop' to shut it down.`,
+DSN to the config file. Use 'visionstudio db stop' to shut it down.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pid, _, err := readPIDFile()
 			if err == nil && isProcessAlive(pid) {
-				return fmt.Errorf("server already running (PID %d). Use 'vistudio db restart' to restart", pid)
+				return fmt.Errorf("server already running (PID %d). Use 'visionstudio db restart' to restart", pid)
 			}
 
 			dir := getDataDir(cmd)
@@ -209,7 +209,7 @@ DSN to the config file. Use 'vistudio db stop' to shut it down.`,
 			return nil
 		},
 	}
-	cmd.Flags().Int("port", 13306, "Port for the SQL server")
+	cmd.Flags().Int("port", defaultServerPort(), "Port for the SQL server (default: config.json DSN port or the built-in default)")
 	return cmd
 }
 
@@ -288,7 +288,7 @@ func dbRestartCmd() *cobra.Command {
 				port = oldPort
 			}
 			if port == 0 {
-				port = 13306
+				port = defaultServerPort()
 			}
 
 			if err := cmd.Flags().Set("port", fmt.Sprintf("%d", port)); err != nil {
@@ -304,7 +304,7 @@ func dbRestartCmd() *cobra.Command {
 			return startCmd.RunE(startCmd, nil)
 		},
 	}
-	cmd.Flags().Int("port", 0, "Port for the SQL server (default: previous port or 13306)")
+	cmd.Flags().Int("port", 0, "Port for the SQL server (default: previous port, else config.json DSN port or the built-in default)")
 	return cmd
 }
 
@@ -315,7 +315,18 @@ func dbStatusCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			pid, port, err := readPIDFile()
 			if err != nil {
+				// No PID file, but a server may still be running (started via
+				// `db serve` or an external `dolt sql-server`). Probe the
+				// configured DSN before reporting it as down.
+				dsn := getDSN(cmd)
+				if pingDSN(dsn) {
+					cmd.Println("Server: running (detected via DSN; no PID file)")
+					cmd.Printf("  Addr: %s\n", dsnAddr(dsn))
+					return nil
+				}
 				cmd.Println("Server: not running (no PID file)")
+				cmd.Printf("  Tried: %s\n", dsnAddr(dsn))
+				cmd.Println("  Start it with: visionstudio db start")
 				return nil
 			}
 
@@ -325,6 +336,7 @@ func dbStatusCmd() *cobra.Command {
 			if !alive {
 				removePIDFile()
 				cmd.Printf("Server: not running (stale PID file for %d removed)\n", pid)
+				cmd.Println("  Start it with: visionstudio db start")
 				return nil
 			}
 

@@ -21,7 +21,7 @@ backfill the Initiative.Specs map for any specs found on disk but missing
 from the database, and report legacy-location spec files that should be migrated.
 
 This keeps the specs panel honest when agents write specs by hand without
-using 'vistudio spec init'.`,
+using 'visionstudio spec init'.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {

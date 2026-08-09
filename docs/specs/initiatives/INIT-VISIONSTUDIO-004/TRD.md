@@ -140,7 +140,7 @@ line *backward* (kickback) is allowed and re-locks Build.
 | `initiative_author` | **Batch.** One call writes `Initiative` (status `authored`) + its station `Phase`s + `RMI`s + optional `ideation_source` ref + define `SpecDocument`s, in a transaction. This is the agent's one-pass authoring made atomic. |
 | `initiative_ratify` | Sets `ratified_station` (+ `ratified_by`), runs the §4 `Ratify` transition, performs the §3.4 snapshot when crossing `product.approve`. Enforces the artifact invariant; returns the derived station-status map. |
 
-The read-only HTTP API (`cmd/vistudio/api.go`) gains `GET
+The read-only HTTP API (`cmd/visionstudio/api.go`) gains `GET
 /api/initiative/{id}/loop` returning stations + derived status + waterline for
 the SPA. **Writes stay on the MCP/CLI surface** per existing architecture.
 

@@ -123,7 +123,7 @@
   "overallDecision": "pass",
   "summary": "TRD provides excellent architecture and API documentation. Security and testing sections could be expanded.",
   "nextSteps": {
-    "rerunCommand": "vistudio eval trd",
+    "rerunCommand": "visionstudio eval trd",
     "immediate": [],
     "recommended": [
       {

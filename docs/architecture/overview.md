@@ -68,7 +68,7 @@ Structured data is stored in Dolt (MySQL-compatible, Git-like versioning):
 
 ```bash
 # Initialize/migrate database
-go run ./cmd/vistudio db init --migrate
+go run ./cmd/visionstudio db init --migrate
 ```
 
 ### Filesystem
@@ -107,7 +107,7 @@ project-directory/
 | API | `pkg/apitypes` | camelCase | HTTP responses |
 | Frontend | `web/src/api/types.gen.ts` | camelCase | TypeScript |
 
-Conversion happens in API handlers (`cmd/vistudio/api.go`).
+Conversion happens in API handlers (`cmd/visionstudio/api.go`).
 
 ## Design Decisions
 

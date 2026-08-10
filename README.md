@@ -43,7 +43,7 @@ VisionStudio tracks cross-repository initiatives, roadmap items, and specificati
 <td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-002_program.png" /></a></td>
 </tr>
 
-<tr><th>Initiatives Definition Specs</th><th>Initiative Execution Dashboard</th></tr>
+<tr><th>Initiative Definition Specs</th><th>Initiative Execution Dashboard</th></tr>
 <tr>
 <td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-003_initiative-definition.png" /></a></td>
 <td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-004_initiative-execution.png" /></a></td>

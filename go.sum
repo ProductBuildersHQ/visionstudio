@@ -840,8 +840,8 @@ github.com/plexusone/devfolio v0.3.0 h1:ZyRY21gAkF1l7iFUikAi9NQk6h8ROOT2eAdLS80u
 github.com/plexusone/devfolio v0.3.0/go.mod h1:orQPF5Ukq3GvRf0cuq0Ufy6EmG3UBAPsfxG77RZcVOw=
 github.com/plexusone/omnidevx-core v0.3.0 h1:uKSJAjs74fzod5iM3W3opG53eNX1v4J0WHK4mC2QL/0=
 github.com/plexusone/omnidevx-core v0.3.0/go.mod h1:ryBtws1QCxC6eWAtNddW4doPzVDOz9tBZsoA0gC1w/A=
-github.com/plexusone/structured-evaluation v0.11.0 h1:kQCpHEIaysdkVLw2C8OHfkwH+4GEHTuWftyjlIjUzIE=
-github.com/plexusone/structured-evaluation v0.11.0/go.mod h1:/EeH1LVHmGq+O35LQ/VybJNLIGqpoJlR8FqKCOt2KC4=
+github.com/plexusone/structured-evaluation v0.12.0 h1:fmnrL78ZdD7d+wt7kfkOpQhVGLjp+8XcpIKWyuVpGhY=
+github.com/plexusone/structured-evaluation v0.12.0/go.mod h1:/EeH1LVHmGq+O35LQ/VybJNLIGqpoJlR8FqKCOt2KC4=
 github.com/plexusone/uiforge v0.4.0 h1:AzYBAOdj9+uNiVlQpLPgokqw7sxbCLPCXxTHhV+vVuM=
 github.com/plexusone/uiforge v0.4.0/go.mod h1:vYReIfoR8OP9SjC+XauXs2+9f8OiBou1t3oXZ0k8rGQ=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

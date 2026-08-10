@@ -159,3 +159,27 @@ func TestBuildSpecsResponse(t *testing.T) {
 		t.Error("empty JSON output")
 	}
 }
+
+func TestIsValidInitiativeID(t *testing.T) {
+	tests := []struct {
+		name string
+		id   string
+		want bool
+	}{
+		{"valid ID", "INIT-VISIONSTUDIO-001", true},
+		{"empty", "", false},
+		{"dot", ".", false},
+		{"dot-dot", "..", false},
+		{"path traversal", "../../etc/passwd", false},
+		{"forward slash", "foo/bar", false},
+		{"backslash", "foo\\bar", false},
+		{"leading traversal no slash suffix", "..secret", true}, // no separator, so not traversal
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isValidInitiativeID(tt.id); got != tt.want {
+				t.Errorf("isValidInitiativeID(%q) = %v, want %v", tt.id, got, tt.want)
+			}
+		})
+	}
+}

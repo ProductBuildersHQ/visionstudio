@@ -37,16 +37,16 @@ VisionStudio tracks cross-repository initiatives, roadmap items, and specificati
 
 <table>
 
-<tr><th>Programs and Initiatives Dashboard</th><th>Program Dashboard</th></tr>
-<tr>
-<td><img src="docs/images/ss_visionstudio_col-003_webui_img-001_home.png" /></td>
-<td><img src="docs/images/ss_visionstudio_col-003_webui_img-002_program.png" /></td>
-</tr>
-
 <tr><th>Initiative Definition Specs</th><th>Initiative Execution Dashboard</th></tr>
 <tr>
 <td><img src="docs/images/ss_visionstudio_col-003_webui_img-003_initiative-definition.png" /></td>
 <td><img src="docs/images/ss_visionstudio_col-003_webui_img-004_initiative-execution.png" /></td>
+</tr>
+
+<tr><th>Program Dashboard</th><th>Programs and Initiatives Dashboard</th></tr>
+<tr>
+<td><img src="docs/images/ss_visionstudio_col-003_webui_img-002_program.png" /></td>
+<td><img src="docs/images/ss_visionstudio_col-003_webui_img-001_home.png" /></td>
 </tr>
 
 <tr><th>Performance Token Dashboard</th><th>Performance Token Month View</th></tr>

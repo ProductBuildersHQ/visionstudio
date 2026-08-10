@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -1101,8 +1102,10 @@ func parseEvalFile(data []byte, initiativeID, filename string) *store.JudgeResul
 // isValidInitiativeID rejects path-separator and dot-segment components so a
 // caller-supplied ID can't escape the initiative's spec directory when joined
 // into a filesystem path.
+var initiativeIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
 func isValidInitiativeID(id string) bool {
-	return id != "" && id != "." && id != ".." && !strings.ContainsAny(id, "/\\")
+	return initiativeIDPattern.MatchString(id)
 }
 
 func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {

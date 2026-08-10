@@ -1,5 +1,8 @@
 # Frontend Architecture
 
+!!! note "Legacy"
+    This describes the Electron frontend (`desktop/`), which isn't under active feature development. The primary frontend is `web/` (React + Vite, embedded into `cmd/visionstudio`) — see [Architecture Overview](overview.md).
+
 The frontend is a React/TypeScript application running in Electron.
 
 ## Directory Structure

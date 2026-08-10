@@ -26,3 +26,17 @@ export function visibleInitiatives(
   const programsById = new Map(programs.map((p) => [p.id, p]))
   return initiatives.filter((i) => isInitiativeVisible(i, programsById))
 }
+
+// hiddenInitiativeIds returns the set of initiative IDs that are hidden
+// (individually, or via a hidden program), for callers that only have raw
+// initiative IDs to filter — e.g. IDs referenced by records that don't
+// carry the full initiative object.
+export function hiddenInitiativeIds(
+  initiatives: APIInitiative[],
+  programs: APIProgram[]
+): Set<string> {
+  const programsById = new Map(programs.map((p) => [p.id, p]))
+  return new Set(
+    initiatives.filter((i) => !isInitiativeVisible(i, programsById)).map((i) => i.id)
+  )
+}

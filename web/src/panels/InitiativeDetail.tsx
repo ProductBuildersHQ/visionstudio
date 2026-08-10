@@ -556,7 +556,7 @@ function WorkflowDiagram({
         {judgeResults.length > 0 && (
           <span
             className={`text-lg font-semibold ${
-              avgScore >= 7 ? 'text-green-400' : avgScore >= 4 ? 'text-yellow-400' : 'text-red-400'
+              avgScore >= 4 ? 'text-green-400' : avgScore >= 3 ? 'text-yellow-400' : 'text-red-400'
             }`}
           >
             {avgScore.toFixed(1)} avg

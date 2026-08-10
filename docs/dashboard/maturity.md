@@ -38,4 +38,6 @@ For the selected model:
 - **Dimension cards** — one per dimension, showing the average level across selected initiatives, a level-by-level bar (filled segments up to the initiative's current level), the most recent level's name/description, and any notes recorded with that score.
 - **Assessments table** — every assessment, sorted newest first: initiative ID, assessed date, how many dimensions were scored, and an average-level badge (green ≥80% of max, blue ≥50%, yellow ≥30%, gray below that).
 
+Assessments for a [hidden initiative](initiatives.md#hiding-programs-and-initiatives) are excluded everywhere on this tab — the filter chips, the radar chart, dimension averages, and the assessments table all act as if that assessment doesn't exist. If every assessment for a model belongs to hidden initiatives, the model falls back to its empty state.
+
 If the model has no assessments yet, this view shows an empty state instead.

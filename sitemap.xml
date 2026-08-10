@@ -2,178 +2,282 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://productbuildershq.com/visionstudio/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/architecture/daemon/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/architecture/ecosystem/</loc>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/architecture/frontend/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/architecture/overview/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/architecture/types/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/dashboard/initiatives/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/dashboard/maturity/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/dashboard/overview/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/dashboard/performance/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/dashboard/repositories/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/dashboard/specs-and-evaluation/</loc>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/development/contributing/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/development/setup/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/getting-started/installation/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/getting-started/quickstart/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/aidlc-api/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/aidlc/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/capabilities/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/devx/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/editor/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/evaluation/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/maturity/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/methodologies/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/organization/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/projects/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/roadmap/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/samples/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/v2mom/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/guide/workflows/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/releases/unreleased/</loc>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/releases/v0.1.0/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/releases/v0.2.0/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/releases/v0.3.0/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/releases/v0.4.0/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/releases/v0.5.0/</loc>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/PLAN/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/ROADMAP/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/adrs/dual-loop-ratification/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/adrs/dual-loop-ratification/ADR-001-dual-loop-ratification/</loc>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/adrs/maturity-model/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/adrs/maturity-model/ADR-001-embed-html-dashboard/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/adrs/maturity-model/DESIGN/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/adrs/maturity-model/PLAN/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/evals/PLAN/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/evals/PRD/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/evals/ROADMAP/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/evals/TRD/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/ide/PLAN/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/ide/PRD/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/ide/ROADMAP/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/ide/TRD/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/samples-integration/PLAN/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/samples-integration/PRD/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/samples-integration/ROADMAP/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/features/samples-integration/TRD/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-001/PLAN/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-001/PRD/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-001/ROADMAP/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-001/TRD/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-002/PRD/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-003/PLAN/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-003/PRD/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-003/ROADMAP/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-003/TRD/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-004/PLAN/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-004/PRD/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-004/ROADMAP/</loc>
+         <lastmod>2026-08-10</lastmod>
+    </url>
+    <url>
+         <loc>https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-004/TRD/</loc>
+         <lastmod>2026-08-10</lastmod>
     </url>
     <url>
          <loc>https://productbuildershq.com/visionstudio/specs/invention/source/mrd/</loc>
-         <lastmod>2026-07-20</lastmod>
+         <lastmod>2026-08-10</lastmod>
     </url>
 </urlset>

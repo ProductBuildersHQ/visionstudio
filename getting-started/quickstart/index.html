@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="LLM-powered specification authoring and evaluation">
+        <meta name="description" content="LLM-powered platform for roadmap execution, specification authoring, and evaluation">
       
       
       
@@ -16,7 +16,7 @@
         <link rel="prev" href="../installation/">
       
       
-        <link rel="next" href="../../guide/projects/">
+        <link rel="next" href="../../dashboard/overview/">
       
       
         
@@ -436,10 +436,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-your-first-project" class="md-nav__link">
+  <a href="#start-visionstudio" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Create Your First Project
+        Start VisionStudio
       
     </span>
   </a>
@@ -447,71 +447,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#understanding-the-interface" class="md-nav__link">
+  <a href="#register-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Understanding the Interface
+        Register a Repository
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Understanding the Interface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sidebar-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sidebar (Left)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#status-indicators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Status Indicators
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#main-panel-right" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Main Panel (Right)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#llm-panel-bottom-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        LLM Panel (Bottom Left)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow" class="md-nav__link">
+  <a href="#navigating-the-dashboard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow
+        Navigating the Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-initiatives-from-the-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with Initiatives from the CLI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm-as-a-judge-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM-as-a-Judge Evaluation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-access-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Access (MCP)
       
     </span>
   </a>
@@ -566,7 +549,7 @@
   <span class="md-ellipsis">
     
   
-    User Guide
+    Dashboard Guide
   
 
     
@@ -582,7 +565,236 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    User Guide
+    Dashboard Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboard/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboard/initiatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programs, Initiatives & RMIs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboard/repositories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboard/specs-and-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specs & Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboard/maturity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maturity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dashboard/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide (Legacy Desktop App)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide (Legacy Desktop App)
   
 
           </label>
@@ -981,10 +1193,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1002,8 +1214,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1070,10 +1282,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -1091,8 +1303,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1117,6 +1329,62 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecosystem
   
 
     
@@ -1215,10 +1483,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
             
   
   
@@ -1236,8 +1504,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1332,10 +1600,10 @@
         
           
         
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
             
   
   
@@ -1353,8 +1621,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1363,6 +1631,90 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/unreleased/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unreleased
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1482,10 +1834,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#create-your-first-project" class="md-nav__link">
+  <a href="#start-visionstudio" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Create Your First Project
+        Start VisionStudio
       
     </span>
   </a>
@@ -1493,71 +1845,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#understanding-the-interface" class="md-nav__link">
+  <a href="#register-a-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Understanding the Interface
+        Register a Repository
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Understanding the Interface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#sidebar-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Sidebar (Left)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#status-indicators" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Status Indicators
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#main-panel-right" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Main Panel (Right)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#llm-panel-bottom-left" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        LLM Panel (Bottom Left)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflow" class="md-nav__link">
+  <a href="#navigating-the-dashboard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Workflow
+        Navigating the Dashboard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-initiatives-from-the-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Working with Initiatives from the CLI
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llm-as-a-judge-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLM-as-a-Judge Evaluation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-access-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Access (MCP)
       
     </span>
   </a>
@@ -1585,71 +1920,37 @@
 
 
 <h1 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h1>
-<h2 id="create-your-first-project">Create Your First Project<a class="headerlink" href="#create-your-first-project" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Launch VisionStudio</li>
-<li>The sidebar shows available projects</li>
-<li>Select a project or create a new one</li>
-</ol>
-<h2 id="understanding-the-interface">Understanding the Interface<a class="headerlink" href="#understanding-the-interface" title="Permanent link">&para;</a></h2>
-<h3 id="sidebar-left">Sidebar (Left)<a class="headerlink" href="#sidebar-left" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Projects</strong> - List of spec projects</li>
-<li><strong>Profile</strong> - Selected workflow profile (e.g., big-tech-product)</li>
-<li><strong>Workflow</strong> - Link to workflow diagram</li>
-<li><strong>Specs</strong> - List of specs with status indicators</li>
-</ul>
-<h3 id="status-indicators">Status Indicators<a class="headerlink" href="#status-indicators" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th>Icon</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>○</td>
-<td>Not started</td>
-</tr>
-<tr>
-<td>◐</td>
-<td>Draft (not evaluated)</td>
-</tr>
-<tr>
-<td>✓</td>
-<td>Pass (score ≥ 8.0)</td>
-</tr>
-<tr>
-<td>⚠</td>
-<td>Needs work (score 6.0-7.9)</td>
-</tr>
-<tr>
-<td>✗</td>
-<td>Fail (score &lt; 6.0)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="main-panel-right">Main Panel (Right)<a class="headerlink" href="#main-panel-right" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Workflow View</strong> - Visual diagram of spec sequence</li>
-<li><strong>Editor View</strong> - Markdown editor with Source/Rendered toggle</li>
-</ul>
-<h3 id="llm-panel-bottom-left">LLM Panel (Bottom Left)<a class="headerlink" href="#llm-panel-bottom-left" title="Permanent link">&para;</a></h3>
-<ul>
-<li>Chat interface for spec assistance</li>
-<li>Ask questions about your spec</li>
-<li>Request evaluations</li>
-</ul>
-<h2 id="workflow">Workflow<a class="headerlink" href="#workflow" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>Select Profile</strong> - Choose a methodology (e.g., big-tech-product)</li>
-<li><strong>View Workflow</strong> - See the spec sequence</li>
-<li><strong>Write Specs</strong> - Start with source specs (MRD, PRD)</li>
-<li><strong>Evaluate</strong> - Use LLM-as-a-Judge to assess quality</li>
-<li><strong>Iterate</strong> - Improve based on feedback</li>
-<li><strong>Synthesize</strong> - Generate downstream specs (TRD, TPD)</li>
-</ol>
+<p>This walks through the <code>visionstudio</code> CLI and web dashboard. If you haven't installed it yet, see <a href="../installation/">Installation</a> first.</p>
+<h2 id="start-visionstudio">Start VisionStudio<a class="headerlink" href="#start-visionstudio" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>visionstudio<span class="w"> </span>app<span class="w"> </span>start
+</code></pre></div>
+<p>This starts the Dolt database (if it isn't already running) and opens the dashboard in your browser at <code>http://localhost:9400</code>. Press <code>Ctrl-C</code> to stop.</p>
+<h2 id="register-a-repository">Register a Repository<a class="headerlink" href="#register-a-repository" title="Permanent link">&para;</a></h2>
+<p>VisionStudio tracks initiatives against repositories it knows about. Register one with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>visionstudio<span class="w"> </span>registry<span class="w"> </span>add<span class="w"> </span>--org<span class="w"> </span>&lt;github-org&gt;<span class="w"> </span>--name<span class="w"> </span>&lt;repo-name&gt;<span class="w"> </span>--path<span class="w"> </span>/path/to/your/repo
+</code></pre></div>
+<p>See <code>visionstudio registry --help</code> for the full set of registry commands.</p>
+<h2 id="navigating-the-dashboard">Navigating the Dashboard<a class="headerlink" href="#navigating-the-dashboard" title="Permanent link">&para;</a></h2>
+<p>The sidebar has four sections: <strong>Initiatives</strong> (programs, standalone initiatives, and their RMIs), <strong>Repositories</strong>, <strong>Maturity</strong>, and <strong>Performance</strong>. See the <a href="../../dashboard/overview/">Dashboard Guide</a> for a full tour of each — what every panel shows, every clickable element, and what the status colors and icons mean.</p>
+<h2 id="working-with-initiatives-from-the-cli">Working with Initiatives from the CLI<a class="headerlink" href="#working-with-initiatives-from-the-cli" title="Permanent link">&para;</a></h2>
+<p>The dashboard is a view over the same data the CLI manages. Common commands:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>list
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>list<span class="w"> </span>--initiative<span class="w"> </span>&lt;initiative-id&gt;
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>visionstudio<span class="w"> </span>spec<span class="w"> </span>judge<span class="w"> </span>record<span class="w"> </span>&lt;initiative-id&gt;<span class="w"> </span>&lt;spec-file&gt;<span class="w"> </span>--score<span class="w"> </span>&lt;<span class="m">1</span>-5&gt;<span class="w"> </span>--rationale<span class="w"> </span><span class="s2">&quot;&lt;why&gt;&quot;</span><span class="w"> </span>--model<span class="w"> </span>&lt;model-id&gt;
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>visionstudio<span class="w"> </span>roadmap<span class="w"> </span>import<span class="w"> </span>docs/specs/initiatives/&lt;initiative-id&gt;/ROADMAP.md<span class="w">   </span><span class="c1"># sync ROADMAP.md into the database</span>
+</code></pre></div>
+<p>To keep the dashboard focused, programs and initiatives can each be hidden independently — hiding a program cascades to hide its initiatives too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>hide<span class="w"> </span>&lt;program-id&gt;
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>hide<span class="w"> </span>&lt;initiative-id&gt;
+</code></pre></div>
+<p>See <a href="../../dashboard/initiatives/#hiding-programs-and-initiatives">Hiding Programs and Initiatives</a> for exactly where this takes effect.</p>
+<p>Run <code>visionstudio --help</code> for the full command list, or <code>visionstudio &lt;command&gt; --help</code> for any subcommand.</p>
+<h2 id="llm-as-a-judge-evaluation">LLM-as-a-Judge Evaluation<a class="headerlink" href="#llm-as-a-judge-evaluation" title="Permanent link">&para;</a></h2>
+<p>Specs are evaluated against workflow rubrics (<code>structured-evaluation/rubric.Rubric</code>) — a 1–5 integer score, per-category findings with severity, and an overall pass/fail decision. See <a href="../../dashboard/specs-and-evaluation/">Specs &amp; Evaluation</a> for how results are recorded and displayed.</p>
+<h2 id="agent-access-mcp">Agent Access (MCP)<a class="headerlink" href="#agent-access-mcp" title="Permanent link">&para;</a></h2>
+<p>Agent sessions can query initiatives, RMIs, and work assignments directly via the MCP stdio server:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>visionstudio<span class="w"> </span>mcp
+</code></pre></div>
 
 
 

@@ -196,6 +196,7 @@ func entInitiativeToStore(e *ent.Initiative) *store.Initiative {
 		Priority:           e.Priority,
 		HomeRepo:           e.HomeRepo,
 		Workspace:          e.Workspace,
+		Hidden:             e.Hidden,
 		Specs:              e.Specs,
 		CreatedAt:          e.CreatedAt,
 		PlannedAt:          e.PlannedAt,
@@ -220,6 +221,7 @@ func (d *DoltStore) CreateInitiative(ctx context.Context, init *store.Initiative
 		SetOrganization(init.Organization).
 		SetTitle(init.Title).
 		SetStatus(init.Status).
+		SetHidden(init.Hidden).
 		SetCreatedAt(init.CreatedAt).
 		SetUpdatedAt(init.UpdatedAt)
 	if init.InitType != "" {
@@ -287,6 +289,7 @@ func (d *DoltStore) UpdateInitiative(ctx context.Context, init *store.Initiative
 		SetOrganization(init.Organization).
 		SetTitle(init.Title).
 		SetStatus(init.Status).
+		SetHidden(init.Hidden).
 		SetUpdatedAt(init.UpdatedAt)
 	if init.InitType != "" {
 		b.SetInitType(init.InitType)

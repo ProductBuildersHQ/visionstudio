@@ -3,6 +3,7 @@ import type { APIProgram, APIInitiative, APIRMI } from '../api/types'
 import { StatusBadge } from '../components/StatusBadge'
 import { ProgressBar } from '../components/ProgressBar'
 import { PieChart } from '../components/charts'
+import { visibleInitiatives } from '../lib/visibility'
 
 interface InitiativesOverviewProps {
   title: string
@@ -15,12 +16,17 @@ interface InitiativesOverviewProps {
 
 export function InitiativesOverview({
   title,
-  initiatives,
+  initiatives: allInitiatives,
   programs,
   rmis,
   onInitiativeClick,
   showProgramGroups,
 }: InitiativesOverviewProps) {
+  const initiatives = useMemo(
+    () => visibleInitiatives(allInitiatives, programs),
+    [allInitiatives, programs]
+  )
+
   const statusDist = useMemo(() => {
     const initiativeRmis = rmis.filter((r) =>
       initiatives.some((i) => i.id === r.initiativeId)

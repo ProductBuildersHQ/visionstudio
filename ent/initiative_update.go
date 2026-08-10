@@ -170,6 +170,20 @@ func (_u *InitiativeUpdate) ClearWorkspace() *InitiativeUpdate {
 	return _u
 }
 
+// SetHidden sets the "hidden" field.
+func (_u *InitiativeUpdate) SetHidden(v bool) *InitiativeUpdate {
+	_u.mutation.SetHidden(v)
+	return _u
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (_u *InitiativeUpdate) SetNillableHidden(v *bool) *InitiativeUpdate {
+	if v != nil {
+		_u.SetHidden(*v)
+	}
+	return _u
+}
+
 // SetSpecs sets the "specs" field.
 func (_u *InitiativeUpdate) SetSpecs(v map[string]string) *InitiativeUpdate {
 	_u.mutation.SetSpecs(v)
@@ -624,6 +638,9 @@ func (_u *InitiativeUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	if _u.mutation.WorkspaceCleared() {
 		_spec.ClearField(initiative.FieldWorkspace, field.TypeString)
 	}
+	if value, ok := _u.mutation.Hidden(); ok {
+		_spec.SetField(initiative.FieldHidden, field.TypeBool, value)
+	}
 	if value, ok := _u.mutation.Specs(); ok {
 		_spec.SetField(initiative.FieldSpecs, field.TypeJSON, value)
 	}
@@ -1057,6 +1074,20 @@ func (_u *InitiativeUpdateOne) SetNillableWorkspace(v *string) *InitiativeUpdate
 // ClearWorkspace clears the value of the "workspace" field.
 func (_u *InitiativeUpdateOne) ClearWorkspace() *InitiativeUpdateOne {
 	_u.mutation.ClearWorkspace()
+	return _u
+}
+
+// SetHidden sets the "hidden" field.
+func (_u *InitiativeUpdateOne) SetHidden(v bool) *InitiativeUpdateOne {
+	_u.mutation.SetHidden(v)
+	return _u
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (_u *InitiativeUpdateOne) SetNillableHidden(v *bool) *InitiativeUpdateOne {
+	if v != nil {
+		_u.SetHidden(*v)
+	}
 	return _u
 }
 
@@ -1543,6 +1574,9 @@ func (_u *InitiativeUpdateOne) sqlSave(ctx context.Context) (_node *Initiative, 
 	}
 	if _u.mutation.WorkspaceCleared() {
 		_spec.ClearField(initiative.FieldWorkspace, field.TypeString)
+	}
+	if value, ok := _u.mutation.Hidden(); ok {
+		_spec.SetField(initiative.FieldHidden, field.TypeBool, value)
 	}
 	if value, ok := _u.mutation.Specs(); ok {
 		_spec.SetField(initiative.FieldSpecs, field.TypeJSON, value)

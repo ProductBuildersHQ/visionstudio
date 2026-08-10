@@ -52,6 +52,7 @@ type Initiative struct {
 	HomeRepo           string            `json:"home_repo,omitempty"`
 	Workspace          string            `json:"workspace,omitempty"`
 	ProgramID          string            `json:"program_id,omitempty"`
+	Hidden             bool              `json:"hidden,omitempty"`
 	Specs              map[string]string `json:"specs,omitempty"`
 	CreatedAt          time.Time         `json:"created_at"`
 	PlannedAt          *time.Time        `json:"planned_at,omitempty"`

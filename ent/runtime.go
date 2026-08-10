@@ -112,6 +112,10 @@ func init() {
 	initiativeDescWorkspace := initiativeFields[8].Descriptor()
 	// initiative.WorkspaceValidator is a validator for the "workspace" field. It is called by the builders before save.
 	initiative.WorkspaceValidator = initiativeDescWorkspace.Validators[0].(func(string) error)
+	// initiativeDescHidden is the schema descriptor for hidden field.
+	initiativeDescHidden := initiativeFields[9].Descriptor()
+	// initiative.DefaultHidden holds the default value on creation for the hidden field.
+	initiative.DefaultHidden = initiativeDescHidden.Default.(bool)
 	// initiativeDescID is the schema descriptor for id field.
 	initiativeDescID := initiativeFields[0].Descriptor()
 	// initiative.IDValidator is a validator for the "id" field. It is called by the builders before save.

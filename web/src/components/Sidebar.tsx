@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 import type { ExecutionResponse } from '../api/types'
 import type { NavTarget } from '../App'
+import { visibleInitiatives } from '../lib/visibility'
 
 interface SidebarProps {
   collapsed: boolean
@@ -54,7 +55,11 @@ export function Sidebar({
   }, [execution.rmis])
 
   const visiblePrograms = execution.programs.filter((p) => !p.hidden)
-  const standaloneInitiatives = execution.initiatives.filter((i) => !i.programId)
+  const shownInitiatives = useMemo(
+    () => visibleInitiatives(execution.initiatives, execution.programs),
+    [execution.initiatives, execution.programs]
+  )
+  const standaloneInitiatives = shownInitiatives.filter((i) => !i.programId)
 
   const currentSection = (): 'initiatives' | 'repositories' | 'maturity' | 'performance' => {
     if (location.pathname === '/maturity') return 'maturity'
@@ -127,7 +132,7 @@ export function Sidebar({
             >
               {/* Programs */}
               {visiblePrograms.map((program) => {
-                const programInits = execution.initiatives.filter((i) => i.programId === program.id)
+                const programInits = shownInitiatives.filter((i) => i.programId === program.id)
                 return (
                   <NavGroup
                     key={program.id}

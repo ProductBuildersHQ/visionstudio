@@ -1,5 +1,3 @@
-
-
 package doltstore
 
 import (

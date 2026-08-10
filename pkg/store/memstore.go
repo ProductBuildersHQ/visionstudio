@@ -29,9 +29,9 @@ type MemStore struct {
 	devxPeriodReports   map[string]*DevXPeriodReport
 	prismRoadmaps       map[string]*PRISMRoadmap
 	prismGoals          map[string]*PRISMGoal
-	prismDocuments       map[string]*PRISMDocument
-	specDocuments        map[string]*SpecDocument
-	initiativeWorkflows  map[string]*InitiativeWorkflow
+	prismDocuments      map[string]*PRISMDocument
+	specDocuments       map[string]*SpecDocument
+	initiativeWorkflows map[string]*InitiativeWorkflow
 }
 
 // NewMemStore creates a new in-memory store.
@@ -52,9 +52,9 @@ func NewMemStore() *MemStore {
 		devxPeriodReports:   make(map[string]*DevXPeriodReport),
 		prismRoadmaps:       make(map[string]*PRISMRoadmap),
 		prismGoals:          make(map[string]*PRISMGoal),
-		prismDocuments:       make(map[string]*PRISMDocument),
-		specDocuments:        make(map[string]*SpecDocument),
-		initiativeWorkflows:  make(map[string]*InitiativeWorkflow),
+		prismDocuments:      make(map[string]*PRISMDocument),
+		specDocuments:       make(map[string]*SpecDocument),
+		initiativeWorkflows: make(map[string]*InitiativeWorkflow),
 	}
 }
 

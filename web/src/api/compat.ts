@@ -73,6 +73,7 @@ export interface APIInitiative {
   workflowId?: string
   programId?: string
   programName?: string
+  hidden?: boolean
   progress: number
 }
 
@@ -210,6 +211,7 @@ export function toAPIInitiative(gen: GenAPIInitiative): APIInitiative {
     workflowId: gen.workflowId,
     programId: gen.programId,
     programName: gen.programName,
+    hidden: gen.hidden,
     progress: gen.progress ?? 0,
   }
 }

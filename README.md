@@ -27,103 +27,115 @@
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
  [license-url]: https://github.com/ProductBuildersHQ/visionstudio/blob/main/LICENSE
 
-LLM-powered desktop application for specification authoring and evaluation.
+LLM-powered platform for roadmap execution, specification authoring, and evaluation.
 
 ## Overview
 
-VisionStudio provides an integrated workspace for creating, evaluating, and iterating on product specifications using the VisionSpec methodology. It combines structured spec workflows with AI-assisted writing and LLM-as-a-Judge evaluation.
+VisionStudio tracks cross-repository initiatives, roadmap items, and specification quality in one place. It combines a Go CLI and web dashboard (`visionstudio`) backed by Dolt (a MySQL-compatible, Git-like versioned database) with LLM-as-a-Judge evaluation of specs against workflow rubrics.
+
+## Quick Start
+
+```bash
+git clone https://github.com/ProductBuildersHQ/visionstudio.git
+cd visionstudio
+go build -o bin/visionstudio ./cmd/visionstudio
+
+# Bring up the database and web UI together, opens your browser
+./bin/visionstudio app start
+```
+
+See [Installation](docs/getting-started/installation.md) and [Quick Start](docs/getting-started/quickstart.md) for the full walkthrough, including database setup, CLI usage without the browser, and the sibling repos required to build from source.
 
 ## Features
 
-### Specification Authoring
+### Roadmap Execution
 
-- 📁 **Project Management** - Create and manage multiple spec projects
-- ⚡ **Dual Methodology Selection** - Choose requirements methodology (AWS Working Backwards, etc.) and implementation methodology (AIDLC, SpecKit)
-- 📊 **Visual Workflow Diagram** - See spec sequence and status at a glance
-- ✏️ **Markdown Editor** - Source and rendered view toggle
-- ⚖️ **LLM-as-a-Judge Evaluation** - Evaluate specs against profile rubrics
-- 🤖 **LLM Writing Assistant** - Context-aware chat for spec assistance
-- 📦 **Sample Projects** - Import sample projects to learn the workflow
+- 🗂️ **Programs → Initiatives → Phases → RMIs** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups
+- 🏢 **Repositories** - Repository catalog with per-repo RMI counts and progress
+- 📈 **Performance** - Token spend and cost tracking by model, initiative, phase, and RMI
+- 🩺 **Maturity Assessments** - Framework-based capability maturity scoring
+- 🔌 **MCP Server** - Stdio server exposing initiatives/RMIs/work assignments to agent sessions
 
-### AIDLC Integration
+### Specification Authoring & Evaluation
 
-- 🔄 **AIDLC Workflow** - AWS AI-Driven Development Lifecycle with Inception → Construction → Operations phases
-- 📋 **Document Generation** - Generate AIDLC deliverables (Vision, Requirements, Technical Spec, etc.)
-- ✅ **Phase Gates** - Track phase completion and transition requirements
-- 🔁 **Sync Status** - Keep AIDLC documents synchronized with specs
+- ✏️ **Spec Viewer** - Source and rendered Markdown views per initiative, with PDF export
+- ⚖️ **LLM-as-a-Judge Evaluation** - Evaluate specs against workflow rubrics (`structured-evaluation/rubric.Rubric`), with per-category findings and next steps
+- 🔄 **Workflow Sync** - Sync `ROADMAP.md` files and spec workflows with the database
 
-### Strategic Planning
+### CLI
 
-- 🎯 **V2MOM Cascade** - Hierarchical V2MOMs from Organization → Team → Project
-- 🧱 **Capability Stack** - Visual capability management with domains
-- 🗺️ **Roadmap View** - Timeline-based initiative and milestone planning
-- 📈 **Maturity Model** - Framework-based maturity assessments with dashboards
-
-### Organization
-
-- 🏢 **Organization Settings** - Configure organization hierarchy and teams
-- 👥 **Team Management** - Manage teams and their V2MOMs
+- ▶️ **One-command startup** - `visionstudio app start` brings up the database and web UI together, closing on `Ctrl-C`
+- 🗄️ **Database lifecycle** - `visionstudio db {init,start,stop,restart,status,commit}` for standalone database management
+- 🩹 **Actionable diagnostics** - connection failures explain how to fix them (start the database, run migrations, etc.) instead of raw driver errors
+- 🌐 **Serve from anywhere** - the web UI is embedded in the binary (`visionstudio ui --address host:port`), no separate `npm run dev` needed to use it
 
 ### DevX Usage Dashboard
 
 - 📊 **AI Usage Dashboard** - Sessions, prompts, commits, AI-assisted %, tool calls, cost, and daily activity/cost charts, sourced from [OmniDevX](https://github.com/plexusone/omnidevx-core)
 - 🔒 **Read-only, disclosure-scoped** - VisionStudio never queries the OmniDevX event store directly; it renders whatever [devfolio](https://github.com/plexusone/devfolio) already generated and decided was safe to show
 
-## Screen Shots
+<details>
+<summary><strong>Legacy: per-project spec authoring (Electron desktop app, being phased out)</strong></summary>
 
-### Workflow
+An earlier surface — the `cmd/daemon` REST server plus an Electron desktop frontend (`desktop/`) — covers per-project spec authoring against the VisionSpec methodology directly on the filesystem (no database): dual requirements/implementation methodology selection, AIDLC workflow and document generation, V2MOM cascades, capability stacks, and organization/team settings. It's being superseded by the `visionstudio` CLI and web dashboard above and isn't under active feature development. See [Go Daemon](docs/architecture/daemon.md) and [Frontend](docs/architecture/frontend.md) for its architecture.
+
+### Screen Shots (legacy Electron app)
+
+#### Workflow
 
 Multiple workflows can be selected, including custom workflows.
 
 [![](docs/images/ss_visionstudio_series-2_img-001_workflow.png)](https://productbuildershq.com/visionstudio/)
 
-### Spec View
+#### Spec View
 
 Individual specifications with LLM-as-a-Judge evaluations can be viewed.
 
 [![](docs/images/ss_visionstudio_series-2_img-002_prd.png)](https://productbuildershq.com/visionstudio/)
 
-### Findings List
+#### Findings List
 
 A list of all findings is provided for easy scanning of all findings.
 
 [![](docs/images/ss_visionstudio_series-2_img-003_findings.png)](https://productbuildershq.com/visionstudio/)
 
+</details>
+
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Electron Desktop App                     │
+│                    visionstudio binary                       │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │              React/TypeScript Frontend                │  │
-│  │  • Sidebar (projects, specs, methodology)             │  │
-│  │  • Workflow diagram + AIDLC workflow                  │  │
-│  │  • Markdown editor + evaluation results               │  │
-│  │  • V2MOM cascade, capability stack, roadmap           │  │
-│  │  • Maturity model dashboard                           │  │
-│  │  • DevX usage dashboard                               │  │
-│  │  • LLM chat panel                                     │  │
+│  │      web/ — React + Vite SPA, embedded via go:embed    │  │
+│  │  • Programs → Initiatives → Phases → RMIs              │  │
+│  │  • Repositories, Performance (token spend)              │  │
+│  │  • Spec viewer + LLM-as-a-Judge evaluations             │  │
+│  └──────────────────────┬────────────────────────────────┘  │
+│                          │ HTTP (same port)                  │
+│  ┌──────────────────────▼────────────────────────────────┐  │
+│  │      cmd/visionstudio — cobra CLI + JSON API            │  │
+│  │  • app/ui/db lifecycle commands                         │  │
+│  │  • initiative/rmi/phase/spec/roadmap/maturity commands  │  │
+│  │  • MCP stdio server for agent sessions                  │  │
 │  └──────────────────────┬────────────────────────────────┘  │
 └─────────────────────────┼───────────────────────────────────┘
-                          │ HTTP/WebSocket
+                          │ pkg/store (Ent)
 ┌─────────────────────────▼───────────────────────────────────┐
-│                      Go Daemon                              │
-│  • REST API for projects/specs/AIDLC/V2MOM/roadmap          │
-│  • VisionSpec v0.14.0 integration                           │
-│  • Methodology selection (requirements + implementation)    │
-│  • Organization and team management                         │
-│  • DevX dashboard passthrough (reads devfolio's output)     │
-│  • LLM provider abstraction (omniagent)                     │
+│                 Dolt (MySQL-compatible, Git-like)             │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+See [Architecture Overview](docs/architecture/overview.md) for the full picture, including the type pipeline and the legacy daemon/Electron architecture it's replacing.
 
 ## Development
 
 ### Prerequisites
 
-- Go 1.23+
+- Go 1.26+
 - Node.js 20+
 - npm
+- Dolt (for the database; `visionstudio db init --migrate` sets it up)
 
 ### Setup
 
@@ -132,52 +144,47 @@ A list of all findings is provided for easy scanning of all findings.
 git clone https://github.com/ProductBuildersHQ/visionstudio.git
 cd visionstudio
 
-# Build the Go daemon
-go build -o bin/daemon ./cmd/daemon/
+# Initialize the database
+go run ./cmd/visionstudio db init --migrate
 
-# Install frontend dependencies
-cd desktop && npm install
+# Run the unified dashboard (frontend + API on one port)
+go run ./cmd/visionstudio dashboard --port 9401 --unified
 
-# Start development servers
-./bin/daemon &                    # Start Go daemon
-cd desktop && npm run dev:renderer &  # Start Vite
-cd desktop && npm run dev:main    # Start Electron
+# Or, for frontend hot reload during UI development:
+go run ./cmd/visionstudio dashboard --port 9401   # API only
+cd web && npm run dev                              # Vite dev server
 ```
 
 ### Project Structure
 
 ```
 visionstudio/
-├── cmd/daemon/          # Go daemon (REST API server)
-│   ├── main.go          # Server setup and core routes
-│   ├── aidlc.go         # AIDLC workflow handlers
-│   ├── v2mom.go         # V2MOM cascade handlers
-│   ├── capability.go    # Capability stack handlers
-│   ├── roadmap.go       # Roadmap handlers
-│   ├── organization.go  # Organization handlers
-│   ├── methodologies.go # Methodology selection handlers
-│   ├── samples.go       # Sample projects handlers
-│   └── devx.go          # DevX dashboard passthrough handler
+├── cmd/
+│   ├── visionstudio/    # Primary CLI + unified daemon
+│   │   ├── main.go      # Cobra root, global flags
+│   │   ├── app.go       # `app start/status/stop`
+│   │   ├── serve.go     # Web UI resolution + address parsing
+│   │   ├── api.go       # JSON API handlers, store→API converters
+│   │   ├── db.go        # `db` subcommands
+│   │   └── ...          # initiative/rmi/phase/spec/roadmap/maturity commands
+│   └── daemon/          # Legacy REST server (being phased out, see README)
 ├── pkg/
-│   ├── api/             # API types
-│   └── config/          # Configuration (projects, organization)
-├── desktop/
-│   ├── main/            # Electron main process
-│   ├── renderer/src/
-│   │   ├── components/
-│   │   │   ├── aidlc/           # AIDLC workflow views
-│   │   │   ├── v2mom/           # V2MOM cascade views
-│   │   │   ├── capability-stack/ # Capability views
-│   │   │   ├── roadmap/         # Roadmap views
-│   │   │   ├── maturity-model/  # Maturity views
-│   │   │   ├── organization/    # Organization views
-│   │   │   ├── samples/         # Sample picker
-│   │   │   └── devx/            # DevX usage dashboard (not project-scoped)
-│   │   ├── services/    # API client
-│   │   └── types/       # TypeScript types
-│   └── package.json
-├── samples/             # Sample projects (Grafana, Simple)
-├── docs/                # MkDocs documentation
+│   ├── apitypes/        # Canonical API types (Go-first type pipeline source)
+│   ├── store/            # Database layer (Ent-backed, snake_case JSON)
+│   ├── service/          # Business logic
+│   ├── reposcan/          # Repository discovery + scanning
+│   ├── tokens/            # Token spend / cost tracking
+│   ├── mcpserver/         # MCP stdio server
+│   └── config/            # Configuration (projects, organization) — shared with cmd/daemon
+├── ent/                  # Ent ORM schema and generated client
+├── web/                  # Current React + Vite SPA (embedded into cmd/visionstudio)
+│   ├── embed.go          # //go:embed all:dist
+│   └── src/
+│       ├── panels/       # ProgramsPanel, RepositoriesPanel, PerformancePanel, etc.
+│       └── api/          # Generated types (types.gen.ts) + API client
+├── desktop/              # Legacy Electron app (being phased out, see README)
+├── samples/              # Sample projects (Grafana, Simple)
+├── docs/                 # MkDocs documentation
 └── go.mod
 ```
 

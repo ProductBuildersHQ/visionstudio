@@ -50,7 +50,7 @@ See [Installation](docs/getting-started/installation.md) and [Quick Start](docs/
 
 ### Roadmap Execution
 
-- 🗂️ **[Programs → Initiatives → Phases → RMIs](docs/dashboard/initiatives.md)** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups
+- 🗂️ **[Programs → Initiatives → Phases → RMIs](docs/dashboard/initiatives.md)** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups; programs and initiatives can each be hidden from the dashboard (`visionstudio program hide` / `initiative hide`), with hiding a program cascading to its initiatives
 - 🏢 **[Repositories](docs/dashboard/repositories.md)** - Repository catalog with per-repo RMI counts and progress
 - 📈 **[Performance](docs/dashboard/performance.md)** - Token spend and cost tracking by model, initiative, phase, and RMI
 - 🩺 **[Maturity Assessments](docs/dashboard/maturity.md)** - Framework-based capability maturity scoring, plus SCALE platform adoption and code-leverage/reuse graphs
@@ -180,7 +180,7 @@ visionstudio/
 ├── web/                  # Current React + Vite SPA (embedded into cmd/visionstudio)
 │   ├── embed.go          # //go:embed all:dist
 │   └── src/
-│       ├── panels/       # ProgramsPanel, RepositoriesPanel, PerformancePanel, etc.
+│       ├── panels/       # InitiativesOverview, RepositoriesPanel, PerformancePanel, MaturityPanel, etc.
 │       └── api/          # Generated types (types.gen.ts) + API client
 ├── desktop/              # Legacy Electron app (being phased out, see README)
 ├── samples/              # Sample projects (Grafana, Simple)

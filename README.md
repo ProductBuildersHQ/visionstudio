@@ -104,26 +104,26 @@ A list of all findings is provided for easy scanning of all findings.
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    visionstudio binary                       │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │      web/ — React + Vite SPA, embedded via go:embed    │  │
-│  │  • Programs → Initiatives → Phases → RMIs              │  │
+┌───────────────────────────────────────────────────────────────┐
+│                    visionstudio binary                        │
+│  ┌─────────────────────────────────────────────────────────┐  │
+│  │      web/ — React + Vite SPA, embedded via go:embed     │  │
+│  │  • Programs → Initiatives → Phases → RMIs               │  │
 │  │  • Repositories, Performance (token spend)              │  │
 │  │  • Spec viewer + LLM-as-a-Judge evaluations             │  │
-│  └──────────────────────┬────────────────────────────────┘  │
-│                          │ HTTP (same port)                  │
-│  ┌──────────────────────▼────────────────────────────────┐  │
+│  └──────────────────────┬──────────────────────────────────┘  │
+│                          │ HTTP (same port)                   │
+│  ┌──────────────────────▼──────────────────────────────────┐  │
 │  │      cmd/visionstudio — cobra CLI + JSON API            │  │
 │  │  • app/ui/db lifecycle commands                         │  │
 │  │  • initiative/rmi/phase/spec/roadmap/maturity commands  │  │
 │  │  • MCP stdio server for agent sessions                  │  │
-│  └──────────────────────┬────────────────────────────────┘  │
-└─────────────────────────┼───────────────────────────────────┘
+│  └──────────────────────┬──────────────────────────────────┘  │
+└─────────────────────────┼─────────────────────────────────────┘
                           │ pkg/store (Ent)
-┌─────────────────────────▼───────────────────────────────────┐
+┌─────────────────────────▼─────────────────────────────────────┐
 │                 Dolt (MySQL-compatible, Git-like)             │
-└─────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
 
 See [Architecture Overview](docs/architecture/overview.md) for the full picture, including the type pipeline and the legacy daemon/Electron architecture it's replacing.

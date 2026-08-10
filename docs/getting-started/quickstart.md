@@ -22,33 +22,7 @@ See `visionstudio registry --help` for the full set of registry commands.
 
 ## Navigating the Dashboard
 
-### All Initiatives (`/`)
-
-The home view lists every initiative, grouped by program. Standalone initiatives (not attached to a program) have their own view at `/standalone`.
-
-### Program view (`/program/:programId`)
-
-Shows every initiative under a single program.
-
-### Initiative detail (`/initiative/:initiativeId`)
-
-Shows an initiative's phases, roadmap items (RMIs), and its spec documents. From here you can open the spec viewer for any spec type (PRD, TRD, PLAN, ROADMAP, etc.).
-
-### Spec Viewer (`/initiative/:initiativeId/spec/:specType`)
-
-Shows a spec's Markdown source and rendered views, with a toggle between them, along with its LLM-as-a-Judge evaluation result if one exists — per-category scores, findings, and next steps. Supports copying a link and exporting to PDF.
-
-### Repositories (`/repositories`)
-
-The repository catalog, with per-repository RMI counts and progress. Click through to a repository's detail view (`/repository/*`) to see the initiatives that touch it.
-
-### Maturity (`/maturity`)
-
-Framework-based capability maturity assessments.
-
-### Performance (`/performance`)
-
-Token spend and cost, broken down by model, initiative, phase, and RMI — sourced from ingested usage data (`visionstudio db ingest-tokens`).
+The sidebar has four sections: **Initiatives** (programs, standalone initiatives, and their RMIs), **Repositories**, **Maturity**, and **Performance**. See the [Dashboard Guide](../dashboard/overview.md) for a full tour of each — what every panel shows, every clickable element, and what the status colors and icons mean.
 
 ## Working with Initiatives from the CLI
 
@@ -65,7 +39,7 @@ Run `visionstudio --help` for the full command list, or `visionstudio <command> 
 
 ## LLM-as-a-Judge Evaluation
 
-Specs are evaluated against workflow rubrics (`structured-evaluation/rubric.Rubric`) — a 1–5 integer score, per-category findings with severity, and an overall pass/fail decision. Evaluation results are stored as `*.eval.json` files under `docs/specs/initiatives/<id>/evaluations/` and shown in the Spec Viewer.
+Specs are evaluated against workflow rubrics (`structured-evaluation/rubric.Rubric`) — a 1–5 integer score, per-category findings with severity, and an overall pass/fail decision. See [Specs & Evaluation](../dashboard/specs-and-evaluation.md) for how results are recorded and displayed.
 
 ## Agent Access (MCP)
 

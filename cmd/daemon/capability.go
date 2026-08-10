@@ -97,7 +97,7 @@ func (s *Server) handleGetCapability(w http.ResponseWriter, r *http.Request) {
 	capabilityID := chi.URLParam(r, "capabilityId")
 
 	// Validate capabilityID for path traversal
-	if err := osutil.ValidateNoTraversal(capabilityID); err != nil {
+	if err := osutil.ValidatePathComponent(capabilityID); err != nil {
 		s.writeJSON(w, http.StatusBadRequest, api.GetCapabilityResponse{
 			Error: "Invalid capability ID",
 		})
@@ -152,22 +152,12 @@ func (s *Server) loadCapability(projectPath, capabilityID string) (api.Capabilit
 	capabilityDir := filepath.Join(projectPath, "capability")
 
 	// Try different file patterns
-	patterns := []string{
-		filepath.Join(capabilityDir, capabilityID+".json"),
-		filepath.Join(capabilityDir, capabilityID+".capability.json"),
-		filepath.Join(capabilityDir, "domains", capabilityID+".json"),
-		filepath.Join(capabilityDir, "domains", capabilityID+".capability.json"),
-	}
-
-	var data []byte
-	var err error
-	for _, pattern := range patterns {
-		data, err = os.ReadFile(pattern) //nolint:gosec // G703: Path from tracked project config
-		if err == nil {
-			break
-		}
-	}
-
+	_, data, err := osutil.FindFirstExistingSecure(capabilityDir,
+		capabilityID+".json",
+		capabilityID+".capability.json",
+		filepath.Join("domains", capabilityID+".json"),
+		filepath.Join("domains", capabilityID+".capability.json"),
+	)
 	if err != nil {
 		return api.CapabilityStack{}, err
 	}
@@ -182,9 +172,12 @@ func (s *Server) loadCapability(projectPath, capabilityID string) (api.Capabilit
 
 // loadCapabilityFromPath loads a capability stack from a relative path
 func (s *Server) loadCapabilityFromPath(projectPath, relPath string) (api.CapabilityStack, error) {
-	fullPath := filepath.Join(projectPath, relPath)
+	fullPath, err := osutil.JoinSecure(projectPath, relPath)
+	if err != nil {
+		return api.CapabilityStack{}, err
+	}
 
-	data, err := os.ReadFile(fullPath) //nolint:gosec // G703: Path from tracked project config
+	data, err := os.ReadFile(fullPath) // #nosec G703 -- fullPath is contained under projectPath via osutil.JoinSecure above
 	if err != nil {
 		return api.CapabilityStack{}, err
 	}

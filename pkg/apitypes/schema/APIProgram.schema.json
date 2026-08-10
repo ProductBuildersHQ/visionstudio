@@ -35,6 +35,9 @@
         "programName": {
           "type": "string"
         },
+        "hidden": {
+          "type": "boolean"
+        },
         "progress": {
           "type": "number"
         }

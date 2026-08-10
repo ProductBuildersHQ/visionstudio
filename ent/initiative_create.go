@@ -114,6 +114,20 @@ func (_c *InitiativeCreate) SetNillableWorkspace(v *string) *InitiativeCreate {
 	return _c
 }
 
+// SetHidden sets the "hidden" field.
+func (_c *InitiativeCreate) SetHidden(v bool) *InitiativeCreate {
+	_c.mutation.SetHidden(v)
+	return _c
+}
+
+// SetNillableHidden sets the "hidden" field if the given value is not nil.
+func (_c *InitiativeCreate) SetNillableHidden(v *bool) *InitiativeCreate {
+	if v != nil {
+		_c.SetHidden(*v)
+	}
+	return _c
+}
+
 // SetSpecs sets the "specs" field.
 func (_c *InitiativeCreate) SetSpecs(v map[string]string) *InitiativeCreate {
 	_c.mutation.SetSpecs(v)
@@ -345,6 +359,10 @@ func (_c *InitiativeCreate) defaults() {
 		v := initiative.DefaultInitType
 		_c.mutation.SetInitType(v)
 	}
+	if _, ok := _c.mutation.Hidden(); !ok {
+		v := initiative.DefaultHidden
+		_c.mutation.SetHidden(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -395,6 +413,9 @@ func (_c *InitiativeCreate) check() error {
 		if err := initiative.WorkspaceValidator(v); err != nil {
 			return &ValidationError{Name: "workspace", err: fmt.Errorf(`ent: validator failed for field "Initiative.workspace": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.Hidden(); !ok {
+		return &ValidationError{Name: "hidden", err: errors.New(`ent: missing required field "Initiative.hidden"`)}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Initiative.created_at"`)}
@@ -473,6 +494,10 @@ func (_c *InitiativeCreate) createSpec() (*Initiative, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Workspace(); ok {
 		_spec.SetField(initiative.FieldWorkspace, field.TypeString, value)
 		_node.Workspace = value
+	}
+	if value, ok := _c.mutation.Hidden(); ok {
+		_spec.SetField(initiative.FieldHidden, field.TypeBool, value)
+		_node.Hidden = value
 	}
 	if value, ok := _c.mutation.Specs(); ok {
 		_spec.SetField(initiative.FieldSpecs, field.TypeJSON, value)

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -38,8 +39,65 @@ func initiativeCmd() *cobra.Command {
 		initiativeUpdateCmd(),
 		initiativeTransitionCmd(),
 		initiativeDepCmd(),
+		initiativeHideCmd(),
+		initiativeShowCmd(),
 	)
 	return cmd
+}
+
+// setInitiativeHidden loads an initiative, sets its hidden flag, and persists it.
+func setInitiativeHidden(cmd *cobra.Command, id string, hidden bool) error {
+	svc, cleanup, err := connectService(cmd)
+	if err != nil {
+		return err
+	}
+	defer cleanup()
+
+	init, err := svc.Store.GetInitiative(cmd.Context(), id)
+	if err != nil {
+		return err
+	}
+	if init.Hidden == hidden {
+		state := "shown"
+		if hidden {
+			state = "hidden"
+		}
+		cmd.Printf("Initiative %s is already %s\n", init.ID, state)
+		return nil
+	}
+	init.Hidden = hidden
+	init.UpdatedAt = time.Now()
+	if err := svc.UpdateInitiative(cmd.Context(), init); err != nil {
+		return err
+	}
+	verb := "shown in"
+	if hidden {
+		verb = "hidden from"
+	}
+	cmd.Printf("Initiative %s %s the dashboard\n", init.ID, verb)
+	return nil
+}
+
+func initiativeHideCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "hide <initiative-id>",
+		Short: "Hide an initiative from the dashboard",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return setInitiativeHidden(cmd, args[0], true)
+		},
+	}
+}
+
+func initiativeShowCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "show <initiative-id>",
+		Short: "Show a previously hidden initiative on the dashboard",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return setInitiativeHidden(cmd, args[0], false)
+		},
+	}
 }
 
 func initiativeCreateCmd() *cobra.Command {
@@ -138,7 +196,7 @@ func initiativeListCmd() *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tPROGRAM\tWORKSPACE")
+			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tPROGRAM\tWORKSPACE\tHIDDEN")
 			for _, i := range inits {
 				ws := i.Workspace
 				if ws == "" {
@@ -148,7 +206,11 @@ func initiativeListCmd() *cobra.Command {
 				if prog == "" {
 					prog = "-"
 				}
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", i.ID, i.Title, i.Status, prog, ws)
+				hidden := "no"
+				if i.Hidden {
+					hidden = "yes"
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", i.ID, i.Title, i.Status, prog, ws, hidden)
 			}
 			return w.Flush()
 		},
@@ -190,6 +252,9 @@ func initiativeGetCmd() *cobra.Command {
 			}
 			if init.ProgramID != "" {
 				cmd.Printf("Program:    %s\n", init.ProgramID)
+			}
+			if init.Hidden {
+				cmd.Printf("Hidden:     true\n")
 			}
 			if len(init.Specs) > 0 {
 				cmd.Println("Specs:")

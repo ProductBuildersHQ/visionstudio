@@ -106,6 +106,7 @@ var (
 		{Name: "priority", Type: field.TypeString, Nullable: true, Size: 32},
 		{Name: "home_repo", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "workspace", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "hidden", Type: field.TypeBool, Default: false},
 		{Name: "specs", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "planned_at", Type: field.TypeTime, Nullable: true},
@@ -125,13 +126,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "initiatives_programs_initiatives",
-				Columns:    []*schema.Column{InitiativesColumns[17]},
+				Columns:    []*schema.Column{InitiativesColumns[18]},
 				RefColumns: []*schema.Column{ProgramsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "initiatives_spec_workflows_initiatives",
-				Columns:    []*schema.Column{InitiativesColumns[18]},
+				Columns:    []*schema.Column{InitiativesColumns[19]},
 				RefColumns: []*schema.Column{SpecWorkflowsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

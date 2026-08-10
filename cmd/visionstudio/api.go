@@ -44,6 +44,7 @@ type APIInitiative struct {
 	ProgramID   string  `json:"programId,omitempty"`
 	ProgramName string  `json:"programName,omitempty"`
 	HomeRepo    string  `json:"homeRepo,omitempty"`
+	Hidden      bool    `json:"hidden,omitempty"`
 	Progress    float64 `json:"progress"`
 }
 
@@ -509,6 +510,7 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 			ProgramID:   init.ProgramID,
 			ProgramName: programName,
 			HomeRepo:    init.HomeRepo,
+			Hidden:      init.Hidden,
 			Progress:    progress,
 		})
 	}

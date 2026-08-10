@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
-import { getMaturity, getScale, getLeverage } from '../api/client'
-import type { MaturityResponse, MaturityAssessment, CapabilityModel, ScaleResponse, ScaleMetric, LeverageGraph } from '../api/types'
+import { getMaturity, getScale, getLeverage, getExecution } from '../api/client'
+import type { MaturityResponse, MaturityAssessment, CapabilityModel, ScaleResponse, ScaleMetric, LeverageGraph, ExecutionResponse } from '../api/types'
 import { RadarChart, type RadarAxis, type RadarDataset } from '../components/charts'
 import { LoadingState, ErrorState, EmptyState } from '../components'
+import { hiddenInitiativeIds } from '../lib/visibility'
 
 type ViewMode = 'scale' | 'leverage' | 'models'
 
@@ -11,6 +12,11 @@ export function MaturityPanel() {
   const [maturityData, setMaturityData] = useState<MaturityResponse | null>(null)
   const [scaleData, setScaleData] = useState<ScaleResponse | null>(null)
   const [leverageData, setLeverageData] = useState<LeverageGraph | null>(null)
+  // Fetched alongside the maturity data above so the Capability Models
+  // initiative filter can exclude hidden initiatives; kept optional
+  // (unlike maturity/scale) so a slow or failed execution fetch doesn't
+  // block this page the way it isn't blocked by leverage data either.
+  const [execution, setExecution] = useState<ExecutionResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [selectedModel, setSelectedModel] = useState<string | null>(null)
 
@@ -26,6 +32,12 @@ export function MaturityPanel() {
         }
       })
       .catch((err: Error) => setError(err.message))
+    getExecution()
+      .then(setExecution)
+      .catch(() => {
+        // Non-fatal: the initiative filter just won't exclude hidden
+        // initiatives if this fails.
+      })
   }
 
   useEffect(() => {
@@ -86,6 +98,7 @@ export function MaturityPanel() {
       {viewMode === 'models' && (
         <ModelsView
           data={maturityData}
+          execution={execution}
           selectedModel={selectedModel}
           onSelectModel={setSelectedModel}
         />
@@ -321,10 +334,12 @@ function aspectDisplayName(aspect: string): string {
 
 function ModelsView({
   data,
+  execution,
   selectedModel,
   onSelectModel,
 }: {
   data: MaturityResponse
+  execution: ExecutionResponse | null
   selectedModel: string | null
   onSelectModel: (id: string) => void
 }) {
@@ -360,7 +375,7 @@ function ModelsView({
         ))}
       </div>
 
-      {model && <ModelView model={model} assessments={modelAssessments} />}
+      {model && <ModelView model={model} assessments={modelAssessments} execution={execution} />}
     </div>
   )
 }
@@ -368,15 +383,27 @@ function ModelsView({
 function ModelView({
   model,
   assessments,
+  execution,
 }: {
   model: CapabilityModel
   assessments: MaturityAssessment[]
+  execution: ExecutionResponse | null
 }) {
   const [selectedInitiatives, setSelectedInitiatives] = useState<Set<string>>(new Set())
 
+  // Assessments for a hidden initiative are excluded from every view below
+  // (chips, radar, dimension averages, and the table), not just the filter
+  // chips -- otherwise a hidden initiative's data would still leak into
+  // aggregates and the table even though it can't be selected.
+  const visibleAssessments = useMemo(() => {
+    if (!execution) return assessments
+    const hidden = hiddenInitiativeIds(execution.initiatives, execution.programs)
+    return assessments.filter((a) => !hidden.has(a.initiative_id))
+  }, [assessments, execution])
+
   const initiativeIds = useMemo(
-    () => [...new Set(assessments.map((a) => a.initiative_id))],
-    [assessments]
+    () => [...new Set(visibleAssessments.map((a) => a.initiative_id))],
+    [visibleAssessments]
   )
 
   useEffect(() => {
@@ -395,7 +422,7 @@ function ModelView({
   }, [model])
 
   const radarDatasets = useMemo((): RadarDataset[] => {
-    return assessments
+    return visibleAssessments
       .filter((a) => selectedInitiatives.has(a.initiative_id))
       .map((a) => ({
         name: a.initiative_id,
@@ -403,11 +430,11 @@ function ModelView({
           (a.scores ?? []).map((s) => [s.dimension_key, s.level])
         ),
       }))
-  }, [assessments, selectedInitiatives])
+  }, [visibleAssessments, selectedInitiatives])
 
   const avgByDimension = useMemo(() => {
     const sums: Record<string, { total: number; count: number }> = {}
-    for (const a of assessments) {
+    for (const a of visibleAssessments) {
       for (const s of a.scores ?? []) {
         if (!sums[s.dimension_key]) sums[s.dimension_key] = { total: 0, count: 0 }
         sums[s.dimension_key].total += s.level
@@ -417,7 +444,7 @@ function ModelView({
     return Object.fromEntries(
       Object.entries(sums).map(([k, v]) => [k, v.count > 0 ? v.total / v.count : 0])
     )
-  }, [assessments])
+  }, [visibleAssessments])
 
   const toggleInitiative = (id: string) => {
     setSelectedInitiatives((prev) => {
@@ -442,7 +469,7 @@ function ModelView({
         <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
           <span>{model.dimensions?.length ?? 0} dimensions</span>
           <span>Max level: {model.max_level}</span>
-          <span>{assessments.length} assessments</span>
+          <span>{visibleAssessments.length} assessments</span>
         </div>
       </div>
 
@@ -486,7 +513,7 @@ function ModelView({
                 dimension={dim}
                 maxLevel={model.max_level}
                 avgLevel={avgByDimension[dim.key] ?? 0}
-                assessments={assessments.filter((a) =>
+                assessments={visibleAssessments.filter((a) =>
                   selectedInitiatives.has(a.initiative_id)
                 )}
               />
@@ -496,7 +523,7 @@ function ModelView({
       )}
 
       {/* Assessments Table */}
-      {assessments.length > 0 && (
+      {visibleAssessments.length > 0 && (
         <div className="space-y-4">
           <h4 className="text-sm font-medium text-gray-400">Assessments</h4>
           <div className="bg-gray-800 rounded-lg overflow-hidden">
@@ -510,7 +537,7 @@ function ModelView({
                 </tr>
               </thead>
               <tbody>
-                {assessments
+                {visibleAssessments
                   .sort((a, b) => new Date(b.assessed_at).getTime() - new Date(a.assessed_at).getTime())
                   .map((a) => {
                     const avg = a.scores?.length
@@ -535,7 +562,7 @@ function ModelView({
         </div>
       )}
 
-      {assessments.length === 0 && (
+      {visibleAssessments.length === 0 && (
         <EmptyState
           title="No assessments"
           description={`No initiatives have been assessed against ${model.name} yet.`}

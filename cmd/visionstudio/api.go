@@ -1099,9 +1099,10 @@ func parseEvalFile(data []byte, initiativeID, filename string) *store.JudgeResul
 	}
 }
 
-// isValidInitiativeID rejects path-separator and dot-segment components so a
-// caller-supplied ID can't escape the initiative's spec directory when joined
-// into a filesystem path.
+// isValidInitiativeID allowlists ID characters (letters, digits, "_", "-")
+// so a caller-supplied ID can't contain path separators or dot-segments that
+// would let it escape the initiative's spec directory when joined into a
+// filesystem path.
 var initiativeIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
 
 func isValidInitiativeID(id string) bool {

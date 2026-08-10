@@ -175,7 +175,8 @@ func TestIsValidInitiativeID(t *testing.T) {
 		{"path traversal", "../../etc/passwd", false},
 		{"forward slash", "foo/bar", false},
 		{"backslash", "foo\\bar", false},
-		{"leading traversal no slash suffix", "..secret", true}, // no separator, so not traversal
+		{"dots not allowed by allowlist", "..secret", false},
+		{"space not allowed by allowlist", "foo bar", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

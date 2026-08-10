@@ -97,7 +97,7 @@ func (s *Server) handleGetV2MOM(w http.ResponseWriter, r *http.Request) {
 	v2momID := chi.URLParam(r, "v2momId")
 
 	// Validate v2momID for path traversal
-	if err := osutil.ValidateNoTraversal(v2momID); err != nil {
+	if err := osutil.ValidatePathComponent(v2momID); err != nil {
 		s.writeJSON(w, http.StatusBadRequest, api.GetV2MOMResponse{
 			Error: "Invalid V2MOM ID",
 		})
@@ -152,22 +152,12 @@ func (s *Server) loadV2MOM(projectPath, v2momID string) (api.V2MOM, error) {
 	v2momDir := filepath.Join(projectPath, "v2mom")
 
 	// Try different file patterns
-	patterns := []string{
-		filepath.Join(v2momDir, v2momID+".json"),
-		filepath.Join(v2momDir, v2momID+".v2mom.json"),
-		filepath.Join(v2momDir, "teams", v2momID+".json"),
-		filepath.Join(v2momDir, "teams", v2momID+".v2mom.json"),
-	}
-
-	var data []byte
-	var err error
-	for _, pattern := range patterns {
-		data, err = os.ReadFile(pattern) //nolint:gosec // G703: Path from tracked project config
-		if err == nil {
-			break
-		}
-	}
-
+	_, data, err := osutil.FindFirstExistingSecure(v2momDir,
+		v2momID+".json",
+		v2momID+".v2mom.json",
+		filepath.Join("teams", v2momID+".json"),
+		filepath.Join("teams", v2momID+".v2mom.json"),
+	)
 	if err != nil {
 		return api.V2MOM{}, err
 	}
@@ -182,9 +172,12 @@ func (s *Server) loadV2MOM(projectPath, v2momID string) (api.V2MOM, error) {
 
 // loadV2MOMFromPath loads a V2MOM from a relative path
 func (s *Server) loadV2MOMFromPath(projectPath, relPath string) (api.V2MOM, error) {
-	fullPath := filepath.Join(projectPath, relPath)
+	fullPath, err := osutil.JoinSecure(projectPath, relPath)
+	if err != nil {
+		return api.V2MOM{}, err
+	}
 
-	data, err := os.ReadFile(fullPath) //nolint:gosec // G703: Path from tracked project config
+	data, err := os.ReadFile(fullPath) // #nosec G703 -- fullPath is contained under projectPath via osutil.JoinSecure above
 	if err != nil {
 		return api.V2MOM{}, err
 	}

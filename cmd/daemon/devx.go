@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/grokify/mogo/os/osutil"
 )
 
 // devxDashboardPath is where VisionStudio looks for the OmniDevX dashboard
@@ -168,9 +169,15 @@ func (s *Server) handleGetDevXPeriodDashboard(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	path := filepath.Join(reportsDir, periodType, label+".json")
+	path, err := osutil.JoinSecure(reportsDir, periodType, label+".json")
+	if err != nil {
+		s.writeJSON(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid period type or label",
+		})
+		return
+	}
 
-	data, err := os.ReadFile(path) //nolint:gosec // G304: path validated above
+	data, err := os.ReadFile(path) // #nosec G703 -- path is contained under reportsDir via osutil.JoinSecure above
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			s.writeJSON(w, http.StatusNotFound, map[string]string{

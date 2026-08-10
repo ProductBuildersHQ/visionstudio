@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { ExecutionResponse, APIRepository, APIRMI, APIInitiative } from '../api/types'
 import { StatusBadge } from '../components/StatusBadge'
 import { PieChart } from '../components/charts'
+import { visibleInitiatives } from '../lib/visibility'
 
 interface RepositoryDetailProps {
   repository: APIRepository
@@ -23,8 +24,9 @@ export function RepositoryDetail({
 
   const initiatives = useMemo(() => {
     const initIds = new Set(rmis.map((r) => r.initiativeId).filter(Boolean))
-    return execution.initiatives.filter((i) => initIds.has(i.id))
-  }, [rmis, execution.initiatives])
+    const linked = execution.initiatives.filter((i) => initIds.has(i.id))
+    return visibleInitiatives(linked, execution.programs)
+  }, [rmis, execution.initiatives, execution.programs])
 
   const statusDist = useMemo(() => {
     const counts: Record<string, number> = {}

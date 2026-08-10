@@ -3,6 +3,7 @@ import { getSpend, getExecution } from '../api/client'
 import type { SpendResponse, ExecutionResponse, APIRMI, APIInitiative } from '../api/types'
 import { BarChart, DonutChart, StackedBarChart } from '../components/charts'
 import { LoadingState, ErrorState, EmptyState } from '../components'
+import { isInitiativeVisible } from '../lib/visibility'
 
 type TimeRange = 'week' | 'month' | 'quarter' | 'all'
 
@@ -725,9 +726,19 @@ function CostByInitiative({
     return `$${usd.toFixed(4)}`
   }
 
-  const sorted = Object.entries(spend.byInitiative).sort(
-    (a, b) => b[1].totalTokens - a[1].totalTokens
-  )
+  const programsById = new Map((execution.programs ?? []).map((p) => [p.id, p]))
+  const sorted = Object.entries(spend.byInitiative)
+    .filter(([initId]) => {
+      const init = (execution.initiatives ?? []).find((i) => i.id === initId)
+      // Keep spend entries with no matching initiative (e.g. a deleted
+      // initiative) as before; only hide entries for a known, hidden one.
+      return !init || isInitiativeVisible(init, programsById)
+    })
+    .sort((a, b) => b[1].totalTokens - a[1].totalTokens)
+
+  if (sorted.length === 0) {
+    return null
+  }
 
   return (
     <div>

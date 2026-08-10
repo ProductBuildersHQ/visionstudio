@@ -1169,6 +1169,10 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 	sourceDir := filepath.Clean(filepath.Join(specDir, "source"))
 	evalDir := filepath.Clean(filepath.Join(specDir, "eval"))
 	cleanSpecDir := filepath.Clean(specDir)
+	absSpecDir, err := filepath.Abs(cleanSpecDir)
+	if err != nil {
+		return nil, err
+	}
 	sourceDirOK := sourceDir == cleanSpecDir || strings.HasPrefix(sourceDir, cleanSpecDir+string(os.PathSeparator))
 
 	if sourceDirOK {
@@ -1239,10 +1243,15 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 		}
 
 		specPath := filepath.Clean(filepath.Join(specDir, entry.Name()))
-		if specPath != cleanSpecDir && !strings.HasPrefix(specPath, cleanSpecDir+string(os.PathSeparator)) {
+		absSpecPath, err := filepath.Abs(specPath)
+		if err != nil {
 			continue
 		}
-		content, err := os.ReadFile(specPath)
+		relSpecPath, err := filepath.Rel(absSpecDir, absSpecPath)
+		if err != nil || relSpecPath == ".." || strings.HasPrefix(relSpecPath, ".."+string(os.PathSeparator)) || filepath.IsAbs(relSpecPath) {
+			continue
+		}
+		content, err := os.ReadFile(absSpecPath)
 		if err != nil {
 			continue
 		}

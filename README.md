@@ -50,15 +50,15 @@ See [Installation](docs/getting-started/installation.md) and [Quick Start](docs/
 
 ### Roadmap Execution
 
-- 🗂️ **Programs → Initiatives → Phases → RMIs** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups
-- 🏢 **Repositories** - Repository catalog with per-repo RMI counts and progress
-- 📈 **Performance** - Token spend and cost tracking by model, initiative, phase, and RMI
-- 🩺 **Maturity Assessments** - Framework-based capability maturity scoring
+- 🗂️ **[Programs → Initiatives → Phases → RMIs](docs/dashboard/initiatives.md)** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups
+- 🏢 **[Repositories](docs/dashboard/repositories.md)** - Repository catalog with per-repo RMI counts and progress
+- 📈 **[Performance](docs/dashboard/performance.md)** - Token spend and cost tracking by model, initiative, phase, and RMI
+- 🩺 **[Maturity Assessments](docs/dashboard/maturity.md)** - Framework-based capability maturity scoring, plus SCALE platform adoption and code-leverage/reuse graphs
 - 🔌 **MCP Server** - Stdio server exposing initiatives/RMIs/work assignments to agent sessions
 
 ### Specification Authoring & Evaluation
 
-- ✏️ **Spec Viewer** - Source and rendered Markdown views per initiative, with PDF export
+- ✏️ **[Spec Viewer](docs/dashboard/specs-and-evaluation.md)** - Source and rendered Markdown views per initiative, with PDF export
 - ⚖️ **LLM-as-a-Judge Evaluation** - Evaluate specs against workflow rubrics (`structured-evaluation/rubric.Rubric`), with per-category findings and next steps
 - 🔄 **Workflow Sync** - Sync `ROADMAP.md` files and spec workflows with the database
 

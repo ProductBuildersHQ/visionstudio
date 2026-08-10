@@ -53,6 +53,13 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
+  - Dashboard Guide:
+      - Tour: dashboard/overview.md
+      - Programs, Initiatives & RMIs: dashboard/initiatives.md
+      - Repositories: dashboard/repositories.md
+      - Specs & Evaluation: dashboard/specs-and-evaluation.md
+      - Maturity: dashboard/maturity.md
+      - Performance: dashboard/performance.md
   - User Guide (Legacy Desktop App):
       - Projects: guide/projects.md
       - Workflows: guide/workflows.md

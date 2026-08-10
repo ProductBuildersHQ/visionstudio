@@ -330,7 +330,7 @@ func (s *Service) SynthesizeAndSaveSpec(ctx context.Context, req *synthesis.Synt
 
 	filename := fmt.Sprintf("%s.md", req.TargetSpecType)
 	filePath := filepath.Join(specDir, filename)
-	if err := os.WriteFile(filePath, []byte(result.Content), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte(result.Content), 0600); err != nil {
 		return nil, fmt.Errorf("write spec file: %w", err)
 	}
 
@@ -355,7 +355,7 @@ func (s *Service) AddCustomSpec(ctx context.Context, initiativeID, specType, rep
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return fmt.Errorf("create directory: %w", err)
 		}
-		if err := os.WriteFile(fullPath, content, 0644); err != nil {
+		if err := os.WriteFile(fullPath, content, 0600); err != nil {
 			return fmt.Errorf("write file: %w", err)
 		}
 	}

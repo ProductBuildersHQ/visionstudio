@@ -1280,7 +1280,7 @@ func buildScaleResponse() *ScaleResponse {
 
 	// Check for local SCALE catalog
 	scaleCatalogPath := filepath.Join(os.Getenv("HOME"), "go/src/github.com/ProductBuildersHQ/scale/catalog")
-	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil {
+	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil { // #nosec G703 -- scaleCatalogPath is derived from $HOME, not request input
 		framework, err = scale.LoadFrameworkDir(scaleCatalogPath)
 	} else {
 		// Fall back to embedded catalog
@@ -1649,7 +1649,7 @@ func buildScaleReportIR() *scalereport.ReportIR {
 	scaleCatalogPath := filepath.Join(os.Getenv("HOME"), "go/src/github.com/ProductBuildersHQ/scale/catalog")
 	var framework *scale.Framework
 	var err error
-	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil {
+	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil { // #nosec G703 -- scaleCatalogPath is derived from $HOME, not request input
 		framework, err = scale.LoadFrameworkDir(scaleCatalogPath)
 	} else {
 		framework, err = catalog.Default()

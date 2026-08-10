@@ -1132,8 +1132,9 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 		if err == nil {
 			root := filepath.Clean(filepath.Join(cwd, "docs", "specs", "initiatives"))
 			candidate := filepath.Clean(filepath.Join(root, initiativeID))
-			// Reject if the cleaned path escaped root (e.g. via a ".." component).
-			if candidate == root || strings.HasPrefix(candidate, root+string(os.PathSeparator)) {
+			rel, relErr := filepath.Rel(root, candidate)
+			// Reject if candidate is outside root (absolute or starts with "..").
+			if relErr == nil && !filepath.IsAbs(rel) && rel != ".." && !strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
 				if _, statErr := os.Stat(candidate); statErr == nil {
 					specDir = candidate
 				}

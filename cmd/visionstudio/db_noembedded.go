@@ -15,11 +15,6 @@ func connectEmbedded(_ string) (*doltstore.DoltStore, error) {
 	return nil, fmt.Errorf("embedded Dolt requires building with: go build -tags dolt_embedded")
 }
 
-// hasEmbeddedSupport returns false when built without dolt_embedded tag.
-func hasEmbeddedSupport() bool {
-	return false
-}
-
 func dbInitEmbedded(cmd *cobra.Command, _ string) error {
 	return fmt.Errorf("embedded Dolt requires building with: go build -tags dolt_embedded")
 }

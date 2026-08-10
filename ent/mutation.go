@@ -3336,6 +3336,7 @@ type InitiativeMutation struct {
 	priority              *string
 	home_repo             *string
 	workspace             *string
+	hidden                *bool
 	specs                 *map[string]string
 	created_at            *time.Time
 	planned_at            *time.Time
@@ -3808,6 +3809,42 @@ func (m *InitiativeMutation) WorkspaceCleared() bool {
 func (m *InitiativeMutation) ResetWorkspace() {
 	m.workspace = nil
 	delete(m.clearedFields, initiative.FieldWorkspace)
+}
+
+// SetHidden sets the "hidden" field.
+func (m *InitiativeMutation) SetHidden(b bool) {
+	m.hidden = &b
+}
+
+// Hidden returns the value of the "hidden" field in the mutation.
+func (m *InitiativeMutation) Hidden() (r bool, exists bool) {
+	v := m.hidden
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHidden returns the old "hidden" field's value of the Initiative entity.
+// If the Initiative object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InitiativeMutation) OldHidden(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHidden is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHidden requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHidden: %w", err)
+	}
+	return oldValue.Hidden, nil
+}
+
+// ResetHidden resets all changes to the "hidden" field.
+func (m *InitiativeMutation) ResetHidden() {
+	m.hidden = nil
 }
 
 // SetSpecs sets the "specs" field.
@@ -4504,7 +4541,7 @@ func (m *InitiativeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *InitiativeMutation) Fields() []string {
-	fields := make([]string, 0, 16)
+	fields := make([]string, 0, 17)
 	if m.organization != nil {
 		fields = append(fields, initiative.FieldOrganization)
 	}
@@ -4528,6 +4565,9 @@ func (m *InitiativeMutation) Fields() []string {
 	}
 	if m.workspace != nil {
 		fields = append(fields, initiative.FieldWorkspace)
+	}
+	if m.hidden != nil {
+		fields = append(fields, initiative.FieldHidden)
 	}
 	if m.specs != nil {
 		fields = append(fields, initiative.FieldSpecs)
@@ -4577,6 +4617,8 @@ func (m *InitiativeMutation) Field(name string) (ent.Value, bool) {
 		return m.HomeRepo()
 	case initiative.FieldWorkspace:
 		return m.Workspace()
+	case initiative.FieldHidden:
+		return m.Hidden()
 	case initiative.FieldSpecs:
 		return m.Specs()
 	case initiative.FieldCreatedAt:
@@ -4618,6 +4660,8 @@ func (m *InitiativeMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldHomeRepo(ctx)
 	case initiative.FieldWorkspace:
 		return m.OldWorkspace(ctx)
+	case initiative.FieldHidden:
+		return m.OldHidden(ctx)
 	case initiative.FieldSpecs:
 		return m.OldSpecs(ctx)
 	case initiative.FieldCreatedAt:
@@ -4698,6 +4742,13 @@ func (m *InitiativeMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetWorkspace(v)
+		return nil
+	case initiative.FieldHidden:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHidden(v)
 		return nil
 	case initiative.FieldSpecs:
 		v, ok := value.(map[string]string)
@@ -4890,6 +4941,9 @@ func (m *InitiativeMutation) ResetField(name string) error {
 		return nil
 	case initiative.FieldWorkspace:
 		m.ResetWorkspace()
+		return nil
+	case initiative.FieldHidden:
+		m.ResetHidden()
 		return nil
 	case initiative.FieldSpecs:
 		m.ResetSpecs()

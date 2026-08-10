@@ -105,6 +105,11 @@ func Workspace(v string) predicate.Initiative {
 	return predicate.Initiative(sql.FieldEQ(FieldWorkspace, v))
 }
 
+// Hidden applies equality check predicate on the "hidden" field. It's identical to HiddenEQ.
+func Hidden(v bool) predicate.Initiative {
+	return predicate.Initiative(sql.FieldEQ(FieldHidden, v))
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Initiative {
 	return predicate.Initiative(sql.FieldEQ(FieldCreatedAt, v))
@@ -698,6 +703,16 @@ func WorkspaceEqualFold(v string) predicate.Initiative {
 // WorkspaceContainsFold applies the ContainsFold predicate on the "workspace" field.
 func WorkspaceContainsFold(v string) predicate.Initiative {
 	return predicate.Initiative(sql.FieldContainsFold(FieldWorkspace, v))
+}
+
+// HiddenEQ applies the EQ predicate on the "hidden" field.
+func HiddenEQ(v bool) predicate.Initiative {
+	return predicate.Initiative(sql.FieldEQ(FieldHidden, v))
+}
+
+// HiddenNEQ applies the NEQ predicate on the "hidden" field.
+func HiddenNEQ(v bool) predicate.Initiative {
+	return predicate.Initiative(sql.FieldNEQ(FieldHidden, v))
 }
 
 // SpecsIsNil applies the IsNil predicate on the "specs" field.

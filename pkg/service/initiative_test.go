@@ -50,6 +50,44 @@ func TestListInitiatives(t *testing.T) {
 	}
 }
 
+func TestUpdateInitiativeHidden(t *testing.T) {
+	ctx := context.Background()
+	svc := newTestService()
+
+	init, err := svc.CreateInitiative(ctx, "INIT-HIDE-001", "test", "Hide Test", "", "", "", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if init.Hidden {
+		t.Fatal("expected new initiative to default to not hidden")
+	}
+
+	init.Hidden = true
+	if err := svc.UpdateInitiative(ctx, init); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := svc.Store.GetInitiative(ctx, "INIT-HIDE-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !got.Hidden {
+		t.Fatal("expected Hidden to persist as true")
+	}
+
+	got.Hidden = false
+	if err := svc.UpdateInitiative(ctx, got); err != nil {
+		t.Fatal(err)
+	}
+	got, err = svc.Store.GetInitiative(ctx, "INIT-HIDE-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Hidden {
+		t.Fatal("expected Hidden to persist as false")
+	}
+}
+
 func TestTransitionInitiative(t *testing.T) {
 	ctx := context.Background()
 	svc := newTestService()

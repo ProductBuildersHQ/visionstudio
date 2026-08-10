@@ -144,6 +144,7 @@ type APIInitiative struct {
 	WorkflowID  string  `json:"workflowId,omitempty"`
 	ProgramID   string  `json:"programId,omitempty"`
 	ProgramName string  `json:"programName,omitempty"`
+	Hidden      bool    `json:"hidden,omitempty"`
 	Progress    float64 `json:"progress"`
 }
 

@@ -28,6 +28,8 @@ const (
 	FieldHomeRepo = "home_repo"
 	// FieldWorkspace holds the string denoting the workspace field in the database.
 	FieldWorkspace = "workspace"
+	// FieldHidden holds the string denoting the hidden field in the database.
+	FieldHidden = "hidden"
 	// FieldSpecs holds the string denoting the specs field in the database.
 	FieldSpecs = "specs"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -125,6 +127,7 @@ var Columns = []string{
 	FieldPriority,
 	FieldHomeRepo,
 	FieldWorkspace,
+	FieldHidden,
 	FieldSpecs,
 	FieldCreatedAt,
 	FieldPlannedAt,
@@ -174,6 +177,8 @@ var (
 	HomeRepoValidator func(string) error
 	// WorkspaceValidator is a validator for the "workspace" field. It is called by the builders before save.
 	WorkspaceValidator func(string) error
+	// DefaultHidden holds the default value on creation for the "hidden" field.
+	DefaultHidden bool
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -224,6 +229,11 @@ func ByHomeRepo(opts ...sql.OrderTermOption) OrderOption {
 // ByWorkspace orders the results by the workspace field.
 func ByWorkspace(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWorkspace, opts...).ToFunc()
+}
+
+// ByHidden orders the results by the hidden field.
+func ByHidden(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHidden, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

@@ -35,6 +35,15 @@ visionstudio spec judge record <initiative-id> <spec-file> --score <1-5> --ratio
 visionstudio roadmap import docs/specs/initiatives/<initiative-id>/ROADMAP.md   # sync ROADMAP.md into the database
 ```
 
+To keep the dashboard focused, programs and initiatives can each be hidden independently — hiding a program cascades to hide its initiatives too:
+
+```bash
+visionstudio program hide <program-id>
+visionstudio initiative hide <initiative-id>
+```
+
+See [Hiding Programs and Initiatives](../dashboard/initiatives.md#hiding-programs-and-initiatives) for exactly where this takes effect.
+
 Run `visionstudio --help` for the full command list, or `visionstudio <command> --help` for any subcommand.
 
 ## LLM-as-a-Judge Evaluation

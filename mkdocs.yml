@@ -1,5 +1,5 @@
 site_name: VisionStudio
-site_description: LLM-powered specification authoring and evaluation
+site_description: LLM-powered platform for roadmap execution, specification authoring, and evaluation
 site_url: https://productbuildershq.com/visionstudio
 repo_url: https://github.com/ProductBuildersHQ/visionstudio
 repo_name: ProductBuildersHQ/visionstudio
@@ -87,6 +87,8 @@ nav:
       - Contributing: development/contributing.md
   - Releases:
       - Unreleased: releases/unreleased.md
+      - v0.5.0: releases/v0.5.0.md
+      - v0.4.0: releases/v0.4.0.md
       - v0.3.0: releases/v0.3.0.md
       - v0.2.0: releases/v0.2.0.md
       - v0.1.0: releases/v0.1.0.md

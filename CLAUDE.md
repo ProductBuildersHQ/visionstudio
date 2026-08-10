@@ -95,25 +95,39 @@ go generate ./ent
 
 Convert between them in API handlers (see `storeJudgeResultToAPI` in `cmd/visionstudio/api.go`).
 
+**Gotcha — `/api/execution`'s types are NOT `pkg/apitypes`.** `cmd/visionstudio/api.go` defines its *own* local `APIProgram`/`APIInitiative`/`APIPhase`/`APIRMI`/etc. structs — those are what actually get marshaled for `/api/execution`. `pkg/apitypes` has parallel structs of the same names, but they only exist as the JSON-schema source feeding the `web/` TypeScript pipeline (`pkg/apitypes/gen/main.go` lists exactly which types it schema-generates). Adding a field to one struct without the other means the frontend's generated type either won't have it, or will claim a field the runtime JSON never sends. When adding a field to any `/api/execution`-reachable type, update **both** `pkg/apitypes/types.go` and the matching local struct + its literal construction in `cmd/visionstudio/api.go`, then regenerate (`go generate ./pkg/apitypes && cd web && npm run generate:types`). `Program.Hidden`/`Initiative.Hidden` are the reference example of doing this correctly in both places.
+
 ## Dashboard
 
-The unified dashboard serves both the React frontend and JSON API:
+The unified dashboard serves both the React frontend and JSON API. Two equivalent ways to run it:
 
 ```bash
-# Run dashboard (serves frontend + API on same port)
+# One-command: starts the database (if needed) and serves UI+API together
+visionstudio app start
+
+# Or, for local dev against an already-running database
 go run ./cmd/visionstudio dashboard --port 9401 --unified
 
-# Frontend dev (hot reload)
+# Frontend dev (hot reload) — pair with `dashboard --port 9401` (no --unified) for the API
 cd web && npm run dev
 ```
+
+`app start` is the primary entry point end users reach for; `dashboard --unified` is the equivalent for local development from source. See `visionstudio app --help` / `visionstudio ui --help` for the standalone lifecycle commands (`db start/stop`, `ui --address`, etc.).
 
 ### API Endpoints
 
 | Endpoint | Returns |
 |----------|---------|
 | `/api/execution` | Programs, initiatives, phases, RMIs |
+| `/api/spend` | Token spend/cost data (Performance panel) |
+| `/api/maturity` | Capability models + assessments |
+| `/api/scale` | SCALE platform-adoption metrics |
+| `/api/scale/report` | SCALE data as a chart-ready report IR |
+| `/api/leverage` | Code-leverage/reuse dependency graph |
 | `/api/specs` | Spec workflows, judge results |
 | `/api/spec-files/{id}` | Spec file contents for an initiative |
+
+All handlers live in `cmd/visionstudio/api.go`; check there directly rather than trusting this table to stay exhaustive as routes are added.
 
 ## LLM-as-a-Judge
 
@@ -135,6 +149,26 @@ Judge results use `structured-evaluation/rubric.Rubric` format directly. Eval fi
 **Eval file location:** `docs/specs/initiatives/*/evaluations/*.eval.json`
 
 **Eval file format:** Must use `rubric.Rubric` schema (schemaVersion: "v2"). See `structured-evaluation` for the full schema.
+
+## Conventions
+
+### Hiding an entity from the dashboard
+
+`Program.Hidden` and `Initiative.Hidden` are the established pattern for "excluded from listings/navigation, still reachable by direct URL/ID" — reach for this shape rather than inventing a new one if another entity (e.g. Repository) needs the same capability:
+
+- `ent/schema/<entity>.go`: `field.Bool("hidden").Default(false)` (additive migration, safe on existing rows)
+- `pkg/store`: `<Entity>.Hidden bool`, wired through the doltstore Create/Update/entity→store conversion (unconditional `SetHidden(...)`, mirroring `Program`'s doltstore methods)
+- Both API type layers (see the `/api/execution` gotcha above)
+- `cmd/visionstudio/<entity>.go`: `<entity> hide/show <id>` cobra subcommands (see `setProgramHidden`/`setInitiativeHidden` for the exact pattern — load, no-op if already in the target state, else set + `UpdatedAt = time.Now()` + persist), plus a `HIDDEN` column on the `list` command
+- Frontend: filter with `web/src/lib/visibility.ts`'s `isInitiativeVisible`/`visibleInitiatives`/`hiddenInitiativeIds` (or the equivalent for a new entity) at *every* place that entity is listed — grep for existing consumers rather than assuming there's one obvious list view; `MaturityPanel`'s Capability Models tab was fixed after initially missing 3 of 4 places it read initiative data (chips, radar/dimension aggregates, and the assessments table were all separate leaks off the same raw prop)
+
+### Path safety for caller-derived path components
+
+Use `github.com/grokify/mogo/os/osutil`'s `ValidatePathComponent` (allowlist check on a single ID) and `JoinSecure` (containment check via `filepath.Rel`/`filepath.IsAbs`) at request boundaries and immediately before any filesystem call built from user/agent-supplied input. `FindFirstExistingSecure` wraps the common "try N filename patterns for an ID" lookup. These were added upstream to mogo (not a local package) specifically because CodeQL's `go/path-injection` query recognizes the `filepath.Rel`+`filepath.IsAbs` idiom as a sanitizer but does *not* recognize a `strings.HasPrefix`-based containment check wrapped in a helper function — verified empirically, so don't "simplify" back to a manual `strings.Contains(path, "..")` check or a local reimplementation.
+
+### Rebuilding the embedded web UI
+
+`web/dist/.gitkeep` is the only tracked file in `web/dist/` — the real build output is gitignored. Running `npm run build` (or `go install ./cmd/visionstudio` after it) deletes `.gitkeep` as part of clearing the output dir; `git checkout -- web/dist/.gitkeep` afterward, or a `git status` diff will show a phantom deletion.
 
 ## Commands
 
@@ -169,7 +203,7 @@ cmd/visionstudio/          # Primary CLI + daemon (cobra)
   api.go               # API handlers, store→API converters
 cmd/daemon/            # Legacy REST server (being superseded)
 pkg/                   # ~28 domain/service packages. Notable:
-  apitypes/            #   Canonical API types (camelCase JSON) — source of truth for frontend types
+  apitypes/            #   API types (camelCase JSON) — schema source for the TS pipeline; NOT the runtime source for /api/execution (see Store vs API Types gotcha)
     types.go           #     Structs → JSON Schema
     gen/main.go        #     JSON Schema generator
     schema/            #     Generated JSON schemas

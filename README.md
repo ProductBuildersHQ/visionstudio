@@ -33,6 +33,30 @@ LLM-powered platform for roadmap execution, specification authoring, and evaluat
 
 VisionStudio tracks cross-repository initiatives, roadmap items, and specification quality in one place. It combines a Go CLI and web dashboard (`visionstudio`) backed by Dolt (a MySQL-compatible, Git-like versioned database) with LLM-as-a-Judge evaluation of specs against workflow rubrics.
 
+## Screenshots
+
+<table>
+
+<tr><th>Programs and Initiatives Dashboard</th><th>Program Dashboard</th></tr>
+<tr>
+<td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-001_home.png" /></a></td>
+<td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-002_program.png" /></a></td>
+</tr>
+
+<tr><th>Initiatives Definition Specs</th><th>Initiative Execution Dashboard</th></tr>
+<tr>
+<td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-003_initiative-definition.png" /></a></td>
+<td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-004_initiative-execution.png" /></a></td>
+</tr>
+
+<tr><th>Performance Token Dashboard</th><th>Performance Token Month View</th></tr>
+<tr>
+<td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-005_performance-tokens.png" /></a></td>
+<td><a href="https://productbuildershq.com/visionstudio/"><img src="docs/images/ss_visionstudio_col-003_webui_img-006_performance-tokens-month.png" /></a></td>
+</tr>
+
+</table>
+
 ## Quick Start
 
 ```bash

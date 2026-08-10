@@ -44,12 +44,15 @@ func resolveWebUI(cmd *cobra.Command) (fs.FS, string, error) {
 	return nil, "", fmt.Errorf("web UI not available: build it with 'cd web && npm run build', or pass --web-dist <path>")
 }
 
+// dirHasIndex reports whether dir looks like a built SPA. dir comes from the
+// --web-dist flag or $VISIONSTUDIO_WEB_DIST, both set by the operator running
+// the CLI locally, not from a remote request.
 func dirHasIndex(dir string) bool {
-	info, err := os.Stat(dir)
+	info, err := os.Stat(dir) // #nosec G703 -- dir is operator-supplied (CLI flag / env var), not request input
 	if err != nil || !info.IsDir() {
 		return false
 	}
-	_, err = os.Stat(filepath.Join(dir, "index.html"))
+	_, err = os.Stat(filepath.Join(dir, "index.html")) // #nosec G703 -- dir is operator-supplied (CLI flag / env var), not request input
 	return err == nil
 }
 

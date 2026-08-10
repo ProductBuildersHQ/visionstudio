@@ -183,3 +183,26 @@ func TestIsValidInitiativeID(t *testing.T) {
 		})
 	}
 }
+
+func TestWithinDir(t *testing.T) {
+	tests := []struct {
+		name string
+		root string
+		path string
+		want bool
+	}{
+		{"exact root", "/a/b", "/a/b", true},
+		{"direct child", "/a/b", "/a/b/c", true},
+		{"nested child", "/a/b", "/a/b/c/d.md", true},
+		{"sibling that shares a prefix", "/a/b", "/a/bc", false},
+		{"escapes via ..", "/a/b", "/a/b/../../etc/passwd", false},
+		{"outright outside", "/a/b", "/etc/passwd", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := withinDir(tt.root, tt.path); got != tt.want {
+				t.Errorf("withinDir(%q, %q) = %v, want %v", tt.root, tt.path, got, tt.want)
+			}
+		})
+	}
+}

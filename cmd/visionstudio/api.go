@@ -1105,16 +1105,6 @@ func isValidInitiativeID(id string) bool {
 	return id != "" && id != "." && id != ".." && !strings.ContainsAny(id, "/\\")
 }
 
-// withinDir reports whether target — once cleaned — is root itself or a
-// descendant of root. It's the containment check that actually closes off
-// path traversal: joined paths built from caller-controlled components must
-// pass this immediately before use, not just look plausible.
-func withinDir(root, target string) bool {
-	root = filepath.Clean(root)
-	target = filepath.Clean(target)
-	return target == root || strings.HasPrefix(target, root+string(os.PathSeparator))
-}
-
 func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {
 	init, err := svc.Store.GetInitiative(ctx, initiativeID)
 	if err != nil {
@@ -1127,9 +1117,10 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 	if init.HomeRepo != "" {
 		repo, err := svc.Store.GetRepository(ctx, init.HomeRepo)
 		if err == nil && repo.LocalPath != "" {
-			root := filepath.Join(repo.LocalPath, "docs", "specs", "initiatives")
-			candidate := filepath.Join(root, initiativeID)
-			if withinDir(root, candidate) {
+			root := filepath.Clean(filepath.Join(repo.LocalPath, "docs", "specs", "initiatives"))
+			candidate := filepath.Clean(filepath.Join(root, initiativeID))
+			// Reject if the cleaned path escaped root (e.g. via a ".." component).
+			if candidate == root || strings.HasPrefix(candidate, root+string(os.PathSeparator)) {
 				specDir = candidate
 			}
 		}
@@ -1139,10 +1130,11 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 	if specDir == "" {
 		cwd, err := os.Getwd()
 		if err == nil {
-			root := filepath.Join(cwd, "docs", "specs", "initiatives")
-			candidate := filepath.Join(root, initiativeID)
-			if withinDir(root, candidate) {
-				if _, statErr := os.Stat(candidate); statErr == nil { // #nosec G703 -- withinDir() checked immediately above/before this call
+			root := filepath.Clean(filepath.Join(cwd, "docs", "specs", "initiatives"))
+			candidate := filepath.Clean(filepath.Join(root, initiativeID))
+			// Reject if the cleaned path escaped root (e.g. via a ".." component).
+			if candidate == root || strings.HasPrefix(candidate, root+string(os.PathSeparator)) {
+				if _, statErr := os.Stat(candidate); statErr == nil {
 					specDir = candidate
 				}
 			}
@@ -1166,112 +1158,119 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 // 2. VisionSpec structure: source/*.md + eval/*.json
 //
 // specDir was already confirmed by buildSpecFilesResponse to be contained
-// within its intended root. Every path joined below is re-checked with
-// withinDir immediately before use as well, since entry names ultimately
-// trace back to initiativeID.
+// within its intended root. Every path joined below is re-checked with an
+// inline filepath.Clean + strings.HasPrefix containment check immediately
+// before use as well, since entry names ultimately trace back to
+// initiativeID.
 func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 	var files []SpecFile
 
 	// Check for VisionSpec structure (source/ subdirectory)
-	sourceDir := filepath.Join(specDir, "source")
-	evalDir := filepath.Join(specDir, "eval")
+	sourceDir := filepath.Clean(filepath.Join(specDir, "source"))
+	evalDir := filepath.Clean(filepath.Join(specDir, "eval"))
+	cleanSpecDir := filepath.Clean(specDir)
+	sourceDirOK := sourceDir == cleanSpecDir || strings.HasPrefix(sourceDir, cleanSpecDir+string(os.PathSeparator))
 
-	if _, err := os.Stat(sourceDir); err == nil { // #nosec G703 -- withinDir() checked immediately above/before this call
-		// VisionSpec structure: read from source/ and eval/
-		entries, err := os.ReadDir(sourceDir)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
-				continue
-			}
-
-			specPath := filepath.Join(sourceDir, entry.Name())
-			if !withinDir(sourceDir, specPath) {
-				continue
-			}
-			content, err := os.ReadFile(specPath) // #nosec G703 -- withinDir() checked immediately above/before this call
+	if sourceDirOK {
+		if _, err := os.Stat(sourceDir); err == nil {
+			// VisionSpec structure: read from source/ and eval/
+			entries, err := os.ReadDir(sourceDir)
 			if err != nil {
-				continue
+				return nil, err
 			}
 
-			info, _ := entry.Info()
-			modTime := ""
-			if info != nil {
-				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
-			}
-
-			specType := deriveSpecType(entry.Name())
-
-			sf := SpecFile{
-				InitiativeID: initiativeID,
-				SpecType:     specType,
-				Path:         specPath,
-				Content:      string(content),
-				ModTime:      modTime,
-			}
-
-			// Check for corresponding eval JSON
-			evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
-			evalPath := filepath.Join(evalDir, evalName)
-			if withinDir(evalDir, evalPath) {
-				if evalContent, err := os.ReadFile(evalPath); err == nil { // #nosec G703 -- withinDir() checked immediately above/before this call
-					sf.EvalJSON = string(evalContent)
+			for _, entry := range entries {
+				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+					continue
 				}
+
+				specPath := filepath.Clean(filepath.Join(sourceDir, entry.Name()))
+				if specPath != sourceDir && !strings.HasPrefix(specPath, sourceDir+string(os.PathSeparator)) {
+					continue
+				}
+				content, err := os.ReadFile(specPath)
+				if err != nil {
+					continue
+				}
+
+				info, _ := entry.Info()
+				modTime := ""
+				if info != nil {
+					modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
+				}
+
+				specType := deriveSpecType(entry.Name())
+
+				sf := SpecFile{
+					InitiativeID: initiativeID,
+					SpecType:     specType,
+					Path:         specPath,
+					Content:      string(content),
+					ModTime:      modTime,
+				}
+
+				// Check for corresponding eval JSON
+				evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
+				evalPath := filepath.Clean(filepath.Join(evalDir, evalName))
+				if evalPath == evalDir || strings.HasPrefix(evalPath, evalDir+string(os.PathSeparator)) {
+					if evalContent, err := os.ReadFile(evalPath); err == nil {
+						sf.EvalJSON = string(evalContent)
+					}
+				}
+
+				files = append(files, sf)
 			}
 
-			files = append(files, sf)
+			return files, nil
 		}
-	} else {
-		// Flat structure: read .md files directly from specDir
-		entries, err := os.ReadDir(specDir)
+	}
+
+	// Flat structure: read .md files directly from specDir
+	entries, err := os.ReadDir(specDir)
+	if err != nil {
+		return nil, err
+	}
+
+	evaluationsDir := filepath.Clean(filepath.Join(specDir, "evaluations"))
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+			continue
+		}
+
+		specPath := filepath.Clean(filepath.Join(specDir, entry.Name()))
+		if specPath != cleanSpecDir && !strings.HasPrefix(specPath, cleanSpecDir+string(os.PathSeparator)) {
+			continue
+		}
+		content, err := os.ReadFile(specPath)
 		if err != nil {
-			return nil, err
+			continue
 		}
 
-		evaluationsDir := filepath.Join(specDir, "evaluations")
-
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
-				continue
-			}
-
-			specPath := filepath.Join(specDir, entry.Name())
-			if !withinDir(specDir, specPath) {
-				continue
-			}
-			content, err := os.ReadFile(specPath) // #nosec G703 -- withinDir() checked immediately above/before this call
-			if err != nil {
-				continue
-			}
-
-			info, _ := entry.Info()
-			modTime := ""
-			if info != nil {
-				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
-			}
-
-			sf := SpecFile{
-				InitiativeID: initiativeID,
-				SpecType:     deriveSpecType(entry.Name()),
-				Path:         specPath,
-				Content:      string(content),
-				ModTime:      modTime,
-			}
-
-			// Check for corresponding eval JSON in evaluations/ directory
-			evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
-			evalPath := filepath.Join(evaluationsDir, evalName)
-			if withinDir(evaluationsDir, evalPath) {
-				if evalContent, err := os.ReadFile(evalPath); err == nil { // #nosec G703 -- withinDir() checked immediately above/before this call
-					sf.EvalJSON = string(evalContent)
-				}
-			}
-
-			files = append(files, sf)
+		info, _ := entry.Info()
+		modTime := ""
+		if info != nil {
+			modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
 		}
+
+		sf := SpecFile{
+			InitiativeID: initiativeID,
+			SpecType:     deriveSpecType(entry.Name()),
+			Path:         specPath,
+			Content:      string(content),
+			ModTime:      modTime,
+		}
+
+		// Check for corresponding eval JSON in evaluations/ directory
+		evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
+		evalPath := filepath.Clean(filepath.Join(evaluationsDir, evalName))
+		if evalPath == evaluationsDir || strings.HasPrefix(evalPath, evaluationsDir+string(os.PathSeparator)) {
+			if evalContent, err := os.ReadFile(evalPath); err == nil {
+				sf.EvalJSON = string(evalContent)
+			}
+		}
+
+		files = append(files, sf)
 	}
 
 	return files, nil

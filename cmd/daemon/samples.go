@@ -79,16 +79,17 @@ func (s *Server) loadSampleSummary(id, path string) api.SampleSummary {
 	}
 
 	// Try to load project.json for metadata
-	projectPath := filepath.Join(path, "project.json")
-	if data, err := os.ReadFile(projectPath); err == nil { //nolint:gosec // G703: Path from embedded samples directory
-		var projectJSON map[string]any
-		if json.Unmarshal(data, &projectJSON) == nil {
-			if meta, ok := projectJSON["metadata"].(map[string]any); ok {
-				if name, ok := meta["title"].(string); ok {
-					summary.Name = name
-				}
-				if desc, ok := meta["description"].(string); ok {
-					summary.Description = desc
+	if projectPath, err := osutil.JoinSecure(path, "project.json"); err == nil {
+		if data, err := os.ReadFile(projectPath); err == nil { // #nosec G703 -- projectPath is contained under path via osutil.JoinSecure above
+			var projectJSON map[string]any
+			if json.Unmarshal(data, &projectJSON) == nil {
+				if meta, ok := projectJSON["metadata"].(map[string]any); ok {
+					if name, ok := meta["title"].(string); ok {
+						summary.Name = name
+					}
+					if desc, ok := meta["description"].(string); ok {
+						summary.Description = desc
+					}
 				}
 			}
 		}
@@ -135,7 +136,7 @@ func (s *Server) handleGetSample(w http.ResponseWriter, r *http.Request) {
 	sampleID := chi.URLParam(r, "sampleId")
 
 	// Validate sampleID for path traversal
-	if err := osutil.ValidateNoTraversal(sampleID); err != nil {
+	if err := osutil.ValidatePathComponent(sampleID); err != nil {
 		s.writeJSON(w, http.StatusBadRequest, api.GetSampleResponse{
 			Error: "Invalid sample ID",
 		})
@@ -150,8 +151,14 @@ func (s *Server) handleGetSample(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	samplePath := filepath.Join(samplesDir, sampleID)
-	if _, err := os.Stat(samplePath); os.IsNotExist(err) { //nolint:gosec // G703: Path from embedded samples directory
+	samplePath, err := osutil.JoinSecure(samplesDir, sampleID)
+	if err != nil {
+		s.writeJSON(w, http.StatusBadRequest, api.GetSampleResponse{
+			Error: "Invalid sample ID",
+		})
+		return
+	}
+	if _, err := os.Stat(samplePath); os.IsNotExist(err) { // #nosec G703 -- samplePath is contained under samplesDir via osutil.JoinSecure above
 		s.writeJSON(w, http.StatusNotFound, api.GetSampleResponse{
 			Error: "Sample not found: " + sampleID,
 		})
@@ -166,18 +173,20 @@ func (s *Server) handleGetSample(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load project.json
-	projectPath := filepath.Join(samplePath, "project.json")
-	if data, err := os.ReadFile(projectPath); err == nil { //nolint:gosec // G703: Path from embedded samples directory
-		var projectJSON map[string]any
-		if json.Unmarshal(data, &projectJSON) == nil {
-			detail.ProjectJSON = projectJSON
+	if projectPath, err := osutil.JoinSecure(samplePath, "project.json"); err == nil {
+		if data, err := os.ReadFile(projectPath); err == nil { // #nosec G703 -- projectPath is contained under samplePath via osutil.JoinSecure above
+			var projectJSON map[string]any
+			if json.Unmarshal(data, &projectJSON) == nil {
+				detail.ProjectJSON = projectJSON
+			}
 		}
 	}
 
 	// Load README.md
-	readmePath := filepath.Join(samplePath, "README.md")
-	if data, err := os.ReadFile(readmePath); err == nil { //nolint:gosec // G703: Path from embedded samples directory
-		detail.README = string(data)
+	if readmePath, err := osutil.JoinSecure(samplePath, "README.md"); err == nil {
+		if data, err := os.ReadFile(readmePath); err == nil { // #nosec G703 -- readmePath is contained under samplePath via osutil.JoinSecure above
+			detail.README = string(data)
+		}
 	}
 
 	s.writeJSON(w, http.StatusOK, api.GetSampleResponse{Sample: detail})

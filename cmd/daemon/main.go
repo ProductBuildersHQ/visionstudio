@@ -621,22 +621,24 @@ func buildSpecsFromWorkflow(workflow []string, projectPath string) []api.Spec {
 		// Check if spec file exists to determine status
 		status := api.SpecStatusNotStarted
 		var evalResult *rubric.Rubric
-		specPath := filepath.Join(projectPath, meta.path)
-		if _, err := os.Stat(specPath); err == nil {
-			status = api.SpecStatusDraft
+		if specPath, err := osutil.JoinSecure(projectPath, meta.path); err == nil {
+			if _, err := os.Stat(specPath); err == nil {
+				status = api.SpecStatusDraft
 
-			// Check for eval result
-			evalPath := filepath.Join(projectPath, "eval", step+".json")
-			if evalData, err := os.ReadFile(evalPath); err == nil {
-				var result rubric.Rubric
-				if json.Unmarshal(evalData, &result) == nil {
-					evalResult = &result
-					// Update status based on the explicit pass/fail gate
-					// (Pass), not the score alone.
-					if result.Pass {
-						status = api.SpecStatusApproved
-					} else {
-						status = api.SpecStatusEvaluated
+				// Check for eval result
+				if evalPath, err := osutil.JoinSecure(projectPath, "eval", step+".json"); err == nil {
+					if evalData, err := os.ReadFile(evalPath); err == nil {
+						var result rubric.Rubric
+						if json.Unmarshal(evalData, &result) == nil {
+							evalResult = &result
+							// Update status based on the explicit pass/fail gate
+							// (Pass), not the score alone.
+							if result.Pass {
+								status = api.SpecStatusApproved
+							} else {
+								status = api.SpecStatusEvaluated
+							}
+						}
 					}
 				}
 			}
@@ -682,7 +684,7 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 	s.logger.Debug("Getting spec", "project", projectName, "type", specType)
 
 	// Validate specType for path traversal
-	if err := osutil.ValidateNoTraversal(specType); err != nil {
+	if err := osutil.ValidatePathComponent(specType); err != nil {
 		s.writeJSON(w, http.StatusBadRequest, api.GetSpecResponse{})
 		return
 	}
@@ -722,28 +724,30 @@ func (s *Server) handleGetSpec(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Read spec content from filesystem (specType validated above)
-	specPath := filepath.Join(project.Path, meta.path) //nolint:gosec // specType validated by osutil.ValidateNoTraversal
 	content := ""
 	status := api.SpecStatusNotStarted
 
-	if data, err := os.ReadFile(specPath); err == nil { //nolint:gosec // specType validated above
-		content = string(data)
-		status = api.SpecStatusDraft
+	if specPath, err := osutil.JoinSecure(project.Path, meta.path); err == nil {
+		if data, err := os.ReadFile(specPath); err == nil { // #nosec G703 -- specPath is contained under project.Path via osutil.JoinSecure above
+			content = string(data)
+			status = api.SpecStatusDraft
+		}
 	}
 
 	// Check for eval result (specType validated above)
 	var evalResult *rubric.Rubric
-	evalPath := filepath.Join(project.Path, "eval", specType+".json") //nolint:gosec // specType validated above
-	if evalData, err := os.ReadFile(evalPath); err == nil {           //nolint:gosec // specType validated above
-		var result rubric.Rubric
-		if json.Unmarshal(evalData, &result) == nil {
-			evalResult = &result
-			// Update status based on the explicit pass/fail gate (Pass),
-			// not the score alone.
-			if result.Pass {
-				status = api.SpecStatusApproved
-			} else {
-				status = api.SpecStatusEvaluated
+	if evalPath, err := osutil.JoinSecure(project.Path, "eval", specType+".json"); err == nil {
+		if evalData, err := os.ReadFile(evalPath); err == nil { // #nosec G703 -- evalPath is contained under project.Path via osutil.JoinSecure above
+			var result rubric.Rubric
+			if json.Unmarshal(evalData, &result) == nil {
+				evalResult = &result
+				// Update status based on the explicit pass/fail gate (Pass),
+				// not the score alone.
+				if result.Pass {
+					status = api.SpecStatusApproved
+				} else {
+					status = api.SpecStatusEvaluated
+				}
 			}
 		}
 	}
@@ -765,7 +769,7 @@ func (s *Server) handleSaveSpec(w http.ResponseWriter, r *http.Request) {
 	specType := chi.URLParam(r, "specType")
 
 	// Validate specType for path traversal
-	if err := osutil.ValidateNoTraversal(specType); err != nil {
+	if err := osutil.ValidatePathComponent(specType); err != nil {
 		s.writeJSON(w, http.StatusBadRequest, api.SaveSpecResponse{
 			Success: false,
 			Error:   "Invalid spec type",
@@ -816,10 +820,17 @@ func (s *Server) handleSaveSpec(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// specType validated above, relPath is either from hardcoded map or validated specType
-	specPath := filepath.Join(project.Path, relPath) //nolint:gosec // specType validated by osutil.ValidateNoTraversal
+	specPath, err := osutil.JoinSecure(project.Path, relPath)
+	if err != nil {
+		s.writeJSON(w, http.StatusBadRequest, api.SaveSpecResponse{
+			Success: false,
+			Error:   "Invalid spec type",
+		})
+		return
+	}
 
 	// Ensure directory exists
-	if err := os.MkdirAll(filepath.Dir(specPath), 0755); err != nil { //nolint:gosec // specType validated above
+	if err := os.MkdirAll(filepath.Dir(specPath), 0755); err != nil { // #nosec G703 -- specPath is contained under project.Path via osutil.JoinSecure above
 		s.writeJSON(w, http.StatusInternalServerError, api.SaveSpecResponse{
 			Success: false,
 			Error:   fmt.Sprintf("Failed to create directory: %v", err),
@@ -828,7 +839,7 @@ func (s *Server) handleSaveSpec(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Write spec content
-	if err := os.WriteFile(specPath, []byte(req.Content), 0o600); err != nil { //nolint:gosec // specType validated above
+	if err := os.WriteFile(specPath, []byte(req.Content), 0o600); err != nil { // #nosec G703 -- specPath is contained under project.Path via osutil.JoinSecure above
 		s.writeJSON(w, http.StatusInternalServerError, api.SaveSpecResponse{
 			Success: false,
 			Error:   fmt.Sprintf("Failed to write file: %v", err),
@@ -994,6 +1005,13 @@ func (s *Server) handleGetMaturityModel(w http.ResponseWriter, r *http.Request) 
 	modelID := chi.URLParam(r, "modelId")
 	s.logger.Debug("Getting maturity model", "project", projectName, "model", modelID)
 
+	if err := osutil.ValidatePathComponent(modelID); err != nil {
+		s.writeJSON(w, http.StatusBadRequest, map[string]any{
+			"error": "Invalid model ID",
+		})
+		return
+	}
+
 	// Get project from config
 	tracked, err := config.GetProject(projectName)
 	if err != nil {
@@ -1004,20 +1022,11 @@ func (s *Server) handleGetMaturityModel(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Look for the model file
-	modelPaths := []string{
-		filepath.Join(tracked.Path, ".visionspec", "maturity", modelID+".json"),
-		filepath.Join(tracked.Path, "maturity", modelID+".json"),
-	}
-
-	var modelData []byte
-	for _, path := range modelPaths {
-		if data, err := os.ReadFile(path); err == nil { //nolint:gosec // G703: Path from tracked project config
-			modelData = data
-			break
-		}
-	}
-
-	if modelData == nil {
+	_, modelData, err := osutil.FindFirstExistingSecure(tracked.Path,
+		filepath.Join(".visionspec", "maturity", modelID+".json"),
+		filepath.Join("maturity", modelID+".json"),
+	)
+	if err != nil {
 		s.writeJSON(w, http.StatusNotFound, map[string]any{
 			"error": "Model not found: " + modelID,
 		})
@@ -1056,6 +1065,11 @@ func (s *Server) handleMaturityDashboard(w http.ResponseWriter, r *http.Request)
 
 	s.logger.Debug("Getting maturity dashboard", "project", projectName, "theme", theme, "model", modelID)
 
+	if err := osutil.ValidatePathComponent(modelID); err != nil {
+		http.Error(w, "Invalid model ID", http.StatusBadRequest)
+		return
+	}
+
 	// Get project from config
 	tracked, err := config.GetProject(projectName)
 	if err != nil {
@@ -1064,20 +1078,14 @@ func (s *Server) handleMaturityDashboard(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Look for model file to get data
-	modelPaths := []string{
-		filepath.Join(tracked.Path, ".visionspec", "maturity", modelID+".json"),
-		filepath.Join(tracked.Path, "maturity", modelID+".json"),
-		filepath.Join(tracked.Path, ".visionspec", "maturity", "model.json"),
-		filepath.Join(tracked.Path, "maturity", "model.json"),
-	}
-
 	var modelData map[string]any
-	for _, path := range modelPaths {
-		if data, err := os.ReadFile(path); err == nil { //nolint:gosec // G703: Path from tracked project config
-			if err := json.Unmarshal(data, &modelData); err == nil {
-				break
-			}
-		}
+	if _, data, err := osutil.FindFirstExistingSecure(tracked.Path,
+		filepath.Join(".visionspec", "maturity", modelID+".json"),
+		filepath.Join("maturity", modelID+".json"),
+		filepath.Join(".visionspec", "maturity", "model.json"),
+		filepath.Join("maturity", "model.json"),
+	); err == nil {
+		_ = json.Unmarshal(data, &modelData)
 	}
 
 	// Generate HTML dashboard

@@ -366,6 +366,10 @@ func registerAPIRoutes(mux *http.ServeMux, connectSvc func() (*service.Service, 
 			http.Error(w, "initiative ID required", http.StatusBadRequest)
 			return
 		}
+		if !isValidInitiativeID(initID) {
+			http.Error(w, "invalid initiative ID", http.StatusBadRequest)
+			return
+		}
 
 		svc, cleanup, err := connectSvc()
 		if err != nil {
@@ -1094,6 +1098,13 @@ func parseEvalFile(data []byte, initiativeID, filename string) *store.JudgeResul
 	}
 }
 
+// isValidInitiativeID rejects path-separator and dot-segment components so a
+// caller-supplied ID can't escape the initiative's spec directory when joined
+// into a filesystem path.
+func isValidInitiativeID(id string) bool {
+	return id != "" && id != "." && id != ".." && !strings.ContainsAny(id, "/\\")
+}
+
 func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {
 	init, err := svc.Store.GetInitiative(ctx, initiativeID)
 	if err != nil {
@@ -1115,7 +1126,7 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 		cwd, err := os.Getwd()
 		if err == nil {
 			candidate := filepath.Join(cwd, "docs", "specs", "initiatives", initiativeID)
-			if _, statErr := os.Stat(candidate); statErr == nil {
+			if _, statErr := os.Stat(candidate); statErr == nil { // #nosec G703 -- initiativeID validated by isValidInitiativeID before reaching here
 				specDir = candidate
 			}
 		}
@@ -1136,6 +1147,11 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 // readSpecFiles reads spec files from a directory, supporting both:
 // 1. Flat structure: PRD.md, TRD.md, etc. directly in the directory
 // 2. VisionSpec structure: source/*.md + eval/*.json
+//
+// specDir is derived from an initiativeID validated by isValidInitiativeID in
+// the /api/spec-files/ handler, and the file names read below come from
+// os.ReadDir entries rather than caller input, so the paths built here cannot
+// escape specDir.
 func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 	var files []SpecFile
 
@@ -1143,7 +1159,7 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 	sourceDir := filepath.Join(specDir, "source")
 	evalDir := filepath.Join(specDir, "eval")
 
-	if _, err := os.Stat(sourceDir); err == nil {
+	if _, err := os.Stat(sourceDir); err == nil { // #nosec G703 -- see func doc: specDir is pre-validated
 		// VisionSpec structure: read from source/ and eval/
 		entries, err := os.ReadDir(sourceDir)
 		if err != nil {
@@ -1156,7 +1172,7 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 			}
 
 			specPath := filepath.Join(sourceDir, entry.Name())
-			content, err := os.ReadFile(specPath)
+			content, err := os.ReadFile(specPath) // #nosec G703 -- see readSpecFiles doc: specDir is pre-validated
 			if err != nil {
 				continue
 			}
@@ -1180,7 +1196,7 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 			// Check for corresponding eval JSON
 			evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
 			evalPath := filepath.Join(evalDir, evalName)
-			if evalContent, err := os.ReadFile(evalPath); err == nil {
+			if evalContent, err := os.ReadFile(evalPath); err == nil { // #nosec G703 -- see readSpecFiles doc: specDir is pre-validated
 				sf.EvalJSON = string(evalContent)
 			}
 
@@ -1199,7 +1215,7 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 			}
 
 			specPath := filepath.Join(specDir, entry.Name())
-			content, err := os.ReadFile(specPath)
+			content, err := os.ReadFile(specPath) // #nosec G703 -- see readSpecFiles doc: specDir is pre-validated
 			if err != nil {
 				continue
 			}
@@ -1221,7 +1237,7 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 			// Check for corresponding eval JSON in evaluations/ directory
 			evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
 			evalPath := filepath.Join(specDir, "evaluations", evalName)
-			if evalContent, err := os.ReadFile(evalPath); err == nil {
+			if evalContent, err := os.ReadFile(evalPath); err == nil { // #nosec G703 -- see readSpecFiles doc: specDir is pre-validated
 				sf.EvalJSON = string(evalContent)
 			}
 

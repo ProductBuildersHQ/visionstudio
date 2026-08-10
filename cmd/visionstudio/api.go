@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -121,9 +122,9 @@ type ExecutionResponse struct {
 
 // APITimeBucket represents token spend for a time bucket (week/month).
 type APITimeBucket struct {
-	Period  string                `json:"period"`  // e.g., "2026-W31" or "2026-07"
-	Start   string                `json:"start"`   // ISO date
-	End     string                `json:"end"`     // ISO date
+	Period  string                `json:"period"` // e.g., "2026-W31" or "2026-07"
+	Start   string                `json:"start"`  // ISO date
+	End     string                `json:"end"`    // ISO date
 	Totals  *APITokens            `json:"totals"`
 	ByModel map[string]*APITokens `json:"byModel,omitempty"`
 }
@@ -149,19 +150,19 @@ type MaturityResponse struct {
 
 // ScaleResponse is the response for /api/scale.
 type ScaleResponse struct {
-	Framework  *ScaleFramework   `json:"framework,omitempty"`
-	Assessment *ScaleAssessment  `json:"assessment,omitempty"`
-	Rollup     *ScaleRollup      `json:"rollup,omitempty"`
-	HasData    bool              `json:"hasData"`
-	DataNote   string            `json:"dataNote,omitempty"`
+	Framework  *ScaleFramework  `json:"framework,omitempty"`
+	Assessment *ScaleAssessment `json:"assessment,omitempty"`
+	Rollup     *ScaleRollup     `json:"rollup,omitempty"`
+	HasData    bool             `json:"hasData"`
+	DataNote   string           `json:"dataNote,omitempty"`
 }
 
 // ScaleFramework is a simplified view of a SCALE framework for the UI.
 type ScaleFramework struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description,omitempty"`
-	Domains     []ScaleDomain  `json:"domains"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	Domains     []ScaleDomain `json:"domains"`
 }
 
 // ScaleDomain represents a SCALE domain with its capabilities and metrics.
@@ -203,10 +204,10 @@ type ScaleMetric struct {
 
 // ScaleAssessment is a simplified view of a SCALE assessment.
 type ScaleAssessment struct {
-	Period       string               `json:"period"`
-	AsOf         string               `json:"asOf,omitempty"`
-	Observations int                  `json:"observations"`
-	Narratives   []ScaleNarrative     `json:"narratives,omitempty"`
+	Period       string           `json:"period"`
+	AsOf         string           `json:"asOf,omitempty"`
+	Observations int              `json:"observations"`
+	Narratives   []ScaleNarrative `json:"narratives,omitempty"`
 }
 
 // ScaleNarrative is a journey or outlook narrative.
@@ -364,6 +365,10 @@ func registerAPIRoutes(mux *http.ServeMux, connectSvc func() (*service.Service, 
 		initID := strings.TrimPrefix(r.URL.Path, "/api/spec-files/")
 		if initID == "" {
 			http.Error(w, "initiative ID required", http.StatusBadRequest)
+			return
+		}
+		if !isValidInitiativeID(initID) {
+			http.Error(w, "invalid initiative ID", http.StatusBadRequest)
 			return
 		}
 
@@ -1094,6 +1099,15 @@ func parseEvalFile(data []byte, initiativeID, filename string) *store.JudgeResul
 	}
 }
 
+// isValidInitiativeID rejects path-separator and dot-segment components so a
+// caller-supplied ID can't escape the initiative's spec directory when joined
+// into a filesystem path.
+var initiativeIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+func isValidInitiativeID(id string) bool {
+	return initiativeIDPattern.MatchString(id)
+}
+
 func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {
 	init, err := svc.Store.GetInitiative(ctx, initiativeID)
 	if err != nil {
@@ -1106,7 +1120,12 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 	if init.HomeRepo != "" {
 		repo, err := svc.Store.GetRepository(ctx, init.HomeRepo)
 		if err == nil && repo.LocalPath != "" {
-			specDir = filepath.Join(repo.LocalPath, "docs", "specs", "initiatives", initiativeID)
+			root := filepath.Clean(filepath.Join(repo.LocalPath, "docs", "specs", "initiatives"))
+			candidate := filepath.Clean(filepath.Join(root, initiativeID))
+			// Reject if the cleaned path escaped root (e.g. via a ".." component).
+			if candidate == root || strings.HasPrefix(candidate, root+string(os.PathSeparator)) {
+				specDir = candidate
+			}
 		}
 	}
 
@@ -1114,9 +1133,14 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 	if specDir == "" {
 		cwd, err := os.Getwd()
 		if err == nil {
-			candidate := filepath.Join(cwd, "docs", "specs", "initiatives", initiativeID)
-			if _, statErr := os.Stat(candidate); statErr == nil {
-				specDir = candidate
+			root := filepath.Clean(filepath.Join(cwd, "docs", "specs", "initiatives"))
+			candidate := filepath.Clean(filepath.Join(root, initiativeID))
+			rel, relErr := filepath.Rel(root, candidate)
+			// Reject if candidate is outside root (absolute or starts with "..").
+			if relErr == nil && !filepath.IsAbs(rel) && rel != ".." && !strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
+				if _, statErr := os.Stat(candidate); statErr == nil {
+					specDir = candidate
+				}
 			}
 		}
 	}
@@ -1136,97 +1160,130 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 // readSpecFiles reads spec files from a directory, supporting both:
 // 1. Flat structure: PRD.md, TRD.md, etc. directly in the directory
 // 2. VisionSpec structure: source/*.md + eval/*.json
+//
+// specDir was already confirmed by buildSpecFilesResponse to be contained
+// within its intended root. Every path joined below is re-checked with an
+// inline filepath.Clean + strings.HasPrefix containment check immediately
+// before use as well, since entry names ultimately trace back to
+// initiativeID.
 func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 	var files []SpecFile
 
 	// Check for VisionSpec structure (source/ subdirectory)
-	sourceDir := filepath.Join(specDir, "source")
-	evalDir := filepath.Join(specDir, "eval")
+	sourceDir := filepath.Clean(filepath.Join(specDir, "source"))
+	evalDir := filepath.Clean(filepath.Join(specDir, "eval"))
+	cleanSpecDir := filepath.Clean(specDir)
+	absSpecDir, err := filepath.Abs(cleanSpecDir)
+	if err != nil {
+		return nil, err
+	}
+	sourceDirOK := sourceDir == cleanSpecDir || strings.HasPrefix(sourceDir, cleanSpecDir+string(os.PathSeparator))
 
-	if _, err := os.Stat(sourceDir); err == nil {
-		// VisionSpec structure: read from source/ and eval/
-		entries, err := os.ReadDir(sourceDir)
-		if err != nil {
-			return nil, err
+	if sourceDirOK {
+		if _, err := os.Stat(sourceDir); err == nil {
+			// VisionSpec structure: read from source/ and eval/
+			entries, err := os.ReadDir(sourceDir)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, entry := range entries {
+				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+					continue
+				}
+
+				specPath := filepath.Clean(filepath.Join(sourceDir, entry.Name()))
+				if specPath != sourceDir && !strings.HasPrefix(specPath, sourceDir+string(os.PathSeparator)) {
+					continue
+				}
+				content, err := os.ReadFile(specPath)
+				if err != nil {
+					continue
+				}
+
+				info, _ := entry.Info()
+				modTime := ""
+				if info != nil {
+					modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
+				}
+
+				specType := deriveSpecType(entry.Name())
+
+				sf := SpecFile{
+					InitiativeID: initiativeID,
+					SpecType:     specType,
+					Path:         specPath,
+					Content:      string(content),
+					ModTime:      modTime,
+				}
+
+				// Check for corresponding eval JSON
+				evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
+				evalPath := filepath.Clean(filepath.Join(evalDir, evalName))
+				if evalPath == evalDir || strings.HasPrefix(evalPath, evalDir+string(os.PathSeparator)) {
+					if evalContent, err := os.ReadFile(evalPath); err == nil {
+						sf.EvalJSON = string(evalContent)
+					}
+				}
+
+				files = append(files, sf)
+			}
+
+			return files, nil
+		}
+	}
+
+	// Flat structure: read .md files directly from specDir
+	entries, err := os.ReadDir(specDir)
+	if err != nil {
+		return nil, err
+	}
+
+	evaluationsDir := filepath.Clean(filepath.Join(specDir, "evaluations"))
+
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
+			continue
 		}
 
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
-				continue
-			}
+		specPath := filepath.Clean(filepath.Join(specDir, entry.Name()))
+		absSpecPath, err := filepath.Abs(specPath)
+		if err != nil {
+			continue
+		}
+		relSpecPath, err := filepath.Rel(absSpecDir, absSpecPath)
+		if err != nil || relSpecPath == ".." || strings.HasPrefix(relSpecPath, ".."+string(os.PathSeparator)) || filepath.IsAbs(relSpecPath) {
+			continue
+		}
+		content, err := os.ReadFile(absSpecPath)
+		if err != nil {
+			continue
+		}
 
-			specPath := filepath.Join(sourceDir, entry.Name())
-			content, err := os.ReadFile(specPath)
-			if err != nil {
-				continue
-			}
+		info, _ := entry.Info()
+		modTime := ""
+		if info != nil {
+			modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
+		}
 
-			info, _ := entry.Info()
-			modTime := ""
-			if info != nil {
-				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
-			}
+		sf := SpecFile{
+			InitiativeID: initiativeID,
+			SpecType:     deriveSpecType(entry.Name()),
+			Path:         specPath,
+			Content:      string(content),
+			ModTime:      modTime,
+		}
 
-			specType := deriveSpecType(entry.Name())
-
-			sf := SpecFile{
-				InitiativeID: initiativeID,
-				SpecType:     specType,
-				Path:         specPath,
-				Content:      string(content),
-				ModTime:      modTime,
-			}
-
-			// Check for corresponding eval JSON
-			evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
-			evalPath := filepath.Join(evalDir, evalName)
+		// Check for corresponding eval JSON in evaluations/ directory
+		evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
+		evalPath := filepath.Clean(filepath.Join(evaluationsDir, evalName))
+		if evalPath == evaluationsDir || strings.HasPrefix(evalPath, evaluationsDir+string(os.PathSeparator)) {
 			if evalContent, err := os.ReadFile(evalPath); err == nil {
 				sf.EvalJSON = string(evalContent)
 			}
-
-			files = append(files, sf)
-		}
-	} else {
-		// Flat structure: read .md files directly from specDir
-		entries, err := os.ReadDir(specDir)
-		if err != nil {
-			return nil, err
 		}
 
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
-				continue
-			}
-
-			specPath := filepath.Join(specDir, entry.Name())
-			content, err := os.ReadFile(specPath)
-			if err != nil {
-				continue
-			}
-
-			info, _ := entry.Info()
-			modTime := ""
-			if info != nil {
-				modTime = info.ModTime().Format("2006-01-02T15:04:05Z")
-			}
-
-			sf := SpecFile{
-				InitiativeID: initiativeID,
-				SpecType:     deriveSpecType(entry.Name()),
-				Path:         specPath,
-				Content:      string(content),
-				ModTime:      modTime,
-			}
-
-			// Check for corresponding eval JSON in evaluations/ directory
-			evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
-			evalPath := filepath.Join(specDir, "evaluations", evalName)
-			if evalContent, err := os.ReadFile(evalPath); err == nil {
-				sf.EvalJSON = string(evalContent)
-			}
-
-			files = append(files, sf)
-		}
+		files = append(files, sf)
 	}
 
 	return files, nil
@@ -1264,7 +1321,7 @@ func buildScaleResponse() *ScaleResponse {
 
 	// Check for local SCALE catalog
 	scaleCatalogPath := filepath.Join(os.Getenv("HOME"), "go/src/github.com/ProductBuildersHQ/scale/catalog")
-	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil {
+	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil { // #nosec G703 -- scaleCatalogPath is derived from $HOME, not request input
 		framework, err = scale.LoadFrameworkDir(scaleCatalogPath)
 	} else {
 		// Fall back to embedded catalog
@@ -1633,7 +1690,7 @@ func buildScaleReportIR() *scalereport.ReportIR {
 	scaleCatalogPath := filepath.Join(os.Getenv("HOME"), "go/src/github.com/ProductBuildersHQ/scale/catalog")
 	var framework *scale.Framework
 	var err error
-	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil {
+	if _, statErr := os.Stat(scaleCatalogPath); statErr == nil { // #nosec G703 -- scaleCatalogPath is derived from $HOME, not request input
 		framework, err = scale.LoadFrameworkDir(scaleCatalogPath)
 	} else {
 		framework, err = catalog.Default()

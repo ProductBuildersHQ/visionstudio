@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
@@ -157,5 +159,88 @@ func TestBuildSpecsResponse(t *testing.T) {
 	}
 	if len(data) == 0 {
 		t.Error("empty JSON output")
+	}
+}
+
+func TestIsValidInitiativeID(t *testing.T) {
+	tests := []struct {
+		name string
+		id   string
+		want bool
+	}{
+		{"valid ID", "INIT-VISIONSTUDIO-001", true},
+		{"empty", "", false},
+		{"dot", ".", false},
+		{"dot-dot", "..", false},
+		{"path traversal", "../../etc/passwd", false},
+		{"forward slash", "foo/bar", false},
+		{"backslash", "foo\\bar", false},
+		{"leading traversal no slash suffix", "..secret", true}, // no separator, so not traversal
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isValidInitiativeID(tt.id); got != tt.want {
+				t.Errorf("isValidInitiativeID(%q) = %v, want %v", tt.id, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestReadSpecFilesFlatStructure(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "PRD.md"), []byte("# PRD"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(dir, "evaluations"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "evaluations", "prd.eval.json"), []byte(`{}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	files, err := readSpecFiles(dir, "INIT-TEST-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) != 1 {
+		t.Fatalf("expected 1 file, got %d", len(files))
+	}
+	if files[0].Content != "# PRD" {
+		t.Errorf("unexpected content: %q", files[0].Content)
+	}
+	if files[0].EvalJSON != "{}" {
+		t.Errorf("expected eval JSON to be picked up, got %q", files[0].EvalJSON)
+	}
+}
+
+func TestReadSpecFilesVisionSpecStructure(t *testing.T) {
+	dir := t.TempDir()
+	sourceDir := filepath.Join(dir, "source")
+	evalDir := filepath.Join(dir, "eval")
+	if err := os.MkdirAll(sourceDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(evalDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(sourceDir, "prd.md"), []byte("# PRD"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(evalDir, "prd.json"), []byte(`{}`), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	files, err := readSpecFiles(dir, "INIT-TEST-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(files) != 1 {
+		t.Fatalf("expected 1 file, got %d", len(files))
+	}
+	if files[0].Content != "# PRD" {
+		t.Errorf("unexpected content: %q", files[0].Content)
+	}
+	if files[0].EvalJSON != "{}" {
+		t.Errorf("expected eval JSON to be picked up, got %q", files[0].EvalJSON)
 	}
 }

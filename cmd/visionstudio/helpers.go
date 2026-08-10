@@ -110,7 +110,7 @@ func NewPeriodicCommitter(dsn, dataDir string, interval time.Duration) *Periodic
 // Start begins the periodic commit loop in the background.
 func (pc *PeriodicCommitter) Start(ctx context.Context) {
 	pc.wg.Add(1)
-	go func() {
+	go func() { // #nosec G118 -- context.Background() below is intentional: ctx is already Done/superseded, so the final commit needs its own live context
 		defer pc.wg.Done()
 		ticker := time.NewTicker(pc.interval)
 		defer ticker.Stop()

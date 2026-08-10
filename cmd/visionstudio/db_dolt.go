@@ -50,7 +50,6 @@ and the --migrate flag.`,
 	return cmd
 }
 
-
 func dbInitServer(cmd *cobra.Command, dir string) error {
 	absDir, err := filepath.Abs(dir)
 	if err != nil {

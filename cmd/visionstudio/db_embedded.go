@@ -16,11 +16,6 @@ func connectEmbedded(dataDir string) (*doltstore.DoltStore, error) {
 	return doltstore.NewEmbedded(dataDir)
 }
 
-// hasEmbeddedSupport returns true when built with dolt_embedded tag.
-func hasEmbeddedSupport() bool {
-	return true
-}
-
 func dbInitEmbedded(cmd *cobra.Command, dataDir string) error {
 	absDir, err := filepath.Abs(dataDir)
 	if err != nil {

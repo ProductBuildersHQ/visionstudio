@@ -1,46 +1,76 @@
 # Quick Start
 
-## Create Your First Project
+This walks through the `visionstudio` CLI and web dashboard. If you haven't installed it yet, see [Installation](installation.md) first.
 
-1. Launch VisionStudio
-2. The sidebar shows available projects
-3. Select a project or create a new one
+## Start VisionStudio
 
-## Understanding the Interface
+```bash
+visionstudio app start
+```
 
-### Sidebar (Left)
+This starts the Dolt database (if it isn't already running) and opens the dashboard in your browser at `http://localhost:9400`. Press `Ctrl-C` to stop.
 
-- **Projects** - List of spec projects
-- **Profile** - Selected workflow profile (e.g., big-tech-product)
-- **Workflow** - Link to workflow diagram
-- **Specs** - List of specs with status indicators
+## Register a Repository
 
-### Status Indicators
+VisionStudio tracks initiatives against repositories it knows about. Register one with:
 
-| Icon | Meaning |
-|------|---------|
-| ○ | Not started |
-| ◐ | Draft (not evaluated) |
-| ✓ | Pass (score ≥ 8.0) |
-| ⚠ | Needs work (score 6.0-7.9) |
-| ✗ | Fail (score < 6.0) |
+```bash
+visionstudio registry add --org <github-org> --name <repo-name> --path /path/to/your/repo
+```
 
-### Main Panel (Right)
+See `visionstudio registry --help` for the full set of registry commands.
 
-- **Workflow View** - Visual diagram of spec sequence
-- **Editor View** - Markdown editor with Source/Rendered toggle
+## Navigating the Dashboard
 
-### LLM Panel (Bottom Left)
+### All Initiatives (`/`)
 
-- Chat interface for spec assistance
-- Ask questions about your spec
-- Request evaluations
+The home view lists every initiative, grouped by program. Standalone initiatives (not attached to a program) have their own view at `/standalone`.
 
-## Workflow
+### Program view (`/program/:programId`)
 
-1. **Select Profile** - Choose a methodology (e.g., big-tech-product)
-2. **View Workflow** - See the spec sequence
-3. **Write Specs** - Start with source specs (MRD, PRD)
-4. **Evaluate** - Use LLM-as-a-Judge to assess quality
-5. **Iterate** - Improve based on feedback
-6. **Synthesize** - Generate downstream specs (TRD, TPD)
+Shows every initiative under a single program.
+
+### Initiative detail (`/initiative/:initiativeId`)
+
+Shows an initiative's phases, roadmap items (RMIs), and its spec documents. From here you can open the spec viewer for any spec type (PRD, TRD, PLAN, ROADMAP, etc.).
+
+### Spec Viewer (`/initiative/:initiativeId/spec/:specType`)
+
+Shows a spec's Markdown source and rendered views, with a toggle between them, along with its LLM-as-a-Judge evaluation result if one exists — per-category scores, findings, and next steps. Supports copying a link and exporting to PDF.
+
+### Repositories (`/repositories`)
+
+The repository catalog, with per-repository RMI counts and progress. Click through to a repository's detail view (`/repository/*`) to see the initiatives that touch it.
+
+### Maturity (`/maturity`)
+
+Framework-based capability maturity assessments.
+
+### Performance (`/performance`)
+
+Token spend and cost, broken down by model, initiative, phase, and RMI — sourced from ingested usage data (`visionstudio db ingest-tokens`).
+
+## Working with Initiatives from the CLI
+
+The dashboard is a view over the same data the CLI manages. Common commands:
+
+```bash
+visionstudio initiative list
+visionstudio rmi list --initiative <initiative-id>
+visionstudio spec judge record <initiative-id> <spec-file> --score <1-5> --rationale "<why>" --model <model-id>
+visionstudio roadmap import docs/specs/initiatives/<initiative-id>/ROADMAP.md   # sync ROADMAP.md into the database
+```
+
+Run `visionstudio --help` for the full command list, or `visionstudio <command> --help` for any subcommand.
+
+## LLM-as-a-Judge Evaluation
+
+Specs are evaluated against workflow rubrics (`structured-evaluation/rubric.Rubric`) — a 1–5 integer score, per-category findings with severity, and an overall pass/fail decision. Evaluation results are stored as `*.eval.json` files under `docs/specs/initiatives/<id>/evaluations/` and shown in the Spec Viewer.
+
+## Agent Access (MCP)
+
+Agent sessions can query initiatives, RMIs, and work assignments directly via the MCP stdio server:
+
+```bash
+visionstudio mcp
+```

@@ -1,5 +1,8 @@
 # Go Daemon
 
+!!! note "Legacy"
+    `cmd/daemon` is the backend for the legacy Electron desktop app and isn't under active feature development. The primary backend is `cmd/visionstudio` — see [Architecture Overview](overview.md).
+
 The Go daemon provides the backend API for VisionStudio.
 
 ## Location

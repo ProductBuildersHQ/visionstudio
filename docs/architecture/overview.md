@@ -1,8 +1,80 @@
 # Architecture Overview
 
-VisionStudio uses a desktop architecture with Electron frontend and Go backend.
+VisionStudio has two architectures today:
 
-## Components
+- **Primary**: the `visionstudio` CLI and web dashboard, backed by Dolt.
+- **Legacy** *(being phased out)*: an Electron desktop app talking to the `cmd/daemon` REST server, storing everything on the filesystem. See [Go Daemon](daemon.md) and [Frontend](frontend.md) for its details.
+
+## Primary Architecture: visionstudio CLI + Web Dashboard
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    visionstudio binary                       │
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │        web/ — React + Vite SPA (go:embed all:dist)       ││
+│  │  • Programs → Initiatives → Phases → RMIs                ││
+│  │  • Repositories, Performance (token spend)                ││
+│  │  • Spec viewer + LLM-as-a-Judge evaluations                ││
+│  │  • Maturity assessments                                    ││
+│  └──────────────────────┬──────────────────────────────────┘│
+│                          │ HTTP (same port, cmd/visionstudio/serve.go)
+│  ┌──────────────────────▼──────────────────────────────────┐│
+│  │           cmd/visionstudio — cobra CLI + JSON API         ││
+│  │  Commands:                                                 ││
+│  │  • app/ui/db — lifecycle (one-command startup, standalone)││
+│  │  • initiative/phase/rmi/program/registry/roadmap/spec/    ││
+│  │    maturity/work/release — data management                ││
+│  │  • ingest/export/validate/report — evidence & consistency ││
+│  │  • mcp — stdio server for agent sessions                   ││
+│  │  Handlers: cmd/visionstudio/api.go (JSON API, store→API    ││
+│  │  converters)                                                ││
+│  └──────────────────────┬──────────────────────────────────┘│
+└─────────────────────────┼───────────────────────────────────┘
+                          │ pkg/store (Ent)
+┌─────────────────────────▼───────────────────────────────────┐
+│                 Dolt (MySQL-compatible, Git-like)             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Data Storage: Dolt (via Ent)
+
+All structured data lives in Dolt (MySQL-compatible, Git-like versioning), accessed through the Ent ORM (`pkg/store`):
+
+- Programs, initiatives, phases, RMIs, and RMI/initiative dependencies
+- Judge results and evaluations
+- Spec workflows and templates
+- Repository metadata
+- Maturity models and assessments
+- Token spend / cost events (ingested from OmniDevX)
+
+```bash
+# Initialize/migrate database
+visionstudio db init --migrate
+```
+
+Spec Markdown files themselves remain on disk (`docs/specs/initiatives/<id>/*.md`, `evaluations/*.eval.json`) for Git compatibility — the database indexes and evaluates them, it doesn't replace them.
+
+### Type Layers
+
+| Layer | Package | JSON Style | Purpose |
+|-------|---------|------------|---------|
+| Store | `pkg/store` | snake_case | Database/internal |
+| API | `pkg/apitypes` | camelCase | HTTP responses |
+| Frontend | `web/src/api/types.gen.ts` | camelCase | TypeScript |
+
+Conversion happens in API handlers (`cmd/visionstudio/api.go`). Go types are the source of truth — see [Type Pipeline](types.md) for the full generation flow.
+
+### Security
+
+- Binds to loopback by default; `visionstudio ui --address host:port` warns if you bind a non-loopback address
+- No authentication (assumes trusted local/team network use)
+- Request-derived path components (initiative IDs, etc.) are validated at the API boundary and re-checked immediately before every filesystem access, via `github.com/grokify/mogo/os/osutil`'s `ValidatePathComponent`/`JoinSecure`/`FindFirstExistingSecure`
+
+## Legacy Architecture: Electron + Go Daemon
+
+*This section documents the system being phased out — see the note at the top of this page.*
+
+### Components
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -53,27 +125,9 @@ VisionStudio uses a desktop architecture with Electron frontend and Go backend.
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Data Storage
+### Data Storage: Filesystem
 
-VisionStudio uses a **hybrid storage** approach:
-
-### Database (Dolt/MySQL via Ent)
-
-Structured data is stored in Dolt (MySQL-compatible, Git-like versioning):
-
-- Programs, initiatives, phases, RMIs
-- Judge results and evaluations
-- Spec workflows and templates
-- Repository metadata
-
-```bash
-# Initialize/migrate database
-go run ./cmd/visionstudio db init --migrate
-```
-
-### Filesystem
-
-Project files and specs remain on disk for Git compatibility:
+No database — everything is JSON/Markdown on disk:
 
 ```
 ~/.visionspec/
@@ -99,31 +153,21 @@ project-directory/
 └── maturity/             # Maturity assessments
 ```
 
-### Type Layers
+### Design Decisions
 
-| Layer | Package | JSON Style | Purpose |
-|-------|---------|------------|---------|
-| Store | `pkg/store` | snake_case | Database/internal |
-| API | `pkg/apitypes` | camelCase | HTTP responses |
-| Frontend | `web/src/api/types.gen.ts` | camelCase | TypeScript |
-
-Conversion happens in API handlers (`cmd/visionstudio/api.go`).
-
-## Design Decisions
-
-### Why Electron + Go Daemon?
+#### Why Electron + Go Daemon?
 
 - **Electron**: Mature, battle-tested, consistent rendering across platforms
 - **Go Daemon**: Reuse VisionSpec library, efficient file operations
 - **HTTP API**: Enables future web app with same backend
 
-### Why Not Wails?
+#### Why Not Wails?
 
 - Wails v3 is still alpha
 - Electron ecosystem is more mature for polished UIs
 - HTTP API enables web reuse
 
-### Dual Methodology Architecture
+#### Dual Methodology Architecture
 
 Separating requirements and implementation methodologies:
 
@@ -132,16 +176,16 @@ Separating requirements and implementation methodologies:
 
 This allows mixing approaches (e.g., AWS Working Backwards + AIDLC).
 
-### File-Based Storage
+#### File-Based Storage
 
 - Projects are portable (just directories)
 - Git-friendly (all text-based)
 - No database required
 - Works offline
 
-## Data Flow
+### Data Flow
 
-### Spec Workflow
+#### Spec Workflow
 
 1. User selects project in sidebar
 2. UI loads project details via API
@@ -151,7 +195,7 @@ This allows mixing approaches (e.g., AWS Working Backwards + AIDLC).
 6. Save triggers API PUT
 7. Daemon writes to filesystem
 
-### AIDLC Workflow
+#### AIDLC Workflow
 
 1. User navigates to AIDLC Workflow view
 2. API returns phase/deliverable status
@@ -161,7 +205,7 @@ This allows mixing approaches (e.g., AWS Working Backwards + AIDLC).
 6. Evaluation run on content
 7. Results displayed in UI
 
-### V2MOM Cascade
+#### V2MOM Cascade
 
 1. User navigates to V2MOM Cascade
 2. API returns organization → team → project hierarchy
@@ -169,7 +213,7 @@ This allows mixing approaches (e.g., AWS Working Backwards + AIDLC).
 4. Changes saved via API
 5. Cascade relationships maintained
 
-## Component Communication
+### Component Communication
 
 ```
 ┌──────────┐     HTTP      ┌──────────┐     File I/O    ┌──────────┐
@@ -185,9 +229,8 @@ This allows mixing approaches (e.g., AWS Working Backwards + AIDLC).
                           └──────────┘
 ```
 
-## Security
+### Security
 
 - Daemon only binds to localhost (127.0.0.1)
 - No authentication required (local desktop app)
-- Path traversal protection on all file operations
-- Input validation on all API endpoints
+- Request-derived path components are validated at the API boundary and re-checked immediately before every filesystem access, via `github.com/grokify/mogo/os/osutil`'s `ValidatePathComponent`/`JoinSecure`/`FindFirstExistingSecure`

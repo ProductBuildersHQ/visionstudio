@@ -1,96 +1,85 @@
 # VisionStudio
 
-LLM-powered desktop application for specification authoring, strategic planning, and product development lifecycle management.
+LLM-powered platform for roadmap execution, specification authoring, and evaluation.
 
 ## What is VisionStudio?
 
-VisionStudio provides an integrated workspace for creating, evaluating, and iterating on product specifications using the [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) methodology. It combines structured spec workflows with AI-assisted writing, LLM-as-a-Judge evaluation, and comprehensive strategic planning tools.
+VisionStudio tracks cross-repository initiatives, roadmap items, and specification quality in one place. It combines a Go CLI and web dashboard (`visionstudio`) backed by Dolt (a MySQL-compatible, Git-like versioned database) with LLM-as-a-Judge evaluation of specs against workflow rubrics.
 
 ## Key Features
 
-### Specification Authoring
+### Roadmap Execution
 
-- **Project Management** - Create and manage multiple spec projects
-- **Dual Methodology Selection** - Choose requirements methodology (AWS Working Backwards, Big Tech, Lean Startup, etc.) and implementation methodology (AIDLC, SpecKit)
-- **Visual Workflow Diagram** - See spec sequence and status at a glance
-- **Markdown Editor** - Source and rendered view toggle with live preview
-- **LLM-as-a-Judge Evaluation** - Evaluate specs against profile rubrics with dimension scores
-- **LLM Writing Assistant** - Context-aware chat for spec assistance
+- **Programs → Initiatives → Phases → RMIs** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups
+- **Hiding** - Programs and initiatives can each be hidden from the dashboard, with hiding a program cascading to its initiatives
+- **Repositories** - Repository catalog with per-repo RMI counts and progress
+- **Performance** - Token spend and cost tracking by model, initiative, phase, and RMI
+- **Maturity Assessments** - Framework-based capability maturity scoring, plus SCALE platform adoption and code-leverage/reuse graphs
+- **MCP Server** - Stdio server exposing initiatives/RMIs/work assignments to agent sessions
 
-### AIDLC Integration
+### Specification Authoring & Evaluation
 
-- **AIDLC Workflow** - AWS AI-Driven Development Lifecycle (Inception → Construction → Operations)
-- **Document Generation** - LLM-powered generation of AIDLC deliverables
-- **Sync Status** - Track alignment between specs and AIDLC documents
-- **Phase Transitions** - Guided progression through development phases
+- **Spec Viewer** - Source and rendered Markdown views per initiative, with PDF export
+- **LLM-as-a-Judge Evaluation** - Evaluate specs against workflow rubrics, with per-category findings and next steps
+- **Workflow Sync** - Sync `ROADMAP.md` files and spec workflows with the database
 
-### Strategic Planning
+### CLI
 
-- **V2MOM Cascade** - Hierarchical V2MOMs from Organization → Team → Project
-- **Capability Stack** - Visual capability management with domains and levels
-- **Roadmap View** - Timeline-based initiative and milestone planning
-- **Maturity Model** - Framework-based maturity assessments with dashboards
-
-### Organization Management
-
-- **Organization Settings** - Configure company/department context
-- **Team Management** - Define teams and hierarchies
-- **Sample Projects** - Import example projects for learning
+- **One-command startup** - `visionstudio app start` brings up the database and web UI together
+- **Database lifecycle** - `visionstudio db {init,start,stop,restart,status,commit}` for standalone database management
+- **Actionable diagnostics** - connection failures explain how to fix them instead of raw driver errors
+- **Serve from anywhere** - the web UI is embedded in the binary, no separate frontend build needed to use it
 
 ## Quick Start
 
 ```bash
-# Build and run the daemon
-go build -o bin/daemon ./cmd/daemon/
-./bin/daemon
+git clone https://github.com/ProductBuildersHQ/visionstudio.git
+cd visionstudio
+go build -o bin/visionstudio ./cmd/visionstudio
 
-# In another terminal, run the desktop app
-cd desktop && npm install && npm run dev
+# Bring up the database and web UI together, opens your browser
+./bin/visionstudio app start
 ```
 
-See [Installation](getting-started/installation.md) for detailed setup instructions.
+See [Installation](getting-started/installation.md) for the full walkthrough.
 
 ## Architecture
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│                    Electron Desktop App                       │
+│                    visionstudio binary                        │
 │  ┌─────────────────────────────────────────────────────────┐  │
-│  │              React/TypeScript Frontend                  │  │
-│  │                                                         │  │
-│  │  Layout:                                                │  │
-│  │  • Sidebar (projects, methodology, navigation)          │  │
-│  │  • Main content area (views)                            │  │
-│  │                                                         │  │
-│  │  Views:                                                 │  │
-│  │  • Workflow diagram + spec editor                       │  │
-│  │  • AIDLC workflow + document generation                 │  │
-│  │  • V2MOM cascade editor                                 │  │
-│  │  • Capability stack view                                │  │
-│  │  • Roadmap timeline                                     │  │
-│  │  • Maturity model dashboard                             │  │
-│  │  • Organization settings                                │  │
-│  │  • DevX usage dashboard (not project-scoped)            │  │
+│  │      web/ — React + Vite SPA, embedded via go:embed     │  │
+│  │  • Programs → Initiatives → Phases → RMIs               │  │
+│  │  • Repositories, Performance (token spend)               │  │
+│  │  • Spec viewer + LLM-as-a-Judge evaluations              │  │
+│  └──────────────────────┬──────────────────────────────────┘  │
+│                          │ HTTP (same port)                   │
+│  ┌──────────────────────▼──────────────────────────────────┐  │
+│  │      cmd/visionstudio — cobra CLI + JSON API             │  │
+│  │  • app/ui/db lifecycle commands                          │  │
+│  │  • initiative/rmi/phase/spec/roadmap/maturity commands   │  │
+│  │  • MCP stdio server for agent sessions                   │  │
 │  └──────────────────────┬──────────────────────────────────┘  │
 └─────────────────────────┼─────────────────────────────────────┘
-                          │ HTTP REST
+                          │ pkg/store (Ent)
 ┌─────────────────────────▼─────────────────────────────────────┐
-│                      Go Daemon                                │
-│  • REST API (60+ endpoints)                                   │
-│  • VisionSpec v0.14.0 integration                             │
-│  • AIDLC workflow management                                  │
-│  • V2MOM cascade handling                                     │
-│  • DevX dashboard passthrough (reads devfolio's output)       │
-│  • Capability, roadmap, maturity model support                │
+│                 Dolt (MySQL-compatible, Git-like)              │
 └───────────────────────────────────────────────────────────────┘
 ```
+
+See [Architecture Overview](architecture/overview.md) for the full picture, including the type pipeline and the legacy daemon/Electron architecture it's replacing.
+
+!!! note "Legacy: Electron desktop app"
+    An earlier surface — the `cmd/daemon` REST server plus an Electron desktop frontend — covers per-project spec authoring directly on the filesystem (no database): AIDLC workflow, V2MOM cascades, capability stacks, and organization/team settings. It's superseded by the `visionstudio` CLI and web dashboard above and isn't under active feature development. See [Go Daemon](architecture/daemon.md), [Frontend](architecture/frontend.md), and the [legacy user guide](guide/projects.md).
 
 ## Documentation
 
 - [Installation](getting-started/installation.md) - System requirements and setup
 - [Quick Start](getting-started/quickstart.md) - Get started in minutes
-- [User Guide](guide/projects.md) - Complete feature documentation
+- [Dashboard Guide](dashboard/overview.md) - Complete feature documentation for the web dashboard
 - [Architecture](architecture/overview.md) - Technical deep dive
+- [Releases](releases/unreleased.md) - Release notes and changelog
 
 ## Related Projects
 

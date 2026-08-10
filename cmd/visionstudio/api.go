@@ -121,9 +121,9 @@ type ExecutionResponse struct {
 
 // APITimeBucket represents token spend for a time bucket (week/month).
 type APITimeBucket struct {
-	Period  string                `json:"period"`  // e.g., "2026-W31" or "2026-07"
-	Start   string                `json:"start"`   // ISO date
-	End     string                `json:"end"`     // ISO date
+	Period  string                `json:"period"` // e.g., "2026-W31" or "2026-07"
+	Start   string                `json:"start"`  // ISO date
+	End     string                `json:"end"`    // ISO date
 	Totals  *APITokens            `json:"totals"`
 	ByModel map[string]*APITokens `json:"byModel,omitempty"`
 }
@@ -149,19 +149,19 @@ type MaturityResponse struct {
 
 // ScaleResponse is the response for /api/scale.
 type ScaleResponse struct {
-	Framework  *ScaleFramework   `json:"framework,omitempty"`
-	Assessment *ScaleAssessment  `json:"assessment,omitempty"`
-	Rollup     *ScaleRollup      `json:"rollup,omitempty"`
-	HasData    bool              `json:"hasData"`
-	DataNote   string            `json:"dataNote,omitempty"`
+	Framework  *ScaleFramework  `json:"framework,omitempty"`
+	Assessment *ScaleAssessment `json:"assessment,omitempty"`
+	Rollup     *ScaleRollup     `json:"rollup,omitempty"`
+	HasData    bool             `json:"hasData"`
+	DataNote   string           `json:"dataNote,omitempty"`
 }
 
 // ScaleFramework is a simplified view of a SCALE framework for the UI.
 type ScaleFramework struct {
-	ID          string         `json:"id"`
-	Name        string         `json:"name"`
-	Description string         `json:"description,omitempty"`
-	Domains     []ScaleDomain  `json:"domains"`
+	ID          string        `json:"id"`
+	Name        string        `json:"name"`
+	Description string        `json:"description,omitempty"`
+	Domains     []ScaleDomain `json:"domains"`
 }
 
 // ScaleDomain represents a SCALE domain with its capabilities and metrics.
@@ -203,10 +203,10 @@ type ScaleMetric struct {
 
 // ScaleAssessment is a simplified view of a SCALE assessment.
 type ScaleAssessment struct {
-	Period       string               `json:"period"`
-	AsOf         string               `json:"asOf,omitempty"`
-	Observations int                  `json:"observations"`
-	Narratives   []ScaleNarrative     `json:"narratives,omitempty"`
+	Period       string           `json:"period"`
+	AsOf         string           `json:"asOf,omitempty"`
+	Observations int              `json:"observations"`
+	Narratives   []ScaleNarrative `json:"narratives,omitempty"`
 }
 
 // ScaleNarrative is a journey or outlook narrative.

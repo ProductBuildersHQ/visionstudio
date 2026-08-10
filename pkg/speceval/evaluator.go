@@ -14,14 +14,14 @@ import (
 
 // EvaluationResult is the outcome of evaluating a spec document.
 type EvaluationResult struct {
-	SpecType    string              `json:"spec_type"`
-	Score       int                 `json:"score"`
-	Verdict     string              `json:"verdict"`
-	Findings    []Finding           `json:"findings,omitempty"`
-	Categories  []CategoryResult    `json:"categories,omitempty"`
-	Rationale   string              `json:"rationale,omitempty"`
-	Model       string              `json:"model,omitempty"`
-	EvaluatedAt time.Time           `json:"evaluated_at"`
+	SpecType    string           `json:"spec_type"`
+	Score       int              `json:"score"`
+	Verdict     string           `json:"verdict"`
+	Findings    []Finding        `json:"findings,omitempty"`
+	Categories  []CategoryResult `json:"categories,omitempty"`
+	Rationale   string           `json:"rationale,omitempty"`
+	Model       string           `json:"model,omitempty"`
+	EvaluatedAt time.Time        `json:"evaluated_at"`
 }
 
 // Finding is a specific issue found during evaluation.
@@ -33,9 +33,9 @@ type Finding struct {
 
 // CategoryResult is the evaluation of a single rubric category.
 type CategoryResult struct {
-	Name     string `json:"name"`
-	Score    int    `json:"score"`
-	Verdict  string `json:"verdict"`
+	Name      string `json:"name"`
+	Score     int    `json:"score"`
+	Verdict   string `json:"verdict"`
 	Rationale string `json:"rationale,omitempty"`
 }
 

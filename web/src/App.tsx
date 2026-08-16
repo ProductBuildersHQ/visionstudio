@@ -58,6 +58,11 @@ function AppContent() {
 
   const apiStatus = execution ? 'connected' : error ? 'error' : 'loading'
 
+  const handleInitiativeCreated = (id: string) => {
+    reload()
+    navigate(`/initiative/${id}`)
+  }
+
   const handleNavigate = (target: NavTarget) => {
     if (target.section === 'maturity') {
       navigate('/maturity')
@@ -117,7 +122,9 @@ function AppContent() {
                   initiatives={execution.initiatives}
                   programs={execution.programs}
                   rmis={execution.rmis}
+                  workflows={specs.workflows}
                   onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                  onInitiativeCreated={handleInitiativeCreated}
                   showProgramGroups={true}
                 />
               }
@@ -127,7 +134,9 @@ function AppContent() {
               element={
                 <ProgramView
                   execution={execution}
+                  specs={specs}
                   onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                  onInitiativeCreated={handleInitiativeCreated}
                 />
               }
             />
@@ -139,7 +148,9 @@ function AppContent() {
                   initiatives={execution.initiatives.filter((i) => !i.programId)}
                   programs={execution.programs}
                   rmis={execution.rmis}
+                  workflows={specs.workflows}
                   onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
+                  onInitiativeCreated={handleInitiativeCreated}
                   showProgramGroups={false}
                 />
               }
@@ -186,10 +197,14 @@ function AppContent() {
 
 function ProgramView({
   execution,
+  specs,
   onInitiativeClick,
+  onInitiativeCreated,
 }: {
   execution: ExecutionResponse
+  specs: SpecsResponse
   onInitiativeClick: (id: string) => void
+  onInitiativeCreated: (id: string) => void
 }) {
   const { programId } = useParams<{ programId: string }>()
   const program = execution.programs.find((p) => p.id === programId)
@@ -201,8 +216,11 @@ function ProgramView({
       initiatives={initiatives}
       programs={execution.programs}
       rmis={execution.rmis}
+      workflows={specs.workflows}
       onInitiativeClick={onInitiativeClick}
+      onInitiativeCreated={onInitiativeCreated}
       showProgramGroups={false}
+      defaultProgramId={programId}
     />
   )
 }

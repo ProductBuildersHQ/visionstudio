@@ -22,7 +22,73 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryRemoveCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	return cmd
+}
+
+func registryRemoveCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "remove <repo-id>",
+		Short: "Hard-delete a repository record",
+		Long: `Permanently deletes a repository's registry row. For true mistakes
+only (e.g. a typo'd 'registry add') — for a merge or rename where the
+record should be kept for history, use 'registry archive
+--superseded-by' instead.
+
+Always refuses while RMIs, releases, or spec documents still reference
+the repository (their foreign keys require it to exist) — reassign
+them first with 'rmi bulk-update', or archive instead. Otherwise
+requires --force to confirm.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			id, err := resolveRepoID(cmd.Context(), svc, args[0])
+			if err != nil {
+				return err
+			}
+			if _, err := svc.GetRepository(cmd.Context(), id); err != nil {
+				return err
+			}
+
+			var blockers []string
+			if rmis, err := svc.ListRMIsByRepo(cmd.Context(), id); err != nil {
+				return fmt.Errorf("check referencing RMIs: %w", err)
+			} else if len(rmis) > 0 {
+				blockers = append(blockers, fmt.Sprintf("%d RMI(s)", len(rmis)))
+			}
+			if rels, err := svc.Store.ListReleasesByRepo(cmd.Context(), id); err != nil {
+				return fmt.Errorf("check referencing releases: %w", err)
+			} else if len(rels) > 0 {
+				blockers = append(blockers, fmt.Sprintf("%d release(s)", len(rels)))
+			}
+			if docs, err := svc.ListSpecDocumentsByRepo(cmd.Context(), id); err != nil {
+				return fmt.Errorf("check referencing spec documents: %w", err)
+			} else if len(docs) > 0 {
+				blockers = append(blockers, fmt.Sprintf("%d spec document(s)", len(docs)))
+			}
+			if len(blockers) > 0 {
+				return fmt.Errorf("refusing to remove %s: still referenced by %s (reassign with 'rmi bulk-update' or use 'registry archive' instead)",
+					id, strings.Join(blockers, ", "))
+			}
+
+			force, _ := cmd.Flags().GetBool("force")
+			if !force {
+				return fmt.Errorf("refusing to remove %s without --force", id)
+			}
+
+			if err := svc.Store.DeleteRepository(cmd.Context(), id); err != nil {
+				return err
+			}
+			cmd.Printf("Removed %s\n", id)
+			return nil
+		},
+	}
+	cmd.Flags().Bool("force", false, "Confirm the hard delete")
 	return cmd
 }
 

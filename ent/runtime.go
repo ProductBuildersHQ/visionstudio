@@ -11,6 +11,8 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
+	"github.com/ProductBuildersHQ/visionstudio/ent/person"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
@@ -192,6 +194,48 @@ func init() {
 	maturityassessmentDescID := maturityassessmentFields[0].Descriptor()
 	// maturityassessment.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	maturityassessment.IDValidator = maturityassessmentDescID.Validators[0].(func(string) error)
+	organizationFields := schema.Organization{}.Fields()
+	_ = organizationFields
+	// organizationDescLogin is the schema descriptor for login field.
+	organizationDescLogin := organizationFields[1].Descriptor()
+	// organization.LoginValidator is a validator for the "login" field. It is called by the builders before save.
+	organization.LoginValidator = organizationDescLogin.Validators[0].(func(string) error)
+	// organizationDescKind is the schema descriptor for kind field.
+	organizationDescKind := organizationFields[2].Descriptor()
+	// organization.DefaultKind holds the default value on creation for the kind field.
+	organization.DefaultKind = organizationDescKind.Default.(string)
+	// organization.KindValidator is a validator for the "kind" field. It is called by the builders before save.
+	organization.KindValidator = organizationDescKind.Validators[0].(func(string) error)
+	// organizationDescDisplayName is the schema descriptor for display_name field.
+	organizationDescDisplayName := organizationFields[3].Descriptor()
+	// organization.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	organization.DisplayNameValidator = organizationDescDisplayName.Validators[0].(func(string) error)
+	// organizationDescWebsite is the schema descriptor for website field.
+	organizationDescWebsite := organizationFields[4].Descriptor()
+	// organization.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
+	organization.WebsiteValidator = organizationDescWebsite.Validators[0].(func(string) error)
+	// organizationDescReleasePageURL is the schema descriptor for release_page_url field.
+	organizationDescReleasePageURL := organizationFields[5].Descriptor()
+	// organization.ReleasePageURLValidator is a validator for the "release_page_url" field. It is called by the builders before save.
+	organization.ReleasePageURLValidator = organizationDescReleasePageURL.Validators[0].(func(string) error)
+	// organizationDescID is the schema descriptor for id field.
+	organizationDescID := organizationFields[0].Descriptor()
+	// organization.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	organization.IDValidator = organizationDescID.Validators[0].(func(string) error)
+	personFields := schema.Person{}.Fields()
+	_ = personFields
+	// personDescGithubLogin is the schema descriptor for github_login field.
+	personDescGithubLogin := personFields[1].Descriptor()
+	// person.GithubLoginValidator is a validator for the "github_login" field. It is called by the builders before save.
+	person.GithubLoginValidator = personDescGithubLogin.Validators[0].(func(string) error)
+	// personDescDisplayName is the schema descriptor for display_name field.
+	personDescDisplayName := personFields[2].Descriptor()
+	// person.DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
+	person.DisplayNameValidator = personDescDisplayName.Validators[0].(func(string) error)
+	// personDescID is the schema descriptor for id field.
+	personDescID := personFields[0].Descriptor()
+	// person.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	person.IDValidator = personDescID.Validators[0].(func(string) error)
 	phaseFields := schema.Phase{}.Fields()
 	_ = phaseFields
 	// phaseDescTitle is the schema descriptor for title field.
@@ -274,6 +318,10 @@ func init() {
 	repositoryDescIngestHighWater := repositoryFields[8].Descriptor()
 	// repository.IngestHighWaterValidator is a validator for the "ingest_high_water" field. It is called by the builders before save.
 	repository.IngestHighWaterValidator = repositoryDescIngestHighWater.Validators[0].(func(string) error)
+	// repositoryDescOrganizationID is the schema descriptor for organization_id field.
+	repositoryDescOrganizationID := repositoryFields[9].Descriptor()
+	// repository.OrganizationIDValidator is a validator for the "organization_id" field. It is called by the builders before save.
+	repository.OrganizationIDValidator = repositoryDescOrganizationID.Validators[0].(func(string) error)
 	// repositoryDescID is the schema descriptor for id field.
 	repositoryDescID := repositoryFields[0].Descriptor()
 	// repository.IDValidator is a validator for the "id" field. It is called by the builders before save.

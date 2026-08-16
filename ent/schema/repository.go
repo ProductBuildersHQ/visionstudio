@@ -22,6 +22,7 @@ func (Repository) Fields() []ent.Field {
 		field.String("domain").MaxLen(128).Optional(),
 		field.String("status").MaxLen(32),
 		field.String("ingest_high_water").MaxLen(128).Optional(),
+		field.String("organization_id").MaxLen(128).Optional(),
 	}
 }
 
@@ -29,5 +30,9 @@ func (Repository) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("roadmap_items", RoadmapItem.Type),
 		edge.To("spec_documents", SpecDocument.Type),
+		edge.From("org", Organization.Type).
+			Ref("repositories").
+			Field("organization_id").
+			Unique(),
 	}
 }

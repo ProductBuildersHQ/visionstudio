@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
@@ -27,6 +28,7 @@ type RepositoryQuery struct {
 	predicates        []predicate.Repository
 	withRoadmapItems  *RoadmapItemQuery
 	withSpecDocuments *SpecDocumentQuery
+	withOrg           *OrganizationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -100,6 +102,28 @@ func (_q *RepositoryQuery) QuerySpecDocuments() *SpecDocumentQuery {
 			sqlgraph.From(repository.Table, repository.FieldID, selector),
 			sqlgraph.To(specdocument.Table, specdocument.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, repository.SpecDocumentsTable, repository.SpecDocumentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryOrg chains the current query on the "org" edge.
+func (_q *RepositoryQuery) QueryOrg() *OrganizationQuery {
+	query := (&OrganizationClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repository.Table, repository.FieldID, selector),
+			sqlgraph.To(organization.Table, organization.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, repository.OrgTable, repository.OrgColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -301,6 +325,7 @@ func (_q *RepositoryQuery) Clone() *RepositoryQuery {
 		predicates:        append([]predicate.Repository{}, _q.predicates...),
 		withRoadmapItems:  _q.withRoadmapItems.Clone(),
 		withSpecDocuments: _q.withSpecDocuments.Clone(),
+		withOrg:           _q.withOrg.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -326,6 +351,17 @@ func (_q *RepositoryQuery) WithSpecDocuments(opts ...func(*SpecDocumentQuery)) *
 		opt(query)
 	}
 	_q.withSpecDocuments = query
+	return _q
+}
+
+// WithOrg tells the query-builder to eager-load the nodes that are connected to
+// the "org" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RepositoryQuery) WithOrg(opts ...func(*OrganizationQuery)) *RepositoryQuery {
+	query := (&OrganizationClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withOrg = query
 	return _q
 }
 
@@ -407,9 +443,10 @@ func (_q *RepositoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 	var (
 		nodes       = []*Repository{}
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			_q.withRoadmapItems != nil,
 			_q.withSpecDocuments != nil,
+			_q.withOrg != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -441,6 +478,12 @@ func (_q *RepositoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 		if err := _q.loadSpecDocuments(ctx, query, nodes,
 			func(n *Repository) { n.Edges.SpecDocuments = []*SpecDocument{} },
 			func(n *Repository, e *SpecDocument) { n.Edges.SpecDocuments = append(n.Edges.SpecDocuments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withOrg; query != nil {
+		if err := _q.loadOrg(ctx, query, nodes, nil,
+			func(n *Repository, e *Organization) { n.Edges.Org = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -508,6 +551,35 @@ func (_q *RepositoryQuery) loadSpecDocuments(ctx context.Context, query *SpecDoc
 	}
 	return nil
 }
+func (_q *RepositoryQuery) loadOrg(ctx context.Context, query *OrganizationQuery, nodes []*Repository, init func(*Repository), assign func(*Repository, *Organization)) error {
+	ids := make([]string, 0, len(nodes))
+	nodeids := make(map[string][]*Repository)
+	for i := range nodes {
+		fk := nodes[i].OrganizationID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(organization.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "organization_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (_q *RepositoryQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -533,6 +605,9 @@ func (_q *RepositoryQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != repository.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if _q.withOrg != nil {
+			_spec.Node.AddColumnOnce(repository.FieldOrganizationID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

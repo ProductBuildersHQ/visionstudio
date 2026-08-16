@@ -21,6 +21,8 @@ type Store interface {
 	AssignmentStore
 	EvidenceStore
 	RepositoryStore
+	OrganizationStore
+	PersonStore
 	SpecWorkflowStore
 	JudgeStore
 	MaturityStore
@@ -159,6 +161,34 @@ type Repository struct {
 	Domain          string `json:"domain,omitempty"`
 	Status          string `json:"status"`
 	IngestHighWater string `json:"ingest_high_water,omitempty"`
+	OrganizationID  string `json:"organization_id,omitempty"`
+}
+
+// Organization is a first-class GitHub organization or a user account
+// acting as one (e.g. grokify). The Repository.Organization string remains
+// for back-compat; OrganizationID carries the queryable edge.
+type Organization struct {
+	ID             string    `json:"id"` // e.g. "github.com/plexusone"
+	Login          string    `json:"login"`
+	Kind           string    `json:"kind"` // organization | user
+	DisplayName    string    `json:"display_name,omitempty"`
+	Website        string    `json:"website,omitempty"`
+	ReleasePageURL string    `json:"release_page_url,omitempty"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+}
+
+// Person is an identity: a human with a GitHub login and the commit-author
+// email variants used to attribute work. Affiliation roles are deferred to
+// the systemforge membership substrate; OrgIDs records plain affiliation.
+type Person struct {
+	ID              string    `json:"id"` // e.g. "person:grokify"
+	GitHubLogin     string    `json:"github_login"`
+	DisplayName     string    `json:"display_name,omitempty"`
+	EmailIdentities []string  `json:"email_identities,omitempty"`
+	OrgIDs          []string  `json:"org_ids,omitempty"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
 }
 
 // Program is an organizational grouping of related initiatives.
@@ -250,6 +280,23 @@ type RepositoryStore interface {
 	ListAllRepoDependencies(ctx context.Context) ([]*RepositoryDependency, error)
 }
 
+// OrganizationStore defines persistence for first-class organizations.
+type OrganizationStore interface {
+	CreateOrganization(ctx context.Context, org *Organization) error
+	GetOrganization(ctx context.Context, id string) (*Organization, error)
+	GetOrganizationByLogin(ctx context.Context, login string) (*Organization, error)
+	ListOrganizations(ctx context.Context) ([]*Organization, error)
+	UpdateOrganization(ctx context.Context, org *Organization) error
+}
+
+// PersonStore defines persistence for identities.
+type PersonStore interface {
+	CreatePerson(ctx context.Context, p *Person) error
+	GetPerson(ctx context.Context, id string) (*Person, error)
+	ListPeople(ctx context.Context) ([]*Person, error)
+	UpdatePerson(ctx context.Context, p *Person) error
+}
+
 // SpecWorkflow defines a specification workflow template.
 type SpecWorkflow struct {
 	ID            string   `json:"id"`
@@ -323,6 +370,7 @@ type SpecWorkflowStore interface {
 	GetSpecWorkflow(ctx context.Context, id string) (*SpecWorkflow, error)
 	ListSpecWorkflows(ctx context.Context) ([]*SpecWorkflow, error)
 	UpdateSpecWorkflow(ctx context.Context, wf *SpecWorkflow) error
+	DeleteSpecWorkflow(ctx context.Context, id string) error
 
 	// Initiative workflow selection
 	SelectWorkflowForInitiative(ctx context.Context, initiativeID, workflowID string) error

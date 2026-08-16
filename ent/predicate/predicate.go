@@ -36,6 +36,9 @@ type JudgeRubric func(*sql.Selector)
 // MaturityAssessment is the predicate function for maturityassessment builders.
 type MaturityAssessment func(*sql.Selector)
 
+// Organization is the predicate function for organization builders.
+type Organization func(*sql.Selector)
+
 // PRISMDocument is the predicate function for prismdocument builders.
 type PRISMDocument func(*sql.Selector)
 
@@ -44,6 +47,9 @@ type PRISMGoal func(*sql.Selector)
 
 // PRISMRoadmap is the predicate function for prismroadmap builders.
 type PRISMRoadmap func(*sql.Selector)
+
+// Person is the predicate function for person builders.
+type Person func(*sql.Selector)
 
 // Phase is the predicate function for phase builders.
 type Phase func(*sql.Selector)

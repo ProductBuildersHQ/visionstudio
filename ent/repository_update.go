@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
@@ -165,6 +166,26 @@ func (_u *RepositoryUpdate) ClearIngestHighWater() *RepositoryUpdate {
 	return _u
 }
 
+// SetOrganizationID sets the "organization_id" field.
+func (_u *RepositoryUpdate) SetOrganizationID(v string) *RepositoryUpdate {
+	_u.mutation.SetOrganizationID(v)
+	return _u
+}
+
+// SetNillableOrganizationID sets the "organization_id" field if the given value is not nil.
+func (_u *RepositoryUpdate) SetNillableOrganizationID(v *string) *RepositoryUpdate {
+	if v != nil {
+		_u.SetOrganizationID(*v)
+	}
+	return _u
+}
+
+// ClearOrganizationID clears the value of the "organization_id" field.
+func (_u *RepositoryUpdate) ClearOrganizationID() *RepositoryUpdate {
+	_u.mutation.ClearOrganizationID()
+	return _u
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by IDs.
 func (_u *RepositoryUpdate) AddRoadmapItemIDs(ids ...string) *RepositoryUpdate {
 	_u.mutation.AddRoadmapItemIDs(ids...)
@@ -193,6 +214,25 @@ func (_u *RepositoryUpdate) AddSpecDocuments(v ...*SpecDocument) *RepositoryUpda
 		ids[i] = v[i].ID
 	}
 	return _u.AddSpecDocumentIDs(ids...)
+}
+
+// SetOrgID sets the "org" edge to the Organization entity by ID.
+func (_u *RepositoryUpdate) SetOrgID(id string) *RepositoryUpdate {
+	_u.mutation.SetOrgID(id)
+	return _u
+}
+
+// SetNillableOrgID sets the "org" edge to the Organization entity by ID if the given value is not nil.
+func (_u *RepositoryUpdate) SetNillableOrgID(id *string) *RepositoryUpdate {
+	if id != nil {
+		_u = _u.SetOrgID(*id)
+	}
+	return _u
+}
+
+// SetOrg sets the "org" edge to the Organization entity.
+func (_u *RepositoryUpdate) SetOrg(v *Organization) *RepositoryUpdate {
+	return _u.SetOrgID(v.ID)
 }
 
 // Mutation returns the RepositoryMutation object of the builder.
@@ -240,6 +280,12 @@ func (_u *RepositoryUpdate) RemoveSpecDocuments(v ...*SpecDocument) *RepositoryU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpecDocumentIDs(ids...)
+}
+
+// ClearOrg clears the "org" edge to the Organization entity.
+func (_u *RepositoryUpdate) ClearOrg() *RepositoryUpdate {
+	_u.mutation.ClearOrg()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -309,6 +355,11 @@ func (_u *RepositoryUpdate) check() error {
 	if v, ok := _u.mutation.IngestHighWater(); ok {
 		if err := repository.IngestHighWaterValidator(v); err != nil {
 			return &ValidationError{Name: "ingest_high_water", err: fmt.Errorf(`ent: validator failed for field "Repository.ingest_high_water": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.OrganizationID(); ok {
+		if err := repository.OrganizationIDValidator(v); err != nil {
+			return &ValidationError{Name: "organization_id", err: fmt.Errorf(`ent: validator failed for field "Repository.organization_id": %w`, err)}
 		}
 	}
 	return nil
@@ -445,6 +496,35 @@ func (_u *RepositoryUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.OrgCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   repository.OrgTable,
+			Columns: []string{repository.OrgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OrgIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   repository.OrgTable,
+			Columns: []string{repository.OrgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -608,6 +688,26 @@ func (_u *RepositoryUpdateOne) ClearIngestHighWater() *RepositoryUpdateOne {
 	return _u
 }
 
+// SetOrganizationID sets the "organization_id" field.
+func (_u *RepositoryUpdateOne) SetOrganizationID(v string) *RepositoryUpdateOne {
+	_u.mutation.SetOrganizationID(v)
+	return _u
+}
+
+// SetNillableOrganizationID sets the "organization_id" field if the given value is not nil.
+func (_u *RepositoryUpdateOne) SetNillableOrganizationID(v *string) *RepositoryUpdateOne {
+	if v != nil {
+		_u.SetOrganizationID(*v)
+	}
+	return _u
+}
+
+// ClearOrganizationID clears the value of the "organization_id" field.
+func (_u *RepositoryUpdateOne) ClearOrganizationID() *RepositoryUpdateOne {
+	_u.mutation.ClearOrganizationID()
+	return _u
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by IDs.
 func (_u *RepositoryUpdateOne) AddRoadmapItemIDs(ids ...string) *RepositoryUpdateOne {
 	_u.mutation.AddRoadmapItemIDs(ids...)
@@ -636,6 +736,25 @@ func (_u *RepositoryUpdateOne) AddSpecDocuments(v ...*SpecDocument) *RepositoryU
 		ids[i] = v[i].ID
 	}
 	return _u.AddSpecDocumentIDs(ids...)
+}
+
+// SetOrgID sets the "org" edge to the Organization entity by ID.
+func (_u *RepositoryUpdateOne) SetOrgID(id string) *RepositoryUpdateOne {
+	_u.mutation.SetOrgID(id)
+	return _u
+}
+
+// SetNillableOrgID sets the "org" edge to the Organization entity by ID if the given value is not nil.
+func (_u *RepositoryUpdateOne) SetNillableOrgID(id *string) *RepositoryUpdateOne {
+	if id != nil {
+		_u = _u.SetOrgID(*id)
+	}
+	return _u
+}
+
+// SetOrg sets the "org" edge to the Organization entity.
+func (_u *RepositoryUpdateOne) SetOrg(v *Organization) *RepositoryUpdateOne {
+	return _u.SetOrgID(v.ID)
 }
 
 // Mutation returns the RepositoryMutation object of the builder.
@@ -683,6 +802,12 @@ func (_u *RepositoryUpdateOne) RemoveSpecDocuments(v ...*SpecDocument) *Reposito
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpecDocumentIDs(ids...)
+}
+
+// ClearOrg clears the "org" edge to the Organization entity.
+func (_u *RepositoryUpdateOne) ClearOrg() *RepositoryUpdateOne {
+	_u.mutation.ClearOrg()
+	return _u
 }
 
 // Where appends a list predicates to the RepositoryUpdate builder.
@@ -765,6 +890,11 @@ func (_u *RepositoryUpdateOne) check() error {
 	if v, ok := _u.mutation.IngestHighWater(); ok {
 		if err := repository.IngestHighWaterValidator(v); err != nil {
 			return &ValidationError{Name: "ingest_high_water", err: fmt.Errorf(`ent: validator failed for field "Repository.ingest_high_water": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.OrganizationID(); ok {
+		if err := repository.OrganizationIDValidator(v); err != nil {
+			return &ValidationError{Name: "organization_id", err: fmt.Errorf(`ent: validator failed for field "Repository.organization_id": %w`, err)}
 		}
 	}
 	return nil
@@ -918,6 +1048,35 @@ func (_u *RepositoryUpdateOne) sqlSave(ctx context.Context) (_node *Repository, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.OrgCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   repository.OrgTable,
+			Columns: []string{repository.OrgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OrgIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   repository.OrgTable,
+			Columns: []string{repository.OrgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

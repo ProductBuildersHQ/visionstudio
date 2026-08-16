@@ -22,6 +22,8 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
+	"github.com/ProductBuildersHQ/visionstudio/ent/person"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
@@ -103,9 +105,11 @@ func checkColumn(t, c string) error {
 			judgeresult.Table:          judgeresult.ValidColumn,
 			judgerubric.Table:          judgerubric.ValidColumn,
 			maturityassessment.Table:   maturityassessment.ValidColumn,
+			organization.Table:         organization.ValidColumn,
 			prismdocument.Table:        prismdocument.ValidColumn,
 			prismgoal.Table:            prismgoal.ValidColumn,
 			prismroadmap.Table:         prismroadmap.ValidColumn,
+			person.Table:               person.ValidColumn,
 			phase.Table:                phase.ValidColumn,
 			program.Table:              program.ValidColumn,
 			rmidependency.Table:        rmidependency.ValidColumn,

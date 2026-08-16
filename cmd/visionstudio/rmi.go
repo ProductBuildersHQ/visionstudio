@@ -92,6 +92,11 @@ func rmiCreateCmd() *cobra.Command {
 				return fmt.Errorf("--id, --repo, --title, and --type are required")
 			}
 
+			repo, err = resolveRepoID(cmd.Context(), svc, repo)
+			if err != nil {
+				return err
+			}
+
 			var acceptance []string
 			if acceptanceRaw != "" {
 				acceptance = strings.Split(acceptanceRaw, ";")
@@ -239,6 +244,13 @@ func rmiListCmd() *cobra.Command {
 				return fmt.Errorf("either --initiative or --repo is required")
 			}
 
+			if repo != "" {
+				repo, err = resolveRepoID(cmd.Context(), svc, repo)
+				if err != nil {
+					return err
+				}
+			}
+
 			var rmis []*rmiListItem
 			if initiative != "" {
 				items, err := svc.ListRMIs(cmd.Context(), initiative)
@@ -310,6 +322,13 @@ func rmiUpdateCmd() *cobra.Command {
 
 			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" {
 				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, or --context-spec is required")
+			}
+
+			if repo != "" {
+				repo, err = resolveRepoID(cmd.Context(), svc, repo)
+				if err != nil {
+					return err
+				}
 			}
 
 			if status != "" {

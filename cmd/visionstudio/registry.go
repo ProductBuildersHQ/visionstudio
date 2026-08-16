@@ -507,6 +507,59 @@ func registryUnpushedCmd() *cobra.Command {
 	}
 }
 
+// resolveRepoID resolves a possibly-short repository reference — a bare
+// name ("visionstudio"), "org/name", or the full "github.com/org/name"
+// ID — to a registered repository's full ID. Repository IDs are always
+// "github.com/org/name" (see Service.RegisterRepository), so a bare short
+// name silently matching nothing used to return an empty result set with
+// no indication why; this gives an exact match or a did-you-mean error
+// instead.
+func resolveRepoID(ctx context.Context, svc *service.Service, ref string) (string, error) {
+	if ref == "" {
+		return "", nil
+	}
+	if strings.HasPrefix(ref, "github.com/") {
+		if _, err := svc.GetRepository(ctx, ref); err != nil {
+			return "", fmt.Errorf("repository %q not found in registry", ref)
+		}
+		return ref, nil
+	}
+
+	repos, err := svc.ListRepositories(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	var exact []*store.Repository
+	for _, r := range repos {
+		shortID := r.Organization + "/" + r.RepositoryName
+		if r.RepositoryName == ref || shortID == ref {
+			exact = append(exact, r)
+		}
+	}
+	switch len(exact) {
+	case 1:
+		return exact[0].ID, nil
+	case 0:
+		var suggestions []string
+		for _, r := range repos {
+			if strings.Contains(r.RepositoryName, ref) || strings.Contains(ref, r.RepositoryName) {
+				suggestions = append(suggestions, r.ID)
+			}
+		}
+		if len(suggestions) > 0 {
+			return "", fmt.Errorf("no repository matches %q — did you mean: %s?", ref, strings.Join(suggestions, ", "))
+		}
+		return "", fmt.Errorf("no repository matches %q (register it with 'registry add', or use org/name or the full github.com/org/name ID)", ref)
+	default:
+		var ids []string
+		for _, r := range exact {
+			ids = append(ids, r.ID)
+		}
+		return "", fmt.Errorf("%q is ambiguous — matches: %s (use the full ID)", ref, strings.Join(ids, ", "))
+	}
+}
+
 func connectService(cmd *cobra.Command) (*service.Service, func(), error) {
 	dataDir := getDataDir(cmd)
 	if dataDir != "" {

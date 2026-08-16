@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -698,6 +699,18 @@ func registryListCmd() *cobra.Command {
 				return err
 			}
 
+			format, _ := cmd.Flags().GetString("format")
+			switch format {
+			case "json":
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(repos)
+			case "text":
+				// falls through to the tabwriter rendering below
+			default:
+				return fmt.Errorf("unknown format: %s (use text or json)", format)
+			}
+
 			if len(repos) == 0 {
 				cmd.Println("No repositories registered.")
 				return nil
@@ -720,6 +733,7 @@ func registryListCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().String("org", "", "Filter by organization")
+	cmd.Flags().String("format", "text", "Output format: text or json")
 	return cmd
 }
 

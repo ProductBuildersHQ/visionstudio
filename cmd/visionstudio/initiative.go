@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -179,7 +180,7 @@ func initiativeCreateCmd() *cobra.Command {
 }
 
 func initiativeListCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all initiatives",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -192,6 +193,18 @@ func initiativeListCmd() *cobra.Command {
 			inits, err := svc.ListInitiatives(cmd.Context())
 			if err != nil {
 				return err
+			}
+
+			format, _ := cmd.Flags().GetString("format")
+			switch format {
+			case "json":
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(inits)
+			case "text":
+				// falls through to the tabwriter rendering below
+			default:
+				return fmt.Errorf("unknown format: %s (use text or json)", format)
 			}
 
 			if len(inits) == 0 {
@@ -223,6 +236,8 @@ func initiativeListCmd() *cobra.Command {
 			return w.Flush()
 		},
 	}
+	cmd.Flags().String("format", "text", "Output format: text or json")
+	return cmd
 }
 
 func initiativeGetCmd() *cobra.Command {

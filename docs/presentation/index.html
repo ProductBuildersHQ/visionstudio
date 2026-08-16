@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VisionStudio Presentation</title>
+  <style>
+    :root {
+      --ink: #14213d;
+      --muted: #526173;
+      --line: #d7dee8;
+      --paper: #f7f9fc;
+      --panel: #ffffff;
+      --navy: #0e2545;
+      --blue: #1f6feb;
+      --cyan: #17a2b8;
+      --green: #22a06b;
+      --gold: #d48b00;
+      --red: #c83e4d;
+      --shadow: 0 24px 60px rgba(20, 33, 61, 0.14);
+    }
+
+    * { box-sizing: border-box; }
+    html, body, #root { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      letter-spacing: 0;
+    }
+
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .deck {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 28px;
+      background: rgba(255,255,255,0.92);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--green));
+      font-weight: 800;
+      font-size: 15px;
+      flex: 0 0 auto;
+    }
+
+    .brand-text { min-width: 0; }
+    .brand-title { font-weight: 760; font-size: 15px; white-space: nowrap; }
+    .brand-subtitle { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+      justify-content: flex-end;
+    }
+
+    .progress-track {
+      width: min(34vw, 360px);
+      height: 6px;
+      border-radius: 999px;
+      background: #e7edf5;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      transition: width 180ms ease;
+    }
+
+    .slide-count { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+    .viewport {
+      min-height: calc(100vh - 128px);
+      display: grid;
+      align-items: center;
+      padding: 34px 38px;
+    }
+
+    .slide {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+      gap: 36px;
+      align-items: center;
+    }
+
+    .slide.text-only { grid-template-columns: minmax(0, 1fr); max-width: 1020px; }
+    .slide.image-left { grid-template-columns: minmax(420px, 1.08fr) minmax(0, 0.92fr); }
+    .slide.image-left .copy { order: 2; }
+    .slide.image-left .visual { order: 1; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid rgba(31,111,235,0.22);
+      color: var(--blue);
+      background: rgba(31,111,235,0.07);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 720;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(42px, 6vw, 74px); line-height: 0.98; letter-spacing: 0; }
+    h2 { font-size: clamp(32px, 4.2vw, 56px); line-height: 1.02; letter-spacing: 0; }
+    .lead { margin-top: 22px; font-size: clamp(18px, 2vw, 24px); line-height: 1.42; color: #314053; max-width: 760px; }
+    .body { margin-top: 20px; font-size: 17px; line-height: 1.56; color: var(--muted); max-width: 760px; }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 6px;
+      color: #243248;
+      background: white;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 680;
+      box-shadow: 0 8px 20px rgba(20,33,61,0.06);
+    }
+
+    .visual {
+      min-width: 0;
+    }
+
+    .screenshot {
+      width: 100%;
+      background: #101827;
+      border: 1px solid rgba(20,33,61,0.16);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .screenshot img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .caption {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .hero-shell {
+      min-height: 430px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(20,33,61,0.14);
+      background: #101827;
+      position: relative;
+    }
+
+    .hero-shell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      opacity: 0.94;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 18px;
+      color: white;
+      background: linear-gradient(180deg, rgba(16,24,39,0), rgba(16,24,39,0.92));
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 12px 28px rgba(20,33,61,0.06);
+      min-height: 126px;
+    }
+
+    .card h3 { font-size: 16px; margin-bottom: 9px; }
+    .card p { color: var(--muted); font-size: 14px; line-height: 1.46; }
+
+    .flow {
+      display: grid;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 152px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .flow-label {
+      border-radius: 8px;
+      background: var(--navy);
+      color: white;
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      font-size: 14px;
+      font-weight: 760;
+    }
+
+    .flow-content {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      padding: 14px 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .metric {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-height: 118px;
+    }
+
+    .metric strong { display: block; font-size: 28px; line-height: 1; margin-bottom: 8px; color: var(--navy); }
+    .metric span { color: var(--muted); font-size: 13px; line-height: 1.35; display: block; }
+
+    .architecture {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .arch-layer {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #fbfdff;
+    }
+
+    .arch-layer:last-child { margin-bottom: 0; }
+    .arch-layer h3 { font-size: 15px; color: var(--navy); margin-bottom: 6px; }
+    .arch-layer p { color: var(--muted); font-size: 13px; line-height: 1.42; }
+
+    .arrow {
+      width: 2px;
+      height: 18px;
+      margin: -3px auto 9px;
+      background: var(--blue);
+      position: relative;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid var(--blue);
+      border-bottom: 2px solid var(--blue);
+      transform: translateX(-50%) rotate(45deg);
+      background: transparent;
+    }
+
+    .controls {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 28px;
+      border-top: 1px solid var(--line);
+      background: white;
+    }
+
+    .nav-buttons { display: flex; gap: 10px; }
+    .nav-btn {
+      min-width: 44px;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 760;
+    }
+    .nav-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .nav-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .hint { color: var(--muted); font-size: 12px; }
+
+    .thumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 48vw;
+      overflow: hidden;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border: 0;
+      padding: 0;
+      border-radius: 999px;
+      background: #c5cfdc;
+      cursor: pointer;
+    }
+    .dot.active { width: 24px; background: var(--blue); }
+
+    @media (max-width: 920px) {
+      .topbar { padding: 0 18px; }
+      .progress-wrap { min-width: 96px; }
+      .progress-track { display: none; }
+      .viewport { padding: 24px 18px; align-items: start; }
+      .slide, .slide.image-left { grid-template-columns: 1fr; gap: 24px; }
+      .slide.image-left .copy, .slide.image-left .visual { order: initial; }
+      .hero-shell { min-height: 260px; }
+      .grid-cards, .metrics { grid-template-columns: 1fr; }
+      .flow-row { grid-template-columns: 1fr; }
+      .controls { padding: 0 18px; }
+      .thumbs { display: none; }
+      .brand-subtitle { display: none; }
+    }
+
+    @media print {
+      body { background: white; }
+      .deck { display: block; }
+      .topbar, .controls { display: none; }
+      .viewport { min-height: auto; display: block; padding: 0; }
+      .slide { width: 100%; min-height: 100vh; page-break-after: always; padding: 40px; }
+      .screenshot, .hero-shell, .architecture, .card, .metric { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="../../web/node_modules/react/umd/react.production.min.js"></script>
+  <script src="../../web/node_modules/react-dom/umd/react-dom.production.min.js"></script>
+  <script>
+    const e = React.createElement;
+
+    const images = {
+      home: '../images/ss_visionstudio_col-003_webui_img-001_home.png',
+      program: '../images/ss_visionstudio_col-003_webui_img-002_program.png',
+      definition: '../images/ss_visionstudio_col-003_webui_img-003_initiative-definition.png',
+      execution: '../images/ss_visionstudio_col-003_webui_img-004_initiative-execution.png',
+      performance: '../images/ss_visionstudio_col-003_webui_img-005_performance-tokens.png',
+      monthly: '../images/ss_visionstudio_col-003_webui_img-006_performance-tokens-month.png'
+    };
+
+    const slides = [
+      {
+        kind: 'hero',
+        eyebrow: 'ProductBuildersHQ',
+        title: 'VisionStudio',
+        lead: 'The local-first control plane for spec-driven product building: roadmap execution, workflow-backed specs, LLM-as-a-Judge evaluation, repository visibility, maturity, and token economics in one operating surface.',
+        chips: ['Go CLI + embedded React UI', 'Dolt versioned database', 'Workflow-backed specifications', 'Agent-ready MCP surface'],
+        image: images.definition,
+        caption: 'The Definition Details view turns an initiative into an inspectable spec workflow with judge scores and rendered source.'
+      },
+      {
+        kind: 'cards',
+        eyebrow: 'Problem',
+        title: 'Agentic development outgrew scattered files and dashboards.',
+        lead: 'Specs, execution state, repo metadata, cost, and evaluation evidence all existed, but not in one place where an owner or agent could answer what to work on next.',
+        cards: [
+          ['Specs without portfolio context', 'PRDs, TRDs, plans, and roadmaps lived on disk, but cross-repo status was hard to see.'],
+          ['Execution without definition', 'Roadmap items tracked work, but the connection back to the spec workflow was thin.'],
+          ['AI spend without delivery context', 'Token costs are only useful when read against actual shipped work.'],
+          ['Agents need stable contracts', 'Assistants need deterministic initiative, RMI, assignment, and spec context.']
+        ]
+      },
+      {
+        kind: 'image',
+        eyebrow: 'Definition',
+        title: 'Each initiative starts with a workflow, not a blank page.',
+        lead: 'VisionStudio reads the selected specification workflow and shows the required document chain, existing files, rendered Markdown, and rubric-backed LLM-as-a-Judge results in the same view.',
+        body: 'PBHQ Lite, Quick Fix, AWS Working Backwards, and other workflows come from specification-workflow-spec. VisionStudio owns the portfolio experience and persistence around those contracts.',
+        image: images.definition,
+        caption: 'Spec Definition + LLM-as-a-Judge: PRD, TRD, PLAN, and ROADMAP are visible as a scored workflow.'
+      },
+      {
+        kind: 'image-left',
+        eyebrow: 'Execution',
+        title: 'Specs connect directly to phases and RMIs.',
+        lead: 'The Execution tab shows roadmap items grouped by phase, with completion state, ownership, dependencies, and progress rollups.',
+        body: 'This keeps the question practical: not only whether the spec is coherent, but whether the implementation work is actually moving and what remains blocked.',
+        image: images.execution,
+        caption: 'Execution Tracking: RMIs are stable units of work that can be claimed, completed, associated with repos, and linked by dependency.'
+      },
+      {
+        kind: 'image',
+        eyebrow: 'Portfolio',
+        title: 'Programs and initiatives roll up into one book of work.',
+        lead: 'VisionStudio models Programs -> Initiatives -> Phases -> RMIs, so cross-repository delivery can be viewed at program level or across the whole portfolio.',
+        body: 'Hidden programs and initiatives keep the dashboard focused without deleting data. Status badges and progress bars expose where work is proposed, planned, executing, delivered, or released.',
+        image: images.program,
+        caption: 'Program view: a focused program dashboard with initiative cards, completion bars, and status summary.'
+      },
+      {
+        kind: 'image-left',
+        eyebrow: 'Fleet View',
+        title: 'The dashboard is designed for scanning across many repos.',
+        lead: 'The sidebar exposes programs, standalone initiatives, repositories, maturity, and performance. The main portfolio view groups initiatives by program and summarizes status distribution.',
+        body: 'This is the daily driver surface replacing a patchwork of local files, one-off scripts, and single-repo dashboards.',
+        image: images.home,
+        caption: 'All Initiatives view: stable initiative IDs, lifecycle states, and completion bars across the portfolio.'
+      },
+      {
+        kind: 'image',
+        eyebrow: 'Economics',
+        title: 'AI usage is measured against delivery output.',
+        lead: 'VisionStudio ingests OmniDevX token events and renders total tokens, cost, cache behavior, model mix, and spend over time.',
+        body: 'The point is not cost accounting in isolation. The useful question is what the agentic build produced for that spend, across initiatives and completed RMIs.',
+        image: images.performance,
+        caption: 'Performance dashboard: token and cost breakdowns by model, category, and time bucket.'
+      },
+      {
+        kind: 'image-left',
+        eyebrow: 'Operating Ledger',
+        title: 'Monthly history pairs spend with accomplishments.',
+        lead: 'Month-over-month cost and token movement sits next to accomplishments and velocity, making the portfolio auditable over time.',
+        body: 'The same data model supports token attribution by initiative, phase, and RMI, giving product owners a sharper way to judge leverage.',
+        image: images.monthly,
+        caption: 'Monthly Performance view: period summaries, model mix, trend table, accomplishments, and weekly velocity.'
+      },
+      {
+        kind: 'architecture',
+        eyebrow: 'Architecture',
+        title: 'One binary, one local database, one React app.',
+        lead: 'The primary architecture is a Go cobra CLI and JSON API serving an embedded React/Vite SPA, backed by Dolt through Ent.',
+        layers: [
+          ['React + Vite SPA', 'Programs, initiatives, repositories, specs, evaluations, maturity, and performance panels are embedded into the visionstudio binary.'],
+          ['cmd/visionstudio', 'CLI commands manage app, db, initiative, phase, rmi, registry, roadmap, spec, maturity, release, report, work, workflow, and MCP.'],
+          ['pkg/store + Ent', 'Store and service layers persist portfolio execution, repository metadata, spec workflows, evaluations, maturity, and token spend.'],
+          ['Dolt', 'A MySQL-compatible, Git-like versioned database for local control-plane data and eventual sync.']
+        ]
+      },
+      {
+        kind: 'flow',
+        eyebrow: 'System Role',
+        title: 'VisionStudio sits at the top of the spec stack.',
+        lead: 'The layering is deliberate: contracts live below, execution libraries sit in the middle, and VisionStudio owns the experience, persistence, jobs, and portfolio views.',
+        rows: [
+          ['Contract', 'specification-workflow-spec owns workflow types, schemas, templates, and rubrics.'],
+          ['Engine', 'visionspec owns scaffolding, synthesis, evaluation, lint, status, reconcile, and MCP execution behavior.'],
+          ['Studio', 'VisionStudio composes the domains into an operational product surface and Dolt-backed portfolio memory.']
+        ]
+      },
+      {
+        kind: 'cards',
+        eyebrow: 'Near Roadmap',
+        title: 'The current direction is local control plane to hosted product.',
+        lead: 'The active and proposed specs point to a product arc: richer multi-domain backend, remote mode, workflow-scoped spec MCP, roadmap board, releases, org/person modeling, and cloud sync.',
+        cards: [
+          ['Unified backend + frontend', 'Persist execution, devx, maturity, roadmap, and specs in one backend that the local and hosted UI can share.'],
+          ['VisionStudio Cloud', 'Tenant-scoped hosted backend for sync, public roadmap/release serving, and later aggregation features.'],
+          ['Roadmap board + releases', 'Lifecycle-derived columns, release chips, unshipped queue, and public export.'],
+          ['Org, person, visibility', 'First-class registry modeling so local sync and public serving have explicit ownership and visibility rails.']
+        ]
+      },
+      {
+        kind: 'metrics',
+        eyebrow: 'Takeaway',
+        title: 'VisionStudio is the governor for AI-native product work.',
+        lead: 'It gives builders and agents a shared operating model: define the work, judge the specs, execute the RMIs, measure the cost, and preserve the evidence trail.',
+        metrics: [
+          ['Define', 'Workflow-backed specs with templates, required documents, and evaluation rubrics.'],
+          ['Execute', 'Programs, initiatives, phases, RMIs, dependencies, ownership, and release linkage.'],
+          ['Measure', 'Token economics, maturity, repository health, accomplishments, and LLM-as-a-Judge results.']
+        ]
+      }
+    ];
+
+    function Topbar({ index }) {
+      const pct = ((index + 1) / slides.length) * 100;
+      return e('header', { className: 'topbar' },
+        e('div', { className: 'brand' },
+          e('div', { className: 'mark' }, 'VS'),
+          e('div', { className: 'brand-text' },
+            e('div', { className: 'brand-title' }, 'VisionStudio'),
+            e('div', { className: 'brand-subtitle' }, 'Roadmap execution, specs, evaluation, and AI usage telemetry')
+          )
+        ),
+        e('div', { className: 'progress-wrap' },
+          e('div', { className: 'progress-track', 'aria-hidden': 'true' }, e('div', { className: 'progress-bar', style: { width: pct + '%' } })),
+          e('div', { className: 'slide-count' }, String(index + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0'))
+        )
+      );
+    }
+
+    function Copy({ slide }) {
+      return e('section', { className: 'copy' },
+        e('div', { className: 'eyebrow' }, slide.eyebrow),
+        slide.title.length > 34 ? e('h2', null, slide.title) : e('h1', null, slide.title),
+        e('p', { className: 'lead' }, slide.lead),
+        slide.body ? e('p', { className: 'body' }, slide.body) : null,
+        slide.chips ? e('div', { className: 'chips' }, slide.chips.map((chip) => e('span', { className: 'chip', key: chip }, chip))) : null
+      );
+    }
+
+    function ImageVisual({ slide, hero }) {
+      return e('section', { className: 'visual' },
+        hero
+          ? e('div', { className: 'hero-shell' },
+              e('img', { src: slide.image, alt: slide.caption || slide.title }),
+              e('div', { className: 'hero-overlay' }, slide.caption)
+            )
+          : e(React.Fragment, null,
+              e('div', { className: 'screenshot' }, e('img', { src: slide.image, alt: slide.caption || slide.title })),
+              e('p', { className: 'caption' }, slide.caption)
+            )
+      );
+    }
+
+    function CardsSlide({ slide }) {
+      return e('article', { className: 'slide text-only' },
+        e('section', null,
+          e('div', { className: 'eyebrow' }, slide.eyebrow),
+          e('h2', null, slide.title),
+          e('p', { className: 'lead' }, slide.lead),
+          e('div', { className: 'grid-cards' }, slide.cards.map(([title, text]) =>
+            e('div', { className: 'card', key: title }, e('h3', null, title), e('p', null, text))
+          ))
+        )
+      );
+    }
+
+    function ArchitectureSlide({ slide }) {
+      return e('article', { className: 'slide' },
+        e(Copy, { slide }),
+        e('section', { className: 'architecture' },
+          slide.layers.map(([title, text], i) => e(React.Fragment, { key: title },
+            e('div', { className: 'arch-layer' }, e('h3', null, title), e('p', null, text)),
+            i < slide.layers.length - 1 ? e('div', { className: 'arrow', 'aria-hidden': 'true' }) : null
+          ))
+        )
+      );
+    }
+
+    function FlowSlide({ slide }) {
+      return e('article', { className: 'slide text-only' },
+        e('section', null,
+          e('div', { className: 'eyebrow' }, slide.eyebrow),
+          e('h2', null, slide.title),
+          e('p', { className: 'lead' }, slide.lead),
+          e('div', { className: 'flow' }, slide.rows.map(([label, text]) =>
+            e('div', { className: 'flow-row', key: label }, e('div', { className: 'flow-label' }, label), e('div', { className: 'flow-content' }, text))
+          ))
+        )
+      );
+    }
+
+    function MetricsSlide({ slide }) {
+      return e('article', { className: 'slide text-only' },
+        e('section', null,
+          e('div', { className: 'eyebrow' }, slide.eyebrow),
+          e('h2', null, slide.title),
+          e('p', { className: 'lead' }, slide.lead),
+          e('div', { className: 'metrics' }, slide.metrics.map(([num, label]) =>
+            e('div', { className: 'metric', key: num }, e('strong', null, num), e('span', null, label))
+          ))
+        )
+      );
+    }
+
+    function Slide({ slide }) {
+      if (slide.kind === 'cards') return e(CardsSlide, { slide });
+      if (slide.kind === 'architecture') return e(ArchitectureSlide, { slide });
+      if (slide.kind === 'flow') return e(FlowSlide, { slide });
+      if (slide.kind === 'metrics') return e(MetricsSlide, { slide });
+
+      const cls = slide.kind === 'image-left' ? 'slide image-left' : 'slide';
+      return e('article', { className: cls },
+        e(Copy, { slide }),
+        e(ImageVisual, { slide, hero: slide.kind === 'hero' })
+      );
+    }
+
+    function App() {
+      const [index, setIndex] = React.useState(0);
+      const go = React.useCallback((next) => {
+        setIndex(Math.max(0, Math.min(slides.length - 1, next)));
+      }, []);
+
+      React.useEffect(() => {
+        const onKey = (event) => {
+          if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+            event.preventDefault();
+            go(index + 1);
+          } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+            event.preventDefault();
+            go(index - 1);
+          } else if (event.key === 'Home') {
+            event.preventDefault();
+            go(0);
+          } else if (event.key === 'End') {
+            event.preventDefault();
+            go(slides.length - 1);
+          }
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+      }, [index, go]);
+
+      React.useEffect(() => {
+        window.location.hash = String(index + 1);
+      }, [index]);
+
+      React.useEffect(() => {
+        const n = Number((window.location.hash || '').replace('#', ''));
+        if (Number.isInteger(n) && n >= 1 && n <= slides.length) setIndex(n - 1);
+      }, []);
+
+      return e('div', { className: 'deck' },
+        e(Topbar, { index }),
+        e('main', { className: 'viewport' }, e(Slide, { slide: slides[index] })),
+        e('footer', { className: 'controls' },
+          e('div', { className: 'nav-buttons' },
+            e('button', { className: 'nav-btn', onClick: () => go(index - 1), disabled: index === 0, 'aria-label': 'Previous slide' }, '<'),
+            e('button', { className: 'nav-btn', onClick: () => go(index + 1), disabled: index === slides.length - 1, 'aria-label': 'Next slide' }, '>')
+          ),
+          e('div', { className: 'thumbs', 'aria-label': 'Slide navigation' }, slides.map((_, i) =>
+            e('button', { key: i, className: 'dot' + (i === index ? ' active' : ''), onClick: () => go(i), 'aria-label': 'Go to slide ' + (i + 1) })
+          )),
+          e('div', { className: 'hint' }, 'Use arrow keys, space, Home, End')
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(e(App));
+  </script>
+</body>
+</html>

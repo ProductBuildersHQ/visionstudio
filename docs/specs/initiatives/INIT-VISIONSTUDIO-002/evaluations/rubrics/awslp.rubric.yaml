@@ -1,0 +1,87 @@
+# AWS Leadership Principles rubric for Working Backwards document sets
+#
+# PROVISIONAL location: canonical home is specification-workflow-spec,
+# attached to the aws-one-way-door / aws-two-way-door workflows (per the
+# spec-stack layering rule: workflow data lands there, not in consumers).
+# Promote once validated on INIT-VISIONSTUDIO-002.
+#
+# Two uses:
+#   1. Per-document: each doc type applies its listed principles as one
+#      "AWS Leadership Principles" category inside its own eval.
+#   2. Aggregate: the awslp-aggregate rubric takes PRESS + FAQ +
+#      NARRATIVE-6P together and scores cross-document coherence per
+#      principle — catching contradictions invisible to single-doc evals.
+
+id: awslp-working-backwards
+version: 0.1.0
+scale: 1-5 per category; pass >= 3 with no blocker findings
+
+perDocument:
+  press:
+    principles:
+      - name: Customer Obsession
+        pass: "Headline and body lead with a named customer and their need; features appear as consequences"
+        fail: "Product-first framing; customer inferred"
+      - name: Think Big
+        pass: "The announced future is meaningfully larger than the current state yet reachable from it"
+        fail: "Announces the status quo, or a future with no path"
+      - name: Invent and Simplify
+        pass: "The differentiator is stated simply enough to repeat after one read"
+        fail: "Differentiation requires domain context to parse"
+      - name: Earn Trust
+        pass: "Every claim is funded by the plan; limits and privacy posture disclosed"
+        fail: "Claims the plan does not fund; hype adjectives doing load-bearing work"
+  faq:
+    principles:
+      - name: Earn Trust
+        pass: "The hardest customer and internal questions appear and get real answers"
+        fail: "Softball questions; marketing answers"
+      - name: Dive Deep
+        pass: "Answers are operationally specific (mechanisms, semantics, numbers)"
+        fail: "Answers restate intentions"
+      - name: Frugality
+        pass: "Cost questions answered with actual cost structure"
+        fail: "Cost unaddressed or waved at scale"
+      - name: Have Backbone; Disagree and Commit
+        pass: "Known objections are stated in their strongest form and answered"
+        fail: "Objections absent or strawmanned"
+  narrative-6p:
+    principles:
+      - name: Ownership
+        pass: "End-to-end accountability: gates, kill-conditions, and named follow-through commitments"
+        fail: "Success criteria without owners or consequences"
+      - name: Frugality
+        pass: "Investment sized; cheapest credible path chosen and defended"
+        fail: "Unsized ask or gold-plated default"
+      - name: Bias for Action
+        pass: "Starts now on the reversible parts; gates the irreversible"
+        fail: "Waits on certainty, or charges through one-way doors"
+      - name: Dive Deep
+        pass: "Numbers, baselines, and named data replacing hypotheses on a schedule"
+        fail: "Narrative without measurement"
+      - name: Are Right A Lot
+        pass: "Genuine alternatives weighed; disconfirming evidence sought (kill-conditions)"
+        fail: "Alternatives strawmanned; only confirming evidence"
+      - name: Deliver Results
+        pass: "Milestones are outcomes with measurable gates, not activities"
+        fail: "Activity milestones (built X) without outcome gates"
+
+aggregate:
+  inputs: [PRESS.md, FAQ.md, NARRATIVE-6P.md]
+  principles:
+    - name: Customer Obsession (cross-doc)
+      question: "Is the same customer, with the same need, at the center of all three documents?"
+    - name: Earn Trust (cross-doc)
+      question: "Does the plan fund every promise the press release and FAQ make? Unfunded promises are blocker findings."
+    - name: Frugality (cross-doc)
+      question: "Is the cost story identical across documents, and does the cheapest-path reasoning survive all three tellings?"
+    - name: Think Big vs Bias for Action
+      question: "Does the press release's ambition connect to the 6-pager's gated first steps without a missing middle?"
+    - name: Dive Deep (cross-doc)
+      question: "Do specific numbers agree wherever they appear in more than one document?"
+    - name: Deliver Results
+      question: "Can every externally visible claim be traced to a milestone gate?"
+    - name: Insist on the Highest Standards
+      question: "Does the document set carry its own quality loop (evals, re-judge commitments, versioned records)?"
+    - name: Success and Scale Bring Broad Responsibility
+      question: "Are privacy, consent, and data-stewardship obligations addressed proportionally to the ambition?"

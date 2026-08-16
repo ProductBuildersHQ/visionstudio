@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "v2",
+  "metadata": {
+    "document": "docs/specs/initiatives/INIT-VISIONSTUDIO-002/TRD.md",
+    "documentId": "INIT-VISIONSTUDIO-002-TRD",
+    "generatedAt": "2026-08-11T18:30:00Z",
+    "generatedBy": "structured-evaluation"
+  },
+  "reviewType": "trd",
+  "judge": {
+    "model": "claude-fable-5",
+    "evaluatedAt": "2026-08-11T18:30:00Z",
+    "note": "Self-evaluation by the authoring agent session; no per-type rubric defined in workflow aws-one-way-door — general judgment"
+  },
+  "rubricId": "general-judgment-v1",
+  "intScore": 4,
+  "confidence": 0.8,
+  "pass": true,
+  "categories": [
+    {
+      "category": "Architecture Decisions",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "Database-per-tenant decided with Dolt-specific rationale (isolation, per-tenant history, deletion semantics) and the rejected alternative named; settles a previously-open question",
+      "findings": []
+    },
+    {
+      "category": "Sync Contract",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "Explicit lists in both directions — what syncs and what never syncs — with the ACTS redaction gate as the boundary for excerpt-level content",
+      "findings": []
+    },
+    {
+      "category": "Serving Design",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Endpoint shapes pinned to consumer compatibility (releaselog IR so widgets re-point by URL), two-filter rail at serve time, CDN/ETag/CORS, static fallback with identical shapes",
+      "findings": [
+        {
+          "id": "trd-001",
+          "severity": "minor",
+          "description": "No latency or capacity targets even at hypothesis level — acknowledged as TPD scope, but a one-line budget (e.g., CDN-hit p99) would anchor the ops RMI"
+        }
+      ]
+    },
+    {
+      "category": "Open-Question Handling",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Sync conflict story, whole-DB vs projection push, and schema-version handshake are honestly deferred to the RMI-205 spike rather than hand-waved as solved",
+      "findings": [
+        {
+          "id": "trd-002",
+          "severity": "minor",
+          "description": "Schema-version handshake is named as mitigation but has no sketch — one paragraph on the version check would keep the spike scoped"
+        }
+      ]
+    }
+  ]
+}

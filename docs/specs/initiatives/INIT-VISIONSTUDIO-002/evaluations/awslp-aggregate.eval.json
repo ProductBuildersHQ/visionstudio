@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "v2",
+  "metadata": {
+    "document": "docs/specs/initiatives/INIT-VISIONSTUDIO-002/{PRESS.md,FAQ.md,NARRATIVE-6P.md}",
+    "documentId": "INIT-VISIONSTUDIO-002-AWSLP-AGGREGATE",
+    "generatedAt": "2026-08-11T19:40:00Z",
+    "generatedBy": "structured-evaluation",
+    "note": "Aggregate evaluation: takes all three Working Backwards documents as one input set and scores cross-document coherence per AWS Leadership Principle. Not recordable in the spec-judge DB (per-file targets only — tool gap flagged). Rubric: evaluations/rubrics/awslp.rubric.yaml v0.1.0 (provisional; canonical home = specification-workflow-spec)."
+  },
+  "reviewType": "awslp-aggregate",
+  "judge": {
+    "model": "claude-fable-5",
+    "evaluatedAt": "2026-08-11T19:40:00Z",
+    "note": "Self-evaluation by the authoring agent session"
+  },
+  "rubricId": "awslp-working-backwards@0.1.0",
+  "intScore": 4,
+  "confidence": 0.8,
+  "pass": true,
+  "categories": [
+    {
+      "category": "Customer Obsession (cross-doc)",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Same customer (solo builder using coding agents, privacy-sensitive) at the center of all three documents; the 6-pager honestly stages obsession (ourselves first, friendly users gated) rather than faking breadth",
+      "findings": []
+    },
+    {
+      "category": "Earn Trust (cross-doc)",
+      "intScore": 3,
+      "score": "partial",
+      "confidence": 0.85,
+      "reasoning": "Claims and plan are aligned with one exception found by this aggregation — exactly the class of defect per-document evals cannot see",
+      "findings": [
+        {
+          "id": "lp-001",
+          "severity": "major",
+          "description": "UNFUNDED PROMISE: press release ('watch CI health') and FAQ free-tier list both promise GitHub CI monitoring, and the free tier must exist at M3 — but no RMI in any phase built it. REMEDIATED in-session: RMI-VISIONSTUDIO-509 added to Phase 4.",
+          "status": "remediated"
+        },
+        {
+          "id": "lp-002",
+          "severity": "minor",
+          "description": "Forecasting appears in press/FAQ paid-plan lists with no RMI anywhere; tolerable because paid tiers are post-M4 by definition, but label it 'post-M4 scope' in the PRD tier sketch so the promise carries its own timeline"
+        }
+      ]
+    },
+    {
+      "category": "Frugality (cross-doc)",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "The strongest cross-document thread: identical cost story in all three tellings — $0-incremental repurposed server (recouping an existing expense), $10 Lightsail alternative, subscription-first Mode A analysis, metered-before-automated, research-report offset. The cheapest credible path is chosen and the reasoning survives every retelling",
+      "findings": []
+    },
+    {
+      "category": "Think Big vs Bias for Action",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.8,
+      "reasoning": "Press ambition (multi-tenant platform, adoption analytics, public launch) connects to the 6-pager's start-now-on-reversible-parts plan with no missing middle: the M-ladder is the bridge, and Phase 1-2 is deliberately the reversible subset",
+      "findings": []
+    },
+    {
+      "category": "Dive Deep (cross-doc)",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.8,
+      "reasoning": "Numbers agree wherever repeated (2-5 free projects, monthly cadence, >$100 MRR, ~$600 server, ~$10 Lightsail); depth gap is the known post-M1 baselines appendix, already committed in the 6-pager ask",
+      "findings": []
+    },
+    {
+      "category": "Deliver Results",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.8,
+      "reasoning": "Every externally visible claim traces to a milestone gate except the lp-001 CI-monitoring promise (remediated); milestones are outcome gates (sites serving unattended, tenants active weekly, MRR sustained), not activity lists",
+      "findings": []
+    },
+    {
+      "category": "Insist on the Highest Standards",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "The document set carries its own quality loop: three versioned judge records on the 6-pager (3-fail to 4-pass with seams fixed), a re-judge-before-M3 commitment written into the ask, and this LP aggregation as a second lens",
+      "findings": []
+    },
+    {
+      "category": "Success and Scale Bring Broad Responsibility",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.8,
+      "reasoning": "Proportional to stage: two-filter visibility rail at sync and serve, research consent with k-anonymity floor and unbundling path, deletion semantics (tenant = database), retention obligations named in the M5 gate review",
+      "findings": []
+    }
+  ]
+}

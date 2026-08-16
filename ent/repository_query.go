@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
@@ -28,6 +29,7 @@ type RepositoryQuery struct {
 	predicates        []predicate.Repository
 	withRoadmapItems  *RoadmapItemQuery
 	withSpecDocuments *SpecDocumentQuery
+	withReleases      *ReleaseQuery
 	withOrg           *OrganizationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -102,6 +104,28 @@ func (_q *RepositoryQuery) QuerySpecDocuments() *SpecDocumentQuery {
 			sqlgraph.From(repository.Table, repository.FieldID, selector),
 			sqlgraph.To(specdocument.Table, specdocument.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, repository.SpecDocumentsTable, repository.SpecDocumentsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryReleases chains the current query on the "releases" edge.
+func (_q *RepositoryQuery) QueryReleases() *ReleaseQuery {
+	query := (&ReleaseClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repository.Table, repository.FieldID, selector),
+			sqlgraph.To(release.Table, release.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, repository.ReleasesTable, repository.ReleasesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -325,6 +349,7 @@ func (_q *RepositoryQuery) Clone() *RepositoryQuery {
 		predicates:        append([]predicate.Repository{}, _q.predicates...),
 		withRoadmapItems:  _q.withRoadmapItems.Clone(),
 		withSpecDocuments: _q.withSpecDocuments.Clone(),
+		withReleases:      _q.withReleases.Clone(),
 		withOrg:           _q.withOrg.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
@@ -351,6 +376,17 @@ func (_q *RepositoryQuery) WithSpecDocuments(opts ...func(*SpecDocumentQuery)) *
 		opt(query)
 	}
 	_q.withSpecDocuments = query
+	return _q
+}
+
+// WithReleases tells the query-builder to eager-load the nodes that are connected to
+// the "releases" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RepositoryQuery) WithReleases(opts ...func(*ReleaseQuery)) *RepositoryQuery {
+	query := (&ReleaseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withReleases = query
 	return _q
 }
 
@@ -443,9 +479,10 @@ func (_q *RepositoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 	var (
 		nodes       = []*Repository{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withRoadmapItems != nil,
 			_q.withSpecDocuments != nil,
+			_q.withReleases != nil,
 			_q.withOrg != nil,
 		}
 	)
@@ -478,6 +515,13 @@ func (_q *RepositoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*R
 		if err := _q.loadSpecDocuments(ctx, query, nodes,
 			func(n *Repository) { n.Edges.SpecDocuments = []*SpecDocument{} },
 			func(n *Repository, e *SpecDocument) { n.Edges.SpecDocuments = append(n.Edges.SpecDocuments, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withReleases; query != nil {
+		if err := _q.loadReleases(ctx, query, nodes,
+			func(n *Repository) { n.Edges.Releases = []*Release{} },
+			func(n *Repository, e *Release) { n.Edges.Releases = append(n.Edges.Releases, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -536,6 +580,36 @@ func (_q *RepositoryQuery) loadSpecDocuments(ctx context.Context, query *SpecDoc
 	}
 	query.Where(predicate.SpecDocument(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(repository.SpecDocumentsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.RepositoryID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "repository_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *RepositoryQuery) loadReleases(ctx context.Context, query *ReleaseQuery, nodes []*Repository, init func(*Repository), assign func(*Repository, *Release)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Repository)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(release.FieldRepositoryID)
+	}
+	query.Where(predicate.Release(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(repository.ReleasesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

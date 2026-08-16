@@ -46,5 +46,8 @@ func (Initiative) Edges() []ent.Edge {
 		// Container edges
 		edge.From("program", Program.Type).Ref("initiatives").Unique(),
 		edge.From("workflow", SpecWorkflow.Type).Ref("initiatives").Unique(),
+		// Non-unique inverse => true M2M: a multi-repo initiative ships in
+		// many releases (one per repo per ship).
+		edge.From("releases", Release.Type).Ref("initiatives"),
 	}
 }

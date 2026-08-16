@@ -60,6 +60,8 @@ const (
 	EdgeProgram = "program"
 	// EdgeWorkflow holds the string denoting the workflow edge name in mutations.
 	EdgeWorkflow = "workflow"
+	// EdgeReleases holds the string denoting the releases edge name in mutations.
+	EdgeReleases = "releases"
 	// PhaseFieldID holds the string denoting the ID field of the Phase.
 	PhaseFieldID = "phase_id"
 	// RoadmapItemFieldID holds the string denoting the ID field of the RoadmapItem.
@@ -72,6 +74,8 @@ const (
 	ProgramFieldID = "program_id"
 	// SpecWorkflowFieldID holds the string denoting the ID field of the SpecWorkflow.
 	SpecWorkflowFieldID = "workflow_id"
+	// ReleaseFieldID holds the string denoting the ID field of the Release.
+	ReleaseFieldID = "release_id"
 	// Table holds the table name of the initiative in the database.
 	Table = "initiatives"
 	// PhasesTable is the table that holds the phases relation/edge.
@@ -116,6 +120,11 @@ const (
 	WorkflowInverseTable = "spec_workflows"
 	// WorkflowColumn is the table column denoting the workflow relation/edge.
 	WorkflowColumn = "spec_workflow_initiatives"
+	// ReleasesTable is the table that holds the releases relation/edge. The primary key declared below.
+	ReleasesTable = "release_initiatives"
+	// ReleasesInverseTable is the table name for the Release entity.
+	// It exists in this package in order to avoid circular dependency with the "release" package.
+	ReleasesInverseTable = "releases"
 )
 
 // Columns holds all SQL columns for initiative fields.
@@ -147,6 +156,12 @@ var ForeignKeys = []string{
 	"program_initiatives",
 	"spec_workflow_initiatives",
 }
+
+var (
+	// ReleasesPrimaryKey and ReleasesColumn2 are the table columns denoting the
+	// primary key for the releases relation (M2M).
+	ReleasesPrimaryKey = []string{"release_id", "initiative_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -352,6 +367,20 @@ func ByWorkflowField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newWorkflowStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByReleasesCount orders the results by releases count.
+func ByReleasesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newReleasesStep(), opts...)
+	}
+}
+
+// ByReleases orders the results by releases terms.
+func ByReleases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newReleasesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newPhasesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -392,5 +421,12 @@ func newWorkflowStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(WorkflowInverseTable, SpecWorkflowFieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, WorkflowTable, WorkflowColumn),
+	)
+}
+func newReleasesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ReleasesInverseTable, ReleaseFieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ReleasesTable, ReleasesPrimaryKey...),
 	)
 }

@@ -29,6 +29,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismroadmap"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repositorydependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
@@ -65,6 +66,7 @@ const (
 	TypePhase                = "Phase"
 	TypeProgram              = "Program"
 	TypeRMIDependency        = "RMIDependency"
+	TypeRelease              = "Release"
 	TypeRepository           = "Repository"
 	TypeRepositoryDependency = "RepositoryDependency"
 	TypeRoadmapItem          = "RoadmapItem"
@@ -3367,6 +3369,9 @@ type InitiativeMutation struct {
 	clearedprogram        bool
 	workflow              *string
 	clearedworkflow       bool
+	releases              map[string]struct{}
+	removedreleases       map[string]struct{}
+	clearedreleases       bool
 	done                  bool
 	oldValue              func(context.Context) (*Initiative, error)
 	predicates            []predicate.Initiative
@@ -4548,6 +4553,60 @@ func (m *InitiativeMutation) ResetWorkflow() {
 	m.clearedworkflow = false
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by ids.
+func (m *InitiativeMutation) AddReleaseIDs(ids ...string) {
+	if m.releases == nil {
+		m.releases = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.releases[ids[i]] = struct{}{}
+	}
+}
+
+// ClearReleases clears the "releases" edge to the Release entity.
+func (m *InitiativeMutation) ClearReleases() {
+	m.clearedreleases = true
+}
+
+// ReleasesCleared reports if the "releases" edge to the Release entity was cleared.
+func (m *InitiativeMutation) ReleasesCleared() bool {
+	return m.clearedreleases
+}
+
+// RemoveReleaseIDs removes the "releases" edge to the Release entity by IDs.
+func (m *InitiativeMutation) RemoveReleaseIDs(ids ...string) {
+	if m.removedreleases == nil {
+		m.removedreleases = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.releases, ids[i])
+		m.removedreleases[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedReleases returns the removed IDs of the "releases" edge to the Release entity.
+func (m *InitiativeMutation) RemovedReleasesIDs() (ids []string) {
+	for id := range m.removedreleases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ReleasesIDs returns the "releases" edge IDs in the mutation.
+func (m *InitiativeMutation) ReleasesIDs() (ids []string) {
+	for id := range m.releases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetReleases resets all changes to the "releases" edge.
+func (m *InitiativeMutation) ResetReleases() {
+	m.releases = nil
+	m.clearedreleases = false
+	m.removedreleases = nil
+}
+
 // Where appends a list predicates to the InitiativeMutation builder.
 func (m *InitiativeMutation) Where(ps ...predicate.Initiative) {
 	m.predicates = append(m.predicates, ps...)
@@ -5033,7 +5092,7 @@ func (m *InitiativeMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *InitiativeMutation) AddedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.phases != nil {
 		edges = append(edges, initiative.EdgePhases)
 	}
@@ -5051,6 +5110,9 @@ func (m *InitiativeMutation) AddedEdges() []string {
 	}
 	if m.workflow != nil {
 		edges = append(edges, initiative.EdgeWorkflow)
+	}
+	if m.releases != nil {
+		edges = append(edges, initiative.EdgeReleases)
 	}
 	return edges
 }
@@ -5091,13 +5153,19 @@ func (m *InitiativeMutation) AddedIDs(name string) []ent.Value {
 		if id := m.workflow; id != nil {
 			return []ent.Value{*id}
 		}
+	case initiative.EdgeReleases:
+		ids := make([]ent.Value, 0, len(m.releases))
+		for id := range m.releases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *InitiativeMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.removedphases != nil {
 		edges = append(edges, initiative.EdgePhases)
 	}
@@ -5109,6 +5177,9 @@ func (m *InitiativeMutation) RemovedEdges() []string {
 	}
 	if m.removedspec_documents != nil {
 		edges = append(edges, initiative.EdgeSpecDocuments)
+	}
+	if m.removedreleases != nil {
+		edges = append(edges, initiative.EdgeReleases)
 	}
 	return edges
 }
@@ -5141,13 +5212,19 @@ func (m *InitiativeMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case initiative.EdgeReleases:
+		ids := make([]ent.Value, 0, len(m.removedreleases))
+		for id := range m.removedreleases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *InitiativeMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 6)
+	edges := make([]string, 0, 7)
 	if m.clearedphases {
 		edges = append(edges, initiative.EdgePhases)
 	}
@@ -5165,6 +5242,9 @@ func (m *InitiativeMutation) ClearedEdges() []string {
 	}
 	if m.clearedworkflow {
 		edges = append(edges, initiative.EdgeWorkflow)
+	}
+	if m.clearedreleases {
+		edges = append(edges, initiative.EdgeReleases)
 	}
 	return edges
 }
@@ -5185,6 +5265,8 @@ func (m *InitiativeMutation) EdgeCleared(name string) bool {
 		return m.clearedprogram
 	case initiative.EdgeWorkflow:
 		return m.clearedworkflow
+	case initiative.EdgeReleases:
+		return m.clearedreleases
 	}
 	return false
 }
@@ -5224,6 +5306,9 @@ func (m *InitiativeMutation) ResetEdge(name string) error {
 		return nil
 	case initiative.EdgeWorkflow:
 		m.ResetWorkflow()
+		return nil
+	case initiative.EdgeReleases:
+		m.ResetReleases()
 		return nil
 	}
 	return fmt.Errorf("unknown Initiative edge %s", name)
@@ -14509,6 +14594,998 @@ func (m *RMIDependencyMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown RMIDependency edge %s", name)
 }
 
+// ReleaseMutation represents an operation that mutates the Release nodes in the graph.
+type ReleaseMutation struct {
+	config
+	op                   Op
+	typ                  string
+	id                   *string
+	tag                  *string
+	released_at          *time.Time
+	url                  *string
+	notes_ref            *string
+	body                 *string
+	created_at           *time.Time
+	updated_at           *time.Time
+	clearedFields        map[string]struct{}
+	repository           *string
+	clearedrepository    bool
+	initiatives          map[string]struct{}
+	removedinitiatives   map[string]struct{}
+	clearedinitiatives   bool
+	roadmap_items        map[string]struct{}
+	removedroadmap_items map[string]struct{}
+	clearedroadmap_items bool
+	done                 bool
+	oldValue             func(context.Context) (*Release, error)
+	predicates           []predicate.Release
+}
+
+var _ ent.Mutation = (*ReleaseMutation)(nil)
+
+// releaseOption allows management of the mutation configuration using functional options.
+type releaseOption func(*ReleaseMutation)
+
+// newReleaseMutation creates new mutation for the Release entity.
+func newReleaseMutation(c config, op Op, opts ...releaseOption) *ReleaseMutation {
+	m := &ReleaseMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeRelease,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withReleaseID sets the ID field of the mutation.
+func withReleaseID(id string) releaseOption {
+	return func(m *ReleaseMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Release
+		)
+		m.oldValue = func(ctx context.Context) (*Release, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Release.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withRelease sets the old Release of the mutation.
+func withRelease(node *Release) releaseOption {
+	return func(m *ReleaseMutation) {
+		m.oldValue = func(context.Context) (*Release, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ReleaseMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ReleaseMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Release entities.
+func (m *ReleaseMutation) SetID(id string) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ReleaseMutation) ID() (id string, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ReleaseMutation) IDs(ctx context.Context) ([]string, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []string{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Release.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetTag sets the "tag" field.
+func (m *ReleaseMutation) SetTag(s string) {
+	m.tag = &s
+}
+
+// Tag returns the value of the "tag" field in the mutation.
+func (m *ReleaseMutation) Tag() (r string, exists bool) {
+	v := m.tag
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTag returns the old "tag" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldTag(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTag is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTag requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTag: %w", err)
+	}
+	return oldValue.Tag, nil
+}
+
+// ResetTag resets all changes to the "tag" field.
+func (m *ReleaseMutation) ResetTag() {
+	m.tag = nil
+}
+
+// SetReleasedAt sets the "released_at" field.
+func (m *ReleaseMutation) SetReleasedAt(t time.Time) {
+	m.released_at = &t
+}
+
+// ReleasedAt returns the value of the "released_at" field in the mutation.
+func (m *ReleaseMutation) ReleasedAt() (r time.Time, exists bool) {
+	v := m.released_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReleasedAt returns the old "released_at" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldReleasedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReleasedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReleasedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReleasedAt: %w", err)
+	}
+	return oldValue.ReleasedAt, nil
+}
+
+// ResetReleasedAt resets all changes to the "released_at" field.
+func (m *ReleaseMutation) ResetReleasedAt() {
+	m.released_at = nil
+}
+
+// SetURL sets the "url" field.
+func (m *ReleaseMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *ReleaseMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ClearURL clears the value of the "url" field.
+func (m *ReleaseMutation) ClearURL() {
+	m.url = nil
+	m.clearedFields[release.FieldURL] = struct{}{}
+}
+
+// URLCleared returns if the "url" field was cleared in this mutation.
+func (m *ReleaseMutation) URLCleared() bool {
+	_, ok := m.clearedFields[release.FieldURL]
+	return ok
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *ReleaseMutation) ResetURL() {
+	m.url = nil
+	delete(m.clearedFields, release.FieldURL)
+}
+
+// SetNotesRef sets the "notes_ref" field.
+func (m *ReleaseMutation) SetNotesRef(s string) {
+	m.notes_ref = &s
+}
+
+// NotesRef returns the value of the "notes_ref" field in the mutation.
+func (m *ReleaseMutation) NotesRef() (r string, exists bool) {
+	v := m.notes_ref
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotesRef returns the old "notes_ref" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldNotesRef(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotesRef is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotesRef requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotesRef: %w", err)
+	}
+	return oldValue.NotesRef, nil
+}
+
+// ClearNotesRef clears the value of the "notes_ref" field.
+func (m *ReleaseMutation) ClearNotesRef() {
+	m.notes_ref = nil
+	m.clearedFields[release.FieldNotesRef] = struct{}{}
+}
+
+// NotesRefCleared returns if the "notes_ref" field was cleared in this mutation.
+func (m *ReleaseMutation) NotesRefCleared() bool {
+	_, ok := m.clearedFields[release.FieldNotesRef]
+	return ok
+}
+
+// ResetNotesRef resets all changes to the "notes_ref" field.
+func (m *ReleaseMutation) ResetNotesRef() {
+	m.notes_ref = nil
+	delete(m.clearedFields, release.FieldNotesRef)
+}
+
+// SetBody sets the "body" field.
+func (m *ReleaseMutation) SetBody(s string) {
+	m.body = &s
+}
+
+// Body returns the value of the "body" field in the mutation.
+func (m *ReleaseMutation) Body() (r string, exists bool) {
+	v := m.body
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBody returns the old "body" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldBody(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBody is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBody requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBody: %w", err)
+	}
+	return oldValue.Body, nil
+}
+
+// ClearBody clears the value of the "body" field.
+func (m *ReleaseMutation) ClearBody() {
+	m.body = nil
+	m.clearedFields[release.FieldBody] = struct{}{}
+}
+
+// BodyCleared returns if the "body" field was cleared in this mutation.
+func (m *ReleaseMutation) BodyCleared() bool {
+	_, ok := m.clearedFields[release.FieldBody]
+	return ok
+}
+
+// ResetBody resets all changes to the "body" field.
+func (m *ReleaseMutation) ResetBody() {
+	m.body = nil
+	delete(m.clearedFields, release.FieldBody)
+}
+
+// SetRepositoryID sets the "repository_id" field.
+func (m *ReleaseMutation) SetRepositoryID(s string) {
+	m.repository = &s
+}
+
+// RepositoryID returns the value of the "repository_id" field in the mutation.
+func (m *ReleaseMutation) RepositoryID() (r string, exists bool) {
+	v := m.repository
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRepositoryID returns the old "repository_id" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldRepositoryID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRepositoryID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRepositoryID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRepositoryID: %w", err)
+	}
+	return oldValue.RepositoryID, nil
+}
+
+// ResetRepositoryID resets all changes to the "repository_id" field.
+func (m *ReleaseMutation) ResetRepositoryID() {
+	m.repository = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ReleaseMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ReleaseMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ReleaseMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *ReleaseMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *ReleaseMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Release entity.
+// If the Release object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ReleaseMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *ReleaseMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// ClearRepository clears the "repository" edge to the Repository entity.
+func (m *ReleaseMutation) ClearRepository() {
+	m.clearedrepository = true
+	m.clearedFields[release.FieldRepositoryID] = struct{}{}
+}
+
+// RepositoryCleared reports if the "repository" edge to the Repository entity was cleared.
+func (m *ReleaseMutation) RepositoryCleared() bool {
+	return m.clearedrepository
+}
+
+// RepositoryIDs returns the "repository" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// RepositoryID instead. It exists only for internal usage by the builders.
+func (m *ReleaseMutation) RepositoryIDs() (ids []string) {
+	if id := m.repository; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetRepository resets all changes to the "repository" edge.
+func (m *ReleaseMutation) ResetRepository() {
+	m.repository = nil
+	m.clearedrepository = false
+}
+
+// AddInitiativeIDs adds the "initiatives" edge to the Initiative entity by ids.
+func (m *ReleaseMutation) AddInitiativeIDs(ids ...string) {
+	if m.initiatives == nil {
+		m.initiatives = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.initiatives[ids[i]] = struct{}{}
+	}
+}
+
+// ClearInitiatives clears the "initiatives" edge to the Initiative entity.
+func (m *ReleaseMutation) ClearInitiatives() {
+	m.clearedinitiatives = true
+}
+
+// InitiativesCleared reports if the "initiatives" edge to the Initiative entity was cleared.
+func (m *ReleaseMutation) InitiativesCleared() bool {
+	return m.clearedinitiatives
+}
+
+// RemoveInitiativeIDs removes the "initiatives" edge to the Initiative entity by IDs.
+func (m *ReleaseMutation) RemoveInitiativeIDs(ids ...string) {
+	if m.removedinitiatives == nil {
+		m.removedinitiatives = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.initiatives, ids[i])
+		m.removedinitiatives[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedInitiatives returns the removed IDs of the "initiatives" edge to the Initiative entity.
+func (m *ReleaseMutation) RemovedInitiativesIDs() (ids []string) {
+	for id := range m.removedinitiatives {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// InitiativesIDs returns the "initiatives" edge IDs in the mutation.
+func (m *ReleaseMutation) InitiativesIDs() (ids []string) {
+	for id := range m.initiatives {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetInitiatives resets all changes to the "initiatives" edge.
+func (m *ReleaseMutation) ResetInitiatives() {
+	m.initiatives = nil
+	m.clearedinitiatives = false
+	m.removedinitiatives = nil
+}
+
+// AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by ids.
+func (m *ReleaseMutation) AddRoadmapItemIDs(ids ...string) {
+	if m.roadmap_items == nil {
+		m.roadmap_items = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.roadmap_items[ids[i]] = struct{}{}
+	}
+}
+
+// ClearRoadmapItems clears the "roadmap_items" edge to the RoadmapItem entity.
+func (m *ReleaseMutation) ClearRoadmapItems() {
+	m.clearedroadmap_items = true
+}
+
+// RoadmapItemsCleared reports if the "roadmap_items" edge to the RoadmapItem entity was cleared.
+func (m *ReleaseMutation) RoadmapItemsCleared() bool {
+	return m.clearedroadmap_items
+}
+
+// RemoveRoadmapItemIDs removes the "roadmap_items" edge to the RoadmapItem entity by IDs.
+func (m *ReleaseMutation) RemoveRoadmapItemIDs(ids ...string) {
+	if m.removedroadmap_items == nil {
+		m.removedroadmap_items = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.roadmap_items, ids[i])
+		m.removedroadmap_items[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedRoadmapItems returns the removed IDs of the "roadmap_items" edge to the RoadmapItem entity.
+func (m *ReleaseMutation) RemovedRoadmapItemsIDs() (ids []string) {
+	for id := range m.removedroadmap_items {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// RoadmapItemsIDs returns the "roadmap_items" edge IDs in the mutation.
+func (m *ReleaseMutation) RoadmapItemsIDs() (ids []string) {
+	for id := range m.roadmap_items {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetRoadmapItems resets all changes to the "roadmap_items" edge.
+func (m *ReleaseMutation) ResetRoadmapItems() {
+	m.roadmap_items = nil
+	m.clearedroadmap_items = false
+	m.removedroadmap_items = nil
+}
+
+// Where appends a list predicates to the ReleaseMutation builder.
+func (m *ReleaseMutation) Where(ps ...predicate.Release) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the ReleaseMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *ReleaseMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Release, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *ReleaseMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *ReleaseMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Release).
+func (m *ReleaseMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ReleaseMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.tag != nil {
+		fields = append(fields, release.FieldTag)
+	}
+	if m.released_at != nil {
+		fields = append(fields, release.FieldReleasedAt)
+	}
+	if m.url != nil {
+		fields = append(fields, release.FieldURL)
+	}
+	if m.notes_ref != nil {
+		fields = append(fields, release.FieldNotesRef)
+	}
+	if m.body != nil {
+		fields = append(fields, release.FieldBody)
+	}
+	if m.repository != nil {
+		fields = append(fields, release.FieldRepositoryID)
+	}
+	if m.created_at != nil {
+		fields = append(fields, release.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, release.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ReleaseMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case release.FieldTag:
+		return m.Tag()
+	case release.FieldReleasedAt:
+		return m.ReleasedAt()
+	case release.FieldURL:
+		return m.URL()
+	case release.FieldNotesRef:
+		return m.NotesRef()
+	case release.FieldBody:
+		return m.Body()
+	case release.FieldRepositoryID:
+		return m.RepositoryID()
+	case release.FieldCreatedAt:
+		return m.CreatedAt()
+	case release.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ReleaseMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case release.FieldTag:
+		return m.OldTag(ctx)
+	case release.FieldReleasedAt:
+		return m.OldReleasedAt(ctx)
+	case release.FieldURL:
+		return m.OldURL(ctx)
+	case release.FieldNotesRef:
+		return m.OldNotesRef(ctx)
+	case release.FieldBody:
+		return m.OldBody(ctx)
+	case release.FieldRepositoryID:
+		return m.OldRepositoryID(ctx)
+	case release.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case release.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Release field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ReleaseMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case release.FieldTag:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTag(v)
+		return nil
+	case release.FieldReleasedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReleasedAt(v)
+		return nil
+	case release.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
+		return nil
+	case release.FieldNotesRef:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotesRef(v)
+		return nil
+	case release.FieldBody:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBody(v)
+		return nil
+	case release.FieldRepositoryID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRepositoryID(v)
+		return nil
+	case release.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case release.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Release field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ReleaseMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ReleaseMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ReleaseMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Release numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ReleaseMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(release.FieldURL) {
+		fields = append(fields, release.FieldURL)
+	}
+	if m.FieldCleared(release.FieldNotesRef) {
+		fields = append(fields, release.FieldNotesRef)
+	}
+	if m.FieldCleared(release.FieldBody) {
+		fields = append(fields, release.FieldBody)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ReleaseMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ReleaseMutation) ClearField(name string) error {
+	switch name {
+	case release.FieldURL:
+		m.ClearURL()
+		return nil
+	case release.FieldNotesRef:
+		m.ClearNotesRef()
+		return nil
+	case release.FieldBody:
+		m.ClearBody()
+		return nil
+	}
+	return fmt.Errorf("unknown Release nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ReleaseMutation) ResetField(name string) error {
+	switch name {
+	case release.FieldTag:
+		m.ResetTag()
+		return nil
+	case release.FieldReleasedAt:
+		m.ResetReleasedAt()
+		return nil
+	case release.FieldURL:
+		m.ResetURL()
+		return nil
+	case release.FieldNotesRef:
+		m.ResetNotesRef()
+		return nil
+	case release.FieldBody:
+		m.ResetBody()
+		return nil
+	case release.FieldRepositoryID:
+		m.ResetRepositoryID()
+		return nil
+	case release.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case release.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Release field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ReleaseMutation) AddedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.repository != nil {
+		edges = append(edges, release.EdgeRepository)
+	}
+	if m.initiatives != nil {
+		edges = append(edges, release.EdgeInitiatives)
+	}
+	if m.roadmap_items != nil {
+		edges = append(edges, release.EdgeRoadmapItems)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ReleaseMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case release.EdgeRepository:
+		if id := m.repository; id != nil {
+			return []ent.Value{*id}
+		}
+	case release.EdgeInitiatives:
+		ids := make([]ent.Value, 0, len(m.initiatives))
+		for id := range m.initiatives {
+			ids = append(ids, id)
+		}
+		return ids
+	case release.EdgeRoadmapItems:
+		ids := make([]ent.Value, 0, len(m.roadmap_items))
+		for id := range m.roadmap_items {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ReleaseMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.removedinitiatives != nil {
+		edges = append(edges, release.EdgeInitiatives)
+	}
+	if m.removedroadmap_items != nil {
+		edges = append(edges, release.EdgeRoadmapItems)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ReleaseMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case release.EdgeInitiatives:
+		ids := make([]ent.Value, 0, len(m.removedinitiatives))
+		for id := range m.removedinitiatives {
+			ids = append(ids, id)
+		}
+		return ids
+	case release.EdgeRoadmapItems:
+		ids := make([]ent.Value, 0, len(m.removedroadmap_items))
+		for id := range m.removedroadmap_items {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ReleaseMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 3)
+	if m.clearedrepository {
+		edges = append(edges, release.EdgeRepository)
+	}
+	if m.clearedinitiatives {
+		edges = append(edges, release.EdgeInitiatives)
+	}
+	if m.clearedroadmap_items {
+		edges = append(edges, release.EdgeRoadmapItems)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ReleaseMutation) EdgeCleared(name string) bool {
+	switch name {
+	case release.EdgeRepository:
+		return m.clearedrepository
+	case release.EdgeInitiatives:
+		return m.clearedinitiatives
+	case release.EdgeRoadmapItems:
+		return m.clearedroadmap_items
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ReleaseMutation) ClearEdge(name string) error {
+	switch name {
+	case release.EdgeRepository:
+		m.ClearRepository()
+		return nil
+	}
+	return fmt.Errorf("unknown Release unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ReleaseMutation) ResetEdge(name string) error {
+	switch name {
+	case release.EdgeRepository:
+		m.ResetRepository()
+		return nil
+	case release.EdgeInitiatives:
+		m.ResetInitiatives()
+		return nil
+	case release.EdgeRoadmapItems:
+		m.ResetRoadmapItems()
+		return nil
+	}
+	return fmt.Errorf("unknown Release edge %s", name)
+}
+
 // RepositoryMutation represents an operation that mutates the Repository nodes in the graph.
 type RepositoryMutation struct {
 	config
@@ -14531,6 +15608,9 @@ type RepositoryMutation struct {
 	spec_documents        map[string]struct{}
 	removedspec_documents map[string]struct{}
 	clearedspec_documents bool
+	releases              map[string]struct{}
+	removedreleases       map[string]struct{}
+	clearedreleases       bool
 	org                   *string
 	clearedorg            bool
 	done                  bool
@@ -15175,6 +16255,60 @@ func (m *RepositoryMutation) ResetSpecDocuments() {
 	m.removedspec_documents = nil
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by ids.
+func (m *RepositoryMutation) AddReleaseIDs(ids ...string) {
+	if m.releases == nil {
+		m.releases = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.releases[ids[i]] = struct{}{}
+	}
+}
+
+// ClearReleases clears the "releases" edge to the Release entity.
+func (m *RepositoryMutation) ClearReleases() {
+	m.clearedreleases = true
+}
+
+// ReleasesCleared reports if the "releases" edge to the Release entity was cleared.
+func (m *RepositoryMutation) ReleasesCleared() bool {
+	return m.clearedreleases
+}
+
+// RemoveReleaseIDs removes the "releases" edge to the Release entity by IDs.
+func (m *RepositoryMutation) RemoveReleaseIDs(ids ...string) {
+	if m.removedreleases == nil {
+		m.removedreleases = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.releases, ids[i])
+		m.removedreleases[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedReleases returns the removed IDs of the "releases" edge to the Release entity.
+func (m *RepositoryMutation) RemovedReleasesIDs() (ids []string) {
+	for id := range m.removedreleases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ReleasesIDs returns the "releases" edge IDs in the mutation.
+func (m *RepositoryMutation) ReleasesIDs() (ids []string) {
+	for id := range m.releases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetReleases resets all changes to the "releases" edge.
+func (m *RepositoryMutation) ResetReleases() {
+	m.releases = nil
+	m.clearedreleases = false
+	m.removedreleases = nil
+}
+
 // SetOrgID sets the "org" edge to the Organization entity by id.
 func (m *RepositoryMutation) SetOrgID(id string) {
 	m.org = &id
@@ -15534,12 +16668,15 @@ func (m *RepositoryMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RepositoryMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.roadmap_items != nil {
 		edges = append(edges, repository.EdgeRoadmapItems)
 	}
 	if m.spec_documents != nil {
 		edges = append(edges, repository.EdgeSpecDocuments)
+	}
+	if m.releases != nil {
+		edges = append(edges, repository.EdgeReleases)
 	}
 	if m.org != nil {
 		edges = append(edges, repository.EdgeOrg)
@@ -15563,6 +16700,12 @@ func (m *RepositoryMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case repository.EdgeReleases:
+		ids := make([]ent.Value, 0, len(m.releases))
+		for id := range m.releases {
+			ids = append(ids, id)
+		}
+		return ids
 	case repository.EdgeOrg:
 		if id := m.org; id != nil {
 			return []ent.Value{*id}
@@ -15573,12 +16716,15 @@ func (m *RepositoryMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RepositoryMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedroadmap_items != nil {
 		edges = append(edges, repository.EdgeRoadmapItems)
 	}
 	if m.removedspec_documents != nil {
 		edges = append(edges, repository.EdgeSpecDocuments)
+	}
+	if m.removedreleases != nil {
+		edges = append(edges, repository.EdgeReleases)
 	}
 	return edges
 }
@@ -15599,18 +16745,27 @@ func (m *RepositoryMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case repository.EdgeReleases:
+		ids := make([]ent.Value, 0, len(m.removedreleases))
+		for id := range m.removedreleases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RepositoryMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedroadmap_items {
 		edges = append(edges, repository.EdgeRoadmapItems)
 	}
 	if m.clearedspec_documents {
 		edges = append(edges, repository.EdgeSpecDocuments)
+	}
+	if m.clearedreleases {
+		edges = append(edges, repository.EdgeReleases)
 	}
 	if m.clearedorg {
 		edges = append(edges, repository.EdgeOrg)
@@ -15626,6 +16781,8 @@ func (m *RepositoryMutation) EdgeCleared(name string) bool {
 		return m.clearedroadmap_items
 	case repository.EdgeSpecDocuments:
 		return m.clearedspec_documents
+	case repository.EdgeReleases:
+		return m.clearedreleases
 	case repository.EdgeOrg:
 		return m.clearedorg
 	}
@@ -15652,6 +16809,9 @@ func (m *RepositoryMutation) ResetEdge(name string) error {
 		return nil
 	case repository.EdgeSpecDocuments:
 		m.ResetSpecDocuments()
+		return nil
+	case repository.EdgeReleases:
+		m.ResetReleases()
 		return nil
 	case repository.EdgeOrg:
 		m.ResetOrg()
@@ -16126,6 +17286,9 @@ type RoadmapItemMutation struct {
 	evidence                  map[string]struct{}
 	removedevidence           map[string]struct{}
 	clearedevidence           bool
+	releases                  map[string]struct{}
+	removedreleases           map[string]struct{}
+	clearedreleases           bool
 	done                      bool
 	oldValue                  func(context.Context) (*RoadmapItem, error)
 	predicates                []predicate.RoadmapItem
@@ -16958,6 +18121,60 @@ func (m *RoadmapItemMutation) ResetEvidence() {
 	m.removedevidence = nil
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by ids.
+func (m *RoadmapItemMutation) AddReleaseIDs(ids ...string) {
+	if m.releases == nil {
+		m.releases = make(map[string]struct{})
+	}
+	for i := range ids {
+		m.releases[ids[i]] = struct{}{}
+	}
+}
+
+// ClearReleases clears the "releases" edge to the Release entity.
+func (m *RoadmapItemMutation) ClearReleases() {
+	m.clearedreleases = true
+}
+
+// ReleasesCleared reports if the "releases" edge to the Release entity was cleared.
+func (m *RoadmapItemMutation) ReleasesCleared() bool {
+	return m.clearedreleases
+}
+
+// RemoveReleaseIDs removes the "releases" edge to the Release entity by IDs.
+func (m *RoadmapItemMutation) RemoveReleaseIDs(ids ...string) {
+	if m.removedreleases == nil {
+		m.removedreleases = make(map[string]struct{})
+	}
+	for i := range ids {
+		delete(m.releases, ids[i])
+		m.removedreleases[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedReleases returns the removed IDs of the "releases" edge to the Release entity.
+func (m *RoadmapItemMutation) RemovedReleasesIDs() (ids []string) {
+	for id := range m.removedreleases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ReleasesIDs returns the "releases" edge IDs in the mutation.
+func (m *RoadmapItemMutation) ReleasesIDs() (ids []string) {
+	for id := range m.releases {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetReleases resets all changes to the "releases" edge.
+func (m *RoadmapItemMutation) ResetReleases() {
+	m.releases = nil
+	m.clearedreleases = false
+	m.removedreleases = nil
+}
+
 // Where appends a list predicates to the RoadmapItemMutation builder.
 func (m *RoadmapItemMutation) Where(ps ...predicate.RoadmapItem) {
 	m.predicates = append(m.predicates, ps...)
@@ -17309,7 +18526,7 @@ func (m *RoadmapItemMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RoadmapItemMutation) AddedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.initiative != nil {
 		edges = append(edges, roadmapitem.EdgeInitiative)
 	}
@@ -17324,6 +18541,9 @@ func (m *RoadmapItemMutation) AddedEdges() []string {
 	}
 	if m.evidence != nil {
 		edges = append(edges, roadmapitem.EdgeEvidence)
+	}
+	if m.releases != nil {
+		edges = append(edges, roadmapitem.EdgeReleases)
 	}
 	return edges
 }
@@ -17356,18 +18576,27 @@ func (m *RoadmapItemMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case roadmapitem.EdgeReleases:
+		ids := make([]ent.Value, 0, len(m.releases))
+		for id := range m.releases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RoadmapItemMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.removedassignments != nil {
 		edges = append(edges, roadmapitem.EdgeAssignments)
 	}
 	if m.removedevidence != nil {
 		edges = append(edges, roadmapitem.EdgeEvidence)
+	}
+	if m.removedreleases != nil {
+		edges = append(edges, roadmapitem.EdgeReleases)
 	}
 	return edges
 }
@@ -17388,13 +18617,19 @@ func (m *RoadmapItemMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case roadmapitem.EdgeReleases:
+		ids := make([]ent.Value, 0, len(m.removedreleases))
+		for id := range m.removedreleases {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RoadmapItemMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 5)
+	edges := make([]string, 0, 6)
 	if m.clearedinitiative {
 		edges = append(edges, roadmapitem.EdgeInitiative)
 	}
@@ -17409,6 +18644,9 @@ func (m *RoadmapItemMutation) ClearedEdges() []string {
 	}
 	if m.clearedevidence {
 		edges = append(edges, roadmapitem.EdgeEvidence)
+	}
+	if m.clearedreleases {
+		edges = append(edges, roadmapitem.EdgeReleases)
 	}
 	return edges
 }
@@ -17427,6 +18665,8 @@ func (m *RoadmapItemMutation) EdgeCleared(name string) bool {
 		return m.clearedassignments
 	case roadmapitem.EdgeEvidence:
 		return m.clearedevidence
+	case roadmapitem.EdgeReleases:
+		return m.clearedreleases
 	}
 	return false
 }
@@ -17466,6 +18706,9 @@ func (m *RoadmapItemMutation) ResetEdge(name string) error {
 		return nil
 	case roadmapitem.EdgeEvidence:
 		m.ResetEvidence()
+		return nil
+	case roadmapitem.EdgeReleases:
+		m.ResetReleases()
 		return nil
 	}
 	return fmt.Errorf("unknown RoadmapItem edge %s", name)

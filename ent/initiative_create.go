@@ -14,6 +14,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
@@ -332,6 +333,21 @@ func (_c *InitiativeCreate) SetNillableWorkflowID(id *string) *InitiativeCreate 
 // SetWorkflow sets the "workflow" edge to the SpecWorkflow entity.
 func (_c *InitiativeCreate) SetWorkflow(v *SpecWorkflow) *InitiativeCreate {
 	return _c.SetWorkflowID(v.ID)
+}
+
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_c *InitiativeCreate) AddReleaseIDs(ids ...string) *InitiativeCreate {
+	_c.mutation.AddReleaseIDs(ids...)
+	return _c
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_c *InitiativeCreate) AddReleases(v ...*Release) *InitiativeCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddReleaseIDs(ids...)
 }
 
 // Mutation returns the InitiativeMutation object of the builder.
@@ -657,6 +673,22 @@ func (_c *InitiativeCreate) createSpec() (*Initiative, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.spec_workflow_initiatives = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

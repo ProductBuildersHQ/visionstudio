@@ -775,6 +775,29 @@ func HasEvidenceWith(preds ...predicate.DeliveryEvidence) predicate.RoadmapItem 
 	})
 }
 
+// HasReleases applies the HasEdge predicate on the "releases" edge.
+func HasReleases() predicate.RoadmapItem {
+	return predicate.RoadmapItem(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ReleasesTable, ReleasesPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasReleasesWith applies the HasEdge predicate on the "releases" edge with a given conditions (other predicates).
+func HasReleasesWith(preds ...predicate.Release) predicate.RoadmapItem {
+	return predicate.RoadmapItem(func(s *sql.Selector) {
+		step := newReleasesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.RoadmapItem) predicate.RoadmapItem {
 	return predicate.RoadmapItem(sql.AndPredicates(predicates...))

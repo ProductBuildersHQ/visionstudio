@@ -23,6 +23,7 @@ type MemStore struct {
 	repoDeps            []*RepositoryDependency
 	organizations       map[string]*Organization
 	people              map[string]*Person
+	releases            map[string]*Release
 	workflows           map[string]*SpecWorkflow
 	judgeRubrics        map[string]*JudgeRubric
 	judgeResults        map[string]*JudgeResult
@@ -48,6 +49,7 @@ func NewMemStore() *MemStore {
 		repositories:        make(map[string]*Repository),
 		organizations:       make(map[string]*Organization),
 		people:              make(map[string]*Person),
+		releases:            make(map[string]*Release),
 		workflows:           make(map[string]*SpecWorkflow),
 		judgeRubrics:        make(map[string]*JudgeRubric),
 		judgeResults:        make(map[string]*JudgeResult),

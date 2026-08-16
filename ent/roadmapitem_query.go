@@ -17,6 +17,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 )
@@ -33,6 +34,7 @@ type RoadmapItemQuery struct {
 	withRepository  *RepositoryQuery
 	withAssignments *AssignmentQuery
 	withEvidence    *DeliveryEvidenceQuery
+	withReleases    *ReleaseQuery
 	withFKs         bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -173,6 +175,28 @@ func (_q *RoadmapItemQuery) QueryEvidence() *DeliveryEvidenceQuery {
 			sqlgraph.From(roadmapitem.Table, roadmapitem.FieldID, selector),
 			sqlgraph.To(deliveryevidence.Table, deliveryevidence.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, roadmapitem.EvidenceTable, roadmapitem.EvidenceColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryReleases chains the current query on the "releases" edge.
+func (_q *RoadmapItemQuery) QueryReleases() *ReleaseQuery {
+	query := (&ReleaseClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(roadmapitem.Table, roadmapitem.FieldID, selector),
+			sqlgraph.To(release.Table, release.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, roadmapitem.ReleasesTable, roadmapitem.ReleasesPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -377,6 +401,7 @@ func (_q *RoadmapItemQuery) Clone() *RoadmapItemQuery {
 		withRepository:  _q.withRepository.Clone(),
 		withAssignments: _q.withAssignments.Clone(),
 		withEvidence:    _q.withEvidence.Clone(),
+		withReleases:    _q.withReleases.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -435,6 +460,17 @@ func (_q *RoadmapItemQuery) WithEvidence(opts ...func(*DeliveryEvidenceQuery)) *
 		opt(query)
 	}
 	_q.withEvidence = query
+	return _q
+}
+
+// WithReleases tells the query-builder to eager-load the nodes that are connected to
+// the "releases" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *RoadmapItemQuery) WithReleases(opts ...func(*ReleaseQuery)) *RoadmapItemQuery {
+	query := (&ReleaseClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withReleases = query
 	return _q
 }
 
@@ -517,12 +553,13 @@ func (_q *RoadmapItemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 		nodes       = []*RoadmapItem{}
 		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [5]bool{
+		loadedTypes = [6]bool{
 			_q.withInitiative != nil,
 			_q.withPhase != nil,
 			_q.withRepository != nil,
 			_q.withAssignments != nil,
 			_q.withEvidence != nil,
+			_q.withReleases != nil,
 		}
 	)
 	if _q.withInitiative != nil || _q.withPhase != nil || _q.withRepository != nil {
@@ -578,6 +615,13 @@ func (_q *RoadmapItemQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 		if err := _q.loadEvidence(ctx, query, nodes,
 			func(n *RoadmapItem) { n.Edges.Evidence = []*DeliveryEvidence{} },
 			func(n *RoadmapItem, e *DeliveryEvidence) { n.Edges.Evidence = append(n.Edges.Evidence, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withReleases; query != nil {
+		if err := _q.loadReleases(ctx, query, nodes,
+			func(n *RoadmapItem) { n.Edges.Releases = []*Release{} },
+			func(n *RoadmapItem, e *Release) { n.Edges.Releases = append(n.Edges.Releases, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -739,6 +783,67 @@ func (_q *RoadmapItemQuery) loadEvidence(ctx context.Context, query *DeliveryEvi
 			return fmt.Errorf(`unexpected referenced foreign-key "roadmap_item_evidence" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (_q *RoadmapItemQuery) loadReleases(ctx context.Context, query *ReleaseQuery, nodes []*RoadmapItem, init func(*RoadmapItem), assign func(*RoadmapItem, *Release)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[string]*RoadmapItem)
+	nids := make(map[string]map[*RoadmapItem]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(roadmapitem.ReleasesTable)
+		s.Join(joinT).On(s.C(release.FieldID), joinT.C(roadmapitem.ReleasesPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(roadmapitem.ReleasesPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(roadmapitem.ReleasesPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullString)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullString).String
+				inValue := values[1].(*sql.NullString).String
+				if nids[inValue] == nil {
+					nids[inValue] = map[*RoadmapItem]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*Release](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "releases" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

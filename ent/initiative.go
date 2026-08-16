@@ -78,9 +78,11 @@ type InitiativeEdges struct {
 	Program *Program `json:"program,omitempty"`
 	// Workflow holds the value of the workflow edge.
 	Workflow *SpecWorkflow `json:"workflow,omitempty"`
+	// Releases holds the value of the releases edge.
+	Releases []*Release `json:"releases,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [6]bool
+	loadedTypes [7]bool
 }
 
 // PhasesOrErr returns the Phases value or an error if the edge
@@ -139,6 +141,15 @@ func (e InitiativeEdges) WorkflowOrErr() (*SpecWorkflow, error) {
 		return nil, &NotFoundError{label: specworkflow.Label}
 	}
 	return nil, &NotLoadedError{edge: "workflow"}
+}
+
+// ReleasesOrErr returns the Releases value or an error if the edge
+// was not loaded in eager-loading.
+func (e InitiativeEdges) ReleasesOrErr() ([]*Release, error) {
+	if e.loadedTypes[6] {
+		return e.Releases, nil
+	}
+	return nil, &NotLoadedError{edge: "releases"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -349,6 +360,11 @@ func (_m *Initiative) QueryProgram() *ProgramQuery {
 // QueryWorkflow queries the "workflow" edge of the Initiative entity.
 func (_m *Initiative) QueryWorkflow() *SpecWorkflowQuery {
 	return NewInitiativeClient(_m.config).QueryWorkflow(_m)
+}
+
+// QueryReleases queries the "releases" edge of the Initiative entity.
+func (_m *Initiative) QueryReleases() *ReleaseQuery {
+	return NewInitiativeClient(_m.config).QueryReleases(_m)
 }
 
 // Update returns a builder for updating this Initiative.

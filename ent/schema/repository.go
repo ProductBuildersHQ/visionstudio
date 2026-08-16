@@ -31,6 +31,7 @@ func (Repository) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("roadmap_items", RoadmapItem.Type),
 		edge.To("spec_documents", SpecDocument.Type),
+		edge.To("releases", Release.Type),
 		edge.From("org", Organization.Type).
 			Ref("repositories").
 			Field("organization_id").

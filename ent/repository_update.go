@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
@@ -230,6 +231,21 @@ func (_u *RepositoryUpdate) AddSpecDocuments(v ...*SpecDocument) *RepositoryUpda
 	return _u.AddSpecDocumentIDs(ids...)
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_u *RepositoryUpdate) AddReleaseIDs(ids ...string) *RepositoryUpdate {
+	_u.mutation.AddReleaseIDs(ids...)
+	return _u
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_u *RepositoryUpdate) AddReleases(v ...*Release) *RepositoryUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReleaseIDs(ids...)
+}
+
 // SetOrgID sets the "org" edge to the Organization entity by ID.
 func (_u *RepositoryUpdate) SetOrgID(id string) *RepositoryUpdate {
 	_u.mutation.SetOrgID(id)
@@ -294,6 +310,27 @@ func (_u *RepositoryUpdate) RemoveSpecDocuments(v ...*SpecDocument) *RepositoryU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpecDocumentIDs(ids...)
+}
+
+// ClearReleases clears all "releases" edges to the Release entity.
+func (_u *RepositoryUpdate) ClearReleases() *RepositoryUpdate {
+	_u.mutation.ClearReleases()
+	return _u
+}
+
+// RemoveReleaseIDs removes the "releases" edge to Release entities by IDs.
+func (_u *RepositoryUpdate) RemoveReleaseIDs(ids ...string) *RepositoryUpdate {
+	_u.mutation.RemoveReleaseIDs(ids...)
+	return _u
+}
+
+// RemoveReleases removes "releases" edges to Release entities.
+func (_u *RepositoryUpdate) RemoveReleases(v ...*Release) *RepositoryUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReleaseIDs(ids...)
 }
 
 // ClearOrg clears the "org" edge to the Organization entity.
@@ -518,6 +555,51 @@ func (_u *RepositoryUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReleasesIDs(); len(nodes) > 0 && !_u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -774,6 +856,21 @@ func (_u *RepositoryUpdateOne) AddSpecDocuments(v ...*SpecDocument) *RepositoryU
 	return _u.AddSpecDocumentIDs(ids...)
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_u *RepositoryUpdateOne) AddReleaseIDs(ids ...string) *RepositoryUpdateOne {
+	_u.mutation.AddReleaseIDs(ids...)
+	return _u
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_u *RepositoryUpdateOne) AddReleases(v ...*Release) *RepositoryUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReleaseIDs(ids...)
+}
+
 // SetOrgID sets the "org" edge to the Organization entity by ID.
 func (_u *RepositoryUpdateOne) SetOrgID(id string) *RepositoryUpdateOne {
 	_u.mutation.SetOrgID(id)
@@ -838,6 +935,27 @@ func (_u *RepositoryUpdateOne) RemoveSpecDocuments(v ...*SpecDocument) *Reposito
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveSpecDocumentIDs(ids...)
+}
+
+// ClearReleases clears all "releases" edges to the Release entity.
+func (_u *RepositoryUpdateOne) ClearReleases() *RepositoryUpdateOne {
+	_u.mutation.ClearReleases()
+	return _u
+}
+
+// RemoveReleaseIDs removes the "releases" edge to Release entities by IDs.
+func (_u *RepositoryUpdateOne) RemoveReleaseIDs(ids ...string) *RepositoryUpdateOne {
+	_u.mutation.RemoveReleaseIDs(ids...)
+	return _u
+}
+
+// RemoveReleases removes "releases" edges to Release entities.
+func (_u *RepositoryUpdateOne) RemoveReleases(v ...*Release) *RepositoryUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReleaseIDs(ids...)
 }
 
 // ClearOrg clears the "org" edge to the Organization entity.
@@ -1092,6 +1210,51 @@ func (_u *RepositoryUpdateOne) sqlSave(ctx context.Context) (_node *Repository, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReleasesIDs(); len(nodes) > 0 && !_u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

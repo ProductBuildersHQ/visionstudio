@@ -859,6 +859,29 @@ func HasSpecDocumentsWith(preds ...predicate.SpecDocument) predicate.Repository 
 	})
 }
 
+// HasReleases applies the HasEdge predicate on the "releases" edge.
+func HasReleases() predicate.Repository {
+	return predicate.Repository(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, ReleasesTable, ReleasesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasReleasesWith applies the HasEdge predicate on the "releases" edge with a given conditions (other predicates).
+func HasReleasesWith(preds ...predicate.Release) predicate.Repository {
+	return predicate.Repository(func(s *sql.Selector) {
+		step := newReleasesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasOrg applies the HasEdge predicate on the "org" edge.
 func HasOrg() predicate.Repository {
 	return predicate.Repository(func(s *sql.Selector) {

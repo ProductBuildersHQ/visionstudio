@@ -60,6 +60,9 @@ type Program func(*sql.Selector)
 // RMIDependency is the predicate function for rmidependency builders.
 type RMIDependency func(*sql.Selector)
 
+// Release is the predicate function for release builders.
+type Release func(*sql.Selector)
+
 // Repository is the predicate function for repository builders.
 type Repository func(*sql.Selector)
 

@@ -35,5 +35,7 @@ func (RoadmapItem) Edges() []ent.Edge {
 		edge.From("repository", Repository.Type).Ref("roadmap_items").Unique().Required(),
 		edge.To("assignments", Assignment.Type),
 		edge.To("evidence", DeliveryEvidence.Type),
+		// Non-unique inverse => true M2M with releases.
+		edge.From("releases", Release.Type).Ref("roadmap_items"),
 	}
 }

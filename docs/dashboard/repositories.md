@@ -14,7 +14,25 @@ If no repositories are registered, the panel shows an empty state instead.
 visionstudio registry add --org <github-org> --name <repo-name> --path /path/to/your/repo
 ```
 
-See `visionstudio registry --help` for the full set of registry commands (`add`, `list`, `deps`, `scan`, `unpushed`).
+`registry add` warns (without blocking) if `--path` is missing, isn't a directory, isn't a git working tree, or collides with an already-registered repository's path or git remote.
+
+### Managing repository entries
+
+```bash
+visionstudio registry update <repo-id> [--path --org --branch --name]
+visionstudio registry archive <repo-id> --superseded-by <new-id> [--reassign-rmis] [--reason "..."]
+visionstudio registry remove <repo-id> --force
+visionstudio registry doctor
+```
+
+- `update` repoints or corrects an entry's metadata. `--org`/`--name` edit metadata only — they don't rename the repository ID.
+- `archive` marks a repository archived without deleting its record (or the RMIs/releases/spec documents that reference it) — the preferred way to handle a merge or rename. `--superseded-by` records the replacement repository; add `--reassign-rmis` to also repoint every RMI on this repository to the replacement in the same operation (equivalent to running `rmi bulk-update` first).
+- `remove` hard-deletes a repository record — for true mistakes only (e.g. a typo'd `add`). It always refuses while any RMI, release, or spec document still references the repository, and otherwise requires `--force`.
+- `doctor` walks every registered repository's local path and reports missing directories, directories that aren't git working trees, and git remotes that no longer match the registered ID. Report-only.
+
+Repository references accepted by `--repo` flags across the CLI (`rmi list`, `rmi create`, `rmi update`, `rmi bulk-update`, `initiative list`) resolve short names and `org/name`, not just the full `github.com/org/name` ID — an unrecognized value returns a did-you-mean suggestion instead of silently matching nothing.
+
+See `visionstudio registry --help` for the full set of registry commands (`add`, `list`, `update`, `archive`, `remove`, `doctor`, `deps`, `scan`, `unpushed`, `org`, `person`, `visibility`, `focus`).
 
 ## Repository Detail
 

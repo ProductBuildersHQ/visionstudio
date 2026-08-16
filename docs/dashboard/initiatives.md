@@ -95,8 +95,19 @@ The [Maturity page's Capability Models initiative filter](maturity.md#capability
 
 ```bash
 visionstudio initiative list
+visionstudio initiative list --repo <repo> --status <status> --program <program-id>
 visionstudio rmi list --initiative <initiative-id>
-visionstudio rmi list --repo <repository-id>
+visionstudio rmi list --repo <repo>
 ```
 
+`--repo` flags (here and on `rmi create`/`rmi update`) accept a short repository name or `org/name`, not just the full `github.com/org/name` ID. Add `--format json` to `initiative list`, `rmi list`, `rmi get`, and `registry list` for scriptable output.
+
 Roadmap items and phases are populated by syncing `ROADMAP.md` into the database — see [Quick Start](../getting-started/quickstart.md#working-with-initiatives-from-the-cli).
+
+### Reassigning RMIs to a different repository
+
+```bash
+visionstudio rmi bulk-update --repo <old-repo> --set-repo <new-repo> [--initiative <id>] [--dry-run]
+```
+
+Repoints every matching RMI's repository field in one call — `--dry-run` previews the change first. This is folded into `registry archive --superseded-by <new-id> --reassign-rmis` as a single operation when the reassignment is part of retiring the old repository — see [Repositories](repositories.md#managing-repository-entries).

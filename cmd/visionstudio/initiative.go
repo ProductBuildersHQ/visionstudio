@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/spf13/cobra"
 )
@@ -135,6 +136,9 @@ func initiativeCreateCmd() *cobra.Command {
 					return fmt.Errorf("--workflow is required (or set defaults.workflow in ~/.productbuildershq/visionstudio/config.json)")
 				}
 			}
+			if _, err := specworkflow.DefaultLoader().Load(workflowID); err != nil {
+				return fmt.Errorf("unknown workflow %q (see 'visionstudio workflow list'): %w", workflowID, err)
+			}
 			if org == "" {
 				org = "default"
 			}
@@ -170,7 +174,7 @@ func initiativeCreateCmd() *cobra.Command {
 	cmd.Flags().String("workspace", "", "Workspace identifier (e.g. tmux session name)")
 	cmd.Flags().String("program", "", "Program ID (e.g. PROG-DELIVERY)")
 	cmd.Flags().StringSlice("spec", nil, "Spec reference as key=path (repeatable, e.g. --spec prd=docs/specs/PRD.md)")
-	cmd.Flags().String("workflow", "", "Spec workflow ID (e.g. pbhq-lite, aws-product, big-tech-essentials)")
+	cmd.Flags().String("workflow", "", "Spec workflow ID (e.g. pbhq-lite, aws-one-way-door, big-tech-essentials)")
 	return cmd
 }
 
@@ -196,7 +200,7 @@ func initiativeListCmd() *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tPROGRAM\tWORKSPACE\tHIDDEN")
+			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tPROGRAM\tWORKFLOW\tWORKSPACE\tHIDDEN")
 			for _, i := range inits {
 				ws := i.Workspace
 				if ws == "" {
@@ -206,11 +210,15 @@ func initiativeListCmd() *cobra.Command {
 				if prog == "" {
 					prog = "-"
 				}
+				wf := i.WorkflowID
+				if wf == "" {
+					wf = "-"
+				}
 				hidden := "no"
 				if i.Hidden {
 					hidden = "yes"
 				}
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", i.ID, i.Title, i.Status, prog, ws, hidden)
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n", i.ID, i.Title, i.Status, prog, wf, ws, hidden)
 			}
 			return w.Flush()
 		},
@@ -252,6 +260,12 @@ func initiativeGetCmd() *cobra.Command {
 			}
 			if init.ProgramID != "" {
 				cmd.Printf("Program:    %s\n", init.ProgramID)
+			}
+			if init.WorkflowID != "" {
+				cmd.Printf("Workflow:   %s\n", init.WorkflowID)
+			} else {
+				cmd.Printf("Workflow:   %s (default for type %s)\n",
+					specworkflow.DefaultWorkflowForType(init.InitType), init.InitType)
 			}
 			if init.Hidden {
 				cmd.Printf("Hidden:     true\n")
@@ -353,14 +367,40 @@ func initiativeUpdateCmd() *cobra.Command {
 			if cmd.Flags().Changed("program") {
 				init.ProgramID, _ = cmd.Flags().GetString("program")
 			}
+			if cmd.Flags().Changed("visibility") {
+				vis, _ := cmd.Flags().GetString("visibility")
+				if vis != "internal" && vis != "public" {
+					return fmt.Errorf("--visibility must be internal or public")
+				}
+				init.Visibility = vis
+			}
+			if cmd.Flags().Changed("workflow") {
+				workflowID, _ := cmd.Flags().GetString("workflow")
+				if workflowID != "" {
+					if _, err := specworkflow.DefaultLoader().Load(workflowID); err != nil {
+						return fmt.Errorf("unknown workflow %q (see 'visionstudio workflow list'): %w", workflowID, err)
+					}
+				}
+				init.WorkflowID = workflowID
+			}
 
 			if err := svc.UpdateInitiative(cmd.Context(), init); err != nil {
 				return err
+			}
+			// Keep the workflow-selection record (read by synthesis and
+			// evaluation) in step with the initiative's workflow edge.
+			if cmd.Flags().Changed("workflow") && init.WorkflowID != "" {
+				if err := svc.Store.SelectWorkflowForInitiative(cmd.Context(), init.ID, init.WorkflowID); err != nil {
+					return fmt.Errorf("update workflow selection: %w", err)
+				}
 			}
 
 			cmd.Printf("Updated %s\n", init.ID)
 			if init.Workspace != "" {
 				cmd.Printf("Workspace: %s\n", init.Workspace)
+			}
+			if cmd.Flags().Changed("workflow") {
+				cmd.Printf("Workflow: %s\n", init.WorkflowID)
 			}
 			return nil
 		},
@@ -370,6 +410,8 @@ func initiativeUpdateCmd() *cobra.Command {
 	cmd.Flags().String("description", "", "Description")
 	cmd.Flags().String("priority", "", "Priority (high, medium, low)")
 	cmd.Flags().String("program", "", "Program ID (e.g. PROG-DELIVERY)")
+	cmd.Flags().String("workflow", "", "Spec workflow ID (e.g. pbhq-lite, aws-one-way-door, aws-two-way-door); empty string clears the override")
+	cmd.Flags().String("visibility", "", "Projection visibility: internal (default) or public — the flag-flip is the publication approval")
 	return cmd
 }
 
@@ -378,8 +420,12 @@ func initiativeTransitionCmd() *cobra.Command {
 		Use:   "transition <initiative-id> <status>",
 		Short: "Transition initiative to a new lifecycle status",
 		Long: `Valid transitions:
-  proposed -> planned -> executing -> delivery_complete -> releasing -> released -> closed
-  Any active status -> cancelled`,
+  Forward:   proposed -> planned -> executing -> delivery_complete -> releasing -> released -> closed
+  Backwards: any status may reopen to any earlier pipeline status as scope
+             evolves (e.g. delivery_complete -> executing when new phases land);
+             reopening clears the lifecycle timestamps of the stages it undoes
+  Cancel:    any pre-release status -> cancelled; cancelled may reopen to any
+             pre-release status (never to released or closed)`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)

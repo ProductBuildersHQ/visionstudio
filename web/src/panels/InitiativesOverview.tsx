@@ -1,8 +1,9 @@
-import { useMemo } from 'react'
-import type { APIProgram, APIInitiative, APIRMI } from '../api/types'
+import { useMemo, useState } from 'react'
+import type { APIProgram, APIInitiative, APIRMI, SpecWorkflow } from '../api/types'
 import { StatusBadge } from '../components/StatusBadge'
 import { ProgressBar } from '../components/ProgressBar'
 import { PieChart } from '../components/charts'
+import { CreateInitiativeModal } from '../components/CreateInitiativeModal'
 import { visibleInitiatives } from '../lib/visibility'
 
 interface InitiativesOverviewProps {
@@ -10,8 +11,11 @@ interface InitiativesOverviewProps {
   initiatives: APIInitiative[]
   programs: APIProgram[]
   rmis: APIRMI[]
+  workflows: SpecWorkflow[]
   onInitiativeClick: (id: string) => void
+  onInitiativeCreated: (id: string) => void
   showProgramGroups: boolean
+  defaultProgramId?: string
 }
 
 export function InitiativesOverview({
@@ -19,12 +23,38 @@ export function InitiativesOverview({
   initiatives: allInitiatives,
   programs,
   rmis,
+  workflows,
   onInitiativeClick,
+  onInitiativeCreated,
   showProgramGroups,
+  defaultProgramId,
 }: InitiativesOverviewProps) {
+  const [showCreate, setShowCreate] = useState(false)
   const initiatives = useMemo(
     () => visibleInitiatives(allInitiatives, programs),
     [allInitiatives, programs]
+  )
+
+  const createModal = showCreate && (
+    <CreateInitiativeModal
+      workflows={workflows}
+      programs={programs}
+      defaultProgramId={defaultProgramId}
+      onClose={() => setShowCreate(false)}
+      onCreated={(id) => {
+        setShowCreate(false)
+        onInitiativeCreated(id)
+      }}
+    />
+  )
+
+  const newInitiativeButton = (
+    <button
+      onClick={() => setShowCreate(true)}
+      className="px-3 py-1.5 text-sm font-medium bg-purple-600 text-white rounded hover:bg-purple-500 transition-colors"
+    >
+      + New Initiative
+    </button>
   )
 
   const statusDist = useMemo(() => {
@@ -45,8 +75,10 @@ export function InitiativesOverview({
 
   if (initiatives.length === 0) {
     return (
-      <div className="text-center text-gray-400 py-12">
+      <div className="text-center text-gray-400 py-12 space-y-4">
         <p>No initiatives found</p>
+        {newInitiativeButton}
+        {createModal}
       </div>
     )
   }
@@ -61,6 +93,8 @@ export function InitiativesOverview({
             {initiatives.length} initiative{initiatives.length !== 1 ? 's' : ''}, {totalRmis} RMIs
           </p>
         </div>
+        <div className="flex items-center gap-4">
+        {newInitiativeButton}
         {statusDist.length > 0 && (
           <div className="flex items-center gap-4">
             <div className="w-16 h-16">
@@ -76,7 +110,10 @@ export function InitiativesOverview({
             </div>
           </div>
         )}
+        </div>
       </div>
+
+      {createModal}
 
       {/* Initiative Tiles */}
       {showProgramGroups ? (

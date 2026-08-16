@@ -13,8 +13,10 @@ import type {
   SpecFile,
 } from '../api/types'
 import { getSpecFiles } from '../api/client'
+import { resolveWorkflow, requiredSpecTypes } from '../lib/workflow'
 import { StatusBadge } from '../components/StatusBadge'
 import { ProgressBar } from '../components/ProgressBar'
+import { SpecTypeDetailModal } from '../components/SpecTypeDetailModal'
 
 interface InitiativeDetailProps {
   initiative: APIInitiative
@@ -59,6 +61,13 @@ export function InitiativeDetail({
     [phases]
   )
 
+  const workflow = useMemo(
+    () => resolveWorkflow(initiative, specs.workflows ?? []),
+    [initiative, specs.workflows]
+  )
+  const requiredTotal = workflow ? requiredSpecTypes(workflow).length : 0
+  const requiredPresent = specFiles.filter((f) => f.role === 'required').length
+
   const repoStats = useMemo(() => {
     const counts: Record<string, number> = {}
     for (const r of rmis) {
@@ -96,6 +105,14 @@ export function InitiativeDetail({
             <div className="flex items-center gap-3">
               <h1 className="text-xl font-semibold">{initiative.id}</h1>
               <StatusBadge status={initiative.status} />
+              {workflow && (
+                <span
+                  className="text-xs px-2 py-0.5 bg-purple-500/10 border border-purple-500/30 text-purple-300 rounded"
+                  title={`Spec workflow: ${workflow.name}${initiative.workflowId ? '' : ' (default for type)'}`}
+                >
+                  {workflow.id}
+                </span>
+              )}
             </div>
             <p className="text-gray-300 mt-1">{initiative.title}</p>
             {initiative.description && (
@@ -113,7 +130,13 @@ export function InitiativeDetail({
       <div className="grid grid-cols-4 gap-4">
         <SummaryCard
           label="Definition"
-          value={specFiles.length > 0 ? `${specFiles.length} of ${PBHQ_LITE_SPECS.length} (${Math.round(specFiles.length / PBHQ_LITE_SPECS.length * 100)}%)` : 'No specs'}
+          value={
+            requiredTotal > 0
+              ? `${requiredPresent} of ${requiredTotal} (${Math.round((requiredPresent / requiredTotal) * 100)}%)`
+              : specFiles.length > 0
+                ? `${specFiles.length} specs`
+                : 'No specs'
+          }
           color="purple"
         />
         <SummaryCard label="Phases" value={phases.length.toString()} color="blue" />
@@ -246,10 +269,15 @@ function DefinitionTab({
   return (
     <div className="space-y-6">
       {/* Workflow Diagram */}
-      <WorkflowDiagram judgeResults={judgeResults} workflows={workflows} specFiles={specFiles} />
+      <WorkflowDiagram judgeResults={judgeResults} workflows={workflows} specFiles={specFiles} initiative={initiative} />
 
       {/* Spec Files Viewer */}
-      <SpecFilesViewer specFiles={specFiles} loading={specFilesLoading} initiativeId={initiative.id} />
+      <SpecFilesViewer
+        specFiles={specFiles}
+        loading={specFilesLoading}
+        initiativeId={initiative.id}
+        workflowId={resolveWorkflow(initiative, workflows)?.id}
+      />
 
       {/* Judge Results Detail */}
       <JudgeResultsDetail judgeResults={judgeResults} />
@@ -277,14 +305,19 @@ function SpecFilesViewer({
   specFiles,
   loading,
   initiativeId,
+  workflowId,
 }: {
   specFiles: SpecFile[]
   loading: boolean
   initiativeId: string
+  workflowId?: string
 }) {
   const [selectedSpec, setSelectedSpec] = useState<string | null>(null)
+  const [detailTab, setDetailTab] = useState<'template' | 'rubric' | null>(null)
 
-  const sortedSpecFiles = useMemo(() => sortSpecsByWorkflowOrder(specFiles), [specFiles])
+  // Files arrive from the API already sorted into workflow order
+  // (required by sequence, then optional, then extras).
+  const sortedSpecFiles = specFiles
   const selected = sortedSpecFiles.find((f) => f.specType === selectedSpec) ?? sortedSpecFiles[0]
 
   const renderedHTML = useMemo(() => {
@@ -327,16 +360,48 @@ function SpecFilesViewer({
               }`}
             >
               {f.specType}
+              {f.role === 'extra' && (
+                <span className="ml-1.5 text-[10px] px-1 py-0.5 bg-gray-700 rounded text-gray-400 align-middle">
+                  Extra
+                </span>
+              )}
             </button>
           ))}
         </div>
-        <Link
-          to={`/initiative/${initiativeId}/spec/${selected.specType.toLowerCase()}`}
-          className="px-3 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
-        >
-          Open Full View
-        </Link>
+        <div className="flex items-center gap-2">
+          {workflowId && (
+            <>
+              <button
+                onClick={() => setDetailTab('template')}
+                className="px-3 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+              >
+                Template
+              </button>
+              <button
+                onClick={() => setDetailTab('rubric')}
+                className="px-3 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+              >
+                Rubric
+              </button>
+            </>
+          )}
+          <Link
+            to={`/initiative/${initiativeId}/spec/${selected.specType.toLowerCase()}`}
+            className="px-3 py-1 text-xs font-medium bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors"
+          >
+            Open Full View
+          </Link>
+        </div>
       </div>
+
+      {detailTab && workflowId && (
+        <SpecTypeDetailModal
+          workflowId={workflowId}
+          specType={selected.specType}
+          initialTab={detailTab}
+          onClose={() => setDetailTab(null)}
+        />
+      )}
 
       {/* Spec Content */}
       <div className="p-4">
@@ -497,25 +562,16 @@ function DependenciesSection({
   )
 }
 
-const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
-
-function sortSpecsByWorkflowOrder(specFiles: SpecFile[]): SpecFile[] {
-  const order = PBHQ_LITE_SPECS.reduce((acc, spec, i) => ({ ...acc, [spec]: i }), {} as Record<string, number>)
-  return [...specFiles].sort((a, b) => {
-    const aOrder = order[a.specType.toUpperCase()] ?? 999
-    const bOrder = order[b.specType.toUpperCase()] ?? 999
-    return aOrder - bOrder
-  })
-}
-
 function WorkflowDiagram({
   judgeResults,
   workflows,
   specFiles,
+  initiative,
 }: {
   judgeResults: JudgeResult[]
   workflows: SpecWorkflow[]
   specFiles: SpecFile[]
+  initiative: APIInitiative
 }) {
   const resultsByType = useMemo(() => {
     const map: Record<string, JudgeResult> = {}
@@ -537,21 +593,29 @@ function WorkflowDiagram({
     return map
   }, [specFiles])
 
-  const pbhqWorkflow = workflows.find((w) => w.name === 'pbhq-lite')
+  const workflow = useMemo(
+    () => resolveWorkflow(initiative, workflows),
+    [initiative, workflows]
+  )
+  const diagramSpecs = workflow ? requiredSpecTypes(workflow) : []
+  const [detailSpec, setDetailSpec] = useState<string | null>(null)
   const getScore = (r: JudgeResult): number => r.report?.intScore ?? 0
   const avgScore =
     judgeResults.length > 0
       ? judgeResults.reduce((sum, r) => sum + getScore(r), 0) / judgeResults.length
       : 0
 
+  if (!workflow || diagramSpecs.length === 0) {
+    return null
+  }
+
   return (
     <div className="bg-gray-800 rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-purple-400">PBHQ Lite Workflow</span>
-          {pbhqWorkflow && (
-            <span className="text-xs text-gray-500">PRD → TRD → PLAN → ROADMAP</span>
-          )}
+          <span className="text-sm font-medium text-purple-400">{workflow.name} Workflow</span>
+          <span className="text-xs text-gray-500">{diagramSpecs.join(' → ')}</span>
+          <span className="text-[10px] text-gray-600">click a document for its template &amp; rubric</span>
         </div>
         {judgeResults.length > 0 && (
           <span
@@ -565,8 +629,8 @@ function WorkflowDiagram({
       </div>
 
       {/* Workflow Diagram */}
-      <div className="flex items-center justify-center gap-2 py-4">
-        {PBHQ_LITE_SPECS.map((spec, i) => {
+      <div className="flex items-center justify-center gap-2 py-4 flex-wrap">
+        {diagramSpecs.map((spec, i) => {
           const result = resultsByType[spec]
           const hasJudgeResult = !!result
           const hasSpecFile = !!specFilesByType[spec]
@@ -596,22 +660,31 @@ function WorkflowDiagram({
 
           return (
             <div key={spec} className="flex items-center">
-              <div
-                className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition-all ${stateClass}`}
-                title={tooltip}
+              <button
+                onClick={() => setDetailSpec(spec)}
+                className={`px-4 py-3 rounded-lg text-sm font-medium border-2 transition-all cursor-pointer hover:brightness-125 ${stateClass}`}
+                title={`${tooltip} — click for template & rubric`}
               >
                 <div className="text-center">
                   <div>{spec}</div>
                   {bottomText && <div className="text-xs opacity-70 mt-1">{bottomText}</div>}
                 </div>
-              </div>
-              {i < PBHQ_LITE_SPECS.length - 1 && (
+              </button>
+              {i < diagramSpecs.length - 1 && (
                 <span className="text-gray-500 px-2 text-lg">→</span>
               )}
             </div>
           )
         })}
       </div>
+
+      {detailSpec && (
+        <SpecTypeDetailModal
+          workflowId={workflow.id}
+          specType={detailSpec}
+          onClose={() => setDetailSpec(null)}
+        />
+      )}
     </div>
   )
 }

@@ -6,17 +6,6 @@ import { LoadingState, ErrorState, MarkdownPreview, MarkdownSource } from '../co
 
 type ViewMode = 'display' | 'markdown'
 
-const PBHQ_LITE_SPECS = ['PRD', 'TRD', 'PLAN', 'ROADMAP'] as const
-
-function sortSpecsByWorkflowOrder(specFiles: SpecFile[]): SpecFile[] {
-  const order = PBHQ_LITE_SPECS.reduce((acc, spec, i) => ({ ...acc, [spec]: i }), {} as Record<string, number>)
-  return [...specFiles].sort((a, b) => {
-    const aOrder = order[(a.specType ?? '').toUpperCase()] ?? 999
-    const bOrder = order[(b.specType ?? '').toUpperCase()] ?? 999
-    return aOrder - bOrder
-  })
-}
-
 export function SpecViewer() {
   const { initiativeId, specType } = useParams<{ initiativeId: string; specType: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -41,7 +30,9 @@ export function SpecViewer() {
       .finally(() => setLoading(false))
   }, [initiativeId])
 
-  const sortedSpecFiles = useMemo(() => sortSpecsByWorkflowOrder(specFiles), [specFiles])
+  // Files arrive from the API already sorted into workflow order
+  // (required by sequence, then optional, then extras).
+  const sortedSpecFiles = specFiles
 
   const selectedSpec = useMemo(() => {
     if (!specType) return sortedSpecFiles[0]
@@ -183,6 +174,11 @@ export function SpecViewer() {
                 }`}
               >
                 {f.specType}
+                {f.role === 'extra' && (
+                  <span className="ml-1.5 text-[10px] px-1 py-0.5 bg-gray-700 rounded text-gray-400 align-middle">
+                    Extra
+                  </span>
+                )}
               </button>
             ))}
           </div>

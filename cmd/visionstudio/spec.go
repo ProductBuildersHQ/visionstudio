@@ -53,7 +53,7 @@ func specInitCmd() *cobra.Command {
 				return fmt.Errorf("repository %s has no local path set", repo.ID)
 			}
 
-			wf, err := specworkflow.Resolve(cmd.Context(), svc.Store, init)
+			wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init)
 			if err != nil {
 				return err
 			}
@@ -146,7 +146,7 @@ func specValidateCmd() *cobra.Command {
 				return fmt.Errorf("get home repo: %w", err)
 			}
 
-			wf, err := specworkflow.Resolve(cmd.Context(), svc.Store, init)
+			wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init)
 			if err != nil {
 				return err
 			}
@@ -209,7 +209,7 @@ func specJudgeShowCmd() *cobra.Command {
 				return fmt.Errorf("get home repo: %w", err)
 			}
 
-			wf, err := specworkflow.Resolve(cmd.Context(), svc.Store, init)
+			wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init)
 			if err != nil {
 				return err
 			}
@@ -274,7 +274,7 @@ func specJudgeRecordCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			wf, err := specworkflow.Resolve(cmd.Context(), svc.Store, init)
+			wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init)
 			if err != nil {
 				return err
 			}

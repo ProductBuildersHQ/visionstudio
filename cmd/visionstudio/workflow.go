@@ -15,46 +15,36 @@ func workflowCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "workflow",
 		Aliases: []string{"wf"},
-		Short:   "Manage spec workflows",
+		Short:   "Manage spec workflows (definitions from specification-workflow-spec)",
 	}
-	cmd.AddCommand(workflowListCmd(), workflowGetCmd(), workflowSeedCmd())
+	cmd.AddCommand(workflowListCmd(), workflowGetCmd(), workflowSyncCmd(), workflowSeedCmd())
 	return cmd
 }
 
 func workflowListCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
-		Short: "List all spec workflows",
+		Short: "List all spec workflows from the catalog",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			svc, cleanup, err := connectService(cmd)
+			loader := specworkflow.DefaultLoader()
+			infos, err := loader.List()
 			if err != nil {
 				return err
-			}
-			defer cleanup()
-
-			workflows, err := svc.Store.ListSpecWorkflows(cmd.Context())
-			if err != nil {
-				return err
-			}
-
-			if len(workflows) == 0 {
-				cmd.Println("No workflows found. Run 'visionstudio workflow seed' to create built-in workflows.")
-				return nil
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tNAME\tREQUIRED\tOPTIONAL\tTYPES")
-			for _, wf := range workflows {
-				required := strings.Join(wf.SpecsRequired, ", ")
-				optional := strings.Join(wf.SpecsOptional, ", ")
+			_, _ = fmt.Fprintln(w, "ID\tREQUIRED\tOPTIONAL\tTYPES")
+			for _, info := range infos {
+				required := strings.Join(info.SpecsRequired, ", ")
+				optional := strings.Join(info.SpecsOptional, ", ")
 				if optional == "" {
 					optional = "-"
 				}
-				types := strings.Join(wf.InitTypes, ", ")
+				types := strings.Join(specworkflow.DefaultInitTypes(info.ID), ", ")
 				if types == "" {
 					types = "(opt-in)"
 				}
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", wf.ID, wf.Name, required, optional, types)
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", info.ID, required, optional, types)
 			}
 			return w.Flush()
 		},
@@ -64,22 +54,21 @@ func workflowListCmd() *cobra.Command {
 func workflowGetCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "get <workflow-id>",
-		Short: "Show workflow details",
+		Short: "Show workflow details from the catalog",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			svc, cleanup, err := connectService(cmd)
+			loader := specworkflow.DefaultLoader()
+			lw, err := loader.Load(args[0])
 			if err != nil {
 				return err
 			}
-			defer cleanup()
-
-			wf, err := svc.Store.GetSpecWorkflow(cmd.Context(), args[0])
-			if err != nil {
-				return err
-			}
+			wf := specworkflow.StoreWorkflow(args[0], lw)
 
 			cmd.Printf("ID:          %s\n", wf.ID)
 			cmd.Printf("Name:        %s\n", wf.Name)
+			if lw.Workflow.Extends != "" {
+				cmd.Printf("Extends:     %s\n", lw.Workflow.Extends)
+			}
 			if wf.Description != "" {
 				cmd.Printf("Description: %s\n", wf.Description)
 			}
@@ -92,15 +81,26 @@ func workflowGetCmd() *cobra.Command {
 			} else {
 				cmd.Printf("Types:       (opt-in only)\n")
 			}
+			if exec := lw.Workflow.Execution; exec != nil {
+				if len(exec.Sequence) > 0 {
+					cmd.Printf("Sequence:    %s\n", strings.Join(exec.Sequence, " → "))
+				}
+				for _, p := range exec.Phases {
+					cmd.Printf("Phase:       %s (%s)\n", p.Name, strings.Join(p.Specs, ", "))
+				}
+			}
 			return nil
 		},
 	}
 }
 
-func workflowSeedCmd() *cobra.Command {
+func workflowSyncCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "seed",
-		Short: "Create built-in spec workflows",
+		Use:   "sync",
+		Short: "Sync the database workflow index from the specification-workflow-spec catalog",
+		Long: `Upsert a database row for every workflow in the catalog, remap initiatives
+referencing retired workflow IDs to their canonical replacement, and delete
+retired rows that are no longer referenced. Idempotent.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {
@@ -108,17 +108,30 @@ func workflowSeedCmd() *cobra.Command {
 			}
 			defer cleanup()
 
-			created, err := specworkflow.SeedBuiltIn(cmd.Context(), svc.Store)
+			res, err := specworkflow.SyncFromCatalog(cmd.Context(), svc.Store, specworkflow.DefaultLoader())
 			if err != nil {
 				return err
 			}
 
-			if created == 0 {
-				cmd.Println("All built-in workflows already exist.")
-			} else {
-				cmd.Printf("Created %d workflow(s).\n", created)
+			cmd.Printf("Synced: %d created, %d updated\n", res.Created, res.Updated)
+			for initID, wfID := range res.Remapped {
+				cmd.Printf("Remapped: %s → %s\n", initID, wfID)
+			}
+			for _, id := range res.Deleted {
+				cmd.Printf("Deleted retired workflow: %s\n", id)
+			}
+			for _, id := range res.Retained {
+				cmd.Printf("Retained (not in catalog, still referenced): %s\n", id)
 			}
 			return nil
 		},
 	}
+}
+
+func workflowSeedCmd() *cobra.Command {
+	cmd := workflowSyncCmd()
+	cmd.Use = "seed"
+	cmd.Short = "Deprecated: use 'workflow sync'"
+	cmd.Deprecated = "use 'workflow sync' instead"
+	return cmd
 }

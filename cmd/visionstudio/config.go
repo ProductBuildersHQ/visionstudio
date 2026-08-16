@@ -79,7 +79,7 @@ func configSetCmd() *cobra.Command {
 		Short: "Set a configuration value",
 		Long: `Set a configuration value. Supported keys:
   dsn                MySQL-compatible DSN for Dolt server mode
-  defaults.workflow  Default spec workflow ID (e.g. pbhq-lite, aws-product)`,
+  defaults.workflow  Default spec workflow ID (e.g. pbhq-lite, aws-one-way-door)`,
 		Args: cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			key, value := args[0], args[1]

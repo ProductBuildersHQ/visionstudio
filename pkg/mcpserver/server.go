@@ -180,7 +180,7 @@ func initiativeGetHandler(svc *service.Service) mcp.ToolHandler {
 func initiativeCreateTool() *mcp.Tool {
 	return &mcp.Tool{
 		Name:        "initiative_create",
-		Description: "Create a new initiative in proposed status. workflow_id is required to select a spec workflow (e.g. pbhq-lite, aws-product). Use workflow_list to see available workflows.",
+		Description: "Create a new initiative in proposed status. workflow_id is required to select a spec workflow (e.g. pbhq-lite, aws-one-way-door). Use workflow_list to see available workflows.",
 		InputSchema: json.RawMessage(`{
 			"type":"object",
 			"properties":{
@@ -190,7 +190,7 @@ func initiativeCreateTool() *mcp.Tool {
 				"description":{"type":"string","description":"Full description"},
 				"priority":{"type":"string","description":"Priority level"},
 				"program_id":{"type":"string","description":"Program ID to associate (e.g. PROG-DELIVERY)"},
-				"workflow_id":{"type":"string","description":"Spec workflow ID (e.g. pbhq-lite, aws-product, big-tech-essentials). Use workflow_list to see options."}
+				"workflow_id":{"type":"string","description":"Spec workflow ID (e.g. pbhq-lite, aws-one-way-door, big-tech-essentials). Use workflow_list to see options."}
 			},
 			"required":["id","organization","title","workflow_id"]
 		}`),
@@ -213,7 +213,7 @@ func initiativeCreateHandler(svc *service.Service) mcp.ToolHandler {
 			return nil, fmt.Errorf("parse arguments: %w", err)
 		}
 		if args.WorkflowID == "" {
-			return nil, fmt.Errorf("workflow_id is required; use workflow_list to see available workflows (e.g. pbhq-lite, aws-product)")
+			return nil, fmt.Errorf("workflow_id is required; use workflow_list to see available workflows (e.g. pbhq-lite, aws-one-way-door)")
 		}
 		init, err := svc.CreateInitiative(ctx, args.ID, args.Organization, args.Title, args.Description, args.Priority, args.InitType, args.WorkflowID)
 		if err != nil {

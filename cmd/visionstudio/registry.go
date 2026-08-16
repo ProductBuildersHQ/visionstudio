@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 	"text/tabwriter"
@@ -24,7 +25,93 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryRemoveCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryRemoveCmd(), registryDoctorCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	return cmd
+}
+
+// githubRemoteRe extracts org/name from the common forms of a GitHub remote
+// URL: https://github.com/org/name(.git), git@github.com:org/name(.git),
+// ssh://git@github.com/org/name(.git).
+var githubRemoteRe = regexp.MustCompile(`(?i)github\.com[:/]+([^/]+)/([^/]+?)(\.git)?/?$`)
+
+func githubOrgName(remoteURL string) (org, name string, ok bool) {
+	m := githubRemoteRe.FindStringSubmatch(remoteURL)
+	if m == nil {
+		return "", "", false
+	}
+	return m[1], m[2], true
+}
+
+func registryDoctorCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "doctor",
+		Short: "Check registered repositories for drift",
+		Long: `Walks every non-archived repository's --path and flags:
+  - a missing directory
+  - a directory that isn't a git working tree
+  - a git remote origin URL that no longer matches the registered ID
+
+Repositories with no local path are skipped (nothing local to check).
+Report-only — nothing is changed. Exits 1 if any issues are found.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			repos, err := svc.ListRepositories(cmd.Context())
+			if err != nil {
+				return err
+			}
+
+			var checked, issues int
+			for _, r := range repos {
+				if r.Status == "archived" || r.LocalPath == "" {
+					continue
+				}
+				checked++
+
+				info, statErr := os.Stat(r.LocalPath)
+				switch {
+				case statErr != nil:
+					cmd.Printf("MISSING    %s: %s does not exist\n", r.ID, r.LocalPath)
+					issues++
+					continue
+				case !info.IsDir():
+					cmd.Printf("NOT-A-DIR  %s: %s is not a directory\n", r.ID, r.LocalPath)
+					issues++
+					continue
+				}
+				if _, err := os.Stat(filepath.Join(r.LocalPath, ".git")); err != nil {
+					cmd.Printf("NOT-GIT    %s: %s is not a git working tree\n", r.ID, r.LocalPath)
+					issues++
+					continue
+				}
+
+				remote := gitRemoteURL(r.LocalPath)
+				if remote == "" {
+					cmd.Printf("NO-REMOTE  %s: %s has no git remote 'origin'\n", r.ID, r.LocalPath)
+					issues++
+					continue
+				}
+				org, name, ok := githubOrgName(remote)
+				expectedOrg, expectedName, _ := strings.Cut(strings.TrimPrefix(r.ID, "github.com/"), "/")
+				if !ok || !strings.EqualFold(org, expectedOrg) || !strings.EqualFold(name, expectedName) {
+					cmd.Printf("REMOTE     %s: origin remote (%s) does not match the registered ID\n", r.ID, remote)
+					issues++
+				}
+			}
+
+			if issues == 0 {
+				cmd.Printf("Checked %d repositories with a local path. No issues found.\n", checked)
+				return nil
+			}
+			cmd.Printf("\nChecked %d repositories with a local path. %d issue(s) found.\n", checked, issues)
+			os.Exit(1)
+			return nil
+		},
+	}
 	return cmd
 }
 

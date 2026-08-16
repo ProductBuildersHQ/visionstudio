@@ -388,3 +388,53 @@ func TestContextSpecInvalidRepo(t *testing.T) {
 		t.Fatal("expected context_spec error for non-existent repo in extra_repos")
 	}
 }
+
+func TestUnshippedInitiativeWarning(t *testing.T) {
+	s := store.NewMemStore()
+	ctx := context.Background()
+	now := time.Date(2026, 8, 12, 0, 0, 0, 0, time.UTC)
+	old := now.AddDate(0, 0, -30)
+	recent := now.AddDate(0, 0, -2)
+
+	seed := []*store.Initiative{
+		{ID: "INIT-UNS-001", Organization: "t", Title: "stale", Status: "delivery_complete", DeliveryCompleteAt: &old, CreatedAt: now, UpdatedAt: now},
+		{ID: "INIT-UNS-002", Organization: "t", Title: "fresh", Status: "delivery_complete", DeliveryCompleteAt: &recent, CreatedAt: now, UpdatedAt: now},
+		{ID: "INIT-UNS-003", Organization: "t", Title: "shipped", Status: "delivery_complete", DeliveryCompleteAt: &old, CreatedAt: now, UpdatedAt: now},
+		{ID: "INIT-UNS-004", Organization: "t", Title: "no ts", Status: "releasing", CreatedAt: now, UpdatedAt: now},
+	}
+	for _, in := range seed {
+		if err := s.CreateInitiative(ctx, in); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := s.CreateRepository(ctx, &store.Repository{ID: "github.com/t/r", Organization: "t", RepositoryName: "r", Status: "active"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.CreateRelease(ctx, &store.Release{
+		ID: "github.com/t/r@v1.0.0", RepositoryID: "github.com/t/r", Tag: "v1.0.0",
+		ReleasedAt: old, InitiativeIDs: []string{"INIT-UNS-003"}, CreatedAt: now, UpdatedAt: now,
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	r, err := Run(ctx, s, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var unshipped []Finding
+	for _, f := range r.Findings {
+		if f.Check == "unshipped" {
+			unshipped = append(unshipped, f)
+		}
+	}
+	// stale (30d > threshold) warns; no-timestamp warns; fresh (2d) and
+	// shipped do not.
+	if len(unshipped) != 2 {
+		t.Fatalf("unshipped findings = %d (%v), want 2", len(unshipped), unshipped)
+	}
+	for _, f := range unshipped {
+		if f.Level != "warning" {
+			t.Fatalf("level = %s, want warning (never error — soft gate)", f.Level)
+		}
+	}
+}

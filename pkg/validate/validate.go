@@ -89,6 +89,11 @@ func Run(ctx context.Context, s store.Store, now time.Time) (*Result, error) {
 		repoByID[repo.ID] = repo
 	}
 
+	releases, err := s.ListReleases(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list releases: %w", err)
+	}
+
 	r := &Result{}
 	checkIDFormat(r, rmis)
 	checkDuplicateIDs(r, rmis)
@@ -97,7 +102,38 @@ func Run(ctx context.Context, s store.Store, now time.Time) (*Result, error) {
 	checkExpiredLeases(r, assignments, now)
 	checkStatusCoherence(r, initiatives, rmis, evidence)
 	checkContextSpecs(r, rmis, repoByID)
+	checkUnshippedInitiatives(r, initiatives, releases, now)
 	return r, nil
+}
+
+// unshippedThreshold is how long an initiative may sit at
+// delivery_complete/releasing with no release attached before the queue
+// nags — the forcing function that keeps the acceptance-mark quality
+// signal alive.
+const unshippedThreshold = 14 * 24 * time.Hour
+
+// Check: initiatives claiming delivery with no release attached.
+func checkUnshippedInitiatives(r *Result, initiatives []*store.Initiative, releases []*store.Release, now time.Time) {
+	hasRelease := map[string]bool{}
+	for _, rel := range releases {
+		for _, id := range rel.InitiativeIDs {
+			hasRelease[id] = true
+		}
+	}
+	for _, in := range initiatives {
+		if in.Status != "delivery_complete" && in.Status != "releasing" {
+			continue
+		}
+		if hasRelease[in.ID] {
+			continue
+		}
+		switch {
+		case in.DeliveryCompleteAt == nil:
+			r.warnf("unshipped", "%s is %s with no release attached (delivery timestamp unrecorded) — attach via 'release record/attach' or park it", in.ID, in.Status)
+		case now.Sub(*in.DeliveryCompleteAt) > unshippedThreshold:
+			r.warnf("unshipped", "%s has been %s for %d days with no release attached — attach via 'release record/attach', transition to released, or park it", in.ID, in.Status, int(now.Sub(*in.DeliveryCompleteAt).Hours()/24))
+		}
+	}
 }
 
 // Check 1: ID format violations.

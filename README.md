@@ -187,7 +187,7 @@ visionstudio/
 ├── cmd/
 │   ├── visionstudio/    # Primary CLI + unified daemon
 │   │   ├── main.go      # Cobra root, global flags
-│   │   ├── app.go       # `app start/status/stop`
+│   │   ├── app.go       # `app start/status/stop/restart`
 │   │   ├── serve.go     # Web UI resolution + address parsing
 │   │   ├── api.go       # JSON API handlers, store→API converters
 │   │   ├── db.go        # `db` subcommands

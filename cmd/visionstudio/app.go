@@ -5,6 +5,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/grokify/oscompat/process"
@@ -34,7 +36,7 @@ browser. The SPA is embedded in the binary, so this works from any directory.
 The database must already be running — use 'visionstudio db start', or use
 'visionstudio app start' to bring up the database and UI together.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runUnifiedServer(cmd, true)
+			return runUnifiedServer(cmd)
 		},
 	}
 	addServeFlags(cmd)
@@ -48,7 +50,141 @@ func appCmd() *cobra.Command {
 		Use:   "app",
 		Short: "Run VisionStudio (database + UI) together",
 	}
-	cmd.AddCommand(appStartCmd(), appStatusCmd(), appStopCmd())
+	cmd.AddCommand(appStartCmd(), appStatusCmd(), appStopCmd(), appRestartCmd())
+	return cmd
+}
+
+// uiPidFileName tracks the UI+API server process separately from Dolt's
+// server.pid, so a stale binary can be found and replaced without touching
+// the database. Written by runUnifiedServer on every 'ui'/'app start'
+// invocation (foreground or detached); removed on graceful shutdown or by
+// whatever stops it (appRestartCmd, a future 'ui stop').
+const uiPidFileName = "ui.pid"
+
+func uiPidFilePath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("user home: %w", err)
+	}
+	return filepath.Join(home, config.Dir, uiPidFileName), nil
+}
+
+func writeUIPIDFile(pid, port int) error {
+	path, err := uiPidFilePath()
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+		return fmt.Errorf("create pid dir: %w", err)
+	}
+	content := fmt.Sprintf("%d\n%d\n", pid, port)
+	return os.WriteFile(path, []byte(content), 0o600)
+}
+
+func readUIPIDFile() (pid, port int, err error) {
+	path, err := uiPidFilePath()
+	if err != nil {
+		return 0, 0, err
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return 0, 0, err
+	}
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	if len(lines) < 2 {
+		return 0, 0, fmt.Errorf("malformed pid file")
+	}
+	pid, err = strconv.Atoi(lines[0])
+	if err != nil {
+		return 0, 0, fmt.Errorf("parse pid: %w", err)
+	}
+	port, err = strconv.Atoi(lines[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("parse port: %w", err)
+	}
+	return pid, port, nil
+}
+
+func removeUIPIDFile() {
+	path, err := uiPidFilePath()
+	if err != nil {
+		return
+	}
+	os.Remove(path)
+}
+
+// stopUIServer terminates the UI+API server recorded in ui.pid (SIGTERM,
+// then SIGKILL after a grace period) and removes the PID file. Reports
+// whether a server was actually found running -- not an error if not, since
+// restart should work whether or not a prior instance is still up.
+func stopUIServer() (wasRunning bool, err error) {
+	pid, _, err := readUIPIDFile()
+	if err != nil {
+		return false, nil // nothing recorded
+	}
+	if !isProcessAlive(pid) {
+		removeUIPIDFile()
+		return false, nil
+	}
+	proc, err := os.FindProcess(pid)
+	if err != nil {
+		return true, fmt.Errorf("find process %d: %w", pid, err)
+	}
+	if err := signalTerminate(proc); err != nil {
+		return true, fmt.Errorf("terminate PID %d: %w", pid, err)
+	}
+	if waitForProcessExit(pid, 10*time.Second) {
+		removeUIPIDFile()
+		return true, nil
+	}
+	_ = signalKill(proc)
+	removeUIPIDFile()
+	return true, nil
+}
+
+func appRestartCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "restart",
+		Short: "Restart the web UI (and start the database if needed)",
+		Long: `Stops any UI+API server this machine has recorded as running -- including one
+started from a different terminal or detached session -- then starts a fresh
+one in the foreground, the same as 'app start'. The most common reason to
+need this: a new binary was built (e.g. after 'go build'/'go run' picked up
+source changes) and the previously running server is still serving the old
+one.
+
+The database is left alone if it's already running (same as 'app start');
+this only replaces the UI+API process, since that's what actually changes
+when the binary changes.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			wasRunning, err := stopUIServer()
+			if err != nil {
+				return err
+			}
+			if wasRunning {
+				cmd.Println("Stopped previous UI+API server.")
+			}
+
+			startedByUs, port, err := ensureDoltRunning(cmd)
+			if err != nil {
+				return err
+			}
+			if startedByUs {
+				cmd.Printf("Started Dolt database on port %d\n", port)
+				defer func() {
+					if stopErr := stopDolt(); stopErr != nil {
+						cmd.PrintErrf("warning: could not stop database: %v\n", stopErr)
+					} else {
+						cmd.Println("Stopped Dolt database")
+					}
+				}()
+			} else {
+				cmd.Printf("Using Dolt database already running on port %d\n", port)
+			}
+			return runUnifiedServer(cmd)
+		},
+	}
+	addServeFlags(cmd)
 	return cmd
 }
 
@@ -80,7 +216,7 @@ that was already running is left untouched. Use 'visionstudio db' and
 			} else {
 				cmd.Printf("Using Dolt database already running on port %d\n", port)
 			}
-			return runUnifiedServer(cmd, true)
+			return runUnifiedServer(cmd)
 		},
 	}
 	addServeFlags(cmd)

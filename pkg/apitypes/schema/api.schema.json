@@ -152,6 +152,8 @@
       "type": "object"
     },
     "ContextSpec": true,
+    "CreateInitiativeRequest": true,
+    "CreateInitiativeResponse": true,
     "Decision": {
       "properties": {
         "status": {
@@ -502,6 +504,24 @@
     "SpecFile": true,
     "SpecFilesResponse": true,
     "SpecWorkflow": true,
+    "SpecWorkflowPhase": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "specs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
     "SpecsResponse": true,
     "TokenUsage": {
       "properties": {
@@ -523,6 +543,7 @@
       },
       "additionalProperties": false,
       "type": "object"
-    }
+    },
+    "WorkflowSpecDetail": true
   }
 }

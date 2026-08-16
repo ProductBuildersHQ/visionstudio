@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://visionstudio.productbuildershq.com/WorkflowSpecDetail.schema.json",
+  "$ref": "#/$defs/WorkflowSpecDetail",
+  "$defs": {
+    "WorkflowSpecDetail": {
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "specType": {
+          "type": "string"
+        },
+        "template": {
+          "type": "string"
+        },
+        "rubricJson": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    }
+  }
+}

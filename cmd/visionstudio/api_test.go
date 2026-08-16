@@ -3,11 +3,16 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/ProductBuildersHQ/visionstudio/pkg/apitypes"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
@@ -131,16 +136,6 @@ func TestBuildMaturityResponse(t *testing.T) {
 func TestBuildSpecsResponse(t *testing.T) {
 	ctx := context.Background()
 	ms := store.NewMemStore()
-
-	wf := &store.SpecWorkflow{
-		ID:            "pbhq-standard",
-		Name:          "Standard Workflow",
-		SpecsRequired: []string{"PRD.md", "TRD.md"},
-	}
-	if err := ms.CreateSpecWorkflow(ctx, wf); err != nil {
-		t.Fatal(err)
-	}
-
 	svc := &service.Service{Store: ms}
 
 	resp, err := buildSpecsResponse(ctx, svc)
@@ -148,8 +143,26 @@ func TestBuildSpecsResponse(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(resp.Workflows) != 1 {
-		t.Errorf("expected 1 workflow, got %d", len(resp.Workflows))
+	// Workflows come from the specification-workflow-spec catalog, not the DB.
+	wantCount := len(specworkflow.DefaultLoader().Available())
+	if len(resp.Workflows) != wantCount {
+		t.Errorf("expected %d catalog workflows, got %d", wantCount, len(resp.Workflows))
+	}
+	byID := map[string]apitypes.SpecWorkflow{}
+	for _, w := range resp.Workflows {
+		byID[w.ID] = w
+	}
+	for _, id := range []string{"pbhq-lite", "quick-fix", "aws-one-way-door", "aws-two-way-door"} {
+		if _, ok := byID[id]; !ok {
+			t.Errorf("catalog workflow %q missing from response", id)
+		}
+	}
+	if aws := byID["aws-two-way-door"]; len(aws.Sequence) == 0 || len(aws.Phases) == 0 {
+		t.Errorf("aws-two-way-door should include sequence and phases, got sequence=%v phases=%v",
+			aws.Sequence, aws.Phases)
+	}
+	if got := byID["pbhq-lite"].SpecsRequired; len(got) != 4 || got[0] != "PRD.md" {
+		t.Errorf("pbhq-lite required = %v, want [PRD.md TRD.md PLAN.md ROADMAP.md]", got)
 	}
 
 	// Verify JSON serialization
@@ -244,4 +257,121 @@ func TestReadSpecFilesVisionSpecStructure(t *testing.T) {
 	if files[0].EvalJSON != "{}" {
 		t.Errorf("expected eval JSON to be picked up, got %q", files[0].EvalJSON)
 	}
+}
+
+func TestHandleCreateInitiative(t *testing.T) {
+	newReq := func(body string) *http.Request {
+		return httptest.NewRequest(http.MethodPost, "/api/initiatives", strings.NewReader(body))
+	}
+	newSvc := func() *service.Service {
+		return &service.Service{Store: store.NewMemStore()}
+	}
+
+	t.Run("creates with valid workflow", func(t *testing.T) {
+		svc := newSvc()
+		resp, status, err := handleCreateInitiative(newReq(`{
+			"id": "INIT-TEST-001",
+			"title": "Test Initiative",
+			"initType": "feature",
+			"workflowId": "aws-two-way-door",
+			"description": "desc"
+		}`), svc)
+		if err != nil {
+			t.Fatalf("handleCreateInitiative: %v (status %d)", err, status)
+		}
+		if resp.ID != "INIT-TEST-001" || resp.Status != "proposed" {
+			t.Errorf("resp = %+v, want ID=INIT-TEST-001 status=proposed", resp)
+		}
+		init, err := svc.Store.GetInitiative(context.Background(), "INIT-TEST-001")
+		if err != nil {
+			t.Fatalf("GetInitiative: %v", err)
+		}
+		if init.WorkflowID != "aws-two-way-door" {
+			t.Errorf("WorkflowID = %q, want aws-two-way-door", init.WorkflowID)
+		}
+	})
+
+	t.Run("rejects unknown workflow", func(t *testing.T) {
+		_, status, err := handleCreateInitiative(newReq(`{
+			"id": "INIT-TEST-002", "title": "T", "workflowId": "no-such-workflow"
+		}`), newSvc())
+		if err == nil || status != http.StatusBadRequest {
+			t.Errorf("expected 400 for unknown workflow, got status=%d err=%v", status, err)
+		}
+	})
+
+	t.Run("rejects missing fields and bad IDs", func(t *testing.T) {
+		for _, body := range []string{
+			`{"title": "T", "workflowId": "pbhq-lite"}`,
+			`{"id": "INIT-X-001", "workflowId": "pbhq-lite"}`,
+			`{"id": "INIT-X-001", "title": "T"}`,
+			`{"id": "../evil", "title": "T", "workflowId": "pbhq-lite"}`,
+		} {
+			if _, status, err := handleCreateInitiative(newReq(body), newSvc()); err == nil || status != http.StatusBadRequest {
+				t.Errorf("body %s: expected 400, got status=%d err=%v", body, status, err)
+			}
+		}
+	})
+
+	t.Run("conflict on duplicate", func(t *testing.T) {
+		svc := newSvc()
+		body := `{"id": "INIT-DUP-001", "title": "T", "workflowId": "pbhq-lite"}`
+		if _, _, err := handleCreateInitiative(newReq(body), svc); err != nil {
+			t.Fatalf("first create: %v", err)
+		}
+		if _, status, err := handleCreateInitiative(newReq(body), svc); err == nil || status != http.StatusConflict {
+			t.Errorf("expected 409 on duplicate, got status=%d err=%v", status, err)
+		}
+	})
+
+	t.Run("sets program when provided", func(t *testing.T) {
+		svc := newSvc()
+		_, _, err := handleCreateInitiative(newReq(`{
+			"id": "INIT-PROG-001", "title": "T", "workflowId": "pbhq-lite", "programId": "PROG-X"
+		}`), svc)
+		if err != nil {
+			t.Fatalf("create: %v", err)
+		}
+		init, err := svc.Store.GetInitiative(context.Background(), "INIT-PROG-001")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if init.ProgramID != "PROG-X" {
+			t.Errorf("ProgramID = %q, want PROG-X", init.ProgramID)
+		}
+	})
+}
+
+func TestBuildWorkflowSpecDetail(t *testing.T) {
+	t.Run("template and rubric for aws faq", func(t *testing.T) {
+		d, err := buildWorkflowSpecDetail("aws-one-way-door", "FAQ")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if d.Template == "" {
+			t.Error("expected FAQ template content")
+		}
+		if !strings.Contains(d.RubricJSON, "disconfirmation_rigor") {
+			t.Error("expected FAQ rubric JSON with LP category disconfirmation_rigor")
+		}
+		if d.SpecType != "FAQ" {
+			t.Errorf("SpecType = %q, want FAQ", d.SpecType)
+		}
+	})
+
+	t.Run("rubric only when no template (pbhq-lite prd)", func(t *testing.T) {
+		d, err := buildWorkflowSpecDetail("pbhq-lite", "prd")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if d.RubricJSON == "" {
+			t.Error("expected pbhq-lite prd rubric")
+		}
+	})
+
+	t.Run("unknown workflow errors", func(t *testing.T) {
+		if _, err := buildWorkflowSpecDetail("no-such-workflow", "prd"); err == nil {
+			t.Error("expected error for unknown workflow")
+		}
+	})
 }

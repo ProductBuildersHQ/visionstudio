@@ -30,19 +30,61 @@ type JudgeResult struct {
 }
 
 // SpecWorkflow defines a specification workflow template.
+// Definitions are sourced from the specification-workflow-spec catalog.
 type SpecWorkflow struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name"`
-	Description   string   `json:"description,omitempty"`
-	SpecsRequired []string `json:"specsRequired,omitempty"`
-	SpecsOptional []string `json:"specsOptional,omitempty"`
-	InitTypes     []string `json:"initTypes,omitempty"`
+	ID            string              `json:"id"`
+	Name          string              `json:"name"`
+	Description   string              `json:"description,omitempty"`
+	SpecsRequired []string            `json:"specsRequired,omitempty"`
+	SpecsOptional []string            `json:"specsOptional,omitempty"`
+	InitTypes     []string            `json:"initTypes,omitempty"`
+	Sequence      []string            `json:"sequence,omitempty"`
+	Phases        []SpecWorkflowPhase `json:"phases,omitempty"`
+}
+
+// SpecWorkflowPhase is a named group of spec types within a workflow's flow.
+type SpecWorkflowPhase struct {
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Specs []string `json:"specs"`
 }
 
 // SpecsResponse is the response for /api/specs.
 type SpecsResponse struct {
 	Workflows    []SpecWorkflow `json:"workflows"`
 	JudgeResults []JudgeResult  `json:"judgeResults"`
+}
+
+// WorkflowSpecDetail is the response for /api/workflows/{id}/specs/{type}:
+// the authoring template and LLM-as-a-Judge rubric for one spec type of a
+// workflow, served from the specification-workflow-spec catalog.
+type WorkflowSpecDetail struct {
+	WorkflowID string `json:"workflowId"`
+	SpecType   string `json:"specType"`
+	// Template is the raw markdown authoring template (placeholders and
+	// guidance comments included); empty if the workflow defines none.
+	Template string `json:"template,omitempty"`
+	// RubricJSON is the structured-evaluation RubricSet serialized as JSON;
+	// empty if the workflow defines no rubric for this spec type.
+	RubricJSON string `json:"rubricJson,omitempty"`
+}
+
+// CreateInitiativeRequest is the request body for POST /api/initiatives.
+type CreateInitiativeRequest struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	Priority    string `json:"priority,omitempty"`
+	InitType    string `json:"initType,omitempty"`
+	WorkflowID  string `json:"workflowId"`
+	ProgramID   string `json:"programId,omitempty"`
+	HomeRepo    string `json:"homeRepo,omitempty"`
+}
+
+// CreateInitiativeResponse is the response for POST /api/initiatives.
+type CreateInitiativeResponse struct {
+	ID     string `json:"id"`
+	Status string `json:"status"`
 }
 
 // Initiative represents a cross-repository initiative.
@@ -229,6 +271,10 @@ type SpecFile struct {
 	Content      string `json:"content"`
 	ModTime      string `json:"modTime,omitempty"`
 	EvalJSON     string `json:"evalJson,omitempty"`
+	// Role classifies the file against the initiative's workflow:
+	// "required", "optional", or "extra" (present on disk but not part of
+	// the selected workflow's spec set).
+	Role string `json:"role,omitempty"`
 }
 
 // SpecFilesResponse is the response for /api/spec-files/{initiativeId}.

@@ -1,6 +1,6 @@
 # Unreleased
 
-**Status:** Nothing pending since [v0.7.0](v0.7.0.md).
+**Status:** Nothing pending since [v0.8.0](v0.8.0.md).
 
 ## Full Changelog
 

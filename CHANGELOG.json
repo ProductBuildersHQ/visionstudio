@@ -10,6 +10,34 @@
   "unreleased": {},
   "releases": [
     {
+      "version": "v0.8.0",
+      "date": "2026-08-16",
+      "highlights": [
+        {
+          "description": "Progress bars distinguish cancelled RMIs (red) from genuinely pending ones (blank), and show green once completed + cancelled account for the whole bar -- previously a fully-resolved initiative with some cancelled work still read as \"in progress\" (blue) with an indistinguishable gray tail"
+        },
+        {
+          "description": "visionstudio app restart -- replaces a stale UI+API server (e.g. serving an old binary after a rebuild) in place, without hunting down and killing a PID by hand"
+        }
+      ],
+      "added": [
+        {
+          "description": "cancelledProgress on APIInitiative/APIPhase (both dual-struct layers), and a red ProgressBar segment sized off it, wired through initiative tiles, the by-program aggregate bar, the By Status board, and phase bars",
+          "commit": "ad47edd"
+        },
+        {
+          "description": "visionstudio app restart -- stops whatever UI+API server is recorded as running (ui.pid, mirroring Dolt's server.pid) and starts fresh, leaving the database alone if already running",
+          "commit": "d0e0b5d"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "ProgressBar showed blue (meaning \"still in progress\") for an initiative that was actually fully resolved -- completed + cancelled accounting for the whole bar with nothing left pending -- instead of green",
+          "commit": "11ac490"
+        }
+      ]
+    },
+    {
       "version": "v0.7.0",
       "date": "2026-08-16",
       "highlights": [

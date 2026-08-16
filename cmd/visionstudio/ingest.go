@@ -14,7 +14,140 @@ func ingestCmd() *cobra.Command {
 		Use:   "ingest",
 		Short: "Scan external sources for delivery evidence",
 	}
-	cmd.AddCommand(ingestGitCmd(), ingestChangelogCmd(), ingestIRCmd())
+	cmd.AddCommand(ingestGitCmd(), ingestChangelogCmd(), ingestIRCmd(), ingestReleasesCmd(), ingestGitHubReleasesCmd())
+	return cmd
+}
+
+func ingestGitHubReleasesCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "github-releases [repo-id]",
+		Short: "Fetch GitHub Releases via gh and reconcile against the store",
+		Long: `Closes the gap between local git tags and real GitHub Release history:
+tag-based ingest can miss releases that exist on GitHub but aren't
+reachable as local tags. Gap-filled releases are created with no
+initiative/RMI associations (no local commit range to walk for
+trailers). Releases already known get URL/body backfilled only where
+currently empty — released_at, tag, and every association are never
+touched. Requires the gh CLI, authenticated.
+
+Use --all for every repository with a local path.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			all, _ := cmd.Flags().GetBool("all")
+
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			var results []*ingest.GitHubReleaseIngestResult
+			if all {
+				results, err = ingest.GitHubReleasesAll(cmd.Context(), svc, ingest.GHReleasesLookup)
+				if err != nil {
+					return err
+				}
+			} else {
+				if len(args) == 0 {
+					return fmt.Errorf("specify a repository ID or use --all")
+				}
+				res, err := ingest.GitHubReleases(cmd.Context(), svc, args[0], ingest.GHReleasesLookup)
+				if err != nil {
+					return err
+				}
+				results = []*ingest.GitHubReleaseIngestResult{res}
+			}
+
+			var totFetched, totGapFilled, totEnriched, totDrafts, errCount int
+			for _, r := range results {
+				if r.Err != nil {
+					cmd.Printf("! %s: %v\n", r.RepoID, r.Err)
+					errCount++
+					continue
+				}
+				if r.Fetched == 0 {
+					continue
+				}
+				cmd.Printf("%s: %d fetched, %d gap-filled, %d enriched, %d unchanged, %d drafts skipped\n",
+					r.RepoID, r.Fetched, r.GapFilled, r.Enriched, r.Unchanged, r.DraftsSkipped)
+				totFetched += r.Fetched
+				totGapFilled += r.GapFilled
+				totEnriched += r.Enriched
+				totDrafts += r.DraftsSkipped
+			}
+			cmd.Printf("\nTotal: %d fetched, %d gap-filled, %d enriched, %d drafts skipped, %d repos with errors\n",
+				totFetched, totGapFilled, totEnriched, totDrafts, errCount)
+			return nil
+		},
+	}
+	cmd.Flags().Bool("all", false, "Run for all repositories with a local path")
+	return cmd
+}
+
+func ingestReleasesCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "releases [repo-id]",
+		Short: "Ingest per-repo releases from tags + CHANGELOG.json with trailer-chain association",
+		Long: `Walk each repository's semver-like tags (oldest first). CHANGELOG.json is
+the primary metadata source (date, notes ref); bare git tags are the
+fallback. Commits in each tag range are scanned for Refs: trailers —
+RMI IDs resolve to initiatives, auto-associating every release with the
+work it shipped. No time-proximity guessing: untrailered commits
+contribute nothing, and the coverage report says so.
+
+Use --all for the historical backfill across every repository with a
+local path.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			all, _ := cmd.Flags().GetBool("all")
+			allTags, _ := cmd.Flags().GetBool("all-tags")
+			workers, _ := cmd.Flags().GetInt("workers")
+
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			var results []*ingest.ReleaseIngestResult
+			if all {
+				results, err = ingest.ReleasesAll(cmd.Context(), svc, allTags, workers)
+				if err != nil {
+					return err
+				}
+			} else {
+				if len(args) == 0 {
+					return fmt.Errorf("specify a repository ID or use --all")
+				}
+				res, err := ingest.Releases(cmd.Context(), svc, args[0], allTags)
+				if err != nil {
+					return err
+				}
+				results = []*ingest.ReleaseIngestResult{res}
+			}
+
+			for _, r := range results {
+				if r.Err != nil {
+					cmd.Printf("! %s: %v\n", r.RepoID, r.Err)
+					continue
+				}
+				if r.ReleasesUpserted == 0 && r.CommitsWalked == 0 {
+					continue
+				}
+				cmd.Printf("%s: %d releases (%d w/changelog), coverage %d/%d commits trailered (%.0f%%), links: %d initiatives, %d RMIs\n",
+					r.RepoID, r.ReleasesUpserted, r.WithChangelog,
+					r.CommitsWithTrailers, r.CommitsWalked, r.Coverage()*100,
+					r.InitiativeLinks, r.RMILinks)
+			}
+			sum := ingest.SummarizeReleaseResults(results)
+			cmd.Printf("\nTotal: %d releases; %d initiative links, %d RMI links; trailer coverage %d/%d commits (%.0f%%); unresolved RMI refs: %d; repos with errors: %d\n",
+				sum.Releases, sum.InitiativeLinks, sum.RMILinks,
+				sum.CommitsWithTrailers, sum.CommitsWalked, sum.Coverage()*100,
+				sum.UnresolvedRMIRefs, sum.ReposWithErrors)
+			return nil
+		},
+	}
+	cmd.Flags().Bool("all", false, "Backfill all repositories with a local path")
+	cmd.Flags().Bool("all-tags", false, "Include non-semver-like tags")
+	cmd.Flags().Int("workers", runtime.NumCPU(), "Parallel workers with --all")
 	return cmd
 }
 

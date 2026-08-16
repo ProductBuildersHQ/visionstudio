@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "v2",
+  "metadata": {
+    "document": "docs/specs/initiatives/INIT-VISIONSTUDIO-002/PRD.md",
+    "documentId": "INIT-VISIONSTUDIO-002-PRD",
+    "generatedAt": "2026-08-11T18:30:00Z",
+    "generatedBy": "structured-evaluation"
+  },
+  "reviewType": "prd",
+  "judge": {
+    "model": "claude-fable-5",
+    "evaluatedAt": "2026-08-11T18:30:00Z",
+    "note": "Self-evaluation by the authoring agent session; no per-type rubric defined in workflow aws-one-way-door — general judgment"
+  },
+  "rubricId": "general-judgment-v1",
+  "intScore": 4,
+  "confidence": 0.8,
+  "pass": true,
+  "categories": [
+    {
+      "category": "Problem Definition",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "Three named forces (hosting own assets, cross-tenant identity, aggregation-value features) with the plexusone.dev second-consumer insight making the problem concrete rather than aspirational",
+      "findings": []
+    },
+    {
+      "category": "Vision and Approach",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Tenancy, sync-contract privacy boundary, dogfood-first/no-billing posture, and first workloads are all stated as decisions, not options",
+      "findings": []
+    },
+    {
+      "category": "Goals and Non-Goals",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "Five goals map to the four phases; non-goals fence off billing, third-party tenants, local-loop migration, and cloud ACTS capture explicitly",
+      "findings": []
+    },
+    {
+      "category": "User Stories and Flows",
+      "intScore": 2,
+      "score": "fail",
+      "confidence": 0.8,
+      "reasoning": "No persona-level stories or flows (sync a project, switch tenants, onboard as friendly user) — partially a deliberate deferral to UXD, but the PRD carries none at all",
+      "findings": [
+        {
+          "id": "prd-001",
+          "severity": "major",
+          "description": "Add minimal user stories for the sync and onboarding flows, or explicitly reference the UXD deferral from the PRD"
+        }
+      ]
+    },
+    {
+      "category": "Success Criteria",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Measurable and honest (plexusone.dev renders with no visitor-visible change; private repos provably absent; two-tenant sync from one machine) but carry no timeframes — mitigated by the 6-pager's milestone gates",
+      "findings": []
+    }
+  ]
+}

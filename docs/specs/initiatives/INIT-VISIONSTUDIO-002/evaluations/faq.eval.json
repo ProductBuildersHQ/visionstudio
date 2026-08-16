@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "v2",
+  "metadata": {
+    "document": "docs/specs/initiatives/INIT-VISIONSTUDIO-002/FAQ.md",
+    "documentId": "INIT-VISIONSTUDIO-002-FAQ",
+    "generatedAt": "2026-08-11T18:30:00Z",
+    "generatedBy": "structured-evaluation"
+  },
+  "reviewType": "faq",
+  "judge": {
+    "model": "claude-fable-5",
+    "evaluatedAt": "2026-08-11T18:30:00Z",
+    "note": "Self-evaluation by the authoring agent session; no per-type rubric defined in workflow aws-one-way-door — general Working Backwards judgment"
+  },
+  "rubricId": "general-judgment-v1",
+  "intScore": 4,
+  "confidence": 0.8,
+  "pass": true,
+  "categories": [
+    {
+      "category": "Customer Question Coverage",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Privacy/sync contract, free-tier contents, multi-tenant membership, downtime fallback, exit story (Dolt pull = full history), and private-repo absence are all answered concretely",
+      "findings": [
+        {
+          "id": "faq-001",
+          "severity": "major",
+          "description": "No price hypothesis for paid tiers — Working Backwards FAQs force a price guess even when wrong; M3 users will ask"
+        },
+        {
+          "id": "faq-002",
+          "severity": "major",
+          "description": "No security/data-location answer (where is my tenant hosted, encryption at rest, who can see it) — first question from any professional friendly user"
+        },
+        {
+          "id": "faq-003",
+          "severity": "minor",
+          "description": "No teams question — seats are mentioned in the tier list but the 'can my cofounder join my tenant' flow is unaddressed"
+        }
+      ]
+    },
+    {
+      "category": "Internal Question Coverage",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.9,
+      "reasoning": "Why-now, why-no-billing, free-ACTS COGS, riskiest assumption (hosted Dolt ops), one-way/two-way door inventory, and why-paid-before-ProductHunt are the right hard questions with real answers",
+      "findings": []
+    },
+    {
+      "category": "Honesty and Specificity",
+      "intScore": 5,
+      "score": "pass",
+      "confidence": 0.85,
+      "reasoning": "Answers are operationally specific (CDN caching, static fallback, database deletion semantics) rather than marketing prose",
+      "findings": []
+    },
+    {
+      "category": "AWS Leadership Principles (faq: Earn Trust, Dive Deep, Frugality, Have Backbone)",
+      "intScore": 4,
+      "score": "pass",
+      "confidence": 0.8,
+      "reasoning": "Earn Trust 5 (kill-condition stated to customers' benefit, research inclusion disclosed as the free tier's funding deal); Dive Deep 4 (mechanism-level answers; price hypothesis still absent per faq-001); Frugality 5 (recouped-server cost structure answered directly); Have Backbone 4 (riskiest assumption and why-paid-before-ProductHunt answered in strong form)",
+      "findings": [
+        {
+          "id": "faq-lp-001",
+          "severity": "minor",
+          "description": "Rubric: evaluations/rubrics/awslp.rubric.yaml; cross-doc coherence scored in awslp-aggregate.eval.json"
+        }
+      ]
+    }
+  ]
+}

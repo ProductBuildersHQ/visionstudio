@@ -322,6 +322,12 @@ func init() {
 	repositoryDescOrganizationID := repositoryFields[9].Descriptor()
 	// repository.OrganizationIDValidator is a validator for the "organization_id" field. It is called by the builders before save.
 	repository.OrganizationIDValidator = repositoryDescOrganizationID.Validators[0].(func(string) error)
+	// repositoryDescVisibility is the schema descriptor for visibility field.
+	repositoryDescVisibility := repositoryFields[10].Descriptor()
+	// repository.DefaultVisibility holds the default value on creation for the visibility field.
+	repository.DefaultVisibility = repositoryDescVisibility.Default.(string)
+	// repository.VisibilityValidator is a validator for the "visibility" field. It is called by the builders before save.
+	repository.VisibilityValidator = repositoryDescVisibility.Validators[0].(func(string) error)
 	// repositoryDescID is the schema descriptor for id field.
 	repositoryDescID := repositoryFields[0].Descriptor()
 	// repository.IDValidator is a validator for the "id" field. It is called by the builders before save.

@@ -21,7 +21,45 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd())
+	return cmd
+}
+
+func registryVisibilityCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "visibility",
+		Short: "Manage GitHub-derived repository visibility",
+	}
+
+	refresh := &cobra.Command{
+		Use:   "refresh",
+		Short: "Refresh visibility (public|private|unknown) from GitHub via gh",
+		Long: `Queries GitHub (gh CLI) for each registered repository and records
+its visibility. Lookup failures leave the stored value untouched;
+"unknown" is never treated as public by any export path.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			repoID, _ := cmd.Flags().GetString("repo")
+
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			res, err := svc.RefreshVisibility(cmd.Context(), service.GHVisibilityLookup, repoID)
+			if err != nil {
+				return err
+			}
+			cmd.Printf("Updated: %d, unchanged: %d, errors: %d\n", res.Updated, res.Unchanged, len(res.Errors))
+			for _, e := range res.Errors {
+				cmd.Printf("  ! %s\n", e)
+			}
+			return nil
+		},
+	}
+	refresh.Flags().String("repo", "", "Refresh a single repository ID (default: all)")
+
+	cmd.AddCommand(refresh)
 	return cmd
 }
 
@@ -245,13 +283,17 @@ func registryListCmd() *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tORG\tNAME\tSTATUS\tPATH")
+			_, _ = fmt.Fprintln(w, "ID\tORG\tNAME\tSTATUS\tVIS\tPATH")
 			for _, r := range repos {
 				path := r.LocalPath
 				if path == "" {
 					path = "-"
 				}
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.ID, r.Organization, r.RepositoryName, r.Status, path)
+				vis := r.Visibility
+				if vis == "" {
+					vis = "unknown"
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", r.ID, r.Organization, r.RepositoryName, r.Status, vis, path)
 			}
 			return w.Flush()
 		},

@@ -162,6 +162,9 @@ type Repository struct {
 	Status          string `json:"status"`
 	IngestHighWater string `json:"ingest_high_water,omitempty"`
 	OrganizationID  string `json:"organization_id,omitempty"`
+	// Visibility is public|private|unknown, ingested from GitHub — never
+	// hand-maintained. "unknown" must NEVER be treated as public.
+	Visibility string `json:"visibility,omitempty"`
 }
 
 // Organization is a first-class GitHub organization or a user account

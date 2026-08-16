@@ -14469,6 +14469,7 @@ type RepositoryMutation struct {
 	domain                *string
 	status                *string
 	ingest_high_water     *string
+	visibility            *string
 	clearedFields         map[string]struct{}
 	roadmap_items         map[string]struct{}
 	removedroadmap_items  map[string]struct{}
@@ -14976,6 +14977,42 @@ func (m *RepositoryMutation) ResetOrganizationID() {
 	delete(m.clearedFields, repository.FieldOrganizationID)
 }
 
+// SetVisibility sets the "visibility" field.
+func (m *RepositoryMutation) SetVisibility(s string) {
+	m.visibility = &s
+}
+
+// Visibility returns the value of the "visibility" field in the mutation.
+func (m *RepositoryMutation) Visibility() (r string, exists bool) {
+	v := m.visibility
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVisibility returns the old "visibility" field's value of the Repository entity.
+// If the Repository object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RepositoryMutation) OldVisibility(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVisibility is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVisibility requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVisibility: %w", err)
+	}
+	return oldValue.Visibility, nil
+}
+
+// ResetVisibility resets all changes to the "visibility" field.
+func (m *RepositoryMutation) ResetVisibility() {
+	m.visibility = nil
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by ids.
 func (m *RepositoryMutation) AddRoadmapItemIDs(ids ...string) {
 	if m.roadmap_items == nil {
@@ -15158,7 +15195,7 @@ func (m *RepositoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RepositoryMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.organization != nil {
 		fields = append(fields, repository.FieldOrganization)
 	}
@@ -15186,6 +15223,9 @@ func (m *RepositoryMutation) Fields() []string {
 	if m.org != nil {
 		fields = append(fields, repository.FieldOrganizationID)
 	}
+	if m.visibility != nil {
+		fields = append(fields, repository.FieldVisibility)
+	}
 	return fields
 }
 
@@ -15212,6 +15252,8 @@ func (m *RepositoryMutation) Field(name string) (ent.Value, bool) {
 		return m.IngestHighWater()
 	case repository.FieldOrganizationID:
 		return m.OrganizationID()
+	case repository.FieldVisibility:
+		return m.Visibility()
 	}
 	return nil, false
 }
@@ -15239,6 +15281,8 @@ func (m *RepositoryMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldIngestHighWater(ctx)
 	case repository.FieldOrganizationID:
 		return m.OldOrganizationID(ctx)
+	case repository.FieldVisibility:
+		return m.OldVisibility(ctx)
 	}
 	return nil, fmt.Errorf("unknown Repository field %s", name)
 }
@@ -15310,6 +15354,13 @@ func (m *RepositoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetOrganizationID(v)
+		return nil
+	case repository.FieldVisibility:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVisibility(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Repository field %s", name)
@@ -15419,6 +15470,9 @@ func (m *RepositoryMutation) ResetField(name string) error {
 		return nil
 	case repository.FieldOrganizationID:
 		m.ResetOrganizationID()
+		return nil
+	case repository.FieldVisibility:
+		m.ResetVisibility()
 		return nil
 	}
 	return fmt.Errorf("unknown Repository field %s", name)

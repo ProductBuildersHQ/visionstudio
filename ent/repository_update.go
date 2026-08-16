@@ -186,6 +186,20 @@ func (_u *RepositoryUpdate) ClearOrganizationID() *RepositoryUpdate {
 	return _u
 }
 
+// SetVisibility sets the "visibility" field.
+func (_u *RepositoryUpdate) SetVisibility(v string) *RepositoryUpdate {
+	_u.mutation.SetVisibility(v)
+	return _u
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (_u *RepositoryUpdate) SetNillableVisibility(v *string) *RepositoryUpdate {
+	if v != nil {
+		_u.SetVisibility(*v)
+	}
+	return _u
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by IDs.
 func (_u *RepositoryUpdate) AddRoadmapItemIDs(ids ...string) *RepositoryUpdate {
 	_u.mutation.AddRoadmapItemIDs(ids...)
@@ -362,6 +376,11 @@ func (_u *RepositoryUpdate) check() error {
 			return &ValidationError{Name: "organization_id", err: fmt.Errorf(`ent: validator failed for field "Repository.organization_id": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Visibility(); ok {
+		if err := repository.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Repository.visibility": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -412,6 +431,9 @@ func (_u *RepositoryUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if _u.mutation.IngestHighWaterCleared() {
 		_spec.ClearField(repository.FieldIngestHighWater, field.TypeString)
+	}
+	if value, ok := _u.mutation.Visibility(); ok {
+		_spec.SetField(repository.FieldVisibility, field.TypeString, value)
 	}
 	if _u.mutation.RoadmapItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -708,6 +730,20 @@ func (_u *RepositoryUpdateOne) ClearOrganizationID() *RepositoryUpdateOne {
 	return _u
 }
 
+// SetVisibility sets the "visibility" field.
+func (_u *RepositoryUpdateOne) SetVisibility(v string) *RepositoryUpdateOne {
+	_u.mutation.SetVisibility(v)
+	return _u
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (_u *RepositoryUpdateOne) SetNillableVisibility(v *string) *RepositoryUpdateOne {
+	if v != nil {
+		_u.SetVisibility(*v)
+	}
+	return _u
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by IDs.
 func (_u *RepositoryUpdateOne) AddRoadmapItemIDs(ids ...string) *RepositoryUpdateOne {
 	_u.mutation.AddRoadmapItemIDs(ids...)
@@ -897,6 +933,11 @@ func (_u *RepositoryUpdateOne) check() error {
 			return &ValidationError{Name: "organization_id", err: fmt.Errorf(`ent: validator failed for field "Repository.organization_id": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Visibility(); ok {
+		if err := repository.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Repository.visibility": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -964,6 +1005,9 @@ func (_u *RepositoryUpdateOne) sqlSave(ctx context.Context) (_node *Repository, 
 	}
 	if _u.mutation.IngestHighWaterCleared() {
 		_spec.ClearField(repository.FieldIngestHighWater, field.TypeString)
+	}
+	if value, ok := _u.mutation.Visibility(); ok {
+		_spec.SetField(repository.FieldVisibility, field.TypeString, value)
 	}
 	if _u.mutation.RoadmapItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{

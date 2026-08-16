@@ -124,6 +124,20 @@ func (_c *RepositoryCreate) SetNillableOrganizationID(v *string) *RepositoryCrea
 	return _c
 }
 
+// SetVisibility sets the "visibility" field.
+func (_c *RepositoryCreate) SetVisibility(v string) *RepositoryCreate {
+	_c.mutation.SetVisibility(v)
+	return _c
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (_c *RepositoryCreate) SetNillableVisibility(v *string) *RepositoryCreate {
+	if v != nil {
+		_c.SetVisibility(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *RepositoryCreate) SetID(v string) *RepositoryCreate {
 	_c.mutation.SetID(v)
@@ -218,6 +232,10 @@ func (_c *RepositoryCreate) defaults() {
 		v := repository.DefaultDefaultBranch
 		_c.mutation.SetDefaultBranch(v)
 	}
+	if _, ok := _c.mutation.Visibility(); !ok {
+		v := repository.DefaultVisibility
+		_c.mutation.SetVisibility(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -277,6 +295,14 @@ func (_c *RepositoryCreate) check() error {
 	if v, ok := _c.mutation.OrganizationID(); ok {
 		if err := repository.OrganizationIDValidator(v); err != nil {
 			return &ValidationError{Name: "organization_id", err: fmt.Errorf(`ent: validator failed for field "Repository.organization_id": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Visibility(); !ok {
+		return &ValidationError{Name: "visibility", err: errors.New(`ent: missing required field "Repository.visibility"`)}
+	}
+	if v, ok := _c.mutation.Visibility(); ok {
+		if err := repository.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Repository.visibility": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
@@ -350,6 +376,10 @@ func (_c *RepositoryCreate) createSpec() (*Repository, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.IngestHighWater(); ok {
 		_spec.SetField(repository.FieldIngestHighWater, field.TypeString, value)
 		_node.IngestHighWater = value
+	}
+	if value, ok := _c.mutation.Visibility(); ok {
+		_spec.SetField(repository.FieldVisibility, field.TypeString, value)
+		_node.Visibility = value
 	}
 	if nodes := _c.mutation.RoadmapItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

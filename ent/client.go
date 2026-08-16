@@ -25,6 +25,8 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
+	"github.com/ProductBuildersHQ/visionstudio/ent/person"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
@@ -63,12 +65,16 @@ type Client struct {
 	JudgeRubric *JudgeRubricClient
 	// MaturityAssessment is the client for interacting with the MaturityAssessment builders.
 	MaturityAssessment *MaturityAssessmentClient
+	// Organization is the client for interacting with the Organization builders.
+	Organization *OrganizationClient
 	// PRISMDocument is the client for interacting with the PRISMDocument builders.
 	PRISMDocument *PRISMDocumentClient
 	// PRISMGoal is the client for interacting with the PRISMGoal builders.
 	PRISMGoal *PRISMGoalClient
 	// PRISMRoadmap is the client for interacting with the PRISMRoadmap builders.
 	PRISMRoadmap *PRISMRoadmapClient
+	// Person is the client for interacting with the Person builders.
+	Person *PersonClient
 	// Phase is the client for interacting with the Phase builders.
 	Phase *PhaseClient
 	// Program is the client for interacting with the Program builders.
@@ -106,9 +112,11 @@ func (c *Client) init() {
 	c.JudgeResult = NewJudgeResultClient(c.config)
 	c.JudgeRubric = NewJudgeRubricClient(c.config)
 	c.MaturityAssessment = NewMaturityAssessmentClient(c.config)
+	c.Organization = NewOrganizationClient(c.config)
 	c.PRISMDocument = NewPRISMDocumentClient(c.config)
 	c.PRISMGoal = NewPRISMGoalClient(c.config)
 	c.PRISMRoadmap = NewPRISMRoadmapClient(c.config)
+	c.Person = NewPersonClient(c.config)
 	c.Phase = NewPhaseClient(c.config)
 	c.Program = NewProgramClient(c.config)
 	c.RMIDependency = NewRMIDependencyClient(c.config)
@@ -219,9 +227,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		JudgeResult:          NewJudgeResultClient(cfg),
 		JudgeRubric:          NewJudgeRubricClient(cfg),
 		MaturityAssessment:   NewMaturityAssessmentClient(cfg),
+		Organization:         NewOrganizationClient(cfg),
 		PRISMDocument:        NewPRISMDocumentClient(cfg),
 		PRISMGoal:            NewPRISMGoalClient(cfg),
 		PRISMRoadmap:         NewPRISMRoadmapClient(cfg),
+		Person:               NewPersonClient(cfg),
 		Phase:                NewPhaseClient(cfg),
 		Program:              NewProgramClient(cfg),
 		RMIDependency:        NewRMIDependencyClient(cfg),
@@ -259,9 +269,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		JudgeResult:          NewJudgeResultClient(cfg),
 		JudgeRubric:          NewJudgeRubricClient(cfg),
 		MaturityAssessment:   NewMaturityAssessmentClient(cfg),
+		Organization:         NewOrganizationClient(cfg),
 		PRISMDocument:        NewPRISMDocumentClient(cfg),
 		PRISMGoal:            NewPRISMGoalClient(cfg),
 		PRISMRoadmap:         NewPRISMRoadmapClient(cfg),
+		Person:               NewPersonClient(cfg),
 		Phase:                NewPhaseClient(cfg),
 		Program:              NewProgramClient(cfg),
 		RMIDependency:        NewRMIDependencyClient(cfg),
@@ -301,9 +313,10 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Assignment, c.CapabilityModel, c.DeliveryEvidence, c.DevXPeriodReport,
 		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
-		c.JudgeRubric, c.MaturityAssessment, c.PRISMDocument, c.PRISMGoal,
-		c.PRISMRoadmap, c.Phase, c.Program, c.RMIDependency, c.Repository,
-		c.RepositoryDependency, c.RoadmapItem, c.SpecDocument, c.SpecWorkflow,
+		c.JudgeRubric, c.MaturityAssessment, c.Organization, c.PRISMDocument,
+		c.PRISMGoal, c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency,
+		c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
+		c.SpecWorkflow,
 	} {
 		n.Use(hooks...)
 	}
@@ -315,9 +328,10 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Assignment, c.CapabilityModel, c.DeliveryEvidence, c.DevXPeriodReport,
 		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
-		c.JudgeRubric, c.MaturityAssessment, c.PRISMDocument, c.PRISMGoal,
-		c.PRISMRoadmap, c.Phase, c.Program, c.RMIDependency, c.Repository,
-		c.RepositoryDependency, c.RoadmapItem, c.SpecDocument, c.SpecWorkflow,
+		c.JudgeRubric, c.MaturityAssessment, c.Organization, c.PRISMDocument,
+		c.PRISMGoal, c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency,
+		c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
+		c.SpecWorkflow,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -346,12 +360,16 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.JudgeRubric.mutate(ctx, m)
 	case *MaturityAssessmentMutation:
 		return c.MaturityAssessment.mutate(ctx, m)
+	case *OrganizationMutation:
+		return c.Organization.mutate(ctx, m)
 	case *PRISMDocumentMutation:
 		return c.PRISMDocument.mutate(ctx, m)
 	case *PRISMGoalMutation:
 		return c.PRISMGoal.mutate(ctx, m)
 	case *PRISMRoadmapMutation:
 		return c.PRISMRoadmap.mutate(ctx, m)
+	case *PersonMutation:
+		return c.Person.mutate(ctx, m)
 	case *PhaseMutation:
 		return c.Phase.mutate(ctx, m)
 	case *ProgramMutation:
@@ -1927,6 +1945,171 @@ func (c *MaturityAssessmentClient) mutate(ctx context.Context, m *MaturityAssess
 	}
 }
 
+// OrganizationClient is a client for the Organization schema.
+type OrganizationClient struct {
+	config
+}
+
+// NewOrganizationClient returns a client for the Organization from the given config.
+func NewOrganizationClient(c config) *OrganizationClient {
+	return &OrganizationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `organization.Hooks(f(g(h())))`.
+func (c *OrganizationClient) Use(hooks ...Hook) {
+	c.hooks.Organization = append(c.hooks.Organization, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `organization.Intercept(f(g(h())))`.
+func (c *OrganizationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Organization = append(c.inters.Organization, interceptors...)
+}
+
+// Create returns a builder for creating a Organization entity.
+func (c *OrganizationClient) Create() *OrganizationCreate {
+	mutation := newOrganizationMutation(c.config, OpCreate)
+	return &OrganizationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Organization entities.
+func (c *OrganizationClient) CreateBulk(builders ...*OrganizationCreate) *OrganizationCreateBulk {
+	return &OrganizationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *OrganizationClient) MapCreateBulk(slice any, setFunc func(*OrganizationCreate, int)) *OrganizationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &OrganizationCreateBulk{err: fmt.Errorf("calling to OrganizationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*OrganizationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &OrganizationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Organization.
+func (c *OrganizationClient) Update() *OrganizationUpdate {
+	mutation := newOrganizationMutation(c.config, OpUpdate)
+	return &OrganizationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *OrganizationClient) UpdateOne(_m *Organization) *OrganizationUpdateOne {
+	mutation := newOrganizationMutation(c.config, OpUpdateOne, withOrganization(_m))
+	return &OrganizationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *OrganizationClient) UpdateOneID(id string) *OrganizationUpdateOne {
+	mutation := newOrganizationMutation(c.config, OpUpdateOne, withOrganizationID(id))
+	return &OrganizationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Organization.
+func (c *OrganizationClient) Delete() *OrganizationDelete {
+	mutation := newOrganizationMutation(c.config, OpDelete)
+	return &OrganizationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *OrganizationClient) DeleteOne(_m *Organization) *OrganizationDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *OrganizationClient) DeleteOneID(id string) *OrganizationDeleteOne {
+	builder := c.Delete().Where(organization.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &OrganizationDeleteOne{builder}
+}
+
+// Query returns a query builder for Organization.
+func (c *OrganizationClient) Query() *OrganizationQuery {
+	return &OrganizationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeOrganization},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Organization entity by its id.
+func (c *OrganizationClient) Get(ctx context.Context, id string) (*Organization, error) {
+	return c.Query().Where(organization.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *OrganizationClient) GetX(ctx context.Context, id string) *Organization {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRepositories queries the repositories edge of a Organization.
+func (c *OrganizationClient) QueryRepositories(_m *Organization) *RepositoryQuery {
+	query := (&RepositoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(organization.Table, organization.FieldID, id),
+			sqlgraph.To(repository.Table, repository.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, organization.RepositoriesTable, organization.RepositoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryMembers queries the members edge of a Organization.
+func (c *OrganizationClient) QueryMembers(_m *Organization) *PersonQuery {
+	query := (&PersonClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(organization.Table, organization.FieldID, id),
+			sqlgraph.To(person.Table, person.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, organization.MembersTable, organization.MembersPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *OrganizationClient) Hooks() []Hook {
+	return c.hooks.Organization
+}
+
+// Interceptors returns the client interceptors.
+func (c *OrganizationClient) Interceptors() []Interceptor {
+	return c.inters.Organization
+}
+
+func (c *OrganizationClient) mutate(ctx context.Context, m *OrganizationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OrganizationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OrganizationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OrganizationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OrganizationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Organization mutation op: %q", m.Op())
+	}
+}
+
 // PRISMDocumentClient is a client for the PRISMDocument schema.
 type PRISMDocumentClient struct {
 	config
@@ -2323,6 +2506,155 @@ func (c *PRISMRoadmapClient) mutate(ctx context.Context, m *PRISMRoadmapMutation
 		return (&PRISMRoadmapDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown PRISMRoadmap mutation op: %q", m.Op())
+	}
+}
+
+// PersonClient is a client for the Person schema.
+type PersonClient struct {
+	config
+}
+
+// NewPersonClient returns a client for the Person from the given config.
+func NewPersonClient(c config) *PersonClient {
+	return &PersonClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `person.Hooks(f(g(h())))`.
+func (c *PersonClient) Use(hooks ...Hook) {
+	c.hooks.Person = append(c.hooks.Person, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `person.Intercept(f(g(h())))`.
+func (c *PersonClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Person = append(c.inters.Person, interceptors...)
+}
+
+// Create returns a builder for creating a Person entity.
+func (c *PersonClient) Create() *PersonCreate {
+	mutation := newPersonMutation(c.config, OpCreate)
+	return &PersonCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Person entities.
+func (c *PersonClient) CreateBulk(builders ...*PersonCreate) *PersonCreateBulk {
+	return &PersonCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *PersonClient) MapCreateBulk(slice any, setFunc func(*PersonCreate, int)) *PersonCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &PersonCreateBulk{err: fmt.Errorf("calling to PersonClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*PersonCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &PersonCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Person.
+func (c *PersonClient) Update() *PersonUpdate {
+	mutation := newPersonMutation(c.config, OpUpdate)
+	return &PersonUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PersonClient) UpdateOne(_m *Person) *PersonUpdateOne {
+	mutation := newPersonMutation(c.config, OpUpdateOne, withPerson(_m))
+	return &PersonUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PersonClient) UpdateOneID(id string) *PersonUpdateOne {
+	mutation := newPersonMutation(c.config, OpUpdateOne, withPersonID(id))
+	return &PersonUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Person.
+func (c *PersonClient) Delete() *PersonDelete {
+	mutation := newPersonMutation(c.config, OpDelete)
+	return &PersonDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PersonClient) DeleteOne(_m *Person) *PersonDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PersonClient) DeleteOneID(id string) *PersonDeleteOne {
+	builder := c.Delete().Where(person.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PersonDeleteOne{builder}
+}
+
+// Query returns a query builder for Person.
+func (c *PersonClient) Query() *PersonQuery {
+	return &PersonQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePerson},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Person entity by its id.
+func (c *PersonClient) Get(ctx context.Context, id string) (*Person, error) {
+	return c.Query().Where(person.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PersonClient) GetX(ctx context.Context, id string) *Person {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryOrganizations queries the organizations edge of a Person.
+func (c *PersonClient) QueryOrganizations(_m *Person) *OrganizationQuery {
+	query := (&OrganizationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(person.Table, person.FieldID, id),
+			sqlgraph.To(organization.Table, organization.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, person.OrganizationsTable, person.OrganizationsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *PersonClient) Hooks() []Hook {
+	return c.hooks.Person
+}
+
+// Interceptors returns the client interceptors.
+func (c *PersonClient) Interceptors() []Interceptor {
+	return c.inters.Person
+}
+
+func (c *PersonClient) mutate(ctx context.Context, m *PersonMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PersonCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PersonUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PersonUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PersonDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Person mutation op: %q", m.Op())
 	}
 }
 
@@ -2906,6 +3238,22 @@ func (c *RepositoryClient) QuerySpecDocuments(_m *Repository) *SpecDocumentQuery
 			sqlgraph.From(repository.Table, repository.FieldID, id),
 			sqlgraph.To(specdocument.Table, specdocument.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, repository.SpecDocumentsTable, repository.SpecDocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryOrg queries the org edge of a Repository.
+func (c *RepositoryClient) QueryOrg(_m *Repository) *OrganizationQuery {
+	query := (&OrganizationClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repository.Table, repository.FieldID, id),
+			sqlgraph.To(organization.Table, organization.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, repository.OrgTable, repository.OrgColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3651,15 +3999,15 @@ type (
 	hooks struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
 		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
-		MaturityAssessment, PRISMDocument, PRISMGoal, PRISMRoadmap, Phase, Program,
-		RMIDependency, Repository, RepositoryDependency, RoadmapItem, SpecDocument,
-		SpecWorkflow []ent.Hook
+		MaturityAssessment, Organization, PRISMDocument, PRISMGoal, PRISMRoadmap,
+		Person, Phase, Program, RMIDependency, Repository, RepositoryDependency,
+		RoadmapItem, SpecDocument, SpecWorkflow []ent.Hook
 	}
 	inters struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
 		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
-		MaturityAssessment, PRISMDocument, PRISMGoal, PRISMRoadmap, Phase, Program,
-		RMIDependency, Repository, RepositoryDependency, RoadmapItem, SpecDocument,
-		SpecWorkflow []ent.Interceptor
+		MaturityAssessment, Organization, PRISMDocument, PRISMGoal, PRISMRoadmap,
+		Person, Phase, Program, RMIDependency, Repository, RepositoryDependency,
+		RoadmapItem, SpecDocument, SpecWorkflow []ent.Interceptor
 	}
 )

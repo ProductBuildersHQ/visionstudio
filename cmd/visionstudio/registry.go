@@ -21,7 +21,161 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd())
+	return cmd
+}
+
+func registryOrgCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "org",
+		Short: "Manage first-class organizations",
+	}
+
+	list := &cobra.Command{
+		Use:   "list",
+		Short: "List organizations",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			orgs, err := svc.ListOrganizations(cmd.Context())
+			if err != nil {
+				return err
+			}
+			if len(orgs) == 0 {
+				cmd.Println("No organizations. Run 'registry org backfill' to create them from registered repositories.")
+				return nil
+			}
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "ID\tLOGIN\tKIND\tWEBSITE")
+			for _, o := range orgs {
+				website := o.Website
+				if website == "" {
+					website = "-"
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", o.ID, o.Login, o.Kind, website)
+			}
+			return w.Flush()
+		},
+	}
+
+	backfill := &cobra.Command{
+		Use:   "backfill",
+		Short: "Create organization rows from registered repositories and link them",
+		Long: `Creates an Organization row for every distinct organization string on
+registered repositories and links each repository to its organization.
+Idempotent. Use --user to mark logins that are GitHub user accounts
+(e.g. --user grokify) rather than organizations.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			users, _ := cmd.Flags().GetStringSlice("user")
+			userLogins := make(map[string]bool, len(users))
+			for _, u := range users {
+				userLogins[u] = true
+			}
+
+			res, err := svc.BackfillOrganizations(cmd.Context(), userLogins)
+			if err != nil {
+				return err
+			}
+			cmd.Printf("Organizations created: %d\n", len(res.OrgsCreated))
+			for _, id := range res.OrgsCreated {
+				cmd.Printf("  %s\n", id)
+			}
+			cmd.Printf("Repositories linked: %d (skipped/already linked: %d)\n", res.ReposLinked, res.ReposSkipped)
+			return nil
+		},
+	}
+	backfill.Flags().StringSlice("user", nil, "Login that is a GitHub user account, not an organization (repeatable)")
+
+	cmd.AddCommand(list, backfill)
+	return cmd
+}
+
+func registryPersonCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "person",
+		Short: "Manage identities",
+	}
+
+	add := &cobra.Command{
+		Use:   "add",
+		Short: "Register or update an identity",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			githubLogin, _ := cmd.Flags().GetString("github-login")
+			id, _ := cmd.Flags().GetString("id")
+			displayName, _ := cmd.Flags().GetString("display-name")
+			emails, _ := cmd.Flags().GetStringSlice("email")
+			orgs, _ := cmd.Flags().GetStringSlice("org")
+
+			if githubLogin == "" {
+				return fmt.Errorf("--github-login is required")
+			}
+
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			p, err := svc.RegisterPerson(cmd.Context(), id, githubLogin, displayName, emails, orgs)
+			if err != nil {
+				return err
+			}
+			cmd.Printf("Registered: %s (orgs: %s)\n", p.ID, strings.Join(p.OrgIDs, ", "))
+			return nil
+		},
+	}
+	add.Flags().String("id", "", "Person ID (default person:<github-login>)")
+	add.Flags().String("github-login", "", "GitHub login (required)")
+	add.Flags().String("display-name", "", "Display name")
+	add.Flags().StringSlice("email", nil, "Commit-author email identity (repeatable)")
+	add.Flags().StringSlice("org", nil, "Affiliated organization login (repeatable)")
+
+	list := &cobra.Command{
+		Use:   "list",
+		Short: "List identities",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			people, err := svc.ListPeople(cmd.Context())
+			if err != nil {
+				return err
+			}
+			if len(people) == 0 {
+				cmd.Println("No identities registered.")
+				return nil
+			}
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "ID\tGITHUB\tNAME\tORGS")
+			for _, p := range people {
+				name := p.DisplayName
+				if name == "" {
+					name = "-"
+				}
+				orgs := "-"
+				if len(p.OrgIDs) > 0 {
+					orgs = strings.Join(p.OrgIDs, ", ")
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", p.ID, p.GitHubLogin, name, orgs)
+			}
+			return w.Flush()
+		},
+	}
+
+	cmd.AddCommand(add, list)
 	return cmd
 }
 

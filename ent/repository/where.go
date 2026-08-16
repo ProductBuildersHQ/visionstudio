@@ -103,6 +103,11 @@ func IngestHighWater(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldEQ(FieldIngestHighWater, v))
 }
 
+// OrganizationID applies equality check predicate on the "organization_id" field. It's identical to OrganizationIDEQ.
+func OrganizationID(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEQ(FieldOrganizationID, v))
+}
+
 // OrganizationEQ applies the EQ predicate on the "organization" field.
 func OrganizationEQ(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldEQ(FieldOrganization, v))
@@ -663,6 +668,81 @@ func IngestHighWaterContainsFold(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldContainsFold(FieldIngestHighWater, v))
 }
 
+// OrganizationIDEQ applies the EQ predicate on the "organization_id" field.
+func OrganizationIDEQ(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEQ(FieldOrganizationID, v))
+}
+
+// OrganizationIDNEQ applies the NEQ predicate on the "organization_id" field.
+func OrganizationIDNEQ(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldNEQ(FieldOrganizationID, v))
+}
+
+// OrganizationIDIn applies the In predicate on the "organization_id" field.
+func OrganizationIDIn(vs ...string) predicate.Repository {
+	return predicate.Repository(sql.FieldIn(FieldOrganizationID, vs...))
+}
+
+// OrganizationIDNotIn applies the NotIn predicate on the "organization_id" field.
+func OrganizationIDNotIn(vs ...string) predicate.Repository {
+	return predicate.Repository(sql.FieldNotIn(FieldOrganizationID, vs...))
+}
+
+// OrganizationIDGT applies the GT predicate on the "organization_id" field.
+func OrganizationIDGT(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldGT(FieldOrganizationID, v))
+}
+
+// OrganizationIDGTE applies the GTE predicate on the "organization_id" field.
+func OrganizationIDGTE(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldGTE(FieldOrganizationID, v))
+}
+
+// OrganizationIDLT applies the LT predicate on the "organization_id" field.
+func OrganizationIDLT(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldLT(FieldOrganizationID, v))
+}
+
+// OrganizationIDLTE applies the LTE predicate on the "organization_id" field.
+func OrganizationIDLTE(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldLTE(FieldOrganizationID, v))
+}
+
+// OrganizationIDContains applies the Contains predicate on the "organization_id" field.
+func OrganizationIDContains(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldContains(FieldOrganizationID, v))
+}
+
+// OrganizationIDHasPrefix applies the HasPrefix predicate on the "organization_id" field.
+func OrganizationIDHasPrefix(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldHasPrefix(FieldOrganizationID, v))
+}
+
+// OrganizationIDHasSuffix applies the HasSuffix predicate on the "organization_id" field.
+func OrganizationIDHasSuffix(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldHasSuffix(FieldOrganizationID, v))
+}
+
+// OrganizationIDIsNil applies the IsNil predicate on the "organization_id" field.
+func OrganizationIDIsNil() predicate.Repository {
+	return predicate.Repository(sql.FieldIsNull(FieldOrganizationID))
+}
+
+// OrganizationIDNotNil applies the NotNil predicate on the "organization_id" field.
+func OrganizationIDNotNil() predicate.Repository {
+	return predicate.Repository(sql.FieldNotNull(FieldOrganizationID))
+}
+
+// OrganizationIDEqualFold applies the EqualFold predicate on the "organization_id" field.
+func OrganizationIDEqualFold(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEqualFold(FieldOrganizationID, v))
+}
+
+// OrganizationIDContainsFold applies the ContainsFold predicate on the "organization_id" field.
+func OrganizationIDContainsFold(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldContainsFold(FieldOrganizationID, v))
+}
+
 // HasRoadmapItems applies the HasEdge predicate on the "roadmap_items" edge.
 func HasRoadmapItems() predicate.Repository {
 	return predicate.Repository(func(s *sql.Selector) {
@@ -701,6 +781,29 @@ func HasSpecDocuments() predicate.Repository {
 func HasSpecDocumentsWith(preds ...predicate.SpecDocument) predicate.Repository {
 	return predicate.Repository(func(s *sql.Selector) {
 		step := newSpecDocumentsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasOrg applies the HasEdge predicate on the "org" edge.
+func HasOrg() predicate.Repository {
+	return predicate.Repository(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, OrgTable, OrgColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasOrgWith applies the HasEdge predicate on the "org" edge with a given conditions (other predicates).
+func HasOrgWith(preds ...predicate.Organization) predicate.Repository {
+	return predicate.Repository(func(s *sql.Selector) {
+		step := newOrgStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

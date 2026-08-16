@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 )
 
@@ -32,6 +33,8 @@ type Repository struct {
 	Status string `json:"status,omitempty"`
 	// IngestHighWater holds the value of the "ingest_high_water" field.
 	IngestHighWater string `json:"ingest_high_water,omitempty"`
+	// OrganizationID holds the value of the "organization_id" field.
+	OrganizationID string `json:"organization_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RepositoryQuery when eager-loading is set.
 	Edges        RepositoryEdges `json:"edges"`
@@ -44,9 +47,11 @@ type RepositoryEdges struct {
 	RoadmapItems []*RoadmapItem `json:"roadmap_items,omitempty"`
 	// SpecDocuments holds the value of the spec_documents edge.
 	SpecDocuments []*SpecDocument `json:"spec_documents,omitempty"`
+	// Org holds the value of the org edge.
+	Org *Organization `json:"org,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // RoadmapItemsOrErr returns the RoadmapItems value or an error if the edge
@@ -67,12 +72,23 @@ func (e RepositoryEdges) SpecDocumentsOrErr() ([]*SpecDocument, error) {
 	return nil, &NotLoadedError{edge: "spec_documents"}
 }
 
+// OrgOrErr returns the Org value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e RepositoryEdges) OrgOrErr() (*Organization, error) {
+	if e.Org != nil {
+		return e.Org, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: organization.Label}
+	}
+	return nil, &NotLoadedError{edge: "org"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Repository) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater:
+		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -143,6 +159,12 @@ func (_m *Repository) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.IngestHighWater = value.String
 			}
+		case repository.FieldOrganizationID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field organization_id", values[i])
+			} else if value.Valid {
+				_m.OrganizationID = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -164,6 +186,11 @@ func (_m *Repository) QueryRoadmapItems() *RoadmapItemQuery {
 // QuerySpecDocuments queries the "spec_documents" edge of the Repository entity.
 func (_m *Repository) QuerySpecDocuments() *SpecDocumentQuery {
 	return NewRepositoryClient(_m.config).QuerySpecDocuments(_m)
+}
+
+// QueryOrg queries the "org" edge of the Repository entity.
+func (_m *Repository) QueryOrg() *OrganizationQuery {
+	return NewRepositoryClient(_m.config).QueryOrg(_m)
 }
 
 // Update returns a builder for updating this Repository.
@@ -212,6 +239,9 @@ func (_m *Repository) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("ingest_high_water=")
 	builder.WriteString(_m.IngestHighWater)
+	builder.WriteString(", ")
+	builder.WriteString("organization_id=")
+	builder.WriteString(_m.OrganizationID)
 	builder.WriteByte(')')
 	return builder.String()
 }

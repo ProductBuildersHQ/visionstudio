@@ -21,6 +21,8 @@ type MemStore struct {
 	evidence            map[string]*DeliveryEvidence
 	repositories        map[string]*Repository
 	repoDeps            []*RepositoryDependency
+	organizations       map[string]*Organization
+	people              map[string]*Person
 	workflows           map[string]*SpecWorkflow
 	judgeRubrics        map[string]*JudgeRubric
 	judgeResults        map[string]*JudgeResult
@@ -44,6 +46,8 @@ func NewMemStore() *MemStore {
 		assignments:         make(map[string]*Assignment),
 		evidence:            make(map[string]*DeliveryEvidence),
 		repositories:        make(map[string]*Repository),
+		organizations:       make(map[string]*Organization),
+		people:              make(map[string]*Person),
 		workflows:           make(map[string]*SpecWorkflow),
 		judgeRubrics:        make(map[string]*JudgeRubric),
 		judgeResults:        make(map[string]*JudgeResult),
@@ -549,6 +553,16 @@ func (m *MemStore) UpdateSpecWorkflow(_ context.Context, wf *SpecWorkflow) error
 		return fmt.Errorf("spec workflow %s not found", wf.ID)
 	}
 	m.workflows[wf.ID] = wf
+	return nil
+}
+
+func (m *MemStore) DeleteSpecWorkflow(_ context.Context, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.workflows[id]; !exists {
+		return fmt.Errorf("spec workflow %s not found", id)
+	}
+	delete(m.workflows, id)
 	return nil
 }
 

@@ -252,6 +252,23 @@ var (
 			},
 		},
 	}
+	// OrganizationsColumns holds the columns for the "organizations" table.
+	OrganizationsColumns = []*schema.Column{
+		{Name: "org_entity_id", Type: field.TypeString, Size: 128},
+		{Name: "login", Type: field.TypeString, Size: 128},
+		{Name: "kind", Type: field.TypeString, Size: 32, Default: "organization"},
+		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "website", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "release_page_url", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// OrganizationsTable holds the schema information for the "organizations" table.
+	OrganizationsTable = &schema.Table{
+		Name:       "organizations",
+		Columns:    OrganizationsColumns,
+		PrimaryKey: []*schema.Column{OrganizationsColumns[0]},
+	}
 	// PrismDocumentsColumns holds the columns for the "prism_documents" table.
 	PrismDocumentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -306,6 +323,21 @@ var (
 		Name:       "prism_roadmaps",
 		Columns:    PrismRoadmapsColumns,
 		PrimaryKey: []*schema.Column{PrismRoadmapsColumns[0]},
+	}
+	// PersonsColumns holds the columns for the "persons" table.
+	PersonsColumns = []*schema.Column{
+		{Name: "person_id", Type: field.TypeString, Size: 128},
+		{Name: "github_login", Type: field.TypeString, Size: 128},
+		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "email_identities", Type: field.TypeJSON, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// PersonsTable holds the schema information for the "persons" table.
+	PersonsTable = &schema.Table{
+		Name:       "persons",
+		Columns:    PersonsColumns,
+		PrimaryKey: []*schema.Column{PersonsColumns[0]},
 	}
 	// PhasesColumns holds the columns for the "phases" table.
 	PhasesColumns = []*schema.Column{
@@ -376,12 +408,21 @@ var (
 		{Name: "domain", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "status", Type: field.TypeString, Size: 32},
 		{Name: "ingest_high_water", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "organization_id", Type: field.TypeString, Nullable: true, Size: 128},
 	}
 	// RepositoriesTable holds the schema information for the "repositories" table.
 	RepositoriesTable = &schema.Table{
 		Name:       "repositories",
 		Columns:    RepositoriesColumns,
 		PrimaryKey: []*schema.Column{RepositoriesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "repositories_organizations_repositories",
+				Columns:    []*schema.Column{RepositoriesColumns[9]},
+				RefColumns: []*schema.Column{OrganizationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// RepositoryDependenciesColumns holds the columns for the "repository_dependencies" table.
 	RepositoryDependenciesColumns = []*schema.Column{
@@ -506,6 +547,31 @@ var (
 		Columns:    SpecWorkflowsColumns,
 		PrimaryKey: []*schema.Column{SpecWorkflowsColumns[0]},
 	}
+	// PersonOrganizationsColumns holds the columns for the "person_organizations" table.
+	PersonOrganizationsColumns = []*schema.Column{
+		{Name: "person_id", Type: field.TypeString, Size: 128},
+		{Name: "organization_id", Type: field.TypeString, Size: 128},
+	}
+	// PersonOrganizationsTable holds the schema information for the "person_organizations" table.
+	PersonOrganizationsTable = &schema.Table{
+		Name:       "person_organizations",
+		Columns:    PersonOrganizationsColumns,
+		PrimaryKey: []*schema.Column{PersonOrganizationsColumns[0], PersonOrganizationsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "person_organizations_person_id",
+				Columns:    []*schema.Column{PersonOrganizationsColumns[0]},
+				RefColumns: []*schema.Column{PersonsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "person_organizations_organization_id",
+				Columns:    []*schema.Column{PersonOrganizationsColumns[1]},
+				RefColumns: []*schema.Column{OrganizationsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AssignmentsTable,
@@ -518,9 +584,11 @@ var (
 		JudgeResultsTable,
 		JudgeRubricsTable,
 		MaturityAssessmentsTable,
+		OrganizationsTable,
 		PrismDocumentsTable,
 		PrismGoalsTable,
 		PrismRoadmapsTable,
+		PersonsTable,
 		PhasesTable,
 		ProgramsTable,
 		RmiDependenciesTable,
@@ -529,6 +597,7 @@ var (
 		RoadmapItemsTable,
 		SpecDocumentsTable,
 		SpecWorkflowsTable,
+		PersonOrganizationsTable,
 	}
 )
 
@@ -542,10 +611,13 @@ func init() {
 	JudgeRubricsTable.ForeignKeys[0].RefTable = SpecWorkflowsTable
 	MaturityAssessmentsTable.ForeignKeys[0].RefTable = CapabilityModelsTable
 	PhasesTable.ForeignKeys[0].RefTable = InitiativesTable
+	RepositoriesTable.ForeignKeys[0].RefTable = OrganizationsTable
 	RoadmapItemsTable.ForeignKeys[0].RefTable = InitiativesTable
 	RoadmapItemsTable.ForeignKeys[1].RefTable = PhasesTable
 	RoadmapItemsTable.ForeignKeys[2].RefTable = RepositoriesTable
 	SpecDocumentsTable.ForeignKeys[0].RefTable = InitiativesTable
 	SpecDocumentsTable.ForeignKeys[1].RefTable = RepositoriesTable
 	SpecDocumentsTable.ForeignKeys[2].RefTable = SpecWorkflowsTable
+	PersonOrganizationsTable.ForeignKeys[0].RefTable = PersonsTable
+	PersonOrganizationsTable.ForeignKeys[1].RefTable = OrganizationsTable
 }

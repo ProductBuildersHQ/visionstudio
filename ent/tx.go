@@ -32,12 +32,16 @@ type Tx struct {
 	JudgeRubric *JudgeRubricClient
 	// MaturityAssessment is the client for interacting with the MaturityAssessment builders.
 	MaturityAssessment *MaturityAssessmentClient
+	// Organization is the client for interacting with the Organization builders.
+	Organization *OrganizationClient
 	// PRISMDocument is the client for interacting with the PRISMDocument builders.
 	PRISMDocument *PRISMDocumentClient
 	// PRISMGoal is the client for interacting with the PRISMGoal builders.
 	PRISMGoal *PRISMGoalClient
 	// PRISMRoadmap is the client for interacting with the PRISMRoadmap builders.
 	PRISMRoadmap *PRISMRoadmapClient
+	// Person is the client for interacting with the Person builders.
+	Person *PersonClient
 	// Phase is the client for interacting with the Phase builders.
 	Phase *PhaseClient
 	// Program is the client for interacting with the Program builders.
@@ -195,9 +199,11 @@ func (tx *Tx) init() {
 	tx.JudgeResult = NewJudgeResultClient(tx.config)
 	tx.JudgeRubric = NewJudgeRubricClient(tx.config)
 	tx.MaturityAssessment = NewMaturityAssessmentClient(tx.config)
+	tx.Organization = NewOrganizationClient(tx.config)
 	tx.PRISMDocument = NewPRISMDocumentClient(tx.config)
 	tx.PRISMGoal = NewPRISMGoalClient(tx.config)
 	tx.PRISMRoadmap = NewPRISMRoadmapClient(tx.config)
+	tx.Person = NewPersonClient(tx.config)
 	tx.Phase = NewPhaseClient(tx.config)
 	tx.Program = NewProgramClient(tx.config)
 	tx.RMIDependency = NewRMIDependencyClient(tx.config)

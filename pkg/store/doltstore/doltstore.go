@@ -1008,6 +1008,7 @@ func entRepoToStore(r *ent.Repository) *store.Repository {
 		Domain:          r.Domain,
 		Status:          r.Status,
 		IngestHighWater: r.IngestHighWater,
+		OrganizationID:  r.OrganizationID,
 	}
 }
 
@@ -1029,6 +1030,9 @@ func (d *DoltStore) CreateRepository(ctx context.Context, repo *store.Repository
 	}
 	if repo.IngestHighWater != "" {
 		b.SetIngestHighWater(repo.IngestHighWater)
+	}
+	if repo.OrganizationID != "" {
+		b.SetOrganizationID(repo.OrganizationID)
 	}
 	_, err := b.Save(ctx)
 	if err != nil {
@@ -1096,6 +1100,11 @@ func (d *DoltStore) UpdateRepository(ctx context.Context, repo *store.Repository
 		b.SetIngestHighWater(repo.IngestHighWater)
 	} else {
 		b.ClearIngestHighWater()
+	}
+	if repo.OrganizationID != "" {
+		b.SetOrganizationID(repo.OrganizationID)
+	} else {
+		b.ClearOrganizationID()
 	}
 	_, err := b.Save(ctx)
 	if err != nil {
@@ -1221,6 +1230,13 @@ func (d *DoltStore) UpdateSpecWorkflow(ctx context.Context, wf *store.SpecWorkfl
 		Save(ctx)
 	if err != nil {
 		return fmt.Errorf("update spec workflow %s: %w", wf.ID, err)
+	}
+	return nil
+}
+
+func (d *DoltStore) DeleteSpecWorkflow(ctx context.Context, id string) error {
+	if err := d.client.SpecWorkflow.DeleteOneID(id).Exec(ctx); err != nil {
+		return fmt.Errorf("delete spec workflow %s: %w", id, err)
 	}
 	return nil
 }

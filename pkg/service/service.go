@@ -74,6 +74,11 @@ func (s *Service) RegisterRepository(ctx context.Context, org, name, defaultBran
 		defaultBranch = "main"
 	}
 
+	orgRow, _, err := s.EnsureOrganization(ctx, org, "")
+	if err != nil {
+		return nil, fmt.Errorf("ensure organization %s: %w", org, err)
+	}
+
 	repo := &store.Repository{
 		ID:             id,
 		Organization:   org,
@@ -82,6 +87,7 @@ func (s *Service) RegisterRepository(ctx context.Context, org, name, defaultBran
 		LocalPath:      localPath,
 		Domain:         domain,
 		Status:         "active",
+		OrganizationID: orgRow.ID,
 	}
 	if err := s.Store.CreateRepository(ctx, repo); err != nil {
 		return nil, err

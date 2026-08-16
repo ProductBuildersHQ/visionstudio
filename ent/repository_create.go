@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
@@ -109,6 +110,20 @@ func (_c *RepositoryCreate) SetNillableIngestHighWater(v *string) *RepositoryCre
 	return _c
 }
 
+// SetOrganizationID sets the "organization_id" field.
+func (_c *RepositoryCreate) SetOrganizationID(v string) *RepositoryCreate {
+	_c.mutation.SetOrganizationID(v)
+	return _c
+}
+
+// SetNillableOrganizationID sets the "organization_id" field if the given value is not nil.
+func (_c *RepositoryCreate) SetNillableOrganizationID(v *string) *RepositoryCreate {
+	if v != nil {
+		_c.SetOrganizationID(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *RepositoryCreate) SetID(v string) *RepositoryCreate {
 	_c.mutation.SetID(v)
@@ -143,6 +158,25 @@ func (_c *RepositoryCreate) AddSpecDocuments(v ...*SpecDocument) *RepositoryCrea
 		ids[i] = v[i].ID
 	}
 	return _c.AddSpecDocumentIDs(ids...)
+}
+
+// SetOrgID sets the "org" edge to the Organization entity by ID.
+func (_c *RepositoryCreate) SetOrgID(id string) *RepositoryCreate {
+	_c.mutation.SetOrgID(id)
+	return _c
+}
+
+// SetNillableOrgID sets the "org" edge to the Organization entity by ID if the given value is not nil.
+func (_c *RepositoryCreate) SetNillableOrgID(id *string) *RepositoryCreate {
+	if id != nil {
+		_c = _c.SetOrgID(*id)
+	}
+	return _c
+}
+
+// SetOrg sets the "org" edge to the Organization entity.
+func (_c *RepositoryCreate) SetOrg(v *Organization) *RepositoryCreate {
+	return _c.SetOrgID(v.ID)
 }
 
 // Mutation returns the RepositoryMutation object of the builder.
@@ -238,6 +272,11 @@ func (_c *RepositoryCreate) check() error {
 	if v, ok := _c.mutation.IngestHighWater(); ok {
 		if err := repository.IngestHighWaterValidator(v); err != nil {
 			return &ValidationError{Name: "ingest_high_water", err: fmt.Errorf(`ent: validator failed for field "Repository.ingest_high_water": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.OrganizationID(); ok {
+		if err := repository.OrganizationIDValidator(v); err != nil {
+			return &ValidationError{Name: "organization_id", err: fmt.Errorf(`ent: validator failed for field "Repository.organization_id": %w`, err)}
 		}
 	}
 	if v, ok := _c.mutation.ID(); ok {
@@ -342,6 +381,23 @@ func (_c *RepositoryCreate) createSpec() (*Repository, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.OrgIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   repository.OrgTable,
+			Columns: []string{repository.OrgColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(organization.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.OrganizationID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

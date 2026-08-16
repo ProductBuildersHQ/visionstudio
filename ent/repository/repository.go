@@ -28,14 +28,20 @@ const (
 	FieldStatus = "status"
 	// FieldIngestHighWater holds the string denoting the ingest_high_water field in the database.
 	FieldIngestHighWater = "ingest_high_water"
+	// FieldOrganizationID holds the string denoting the organization_id field in the database.
+	FieldOrganizationID = "organization_id"
 	// EdgeRoadmapItems holds the string denoting the roadmap_items edge name in mutations.
 	EdgeRoadmapItems = "roadmap_items"
 	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
 	EdgeSpecDocuments = "spec_documents"
+	// EdgeOrg holds the string denoting the org edge name in mutations.
+	EdgeOrg = "org"
 	// RoadmapItemFieldID holds the string denoting the ID field of the RoadmapItem.
 	RoadmapItemFieldID = "rmi_id"
 	// SpecDocumentFieldID holds the string denoting the ID field of the SpecDocument.
 	SpecDocumentFieldID = "id"
+	// OrganizationFieldID holds the string denoting the ID field of the Organization.
+	OrganizationFieldID = "org_entity_id"
 	// Table holds the table name of the repository in the database.
 	Table = "repositories"
 	// RoadmapItemsTable is the table that holds the roadmap_items relation/edge.
@@ -52,6 +58,13 @@ const (
 	SpecDocumentsInverseTable = "spec_documents"
 	// SpecDocumentsColumn is the table column denoting the spec_documents relation/edge.
 	SpecDocumentsColumn = "repository_id"
+	// OrgTable is the table that holds the org relation/edge.
+	OrgTable = "repositories"
+	// OrgInverseTable is the table name for the Organization entity.
+	// It exists in this package in order to avoid circular dependency with the "organization" package.
+	OrgInverseTable = "organizations"
+	// OrgColumn is the table column denoting the org relation/edge.
+	OrgColumn = "organization_id"
 )
 
 // Columns holds all SQL columns for repository fields.
@@ -65,6 +78,7 @@ var Columns = []string{
 	FieldDomain,
 	FieldStatus,
 	FieldIngestHighWater,
+	FieldOrganizationID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -96,6 +110,8 @@ var (
 	StatusValidator func(string) error
 	// IngestHighWaterValidator is a validator for the "ingest_high_water" field. It is called by the builders before save.
 	IngestHighWaterValidator func(string) error
+	// OrganizationIDValidator is a validator for the "organization_id" field. It is called by the builders before save.
+	OrganizationIDValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -148,6 +164,11 @@ func ByIngestHighWater(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIngestHighWater, opts...).ToFunc()
 }
 
+// ByOrganizationID orders the results by the organization_id field.
+func ByOrganizationID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrganizationID, opts...).ToFunc()
+}
+
 // ByRoadmapItemsCount orders the results by roadmap_items count.
 func ByRoadmapItemsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -175,6 +196,13 @@ func BySpecDocuments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newSpecDocumentsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByOrgField orders the results by org field.
+func ByOrgField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOrgStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newRoadmapItemsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -187,5 +215,12 @@ func newSpecDocumentsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SpecDocumentsInverseTable, SpecDocumentFieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SpecDocumentsTable, SpecDocumentsColumn),
+	)
+}
+func newOrgStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(OrgInverseTable, OrganizationFieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, OrgTable, OrgColumn),
 	)
 }

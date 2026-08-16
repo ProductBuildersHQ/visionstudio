@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
@@ -25,7 +27,109 @@ func rmiCmd() *cobra.Command {
 		rmiUpdatePhaseCmd(),
 		rmiMoveCmd(),
 		rmiDepCmd(),
+		rmiBulkUpdateCmd(),
 	)
+	return cmd
+}
+
+// matchingRMIsForRepo returns the RMIs currently on repoID, optionally
+// narrowed to a single initiative.
+func matchingRMIsForRepo(ctx context.Context, svc *service.Service, repoID, initiativeFilter string) ([]*store.RoadmapItem, error) {
+	candidates, err := svc.ListRMIsByRepo(ctx, repoID)
+	if err != nil {
+		return nil, err
+	}
+	if initiativeFilter == "" {
+		return candidates, nil
+	}
+	var filtered []*store.RoadmapItem
+	for _, r := range candidates {
+		if r.InitiativeID == initiativeFilter {
+			filtered = append(filtered, r)
+		}
+	}
+	return filtered, nil
+}
+
+// reassignRMIRepo repoints every given RMI to toID and persists it.
+func reassignRMIRepo(ctx context.Context, svc *service.Service, candidates []*store.RoadmapItem, toID string) error {
+	for _, r := range candidates {
+		r.RepositoryID = toID
+		if err := svc.UpdateRMI(ctx, r); err != nil {
+			return fmt.Errorf("update %s: %w", r.ID, err)
+		}
+	}
+	return nil
+}
+
+func rmiBulkUpdateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "bulk-update",
+		Short: "Reassign the repository field across matching RMIs",
+		Long: `Repoints every RMI currently on --repo to --set-repo in one call.
+Use --initiative to narrow the scope to a single initiative, and
+--dry-run to preview which RMIs would change without persisting.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			fromRepo, _ := cmd.Flags().GetString("repo")
+			toRepo, _ := cmd.Flags().GetString("set-repo")
+			initiative, _ := cmd.Flags().GetString("initiative")
+			dryRun, _ := cmd.Flags().GetBool("dry-run")
+
+			if fromRepo == "" || toRepo == "" {
+				return fmt.Errorf("--repo and --set-repo are required")
+			}
+
+			fromID, err := resolveRepoID(cmd.Context(), svc, fromRepo)
+			if err != nil {
+				return fmt.Errorf("--repo: %w", err)
+			}
+			toID, err := resolveRepoID(cmd.Context(), svc, toRepo)
+			if err != nil {
+				return fmt.Errorf("--set-repo: %w", err)
+			}
+			if fromID == toID {
+				return fmt.Errorf("--repo and --set-repo resolve to the same repository (%s)", fromID)
+			}
+
+			candidates, err := matchingRMIsForRepo(cmd.Context(), svc, fromID, initiative)
+			if err != nil {
+				return err
+			}
+			if len(candidates) == 0 {
+				cmd.Printf("No matching RMIs on %s\n", fromID)
+				return nil
+			}
+
+			verb := "Reassigning"
+			if dryRun {
+				verb = "Would reassign"
+			}
+			cmd.Printf("%s %d RMI(s) from %s to %s:\n", verb, len(candidates), fromID, toID)
+			for _, r := range candidates {
+				cmd.Printf("  %s (%s)\n", r.ID, r.Title)
+			}
+			if dryRun {
+				cmd.Println("Dry run — no changes made. Re-run without --dry-run to apply.")
+				return nil
+			}
+
+			if err := reassignRMIRepo(cmd.Context(), svc, candidates, toID); err != nil {
+				return err
+			}
+			cmd.Printf("Reassigned %d RMI(s)\n", len(candidates))
+			return nil
+		},
+	}
+	cmd.Flags().String("repo", "", "Repository ID to reassign from (required)")
+	cmd.Flags().String("set-repo", "", "Repository ID to reassign to (required)")
+	cmd.Flags().String("initiative", "", "Only reassign RMIs in this initiative")
+	cmd.Flags().Bool("dry-run", false, "Preview without persisting")
 	return cmd
 }
 

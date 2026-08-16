@@ -178,8 +178,8 @@ github.com/ProductBuildersHQ/prism-build v0.2.0 h1:/BCbb7F3UHVjT2gOWwg6DqpWB2FMW
 github.com/ProductBuildersHQ/prism-build v0.2.0/go.mod h1:kl42lQGsxe8J7xJQgd9Npnoa2ksxUhwKBL7VtRVO964=
 github.com/ProductBuildersHQ/scale v0.2.0 h1:NeNLOHq1sNcaHO1jZCpVhAOVEnuwO7qf2Wef7SLhBkg=
 github.com/ProductBuildersHQ/scale v0.2.0/go.mod h1:1UDtB3LdIUP3x5UqUQavHMUbH8NMIPFC2NFmQBbj5aw=
-github.com/ProductBuildersHQ/specification-workflow-spec v0.2.0 h1:5B4Bh8dAs4EbFFevM8bE5tF0PNzCJn26Bymp+audFEc=
-github.com/ProductBuildersHQ/specification-workflow-spec v0.2.0/go.mod h1:aNweYRUWMp3TlrOA3DgS3L7Vt6jcp6drr2bxl/8pVwE=
+github.com/ProductBuildersHQ/specification-workflow-spec v0.3.0 h1:R2fEGWP/6JpQ7GqUxfDEon61fjr2hzMWZ6R+qgjiCoA=
+github.com/ProductBuildersHQ/specification-workflow-spec v0.3.0/go.mod h1:ISOOUWjrKmRu3CKHIWFxTCxR3v7uvhOxOZYKjTMOI4s=
 github.com/ProductBuildersHQ/visionspec v0.14.0 h1:Nl2AvN7gr7AhbeC71VWzd7yIiumJrtieZYekxOsroFk=
 github.com/ProductBuildersHQ/visionspec v0.14.0/go.mod h1:ME//dR0zymrtOLEUvaEx5sqa3IOWhTdZZFRoSnRlFsg=
 github.com/Shopify/toxiproxy/v2 v2.5.0 h1:i4LPT+qrSlKNtQf5QliVjdP08GyAH8+BUIc9gT0eahc=
@@ -840,8 +840,8 @@ github.com/plexusone/devfolio v0.3.0 h1:ZyRY21gAkF1l7iFUikAi9NQk6h8ROOT2eAdLS80u
 github.com/plexusone/devfolio v0.3.0/go.mod h1:orQPF5Ukq3GvRf0cuq0Ufy6EmG3UBAPsfxG77RZcVOw=
 github.com/plexusone/omnidevx-core v0.3.0 h1:uKSJAjs74fzod5iM3W3opG53eNX1v4J0WHK4mC2QL/0=
 github.com/plexusone/omnidevx-core v0.3.0/go.mod h1:ryBtws1QCxC6eWAtNddW4doPzVDOz9tBZsoA0gC1w/A=
-github.com/plexusone/structured-evaluation v0.13.0 h1:/veXuje2D1PgkQQfaeUtAKeMHA6LBdnUd6JV3cwaLBs=
-github.com/plexusone/structured-evaluation v0.13.0/go.mod h1:mwlSwQfhy7wn4MJjLshzrkGCB0BNFkR/6nTro+CFIYE=
+github.com/plexusone/structured-evaluation v0.14.0 h1:gACNOB//bGD78F8WQlUhCtfBNY4FcRPxcLsbEWGzBc0=
+github.com/plexusone/structured-evaluation v0.14.0/go.mod h1:C7/anlUnYBxXMGRggHD7f2eQ+6ejXvXEIsCadG/D1kg=
 github.com/plexusone/uiforge v0.4.0 h1:AzYBAOdj9+uNiVlQpLPgokqw7sxbCLPCXxTHhV+vVuM=
 github.com/plexusone/uiforge v0.4.0/go.mod h1:vYReIfoR8OP9SjC+XauXs2+9f8OiBou1t3oXZ0k8rGQ=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

@@ -48,6 +48,12 @@ export interface JudgeResult {
   report?: GenRubric
 }
 
+export interface SpecWorkflowPhase {
+  id: string
+  name: string
+  specs: string[]
+}
+
 export interface SpecWorkflow {
   id: string
   name: string
@@ -55,6 +61,9 @@ export interface SpecWorkflow {
   specsRequired?: string[]
   specsOptional?: string[]
   initTypes?: string[]
+  /** Spec types (uppercase, matching SpecFile.specType) in flow order */
+  sequence?: string[]
+  phases?: SpecWorkflowPhase[]
 }
 
 export interface SpecsResponse {
@@ -130,6 +139,8 @@ export interface APIProgram {
   initiatives?: APIInitiative[]
 }
 
+export type SpecFileRole = 'required' | 'optional' | 'extra'
+
 export interface SpecFile {
   initiativeId: string
   specType: string
@@ -137,6 +148,8 @@ export interface SpecFile {
   content: string
   modTime?: string
   evalJson?: string
+  /** Classification against the initiative's workflow; absent if unresolved */
+  role?: SpecFileRole
 }
 
 export interface SpecFilesResponse {
@@ -189,6 +202,12 @@ export function toSpecWorkflow(gen: GenSpecWorkflow): SpecWorkflow {
     specsRequired: gen.specsRequired,
     specsOptional: gen.specsOptional,
     initTypes: gen.initTypes,
+    sequence: gen.sequence,
+    phases: (gen.phases ?? []).map((p) => ({
+      id: p.id ?? '',
+      name: p.name ?? '',
+      specs: p.specs ?? [],
+    })),
   }
 }
 
@@ -308,6 +327,7 @@ export function toExecutionResponse(gen: GenExecutionResponse): ExecutionRespons
 }
 
 export function toSpecFile(gen: GenSpecFile): SpecFile {
+  const role = gen.role
   return {
     initiativeId: gen.initiativeId ?? '',
     specType: gen.specType ?? '',
@@ -315,6 +335,7 @@ export function toSpecFile(gen: GenSpecFile): SpecFile {
     content: gen.content ?? '',
     modTime: gen.modTime,
     evalJson: gen.evalJson,
+    role: role === 'required' || role === 'optional' || role === 'extra' ? role : undefined,
   }
 }
 

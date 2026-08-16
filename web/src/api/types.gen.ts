@@ -33,6 +33,9 @@ import {
   APIPhaseSchema,
   APIInitiativeSchema,
   APIProgramSchema,
+  CreateInitiativeRequestSchema,
+  CreateInitiativeResponseSchema,
+  WorkflowSpecDetailSchema,
   ExecutionResponseSchema,
 } from './schemas.gen'
 
@@ -65,6 +68,9 @@ export type APIStatusCount = z.infer<typeof APIStatusCountSchema>
 export type APIPhase = z.infer<typeof APIPhaseSchema>
 export type APIInitiative = z.infer<typeof APIInitiativeSchema>
 export type APIProgram = z.infer<typeof APIProgramSchema>
+export type CreateInitiativeRequest = z.infer<typeof CreateInitiativeRequestSchema>
+export type CreateInitiativeResponse = z.infer<typeof CreateInitiativeResponseSchema>
+export type WorkflowSpecDetail = z.infer<typeof WorkflowSpecDetailSchema>
 export type ExecutionResponse = z.infer<typeof ExecutionResponseSchema>
 
 // Re-export schemas for runtime validation
@@ -98,5 +104,8 @@ export {
   APIPhaseSchema,
   APIInitiativeSchema,
   APIProgramSchema,
+  CreateInitiativeRequestSchema,
+  CreateInitiativeResponseSchema,
+  WorkflowSpecDetailSchema,
   ExecutionResponseSchema,
 }

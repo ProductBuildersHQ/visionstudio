@@ -77,6 +77,9 @@ const schemaNames = [
   'APIPhase',
   'APIInitiative',
   'APIProgram',
+  'CreateInitiativeRequest',
+  'CreateInitiativeResponse',
+  'WorkflowSpecDetail',
   'ExecutionResponse',
 ]
 

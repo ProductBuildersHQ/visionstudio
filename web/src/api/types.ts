@@ -9,6 +9,8 @@
 export type {
   JudgeResult,
   SpecWorkflow,
+  SpecWorkflowPhase,
+  SpecFileRole,
   SpecsResponse,
   ExecutionResponse,
   APIInitiative,

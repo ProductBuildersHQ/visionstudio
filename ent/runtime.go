@@ -405,6 +405,12 @@ func init() {
 	roadmapitemDescRequired := roadmapitemFields[6].Descriptor()
 	// roadmapitem.DefaultRequired holds the default value on creation for the required field.
 	roadmapitem.DefaultRequired = roadmapitemDescRequired.Default.(bool)
+	// roadmapitemDescOrigin is the schema descriptor for origin field.
+	roadmapitemDescOrigin := roadmapitemFields[7].Descriptor()
+	// roadmapitem.DefaultOrigin holds the default value on creation for the origin field.
+	roadmapitem.DefaultOrigin = roadmapitemDescOrigin.Default.(string)
+	// roadmapitem.OriginValidator is a validator for the "origin" field. It is called by the builders before save.
+	roadmapitem.OriginValidator = roadmapitemDescOrigin.Validators[0].(func(string) error)
 	// roadmapitemDescID is the schema descriptor for id field.
 	roadmapitemDescID := roadmapitemFields[0].Descriptor()
 	// roadmapitem.IDValidator is a validator for the "id" field. It is called by the builders before save.

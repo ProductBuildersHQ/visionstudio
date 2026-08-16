@@ -115,6 +115,10 @@ visionstudio rmi list --repo <repo>
 
 Roadmap items and phases are populated by syncing `ROADMAP.md` into the database — see [Quick Start](../getting-started/quickstart.md#working-with-initiatives-from-the-cli).
 
+### RMI origin
+
+Every RMI has an `origin` — how its scope was identified: `spec` (default, in the original PRD/ROADMAP), `implementation` (the agent found it necessary while building another RMI), `acceptance_testing` (a human found it using the shipped result), or `discussion` (proposed directly in conversation). Set it with `--origin` on `rmi create`/`rmi update`, filter with `rmi list --origin <value>`; non-default origins show in `rmi get`'s output and an ORIGIN column on `rmi list`. See CLAUDE.md's "RMI provenance" convention for when to file scope discovered mid-work as a new RMI rather than folding it into an existing one.
+
 ### Reassigning RMIs to a different repository
 
 ```bash

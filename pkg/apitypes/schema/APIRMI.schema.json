@@ -32,6 +32,9 @@
         "priority": {
           "type": "string"
         },
+        "origin": {
+          "type": "string"
+        },
         "sequenceNumber": {
           "type": "integer"
         },

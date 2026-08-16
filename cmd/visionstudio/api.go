@@ -66,13 +66,16 @@ type APIPhase struct {
 }
 
 type APIRMI struct {
-	ID             string  `json:"id"`
-	InitiativeID   string  `json:"initiativeId"`
-	PhaseID        string  `json:"phaseId"`
-	Title          string  `json:"title"`
-	Status         string  `json:"status"`
-	Type           string  `json:"type,omitempty"`
-	RepositoryID   string  `json:"repositoryId,omitempty"`
+	ID           string `json:"id"`
+	InitiativeID string `json:"initiativeId"`
+	PhaseID      string `json:"phaseId"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	Type         string `json:"type,omitempty"`
+	RepositoryID string `json:"repositoryId,omitempty"`
+	// Origin records how the RMI's scope was identified: spec,
+	// implementation, acceptance_testing, or discussion (see pkg/rmi).
+	Origin         string  `json:"origin,omitempty"`
 	SequenceNumber int     `json:"sequenceNumber"`
 	ClaimedBy      string  `json:"claimedBy,omitempty"`
 	ClaimedAt      string  `json:"claimedAt,omitempty"`
@@ -523,6 +526,7 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 				Status:         r.Status,
 				Type:           r.ItemType,
 				RepositoryID:   r.RepositoryID,
+				Origin:         r.Origin,
 				SequenceNumber: r.SequenceNumber,
 			}
 			if r.CompletedAt != nil {

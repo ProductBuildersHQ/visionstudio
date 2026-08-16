@@ -14,6 +14,7 @@ import (
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/contextbuild"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/report"
+	rmidomain "github.com/ProductBuildersHQ/visionstudio/pkg/rmi"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/speceval"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
@@ -249,7 +250,8 @@ func rmiCreateTool() *mcp.Tool {
 				"required":{"type":"boolean","description":"Whether this RMI is required for phase completion","default":true},
 				"sequence_number":{"type":"integer","description":"Order within the phase"},
 				"acceptance_criteria":{"type":"array","items":{"type":"string"},"description":"List of acceptance criteria"},
-				"context_spec":{"type":"object","description":"Context assembly overrides","properties":{"extra_repos":{"type":"array","items":{"type":"string"},"description":"Additional repos to include"},"include_specs":{"type":"array","items":{"type":"string"},"description":"Spec files to include"},"exclude_specs":{"type":"array","items":{"type":"string"},"description":"Spec files to exclude"}}}
+				"context_spec":{"type":"object","description":"Context assembly overrides","properties":{"extra_repos":{"type":"array","items":{"type":"string"},"description":"Additional repos to include"},"include_specs":{"type":"array","items":{"type":"string"},"description":"Spec files to include"},"exclude_specs":{"type":"array","items":{"type":"string"},"description":"Spec files to exclude"}}},
+				"origin":{"type":"string","enum":["spec","implementation","acceptance_testing","discussion"],"description":"How this RMI's scope was identified. Use \"implementation\" when you (the agent) found this necessary or beneficial while working on another RMI in the same initiative, not from the original spec. Defaults to \"spec\"."}
 			},
 			"required":["id","repository_id","title","item_type"]
 		}`),
@@ -271,9 +273,13 @@ func rmiCreateHandler(svc *service.Service) mcp.ToolHandler {
 			SequenceNumber     int                `json:"sequence_number"`
 			AcceptanceCriteria []string           `json:"acceptance_criteria"`
 			ContextSpec        *store.ContextSpec `json:"context_spec"`
+			Origin             string             `json:"origin"`
 		}
 		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
 			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		if !rmidomain.ValidOrigin(args.Origin) {
+			return nil, fmt.Errorf("invalid origin %q (want one of: %s)", args.Origin, strings.Join(rmidomain.Origins, ", "))
 		}
 		required := true
 		if args.Required != nil {
@@ -287,8 +293,16 @@ func rmiCreateHandler(svc *service.Service) mcp.ToolHandler {
 		if err != nil {
 			return nil, err
 		}
+		needsUpdate := false
 		if args.ContextSpec != nil {
 			rmi.ContextSpec = args.ContextSpec
+			needsUpdate = true
+		}
+		if args.Origin != "" {
+			rmi.Origin = args.Origin
+			needsUpdate = true
+		}
+		if needsUpdate {
 			if err := svc.UpdateRMI(ctx, rmi); err != nil {
 				return nil, err
 			}

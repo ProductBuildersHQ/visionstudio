@@ -82,16 +82,20 @@ type Phase struct {
 
 // RoadmapItem (RMI) is a deliverable within a single repository.
 type RoadmapItem struct {
-	ID                 string       `json:"id"`
-	RepositoryID       string       `json:"repository_id"`
-	InitiativeID       string       `json:"initiative_id,omitempty"`
-	PhaseID            string       `json:"phase_id,omitempty"`
-	Title              string       `json:"title"`
-	Description        string       `json:"description,omitempty"`
-	ItemType           string       `json:"item_type"`
-	Status             string       `json:"status"`
-	Priority           string       `json:"priority,omitempty"`
-	Required           bool         `json:"required"`
+	ID           string `json:"id"`
+	RepositoryID string `json:"repository_id"`
+	InitiativeID string `json:"initiative_id,omitempty"`
+	PhaseID      string `json:"phase_id,omitempty"`
+	Title        string `json:"title"`
+	Description  string `json:"description,omitempty"`
+	ItemType     string `json:"item_type"`
+	Status       string `json:"status"`
+	Priority     string `json:"priority,omitempty"`
+	Required     bool   `json:"required"`
+	// Origin records how the RMI's scope was identified -- see pkg/rmi's
+	// Origin constants (spec, implementation, acceptance_testing,
+	// discussion). Defaults to "spec".
+	Origin             string       `json:"origin,omitempty"`
 	SequenceNumber     int          `json:"sequence_number"`
 	AcceptanceCriteria []string     `json:"acceptance_criteria,omitempty"`
 	ContextSpec        *ContextSpec `json:"context_spec,omitempty"`

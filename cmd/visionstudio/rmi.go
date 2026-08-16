@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	rmidomain "github.com/ProductBuildersHQ/visionstudio/pkg/rmi"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
@@ -191,9 +192,13 @@ func rmiCreateCmd() *cobra.Command {
 			required, _ := cmd.Flags().GetBool("required")
 			seq, _ := cmd.Flags().GetInt("sequence")
 			acceptanceRaw, _ := cmd.Flags().GetString("acceptance")
+			origin, _ := cmd.Flags().GetString("origin")
 
 			if id == "" || repo == "" || title == "" || itemType == "" {
 				return fmt.Errorf("--id, --repo, --title, and --type are required")
+			}
+			if !rmidomain.ValidOrigin(origin) {
+				return fmt.Errorf("invalid --origin %q (want one of: %s)", origin, strings.Join(rmidomain.Origins, ", "))
 			}
 
 			repo, err = resolveRepoID(cmd.Context(), svc, repo)
@@ -214,14 +219,24 @@ func rmiCreateCmd() *cobra.Command {
 				return err
 			}
 
-			// Handle context_spec if provided
+			// Handle context_spec and origin, if provided -- both are set
+			// post-create via UpdateRMI rather than added to CreateRMI's
+			// already-long positional signature.
 			contextSpecJSON, _ := cmd.Flags().GetString("context-spec")
+			needsUpdate := false
 			if contextSpecJSON != "" {
 				var spec store.ContextSpec
 				if err := json.Unmarshal([]byte(contextSpecJSON), &spec); err != nil {
 					return fmt.Errorf("invalid --context-spec JSON: %w", err)
 				}
 				rmi.ContextSpec = &spec
+				needsUpdate = true
+			}
+			if origin != "" {
+				rmi.Origin = origin
+				needsUpdate = true
+			}
+			if needsUpdate {
 				if err := svc.UpdateRMI(cmd.Context(), rmi); err != nil {
 					return err
 				}
@@ -243,6 +258,7 @@ func rmiCreateCmd() *cobra.Command {
 	cmd.Flags().Int("sequence", 0, "Sequence number within phase")
 	cmd.Flags().String("acceptance", "", "Acceptance criteria (semicolon-separated)")
 	cmd.Flags().String("context-spec", "", "Context spec JSON: {\"extra_repos\":[...],\"include_specs\":[...],\"exclude_specs\":[...]}")
+	cmd.Flags().String("origin", "", "How this RMI's scope was identified: spec (default), implementation, acceptance_testing, discussion")
 	return cmd
 }
 
@@ -294,6 +310,9 @@ func rmiGetCmd() *cobra.Command {
 				cmd.Printf("Priority:    %s\n", rmi.Priority)
 			}
 			cmd.Printf("Required:    %v\n", rmi.Required)
+			if rmi.Origin != "" && rmi.Origin != rmidomain.OriginSpec {
+				cmd.Printf("Origin:      %s\n", rmi.Origin)
+			}
 			if rmi.SequenceNumber != 0 {
 				cmd.Printf("Sequence:    %d\n", rmi.SequenceNumber)
 			}
@@ -357,9 +376,13 @@ func rmiListCmd() *cobra.Command {
 
 			initiative, _ := cmd.Flags().GetString("initiative")
 			repo, _ := cmd.Flags().GetString("repo")
+			originFilter, _ := cmd.Flags().GetString("origin")
 
 			if initiative == "" && repo == "" {
 				return fmt.Errorf("either --initiative or --repo is required")
+			}
+			if !rmidomain.ValidOrigin(originFilter) {
+				return fmt.Errorf("invalid --origin %q (want one of: %s)", originFilter, strings.Join(rmidomain.Origins, ", "))
 			}
 
 			if repo != "" {
@@ -377,6 +400,20 @@ func rmiListCmd() *cobra.Command {
 			}
 			if err != nil {
 				return err
+			}
+
+			if originFilter != "" {
+				filtered := make([]*store.RoadmapItem, 0, len(rmis))
+				for _, r := range rmis {
+					o := r.Origin
+					if o == "" {
+						o = rmidomain.OriginSpec
+					}
+					if o == originFilter {
+						filtered = append(filtered, r)
+					}
+				}
+				rmis = filtered
 			}
 
 			format, _ := cmd.Flags().GetString("format")
@@ -397,24 +434,29 @@ func rmiListCmd() *cobra.Command {
 			}
 
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tTYPE\tREQUIRED\tREPO")
+			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tTYPE\tREQUIRED\tORIGIN\tREPO")
 			for _, r := range rmis {
 				req := "yes"
 				if !r.Required {
 					req = "no"
 				}
+				origin := r.Origin
+				if origin == "" {
+					origin = rmidomain.OriginSpec
+				}
 				repoShort := r.RepositoryID
 				if idx := strings.LastIndex(repoShort, "/"); idx >= 0 {
 					repoShort = repoShort[idx+1:]
 				}
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
-					r.ID, r.Title, r.Status, r.ItemType, req, repoShort)
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+					r.ID, r.Title, r.Status, r.ItemType, req, origin, repoShort)
 			}
 			return w.Flush()
 		},
 	}
 	cmd.Flags().String("initiative", "", "Filter by initiative ID")
 	cmd.Flags().String("repo", "", "Filter by repository ID")
+	cmd.Flags().String("origin", "", "Filter by origin: spec, implementation, acceptance_testing, discussion")
 	cmd.Flags().String("format", "text", "Output format: text or json")
 	return cmd
 }
@@ -437,9 +479,13 @@ func rmiUpdateCmd() *cobra.Command {
 			priority, _ := cmd.Flags().GetString("priority")
 			repo, _ := cmd.Flags().GetString("repo")
 			contextSpecJSON, _ := cmd.Flags().GetString("context-spec")
+			origin, _ := cmd.Flags().GetString("origin")
 
-			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" {
-				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, or --context-spec is required")
+			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" && !cmd.Flags().Changed("origin") {
+				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, --context-spec, or --origin is required")
+			}
+			if !rmidomain.ValidOrigin(origin) {
+				return fmt.Errorf("invalid --origin %q (want one of: %s)", origin, strings.Join(rmidomain.Origins, ", "))
 			}
 
 			if repo != "" {
@@ -457,7 +503,7 @@ func rmiUpdateCmd() *cobra.Command {
 				cmd.Printf("Updated %s status to %s\n", rmi.ID, rmi.Status)
 			}
 
-			if title != "" || repo != "" || cmd.Flags().Changed("description") || cmd.Flags().Changed("priority") || cmd.Flags().Changed("required") || contextSpecJSON != "" {
+			if title != "" || repo != "" || cmd.Flags().Changed("description") || cmd.Flags().Changed("priority") || cmd.Flags().Changed("required") || contextSpecJSON != "" || cmd.Flags().Changed("origin") {
 				rmi, err := svc.GetRMI(cmd.Context(), args[0])
 				if err != nil {
 					return err
@@ -492,6 +538,9 @@ func rmiUpdateCmd() *cobra.Command {
 						rmi.ContextSpec = &spec
 					}
 				}
+				if cmd.Flags().Changed("origin") {
+					rmi.Origin = origin
+				}
 				if err := svc.UpdateRMI(cmd.Context(), rmi); err != nil {
 					return err
 				}
@@ -514,6 +563,9 @@ func rmiUpdateCmd() *cobra.Command {
 				if contextSpecJSON != "" {
 					fields = append(fields, "context_spec")
 				}
+				if cmd.Flags().Changed("origin") {
+					fields = append(fields, "origin")
+				}
 				cmd.Printf("Updated %s fields: %s\n", args[0], strings.Join(fields, ", "))
 			}
 			return nil
@@ -526,6 +578,7 @@ func rmiUpdateCmd() *cobra.Command {
 	cmd.Flags().String("priority", "", "New priority (use empty string to clear)")
 	cmd.Flags().Bool("required", false, "Whether the RMI is required for phase completion")
 	cmd.Flags().String("context-spec", "", "Context spec JSON (use \"null\" or \"{}\" to clear)")
+	cmd.Flags().String("origin", "", "How this RMI's scope was identified: spec, implementation, acceptance_testing, discussion")
 	return cmd
 }
 

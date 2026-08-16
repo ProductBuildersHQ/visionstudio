@@ -5,6 +5,7 @@ package rmi
 import (
 	"fmt"
 	"regexp"
+	"slices"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
@@ -18,6 +19,37 @@ const (
 	StatusCompleted  = "completed"
 	StatusCancelled  = "cancelled"
 )
+
+// Origin constants for roadmap items: how the RMI's scope was identified,
+// not what kind of work it is (see ItemType for that). Telemetry signal for
+// how complete a spec/roadmap actually was at initiative start, and whether
+// specs can ever be fully complete before implementation and review.
+const (
+	// OriginSpec is the default: the RMI was in the initiative's original
+	// PRD/ROADMAP before implementation began.
+	OriginSpec = "spec"
+	// OriginImplementation means the agent found the work necessary or
+	// clearly beneficial while implementing another RMI in the same
+	// initiative -- not from testing a finished feature, just from being
+	// in the code.
+	OriginImplementation = "implementation"
+	// OriginAcceptanceTesting means a human found the gap using the
+	// already-shipped result, after the initiative first closed.
+	OriginAcceptanceTesting = "acceptance_testing"
+	// OriginDiscussion means the scope was proposed directly by a human in
+	// conversation -- not derived from testing a shipped artifact or from
+	// mid-build discovery, but also not part of the original spec.
+	OriginDiscussion = "discussion"
+)
+
+// Origins lists all valid RMI origin values.
+var Origins = []string{OriginSpec, OriginImplementation, OriginAcceptanceTesting, OriginDiscussion}
+
+// ValidOrigin reports whether o is a recognized origin value. The empty
+// string is valid and means the default (spec).
+func ValidOrigin(o string) bool {
+	return o == "" || slices.Contains(Origins, o)
+}
 
 var rmiIDPattern = regexp.MustCompile(`^RMI-[A-Z0-9]+-\d{3}$`)
 

@@ -482,6 +482,7 @@ var (
 		{Name: "status", Type: field.TypeString, Size: 32},
 		{Name: "priority", Type: field.TypeString, Nullable: true, Size: 32},
 		{Name: "required", Type: field.TypeBool, Default: true},
+		{Name: "origin", Type: field.TypeString, Size: 32, Default: "spec"},
 		{Name: "sequence_number", Type: field.TypeInt, Nullable: true},
 		{Name: "acceptance_criteria", Type: field.TypeJSON, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
@@ -499,19 +500,19 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "roadmap_items_initiatives_roadmap_items",
-				Columns:    []*schema.Column{RoadmapItemsColumns[12]},
+				Columns:    []*schema.Column{RoadmapItemsColumns[13]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "roadmap_items_phases_roadmap_items",
-				Columns:    []*schema.Column{RoadmapItemsColumns[13]},
+				Columns:    []*schema.Column{RoadmapItemsColumns[14]},
 				RefColumns: []*schema.Column{PhasesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "roadmap_items_repositories_roadmap_items",
-				Columns:    []*schema.Column{RoadmapItemsColumns[14]},
+				Columns:    []*schema.Column{RoadmapItemsColumns[15]},
 				RefColumns: []*schema.Column{RepositoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

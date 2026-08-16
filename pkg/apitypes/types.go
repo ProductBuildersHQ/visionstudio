@@ -209,15 +209,18 @@ type APIPhase struct {
 
 // APIRMI is the API representation of a roadmap item.
 type APIRMI struct {
-	ID             string  `json:"id"`
-	RepositoryID   string  `json:"repositoryId,omitempty"`
-	InitiativeID   string  `json:"initiativeId,omitempty"`
-	PhaseID        string  `json:"phaseId,omitempty"`
-	Title          string  `json:"title"`
-	Description    string  `json:"description,omitempty"`
-	Type           string  `json:"type,omitempty"`
-	Status         string  `json:"status"`
-	Priority       string  `json:"priority,omitempty"`
+	ID           string `json:"id"`
+	RepositoryID string `json:"repositoryId,omitempty"`
+	InitiativeID string `json:"initiativeId,omitempty"`
+	PhaseID      string `json:"phaseId,omitempty"`
+	Title        string `json:"title"`
+	Description  string `json:"description,omitempty"`
+	Type         string `json:"type,omitempty"`
+	Status       string `json:"status"`
+	Priority     string `json:"priority,omitempty"`
+	// Origin records how the RMI's scope was identified: spec,
+	// implementation, acceptance_testing, or discussion (see pkg/rmi).
+	Origin         string  `json:"origin,omitempty"`
 	SequenceNumber int     `json:"sequenceNumber"`
 	ClaimedBy      string  `json:"claimedBy,omitempty"`
 	ClaimedAt      string  `json:"claimedAt,omitempty"`

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"slices"
 	"strings"
 	"text/tabwriter"
@@ -545,6 +547,8 @@ func registryAddCmd() *cobra.Command {
 			}
 			defer cleanup()
 
+			warnAddConflicts(cmd, svc, localPath)
+
 			repo, err := svc.RegisterRepository(cmd.Context(), org, name, branch, localPath, domain)
 			if err != nil {
 				return err
@@ -767,6 +771,58 @@ func resolveRepoID(ctx context.Context, svc *service.Service, ref string) (strin
 		}
 		return "", fmt.Errorf("%q is ambiguous — matches: %s (use the full ID)", ref, strings.Join(ids, ", "))
 	}
+}
+
+// warnAddConflicts prints non-blocking warnings for 'registry add' when
+// --path looks wrong (missing, not a directory, not a git working tree) or
+// collides with an already-registered repository (same local path, or the
+// same git remote origin URL). Registration proceeds regardless — these are
+// warnings, not validation errors.
+func warnAddConflicts(cmd *cobra.Command, svc *service.Service, localPath string) {
+	if localPath == "" {
+		return
+	}
+
+	info, statErr := os.Stat(localPath)
+	switch {
+	case statErr != nil:
+		fmt.Fprintf(os.Stderr, "warning: --path %s does not exist\n", localPath)
+	case !info.IsDir():
+		fmt.Fprintf(os.Stderr, "warning: --path %s is not a directory\n", localPath)
+	default:
+		if _, err := os.Stat(filepath.Join(localPath, ".git")); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: --path %s is not a git working tree\n", localPath)
+		}
+	}
+
+	repos, err := svc.ListRepositories(cmd.Context())
+	if err != nil {
+		return
+	}
+	newRemote := gitRemoteURL(localPath)
+	for _, r := range repos {
+		if r.LocalPath != "" && r.LocalPath == localPath {
+			fmt.Fprintf(os.Stderr, "warning: %s is already registered at this path\n", r.ID)
+		}
+		if newRemote != "" && r.LocalPath != "" && r.LocalPath != localPath {
+			if existingRemote := gitRemoteURL(r.LocalPath); existingRemote != "" && existingRemote == newRemote {
+				fmt.Fprintf(os.Stderr, "warning: %s already has this git remote (%s)\n", r.ID, newRemote)
+			}
+		}
+	}
+}
+
+// gitRemoteURL returns the origin remote URL for the git working tree at
+// path, or "" if path isn't a git working tree, has no origin, or the
+// lookup otherwise fails. Best-effort — never treated as fatal.
+func gitRemoteURL(path string) string {
+	// #nosec G204 -- path is a caller-supplied local directory for a local
+	// dev CLI, not untrusted network input (same posture as godolt's exec.go).
+	out, err := exec.Command("git", "-C", path, "remote", "get-url", "origin").Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
 
 func connectService(cmd *cobra.Command) (*service.Service, func(), error) {

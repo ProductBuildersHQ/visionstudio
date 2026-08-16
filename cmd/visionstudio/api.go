@@ -48,6 +48,11 @@ type APIInitiative struct {
 	WorkflowID  string  `json:"workflowId,omitempty"`
 	Hidden      bool    `json:"hidden,omitempty"`
 	Progress    float64 `json:"progress"`
+	// CancelledProgress is the fraction of RMIs that are cancelled (not
+	// completed, not pending) -- rendered as a distinct segment so a
+	// cancelled RMI doesn't visually read the same as one that's simply
+	// not started yet.
+	CancelledProgress float64 `json:"cancelledProgress,omitempty"`
 }
 
 type APIPhase struct {
@@ -56,6 +61,8 @@ type APIPhase struct {
 	Title          string  `json:"title"`
 	SequenceNumber int     `json:"sequenceNumber"`
 	Progress       float64 `json:"progress"`
+	// CancelledProgress mirrors APIInitiative.CancelledProgress at phase scope.
+	CancelledProgress float64 `json:"cancelledProgress,omitempty"`
 }
 
 type APIRMI struct {
@@ -497,10 +504,15 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 
 		totalRMIs := len(rmis)
 		completedRMIs := 0
+		cancelledRMIs := 0
 		for _, r := range rmis {
-			statusCounts[strings.ToLower(r.Status)]++
-			if strings.ToLower(r.Status) == "completed" {
+			status := strings.ToLower(r.Status)
+			statusCounts[status]++
+			switch status {
+			case "completed":
 				completedRMIs++
+			case "cancelled":
+				cancelledRMIs++
 			}
 
 			apiRMI := APIRMI{
@@ -526,30 +538,37 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 		for _, p := range phases {
 			phaseRMIs := 0
 			phaseCompleted := 0
+			phaseCancelled := 0
 			for _, r := range rmis {
 				if r.PhaseID == p.ID {
 					phaseRMIs++
-					if strings.ToLower(r.Status) == "completed" {
+					switch strings.ToLower(r.Status) {
+					case "completed":
 						phaseCompleted++
+					case "cancelled":
+						phaseCancelled++
 					}
 				}
 			}
-			progress := 0.0
+			progress, cancelledProgress := 0.0, 0.0
 			if phaseRMIs > 0 {
 				progress = float64(phaseCompleted) / float64(phaseRMIs)
+				cancelledProgress = float64(phaseCancelled) / float64(phaseRMIs)
 			}
 			apiPhases = append(apiPhases, APIPhase{
-				ID:             p.ID,
-				InitiativeID:   init.ID,
-				Title:          p.Title,
-				SequenceNumber: p.SequenceNumber,
-				Progress:       progress,
+				ID:                p.ID,
+				InitiativeID:      init.ID,
+				Title:             p.Title,
+				SequenceNumber:    p.SequenceNumber,
+				Progress:          progress,
+				CancelledProgress: cancelledProgress,
 			})
 		}
 
-		progress := 0.0
+		progress, cancelledProgress := 0.0, 0.0
 		if totalRMIs > 0 {
 			progress = float64(completedRMIs) / float64(totalRMIs)
+			cancelledProgress = float64(cancelledRMIs) / float64(totalRMIs)
 		}
 
 		programName := ""
@@ -558,17 +577,18 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 		}
 
 		apiInitiatives = append(apiInitiatives, APIInitiative{
-			ID:          init.ID,
-			Title:       init.Title,
-			Description: init.Description,
-			Status:      init.Status,
-			Type:        init.InitType,
-			ProgramID:   init.ProgramID,
-			ProgramName: programName,
-			HomeRepo:    init.HomeRepo,
-			WorkflowID:  init.WorkflowID,
-			Hidden:      init.Hidden,
-			Progress:    progress,
+			ID:                init.ID,
+			Title:             init.Title,
+			Description:       init.Description,
+			Status:            init.Status,
+			Type:              init.InitType,
+			ProgramID:         init.ProgramID,
+			ProgramName:       programName,
+			HomeRepo:          init.HomeRepo,
+			WorkflowID:        init.WorkflowID,
+			Hidden:            init.Hidden,
+			Progress:          progress,
+			CancelledProgress: cancelledProgress,
 		})
 	}
 

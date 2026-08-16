@@ -22,6 +22,9 @@
         },
         "progress": {
           "type": "number"
+        },
+        "cancelledProgress": {
+          "type": "number"
         }
       },
       "additionalProperties": false,

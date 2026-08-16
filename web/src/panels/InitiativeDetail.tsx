@@ -793,7 +793,12 @@ function PhaseCard({
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-400">{Math.round(phase.progress * 100)}%</span>
-          <ProgressBar progress={phase.progress} className="w-24" size="sm" />
+          <ProgressBar
+            progress={phase.progress}
+            cancelledProgress={phase.cancelledProgress}
+            className="w-24"
+            size="sm"
+          />
         </div>
       </button>
       {expanded && (

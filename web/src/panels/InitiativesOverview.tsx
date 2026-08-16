@@ -157,6 +157,8 @@ function GroupedInitiatives({
 
         const totalProgress =
           programInits.reduce((sum, i) => sum + i.progress, 0) / programInits.length
+        const totalCancelled =
+          programInits.reduce((sum, i) => sum + i.cancelledProgress, 0) / programInits.length
 
         return (
           <div key={program.id} className="space-y-4">
@@ -170,7 +172,7 @@ function GroupedInitiatives({
               <div className="flex items-center gap-3">
                 <span className="text-sm text-gray-400">{programInits.length} initiatives</span>
                 <div className="w-24">
-                  <ProgressBar progress={totalProgress} size="sm" />
+                  <ProgressBar progress={totalProgress} cancelledProgress={totalCancelled} size="sm" />
                 </div>
                 <span className="text-sm text-gray-300">{Math.round(totalProgress * 100)}%</span>
               </div>
@@ -224,7 +226,12 @@ function InitiativeTile({
       </div>
       <h3 className="font-medium text-gray-100 mb-2 line-clamp-2">{initiative.title}</h3>
       <div className="flex items-center justify-between">
-        <ProgressBar progress={initiative.progress} className="flex-1 mr-3" size="sm" />
+        <ProgressBar
+          progress={initiative.progress}
+          cancelledProgress={initiative.cancelledProgress}
+          className="flex-1 mr-3"
+          size="sm"
+        />
         <span className="text-sm text-gray-400">{Math.round(initiative.progress * 100)}%</span>
       </div>
     </button>

@@ -10,6 +10,31 @@
   "unreleased": {},
   "releases": [
     {
+      "version": "v0.9.0",
+      "date": "2026-08-16",
+      "highlights": [
+        {
+          "description": "RMI.Origin: structured tracking of how an RMI's scope was identified (spec, implementation, acceptance_testing, discussion) -- generalizes the ad hoc \"found during acceptance testing\" description-phrase convention into a real, queryable field, and a telemetry foundation for how complete specs actually are at project start"
+        }
+      ],
+      "added": [
+        {
+          "description": "Ent schema field on RoadmapItem (origin, default \"spec\", additive migration, backfills existing rows); pkg/rmi Origin constants and ValidOrigin",
+          "commit": "8141f5c"
+        },
+        {
+          "description": "--origin on rmi create/update, an ORIGIN column and filter on rmi list, and origin support on the rmi_create MCP tool so an agent can self-tag origin=implementation while it works",
+          "commit": "8141f5c"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "CLAUDE.md convention: RMI provenance -- scope discovered after the initial spec is normal and gets tracked (new RMI, tagged origin), not hidden; the discipline that keeps it from being scope creep is that every addition traces to a concrete finding, not speculation",
+          "commit": "8141f5c"
+        }
+      ]
+    },
+    {
       "version": "v0.8.0",
       "date": "2026-08-16",
       "highlights": [

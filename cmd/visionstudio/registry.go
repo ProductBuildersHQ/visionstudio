@@ -21,7 +21,7 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
 	return cmd
 }
 
@@ -134,8 +134,77 @@ Idempotent. Use --user to mark logins that are GitHub user accounts
 	}
 	backfill.Flags().StringSlice("user", nil, "Login that is a GitHub user account, not an organization (repeatable)")
 
-	cmd.AddCommand(list, backfill)
+	stats := &cobra.Command{
+		Use:   "stats",
+		Short: "Per-organization rollup: repos, visibility, initiatives, open RMIs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			rollup, err := svc.OrgRollup(cmd.Context())
+			if err != nil {
+				return err
+			}
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "ORG\tKIND\tREPOS\tPUB\tPRIV\tUNK\tINITS\tACTIVE\tOPEN-RMIS\tPEOPLE")
+			for _, st := range rollup {
+				people := "-"
+				if len(st.PeopleLogins) > 0 {
+					people = strings.Join(st.PeopleLogins, ",")
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%s\n",
+					st.Org.Login, st.Org.Kind, st.Repos, st.Public, st.Private, st.Unknown,
+					st.Initiatives, st.ActiveInits, st.OpenRMIs, people)
+			}
+			return w.Flush()
+		},
+	}
+
+	cmd.AddCommand(list, backfill, stats)
 	return cmd
+}
+
+func registryFocusCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "focus",
+		Short: "Private repositories and their active initiatives",
+		Long: `The confirmed-private focus list: repositories with visibility=private
+(unknown is excluded — this view never guesses) and the active
+initiatives homed in them.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			entries, err := svc.FocusList(cmd.Context())
+			if err != nil {
+				return err
+			}
+			if len(entries) == 0 {
+				cmd.Println("No confirmed-private repositories. Run 'registry visibility refresh' first.")
+				return nil
+			}
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "REPO\tACTIVE INITIATIVES")
+			for _, e := range entries {
+				inits := "-"
+				if len(e.Initiatives) > 0 {
+					var titles []string
+					for _, in := range e.Initiatives {
+						titles = append(titles, fmt.Sprintf("%s (%s)", in.ID, in.Status))
+					}
+					inits = strings.Join(titles, "; ")
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\n", e.Repo.ID, inits)
+			}
+			return w.Flush()
+		},
+	}
 }
 
 func registryPersonCmd() *cobra.Command {
@@ -213,7 +282,36 @@ func registryPersonCmd() *cobra.Command {
 		},
 	}
 
-	cmd.AddCommand(add, list)
+	repolist := &cobra.Command{
+		Use:   "repos <person-id-or-login>",
+		Short: "Repositories across all of a person's organizations (practitioner lens)",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			p, repos, err := svc.PersonRepositories(cmd.Context(), args[0])
+			if err != nil {
+				return err
+			}
+			cmd.Printf("%s — %d repositories across %d organizations\n", p.ID, len(repos), len(p.OrgIDs))
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "REPO\tVIS\tSTATUS")
+			for _, r := range repos {
+				vis := r.Visibility
+				if vis == "" {
+					vis = "unknown"
+				}
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\n", r.ID, vis, r.Status)
+			}
+			return w.Flush()
+		},
+	}
+
+	cmd.AddCommand(add, list, repolist)
 	return cmd
 }
 

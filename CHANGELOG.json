@@ -7,14 +7,102 @@
   "maintainers": [
     "ProductBuildersHQ"
   ],
-  "unreleased": {},
+  "unreleased": {
+    "highlights": [
+      {
+        "description": "specification-workflow-spec is now the single source of truth for all default spec workflows (~25 profiles); VisionStudio's divergent local catalog was retired"
+      },
+      {
+        "description": "An initiative's spec workflow can be changed after creation (initiative update --workflow), and the Initiative page adapts to whichever workflow is selected"
+      },
+      {
+        "description": "AWS Working Backwards profiles (aws-one-way-door, aws-two-way-door) aligned to the authoritative visionspec D2 flows, with execution phases and corrected synthesis DAGs (upstream)"
+      },
+      {
+        "description": "First web mutation: a New Initiative button on the dashboard creates an initiative with catalog workflow selection (POST /api/initiatives)"
+      }
+    ],
+    "added": [
+      {
+        "description": "POST /api/initiatives — the API's first mutation endpoint (validates ID/title/workflow against the catalog, 409 on duplicates); dashboard gains a New Initiative button and modal with workflow dropdown, per-workflow required-docs preview, and type-driven workflow defaults, landing on the new initiative's Definition tab"
+      },
+      {
+        "description": "initiative update --workflow <id> — switch an initiative's spec workflow after creation, validated against the catalog; keeps the synthesis/eval workflow-selection record in step"
+      },
+      {
+        "description": "workflow sync — idempotent sync of the DB workflow index from the specification-workflow-spec catalog, remapping initiatives off retired IDs (pbhq-standard→pbhq-lite) and deleting retired unreferenced rows (workflow seed deprecated as alias)"
+      },
+      {
+        "description": "Spec-file roles: /api/spec-files classifies every file as required/optional/extra against the initiative's workflow and returns files in workflow order; the UI badges extras"
+      },
+      {
+        "description": "Workflow detail in /api/specs: sequence and phases per workflow, sourced from the catalog, powering a dynamic per-workflow diagram on the Initiative page"
+      },
+      {
+        "description": "workflowId in /api/execution initiatives (closing an existing runtime/type mismatch) and a read-only workflow chip on the Initiative page"
+      },
+      {
+        "description": "quick-fix workflow profile upstream in specification-workflow-spec (extends pbhq-lite; ROADMAP-only required)"
+      },
+      {
+        "description": "DeleteSpecWorkflow store method (interface, doltstore, memstore)"
+      },
+      {
+        "description": "Template and rubric viewing from the Initiative Definition tab: clicking a document in the workflow diagram (or the Template/Rubric buttons in the spec viewer) opens a modal showing the authoring template (with its Leadership Principle guidance) and the LLM-as-a-Judge rubric (categories, weights, pass/partial/fail criteria), served from the embedded catalog via GET /api/workflows/{id}/specs/{type}"
+      }
+    ],
+    "changed": [
+      {
+        "description": "Default workflow by initiative type: maintenance/refactor/migration→quick-fix, feature/compliance/default→pbhq-lite (pbhq-standard retired; canonical upstream pbhq-lite requires all four docs)"
+      },
+      {
+        "description": "workflow list/get read from the catalog (with sequence/phase detail) instead of DB rows; deterministic execution-sequence ordering"
+      },
+      {
+        "description": "InitiativeDetail and SpecViewer derive spec sets, progress denominators, tab order, and the workflow diagram from the assigned workflow instead of hardcoded PBHQ Lite"
+      },
+      {
+        "description": "AWS Working Backwards flows reordered to be PR-first (authentic Amazon practice): the human-authored Press Release is the founding artifact in both aws-one-way-door and aws-two-way-door; MRD (product) and OpportunitySpec (feature) demoted to optional post-FAQ deepening; product/feature difference expressed as ceremony (one-way vs two-way door: 6-pager required vs optional). Upstream profiles, visionspec D2 diagrams/SVGs, and aws.md updated together. Profiles also gain the authentic ceremony machinery: iteration_trigger on the PR/FAQ, prfaq_review gates, a required decision_meeting gate for aws-one-way-door, an evidence-appendix section in the press templates (mockups/demos labeled by what they prove), and spike-backed feasibility prompts in the FAQ templates."
+      },
+      {
+        "description": "AWS Working Backwards profiles renamed by Amazon's actual selection criterion — decision reversibility: aws-product→aws-one-way-door, aws-feature→aws-two-way-door (workflow sync remaps existing initiatives). Scale and door decoupled: both deepening docs (MRD and OpportunitySpec) are optional in both profiles — the door sets the ceremony, the scale picks the tool."
+      },
+      {
+        "description": "Amazon Leadership Principles infused into the AWS door workflows (sourced from amazon.jobs and the Jassy video transcripts): full 16-principle set with canonical reference in both profiles' methodology metadata; LP guidance in the press/FAQ/6-pager templates (canonical FAQ vetting questions, Kozmo economic-sustainability lesson, personal-money test, hard-to-fake-details narrative rationale); LP-grounded rubric categories (press economic_sustainability, FAQ disconfirmation_rigor, 6-pager ownership_horizon) and door-specific decision-reversibility criteria in the PRD rubrics."
+      }
+    ],
+    "fixed": [
+      {
+        "description": "pbhq-lite profile's execution block silently failed to parse upstream (workflow: vs execution: YAML key) — no workflow had ordering data at runtime"
+      },
+      {
+        "description": "aws-two-way-door synthesis guidance was silently dropped (GetSynthesisGuidance now falls back to prompt_context)"
+      },
+      {
+        "description": "aws-one-way-door synthesis gaps vs the reference D2: missing ird←trd rule, trd missing mrd source, tpd missing uxd source, narrative-6p sourced from faq instead of prd"
+      },
+      {
+        "description": "aws-two-way-door required a 6-pager narrative that the reference feature flow does not include (now optional)"
+      }
+    ],
+    "documentation": [
+      {
+        "description": "Spec Workflows section in the dashboard guide (selection, switching, required/optional/extra semantics); quickstart workflow commands; CLAUDE.md single-source-of-truth convention"
+      }
+    ],
+    "tests": [
+      {
+        "description": "Upstream D2-conformance and parse-regression suite (pkg/workflows/execution_test.go); SyncFromCatalog/Resolve/SpecFileName unit tests; catalog-based buildSpecsResponse test"
+      }
+    ]
+  },
   "releases": [
     {
       "version": "v0.5.0",
       "date": "2026-08-10",
       "highlights": [
         {
-          "description": "The pivot: a new Go CLI + web dashboard (`visionstudio`) for cross-repository roadmap execution \u2014 Programs -> Initiatives -> Phases -> RMIs, backed by Dolt \u2014 alongside the existing spec-authoring system, superseding the Electron desktop app and cmd/daemon as the primary surface"
+          "description": "The pivot: a new Go CLI + web dashboard (`visionstudio`) for cross-repository roadmap execution — Programs -> Initiatives -> Phases -> RMIs, backed by Dolt — alongside the existing spec-authoring system, superseding the Electron desktop app and cmd/daemon as the primary surface"
         },
         {
           "description": "Renamed the binary and module entry point from `vistudio` to `visionstudio` (breaking)"
@@ -170,7 +258,7 @@
           "description": "Existing views (VisionSpec, AIDLC, V2MOM, Analytics, unified dashboard) migrated onto the extension system as builtin extensions, not special-cased"
         },
         {
-          "description": "Shared UI toolkit \u2014 eleven reusable components backing an AppContext-based refactor of the existing views"
+          "description": "Shared UI toolkit — eleven reusable components backing an AppContext-based refactor of the existing views"
         },
         {
           "description": "API Style Spec: a new daemon endpoint plus a full marketplace extension for linting API specifications"
@@ -238,10 +326,10 @@
           "description": "DevX usage dashboard: a new, not-project-scoped sidebar view rendering AI-assisted development activity (sessions, prompts, commits, tool usage, cost) sourced from the OmniDevX ecosystem"
         },
         {
-          "description": "Read-only, disclosure-scoped boundary \u2014 the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file"
+          "description": "Read-only, disclosure-scoped boundary — the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file"
         },
         {
-          "description": "visionspec upgraded to v0.14.0 \u2014 rubrics now use structured-evaluation's shared RubricSet everywhere, one type across the ecosystem"
+          "description": "visionspec upgraded to v0.14.0 — rubrics now use structured-evaluation's shared RubricSet everywhere, one type across the ecosystem"
         }
       ],
       "added": [
@@ -258,13 +346,13 @@
           "commit": "76c1896"
         },
         {
-          "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization \u2014 both person/machine-scoped views independent of the active tracked project",
+          "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization — both person/machine-scoped views independent of the active tracked project",
           "commit": "e71d32d"
         }
       ],
       "dependencies": [
         {
-          "description": "Upgrade `github.com/ProductBuildersHQ/visionspec` to v0.14.0 (was v0.13.0). Breaking change upstream: `pkg/rubrics` drops its VisionSpec-local `RubricSet`/`Category`/`CategoricalCriteria` types in favor of `structured-evaluation/rubric.RubricSet`, and legacy flat rubric YAML is no longer parsed. VisionStudio doesn't import `pkg/rubrics` directly and ships no custom rubric YAML, so this required no code changes \u2014 verified with go vet, golangci-lint, and a live daemon run against the profiles endpoint",
+          "description": "Upgrade `github.com/ProductBuildersHQ/visionspec` to v0.14.0 (was v0.13.0). Breaking change upstream: `pkg/rubrics` drops its VisionSpec-local `RubricSet`/`Category`/`CategoricalCriteria` types in favor of `structured-evaluation/rubric.RubricSet`, and legacy flat rubric YAML is no longer parsed. VisionStudio doesn't import `pkg/rubrics` directly and ships no custom rubric YAML, so this required no code changes — verified with go vet, golangci-lint, and a live daemon run against the profiles endpoint",
           "commit": "8414baf"
         },
         {

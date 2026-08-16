@@ -12,17 +12,23 @@ The header shows a count ("N initiatives, M RMIs") and, when there's any RMI sta
 
 Each initiative tile shows: the initiative ID (monospace), a status badge, the title (clamped to 2 lines), and a progress bar with percentage. Click a tile to open its detail view.
 
+### Creating an initiative
+
+A **+ New Initiative** button in the header (also shown on the empty state) opens a creation form: ID, title, description, type, priority, program, and — required — a **spec workflow** chosen from the [`specification-workflow-spec` catalog](specs-and-evaluation.md#spec-workflows). Selecting a workflow previews its required document sequence and optional documents; changing the initiative type updates the suggested workflow (maintenance/refactor/migration → `quick-fix`, otherwise `pbhq-lite`) until you pick one explicitly. In a program view, the program field is pre-selected.
+
+On create you land on the new initiative's **Definition** tab, which renders the selected workflow's document layout. Mutations remain CLI/API-first — this form is backed by `POST /api/initiatives`, the API's only write endpoint; everything else (workflow switching, hiding, transitions) is still done via the CLI.
+
 ## Initiative Detail
 
 **Route:** `/initiative/:initiativeId`
 
-The header shows the initiative ID, status badge, title, description (if any), and an overall completion percentage. Below that, four summary cards: **Definition** (how many of the 4 core PBHQ Lite specs — PRD/TRD/PLAN/ROADMAP — exist on disk, as a fraction and percentage), **Phases**, **RMIs**, and **Repos** (distinct repository count across the initiative's RMIs).
+The header shows the initiative ID, status badge, a chip with the initiative's spec workflow (read-only; hover for the full name, and whether it's a type default), title, description (if any), and an overall completion percentage. Below that, four summary cards: **Definition** (how many of the assigned workflow's *required* spec documents exist on disk, as a fraction and percentage — the denominator follows the workflow, e.g. 4 for `pbhq-lite`, 7 for `aws-two-way-door`), **Phases**, **RMIs**, and **Repos** (distinct repository count across the initiative's RMIs).
 
 Two tabs follow — **Definition Details** and **Execution Details**. The initiative opens on whichever tab has data (Execution if the initiative has any phases or RMIs, otherwise Definition); the Execution tab carries an "empty" badge if there's nothing in it yet.
 
 ### Definition Details tab
 
-- **PBHQ Lite Workflow diagram** — PRD → TRD → PLAN → ROADMAP shown as connected boxes. Each box is colored by its most-advanced known state: gray "not created" (no file, no evaluation), blue "spec exists (not evaluated)", or green/yellow/red for an evaluated spec scoring ≥4, ≥3, or below 3 out of 5 respectively. An average score badge appears next to the diagram once any spec has been evaluated, using the same ≥4/≥3/below-3 color scale as the individual boxes.
+- **Workflow diagram** — the assigned workflow's required documents shown as connected boxes in flow order (e.g. PRD → TRD → PLAN → ROADMAP for `pbhq-lite`; PRESS → FAQ → … for the AWS door workflows). Each box is colored by its most-advanced known state: gray "not created" (no file, no evaluation), blue "spec exists (not evaluated)", or green/yellow/red for an evaluated spec scoring ≥4, ≥3, or below 3 out of 5 respectively. An average score badge appears next to the diagram once any spec has been evaluated, using the same ≥4/≥3/below-3 color scale as the individual boxes. **Click any box** to open that document type's authoring **template** (including its Leadership Principle guidance, for the AWS workflows) and its **LLM-as-a-Judge rubric** (categories, weights, and pass/partial/fail criteria) — most useful for gray boxes, answering "what should this document contain and how will it be judged?" before writing it. The same Template/Rubric buttons appear in the spec files viewer for the currently selected document.
 - **Spec file viewer** — tabs across the initiative's spec files (in workflow order first: PRD, TRD, PLAN, ROADMAP, then anything else), rendering the selected file's Markdown inline (max height, scrollable) along with its file path and last-modified date. "Open Full View" links to the standalone [Spec Viewer](specs-and-evaluation.md) for the selected spec.
 - **LLM-as-a-Judge results** — a collapsible list of every judge evaluation for this initiative, newest first, each row showing spec type, filename, model (if recorded), date, and a pass/fail or score-colored badge (green ≥4, yellow ≥3, red below 3, out of 5). Click a row to expand its rationale text.
 - **Initiative dependencies**, if any — see [below](#dependencies).

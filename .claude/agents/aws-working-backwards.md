@@ -90,7 +90,7 @@ Follow standard synthesis flow once PRD exists.
 ## Using MCP Tools
 
 ```
-1. workflow_select(initiative_id, workflow_id="aws-product")
+1. workflow_select(initiative_id, workflow_id="aws-one-way-door")
 2. spec_synthesize(target_spec_type="press", sources=[mrd], dry_run=true)
 3. spec_create(initiative_id, spec_type="press", content=...)
 4. spec_evaluate(initiative_id, spec_type="press")

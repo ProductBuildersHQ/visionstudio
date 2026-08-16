@@ -35,6 +35,16 @@ visionstudio spec judge record <initiative-id> <spec-file> --score <1-5> --ratio
 visionstudio roadmap import docs/specs/initiatives/<initiative-id>/ROADMAP.md   # sync ROADMAP.md into the database
 ```
 
+Every initiative has a **spec workflow** (which documents it needs — PBHQ Lite, AWS Working Backwards, Quick Fix, etc.), selected at creation and changeable later:
+
+```bash
+visionstudio workflow list                                    # browse the catalog
+visionstudio initiative create --workflow aws-two-way-door ...     # select at creation
+visionstudio initiative update <initiative-id> --workflow aws-one-way-door   # switch later
+```
+
+See [Spec Workflows](../dashboard/specs-and-evaluation.md#spec-workflows) for how required/optional/extra files and the workflow diagram follow the selection.
+
 To keep the dashboard focused, programs and initiatives can each be hidden independently — hiding a program cascades to hide its initiatives too:
 
 ```bash

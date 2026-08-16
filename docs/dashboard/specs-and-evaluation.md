@@ -1,10 +1,26 @@
 # Spec Viewer and Evaluation
 
+## Spec Workflows
+
+Each initiative has a **spec workflow** that defines which documents it needs. All default workflows are defined in [`specification-workflow-spec`](https://github.com/ProductBuildersHQ/specification-workflow-spec) — the single source of truth — and include PBHQ Lite (PRD → TRD → PLAN → ROADMAP), Quick Fix (ROADMAP only), AWS Working Backwards Product and Feature (PR/FAQ-driven), and ~20 others.
+
+- **Selecting:** `visionstudio initiative create --workflow <id>` (required; falls back to `defaults.workflow` in config). Browse the catalog with `visionstudio workflow list` / `workflow get <id>`.
+- **Switching after creation:** `visionstudio initiative update <id> --workflow <new-id>`. The initiative page, spec expectations, and evaluation rubrics all follow the new workflow. Switching is CLI-only; the dashboard shows the current workflow read-only as a chip next to the initiative status.
+- **Defaults by type:** initiatives without an explicit workflow resolve by type — `maintenance`/`refactor`/`migration` → `quick-fix`, everything else → `pbhq-lite`.
+- **Syncing the index:** `visionstudio workflow sync` refreshes the database's workflow index from the catalog (idempotent; also migrates initiatives off retired workflow IDs).
+
+### Required, optional, and extra files
+
+Every spec file in `docs/specs/initiatives/<id>/` is classified against the initiative's workflow:
+
+- **Required** / **Optional** — part of the workflow's defined spec set.
+- **Extra** — present on disk but not part of the selected workflow (e.g. a loose `NOTES.md`). Extra files still render normally but carry an "Extra" badge, and sort after the workflow's own documents. They're context, not obligations — switching workflows can reclassify a file (e.g. `OPPORTUNITY-SPEC.md` is required on `aws-two-way-door` but extra on `aws-one-way-door`).
+
 ## Spec Viewer
 
 **Routes:** `/initiative/:initiativeId/spec/:specType`, `/initiative/:initiativeId/spec` (redirects to the first spec in workflow order)
 
-Tabs across the top list every spec file found for the initiative, ordered PRD → TRD → PLAN → ROADMAP first, then any other spec types. Selecting a tab navigates to that spec's URL, so links to a specific spec are shareable.
+Tabs across the top list every spec file found for the initiative, in the selected workflow's order — required documents first (in flow sequence), then optional ones, then extras (badged). Selecting a tab navigates to that spec's URL, so links to a specific spec are shareable.
 
 ### Display vs. Markdown
 
@@ -28,7 +44,7 @@ If the initiative has no spec files on disk yet, the panel shows an empty state 
 
 Specs are evaluated against workflow rubrics (`structured-evaluation/rubric.Rubric`): a 1–5 integer score, an overall pass/fail decision, per-category scores and reasoning, findings with severity, and next steps. Results are stored as `*.eval.json` files under `docs/specs/initiatives/<id>/evaluations/` and shown:
 
-- Inline in the [initiative detail Definition tab](initiatives.md#definition-details-tab) — as color-coded boxes in the PBHQ Lite workflow diagram, and as an expandable list of every judge result with score and rationale.
+- Inline in the [initiative detail Definition tab](initiatives.md#definition-details-tab) — as color-coded boxes in the initiative's workflow diagram (rendered from whichever workflow the initiative is on, showing its required documents in flow order), and as an expandable list of every judge result with score and rationale.
 - Score color-coding is consistent throughout the dashboard: green for a score ≥4, yellow for ≥3, red below 3 (out of 5).
 
 ### Recording an evaluation

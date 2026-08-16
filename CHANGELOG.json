@@ -10,6 +10,38 @@
   "unreleased": {},
   "releases": [
     {
+      "version": "v0.7.0",
+      "date": "2026-08-16",
+      "highlights": [
+        {
+          "description": "initiative sweep \u2014 finds initiatives whose RMI completion has outrun their recorded lifecycle status, verified against real per-repo git state across every repository an initiative's RMIs touch (not just its home repo)"
+        },
+        {
+          "description": "Dashboard By Status view \u2014 the initiative portfolio grouped into pipeline-ordered columns (proposed through cancelled), for managing WIP at a glance alongside the existing By Program grouping"
+        }
+      ],
+      "added": [
+        {
+          "description": "visionstudio initiative sweep [--format json] \u2014 lists non-terminal initiatives with every RMI completed; reports per-repo git state (clean/dirty, ahead/behind cached upstream, missing, unregistered) using the same best-effort, no-network-fetch posture as registry doctor. Report-only",
+          "commit": "ef9945a"
+        },
+        {
+          "description": "Dashboard /status route and Sidebar entry: initiatives grouped by lifecycle status, reusing the existing /api/execution response",
+          "commit": "839f024"
+        },
+        {
+          "description": "StatusBadge colors for delivery_complete/releasing/released/closed (previously all fell back to proposed's gray)",
+          "commit": "839f024"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "PRD/ROADMAP for INIT-VISIONSTUDIO-011 (Portfolio WIP Management); initiative sweep and the By Status view documented in the dashboard guide and tour; CLAUDE.md convention for closing an initiative on commit+push without waiting for a git tag",
+          "commit": "b8d59d2"
+        }
+      ]
+    },
+    {
       "version": "v0.6.0",
       "date": "2026-08-16",
       "highlights": [

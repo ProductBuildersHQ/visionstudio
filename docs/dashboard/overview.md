@@ -10,7 +10,7 @@ The dashboard is a sidebar plus a main content area. On load, it fetches everyth
 
 The sidebar has four sections, each a top-level nav target:
 
-- **Initiatives** 📋 — expands to show every program (each expandable to its initiatives) and a **Standalone** group for initiatives with no program. Each initiative row shows its ID, title, and completion percentage.
+- **Initiatives** 📋 — expands to show a **📊 By Status** link (WIP board grouped by lifecycle status — see [Initiatives](initiatives.md#initiatives-overview)), every program (each expandable to its initiatives), and a **Standalone** group for initiatives with no program. Each initiative row shows its ID, title, and completion percentage.
 - **Repositories** 📦 — expands to show up to 10 repositories, sorted by RMI count descending, each with its RMI count. A "See all N repositories →" link appears if there are more than 10.
 - **Maturity** 📈 — no sub-items; links straight to the Maturity page.
 - **Performance** 📊 — no sub-items; links straight to the Performance page.

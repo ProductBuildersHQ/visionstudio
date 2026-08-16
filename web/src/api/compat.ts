@@ -84,6 +84,7 @@ export interface APIInitiative {
   programName?: string
   hidden?: boolean
   progress: number
+  cancelledProgress: number
 }
 
 export interface APIPhase {
@@ -93,6 +94,7 @@ export interface APIPhase {
   title: string
   theme?: string
   progress: number
+  cancelledProgress: number
 }
 
 export interface APIRMI {
@@ -232,6 +234,7 @@ export function toAPIInitiative(gen: GenAPIInitiative): APIInitiative {
     programName: gen.programName,
     hidden: gen.hidden,
     progress: gen.progress ?? 0,
+    cancelledProgress: gen.cancelledProgress ?? 0,
   }
 }
 
@@ -243,6 +246,7 @@ export function toAPIPhase(gen: GenAPIPhase): APIPhase {
     title: gen.title ?? '',
     theme: gen.theme,
     progress: gen.progress ?? 0,
+    cancelledProgress: gen.cancelledProgress ?? 0,
   }
 }
 

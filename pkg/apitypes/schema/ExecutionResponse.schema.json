@@ -40,6 +40,9 @@
         },
         "progress": {
           "type": "number"
+        },
+        "cancelledProgress": {
+          "type": "number"
         }
       },
       "additionalProperties": false,
@@ -78,6 +81,9 @@
           "type": "string"
         },
         "progress": {
+          "type": "number"
+        },
+        "cancelledProgress": {
           "type": "number"
         }
       },

@@ -45,6 +45,9 @@ export function StatusBoard({ initiatives: allInitiatives, programs, onInitiativ
       const key = groups.has(init.status) ? init.status : 'proposed'
       groups.get(key)!.push(init)
     }
+    for (const items of groups.values()) {
+      items.sort((a, b) => b.progress - a.progress)
+    }
     return groups
   }, [initiatives])
 
@@ -79,7 +82,11 @@ export function StatusBoard({ initiatives: allInitiatives, programs, onInitiativ
                     <h3 className="text-sm font-medium text-gray-100 mt-1 mb-2 line-clamp-2">
                       {init.title}
                     </h3>
-                    <ProgressBar progress={init.progress} size="sm" />
+                    <ProgressBar
+                      progress={init.progress}
+                      cancelledProgress={init.cancelledProgress}
+                      size="sm"
+                    />
                   </button>
                 ))}
                 {items.length === 0 && <p className="text-xs text-gray-600 italic px-1">None</p>}

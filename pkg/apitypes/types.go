@@ -188,6 +188,11 @@ type APIInitiative struct {
 	ProgramName string  `json:"programName,omitempty"`
 	Hidden      bool    `json:"hidden,omitempty"`
 	Progress    float64 `json:"progress"`
+	// CancelledProgress is the fraction of RMIs that are cancelled (not
+	// completed, not pending) -- rendered as a distinct segment so a
+	// cancelled RMI doesn't visually read the same as one that's simply
+	// not started yet.
+	CancelledProgress float64 `json:"cancelledProgress,omitempty"`
 }
 
 // APIPhase is the API representation of a phase.
@@ -198,6 +203,8 @@ type APIPhase struct {
 	Title          string  `json:"title"`
 	Theme          string  `json:"theme,omitempty"`
 	Progress       float64 `json:"progress"`
+	// CancelledProgress mirrors APIInitiative.CancelledProgress at phase scope.
+	CancelledProgress float64 `json:"cancelledProgress,omitempty"`
 }
 
 // APIRMI is the API representation of a roadmap item.

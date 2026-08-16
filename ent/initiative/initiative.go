@@ -30,6 +30,8 @@ const (
 	FieldWorkspace = "workspace"
 	// FieldHidden holds the string denoting the hidden field in the database.
 	FieldHidden = "hidden"
+	// FieldVisibility holds the string denoting the visibility field in the database.
+	FieldVisibility = "visibility"
 	// FieldSpecs holds the string denoting the specs field in the database.
 	FieldSpecs = "specs"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -128,6 +130,7 @@ var Columns = []string{
 	FieldHomeRepo,
 	FieldWorkspace,
 	FieldHidden,
+	FieldVisibility,
 	FieldSpecs,
 	FieldCreatedAt,
 	FieldPlannedAt,
@@ -179,6 +182,10 @@ var (
 	WorkspaceValidator func(string) error
 	// DefaultHidden holds the default value on creation for the "hidden" field.
 	DefaultHidden bool
+	// DefaultVisibility holds the default value on creation for the "visibility" field.
+	DefaultVisibility string
+	// VisibilityValidator is a validator for the "visibility" field. It is called by the builders before save.
+	VisibilityValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -234,6 +241,11 @@ func ByWorkspace(opts ...sql.OrderTermOption) OrderOption {
 // ByHidden orders the results by the hidden field.
 func ByHidden(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldHidden, opts...).ToFunc()
+}
+
+// ByVisibility orders the results by the visibility field.
+func ByVisibility(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVisibility, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

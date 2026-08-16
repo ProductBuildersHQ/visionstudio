@@ -43,18 +43,22 @@ type UnitOfWork interface {
 
 // Initiative represents a cross-repository initiative.
 type Initiative struct {
-	ID                 string            `json:"id"`
-	Organization       string            `json:"organization"`
-	Title              string            `json:"title"`
-	Description        string            `json:"description,omitempty"`
-	Status             string            `json:"status"`
-	InitType           string            `json:"init_type,omitempty"`
-	WorkflowID         string            `json:"workflow_id,omitempty"`
-	Priority           string            `json:"priority,omitempty"`
-	HomeRepo           string            `json:"home_repo,omitempty"`
-	Workspace          string            `json:"workspace,omitempty"`
-	ProgramID          string            `json:"program_id,omitempty"`
-	Hidden             bool              `json:"hidden,omitempty"`
+	ID           string `json:"id"`
+	Organization string `json:"organization"`
+	Title        string `json:"title"`
+	Description  string `json:"description,omitempty"`
+	Status       string `json:"status"`
+	InitType     string `json:"init_type,omitempty"`
+	WorkflowID   string `json:"workflow_id,omitempty"`
+	Priority     string `json:"priority,omitempty"`
+	HomeRepo     string `json:"home_repo,omitempty"`
+	Workspace    string `json:"workspace,omitempty"`
+	ProgramID    string `json:"program_id,omitempty"`
+	Hidden       bool   `json:"hidden,omitempty"`
+	// Visibility is internal (default) | public. Only public initiatives
+	// may appear in external projections, and only via the publicrail
+	// two-filter predicate (repo visibility is the second filter).
+	Visibility         string            `json:"visibility,omitempty"`
 	Specs              map[string]string `json:"specs,omitempty"`
 	CreatedAt          time.Time         `json:"created_at"`
 	PlannedAt          *time.Time        `json:"planned_at,omitempty"`

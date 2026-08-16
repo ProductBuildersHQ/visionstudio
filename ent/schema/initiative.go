@@ -23,6 +23,7 @@ func (Initiative) Fields() []ent.Field {
 		field.String("home_repo").MaxLen(255).Optional(),
 		field.String("workspace").MaxLen(128).Optional(),
 		field.Bool("hidden").Default(false),
+		field.String("visibility").MaxLen(16).Default("internal"),
 		field.JSON("specs", map[string]string{}).Optional(),
 		field.Time("created_at"),
 		field.Time("planned_at").Optional().Nillable(),

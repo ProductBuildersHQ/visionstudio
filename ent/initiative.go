@@ -38,6 +38,8 @@ type Initiative struct {
 	Workspace string `json:"workspace,omitempty"`
 	// Hidden holds the value of the "hidden" field.
 	Hidden bool `json:"hidden,omitempty"`
+	// Visibility holds the value of the "visibility" field.
+	Visibility string `json:"visibility,omitempty"`
 	// Specs holds the value of the "specs" field.
 	Specs map[string]string `json:"specs,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -148,7 +150,7 @@ func (*Initiative) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case initiative.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case initiative.FieldID, initiative.FieldOrganization, initiative.FieldTitle, initiative.FieldDescription, initiative.FieldStatus, initiative.FieldInitType, initiative.FieldPriority, initiative.FieldHomeRepo, initiative.FieldWorkspace:
+		case initiative.FieldID, initiative.FieldOrganization, initiative.FieldTitle, initiative.FieldDescription, initiative.FieldStatus, initiative.FieldInitType, initiative.FieldPriority, initiative.FieldHomeRepo, initiative.FieldWorkspace, initiative.FieldVisibility:
 			values[i] = new(sql.NullString)
 		case initiative.FieldCreatedAt, initiative.FieldPlannedAt, initiative.FieldExecutingAt, initiative.FieldDeliveryCompleteAt, initiative.FieldReleasedAt, initiative.FieldClosedAt, initiative.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -230,6 +232,12 @@ func (_m *Initiative) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field hidden", values[i])
 			} else if value.Valid {
 				_m.Hidden = value.Bool
+			}
+		case initiative.FieldVisibility:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field visibility", values[i])
+			} else if value.Valid {
+				_m.Visibility = value.String
 			}
 		case initiative.FieldSpecs:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -392,6 +400,9 @@ func (_m *Initiative) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("hidden=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Hidden))
+	builder.WriteString(", ")
+	builder.WriteString("visibility=")
+	builder.WriteString(_m.Visibility)
 	builder.WriteString(", ")
 	builder.WriteString("specs=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Specs))

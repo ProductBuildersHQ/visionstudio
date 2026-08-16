@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.14.6
 	github.com/ProductBuildersHQ/prism-build v0.2.0
 	github.com/ProductBuildersHQ/scale v0.2.0
-	github.com/ProductBuildersHQ/specification-workflow-spec v0.2.0
+	github.com/ProductBuildersHQ/specification-workflow-spec v0.3.0
 	github.com/ProductBuildersHQ/visionspec v0.14.0
 	github.com/dolthub/driver v1.88.1
 	github.com/fsnotify/fsnotify v1.10.1
@@ -22,7 +22,7 @@ require (
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/plexusone/devfolio v0.3.0
 	github.com/plexusone/omnidevx-core v0.3.0
-	github.com/plexusone/structured-evaluation v0.13.0
+	github.com/plexusone/structured-evaluation v0.14.0
 	github.com/plexusone/uiforge v0.4.0
 	github.com/spf13/cobra v1.10.2
 )

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -21,7 +22,87 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	return cmd
+}
+
+func registryUpdateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <repo-id>",
+		Short: "Repoint or edit a registered repository",
+		Long: `Edits an existing repository's metadata (path, org, branch, name).
+
+The repository's ID stays "github.com/<org>/<name>" as originally
+registered — --org/--name correct metadata on this same record, they do
+not rename the ID. For an actual repository merge/rename, use
+'registry archive --superseded-by <new-id>' followed by 'registry add'
+for the new ID (see 'registry archive --help').`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			id, err := resolveRepoID(cmd.Context(), svc, args[0])
+			if err != nil {
+				return err
+			}
+			repo, err := svc.GetRepository(cmd.Context(), id)
+			if err != nil {
+				return err
+			}
+
+			var changed []string
+			if cmd.Flags().Changed("path") {
+				v, _ := cmd.Flags().GetString("path")
+				if repo.LocalPath != v {
+					repo.LocalPath = v
+					changed = append(changed, "path")
+				}
+			}
+			if cmd.Flags().Changed("org") {
+				v, _ := cmd.Flags().GetString("org")
+				if repo.Organization != v {
+					repo.Organization = v
+					changed = append(changed, "org")
+				}
+			}
+			if cmd.Flags().Changed("branch") {
+				v, _ := cmd.Flags().GetString("branch")
+				if repo.DefaultBranch != v {
+					repo.DefaultBranch = v
+					changed = append(changed, "branch")
+				}
+			}
+			if cmd.Flags().Changed("name") {
+				v, _ := cmd.Flags().GetString("name")
+				if repo.RepositoryName != v {
+					repo.RepositoryName = v
+					changed = append(changed, "name")
+				}
+			}
+
+			if len(changed) == 0 {
+				cmd.Printf("Repository %s is already up to date\n", repo.ID)
+				return nil
+			}
+
+			if err := svc.Store.UpdateRepository(cmd.Context(), repo); err != nil {
+				return err
+			}
+			cmd.Printf("Updated %s: %s\n", repo.ID, strings.Join(changed, ", "))
+			if slices.Contains(changed, "org") || slices.Contains(changed, "name") {
+				cmd.Printf("Note: the repository ID is still %s (org/name metadata only; see --help for renames)\n", repo.ID)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("path", "", "New local filesystem path")
+	cmd.Flags().String("org", "", "New GitHub organization (metadata only, does not change the ID)")
+	cmd.Flags().String("branch", "", "New default branch")
+	cmd.Flags().String("name", "", "New repository name (metadata only, does not change the ID)")
 	return cmd
 }
 

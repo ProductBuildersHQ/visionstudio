@@ -195,6 +195,34 @@ func initiativeListCmd() *cobra.Command {
 				return err
 			}
 
+			repoFilter, _ := cmd.Flags().GetString("repo")
+			statusFilter, _ := cmd.Flags().GetString("status")
+			programFilter, _ := cmd.Flags().GetString("program")
+
+			if repoFilter != "" {
+				repoFilter, err = resolveRepoID(cmd.Context(), svc, repoFilter)
+				if err != nil {
+					return err
+				}
+			}
+
+			if repoFilter != "" || statusFilter != "" || programFilter != "" {
+				filtered := make([]*store.Initiative, 0, len(inits))
+				for _, i := range inits {
+					if repoFilter != "" && i.HomeRepo != repoFilter {
+						continue
+					}
+					if statusFilter != "" && i.Status != statusFilter {
+						continue
+					}
+					if programFilter != "" && i.ProgramID != programFilter {
+						continue
+					}
+					filtered = append(filtered, i)
+				}
+				inits = filtered
+			}
+
 			format, _ := cmd.Flags().GetString("format")
 			switch format {
 			case "json":
@@ -237,6 +265,9 @@ func initiativeListCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().String("format", "text", "Output format: text or json")
+	cmd.Flags().String("repo", "", "Filter by home repository (short name, org/name, or full ID)")
+	cmd.Flags().String("status", "", "Filter by status")
+	cmd.Flags().String("program", "", "Filter by program ID")
 	return cmd
 }
 

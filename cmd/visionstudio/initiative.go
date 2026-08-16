@@ -4,11 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/spf13/cobra"
@@ -40,6 +45,7 @@ func initiativeCmd() *cobra.Command {
 		initiativeGetCmd(),
 		initiativeUpdateCmd(),
 		initiativeTransitionCmd(),
+		initiativeSweepCmd(),
 		initiativeDepCmd(),
 		initiativeHideCmd(),
 		initiativeShowCmd(),
@@ -488,6 +494,256 @@ func initiativeTransitionCmd() *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// sweepRepoCheck is the git-state verdict for one repository referenced by
+// a sweep candidate's RMIs.
+type sweepRepoCheck struct {
+	RepositoryID string `json:"repository_id"`
+	LocalPath    string `json:"local_path,omitempty"`
+	State        string `json:"state"`
+	Detail       string `json:"detail"`
+}
+
+// sweepCandidate is a non-terminal initiative whose RMIs are all completed.
+type sweepCandidate struct {
+	InitiativeID string           `json:"initiative_id"`
+	Title        string           `json:"title"`
+	Status       string           `json:"status"`
+	RMICount     int              `json:"rmi_count"`
+	Repos        []sweepRepoCheck `json:"repos"`
+	NeedsReview  bool             `json:"needs_review"`
+}
+
+func initiativeSweepCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "sweep",
+		Short: "Find initiatives whose RMI completion has outrun their recorded status",
+		Long: `Lists non-terminal initiatives (proposed/planned/executing) where every RMI
+is completed. For each candidate, resolves every distinct repository referenced
+by its RMIs -- not just the initiative's home repo -- and reports local git
+state: clean/dirty working tree, ahead/behind the cached remote-tracking ref
+(no network fetch), or not found/not registered locally. Same best-effort,
+report-only posture as 'registry doctor'.
+
+sweep never calls transition or release record itself, and it cannot verify
+that a completed RMI's shipped code actually matches its written description
+-- that judgment call stays with whoever reviews the report.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			inits, err := svc.ListInitiatives(cmd.Context())
+			if err != nil {
+				return err
+			}
+
+			repos, err := svc.ListRepositories(cmd.Context())
+			if err != nil {
+				return err
+			}
+			repoByID := make(map[string]*store.Repository, len(repos))
+			for _, r := range repos {
+				repoByID[r.ID] = r
+			}
+
+			nonTerminal := map[string]bool{
+				initiative.StatusProposed:  true,
+				initiative.StatusPlanned:   true,
+				initiative.StatusExecuting: true,
+			}
+
+			var candidates []sweepCandidate
+			for _, init := range inits {
+				if !nonTerminal[init.Status] {
+					continue
+				}
+				rmis, err := svc.ListRMIs(cmd.Context(), init.ID)
+				if err != nil {
+					return err
+				}
+				if len(rmis) == 0 {
+					continue
+				}
+				allDone := true
+				repoIDSet := map[string]bool{}
+				for _, r := range rmis {
+					if r.Status != "completed" {
+						allDone = false
+						break
+					}
+					if r.RepositoryID != "" {
+						repoIDSet[r.RepositoryID] = true
+					}
+				}
+				if !allDone {
+					continue
+				}
+				if len(repoIDSet) == 0 && init.HomeRepo != "" {
+					repoIDSet[init.HomeRepo] = true
+				}
+
+				repoIDs := make([]string, 0, len(repoIDSet))
+				for id := range repoIDSet {
+					repoIDs = append(repoIDs, id)
+				}
+				sort.Strings(repoIDs)
+
+				needsReview := false
+				checks := make([]sweepRepoCheck, 0, len(repoIDs))
+				for _, id := range repoIDs {
+					check := sweepRepoGitState(id, repoByID[id])
+					if check.State != "CLEAN" {
+						needsReview = true
+					}
+					checks = append(checks, check)
+				}
+
+				candidates = append(candidates, sweepCandidate{
+					InitiativeID: init.ID,
+					Title:        init.Title,
+					Status:       init.Status,
+					RMICount:     len(rmis),
+					Repos:        checks,
+					NeedsReview:  needsReview,
+				})
+			}
+
+			format, _ := cmd.Flags().GetString("format")
+			if format == "json" {
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(candidates)
+			}
+
+			if len(candidates) == 0 {
+				cmd.Println("No candidates -- every non-terminal initiative has at least one incomplete RMI.")
+				return nil
+			}
+
+			for _, c := range candidates {
+				marker := "ready"
+				if c.NeedsReview {
+					marker = "needs review"
+				}
+				cmd.Printf("%s [%s -> %s] %s (%d RMIs, all completed)\n", c.InitiativeID, c.Status, marker, c.Title, c.RMICount)
+				for _, r := range c.Repos {
+					cmd.Printf("  %-12s %-45s %s\n", r.State, r.RepositoryID, r.Detail)
+				}
+				cmd.Println()
+			}
+			cmd.Printf("%d candidate(s). Verify each RMI's shipped work actually matches its spec before transitioning or recording a release.\n", len(candidates))
+			return nil
+		},
+	}
+	cmd.Flags().String("format", "text", "Output format: text or json")
+	return cmd
+}
+
+// sweepRepoGitState reports the local git state of repo (best-effort, no
+// network fetch -- reads cached remote-tracking refs only). Never fatal:
+// lookup failures degrade to an informative state string.
+func sweepRepoGitState(repoID string, repo *store.Repository) sweepRepoCheck {
+	if repo == nil {
+		return sweepRepoCheck{RepositoryID: repoID, State: "UNREGISTERED", Detail: "not in the repository registry"}
+	}
+	if repo.LocalPath == "" {
+		return sweepRepoCheck{RepositoryID: repoID, State: "NO-PATH", Detail: "no local path registered"}
+	}
+
+	check := sweepRepoCheck{RepositoryID: repoID, LocalPath: repo.LocalPath}
+	info, err := os.Stat(repo.LocalPath)
+	switch {
+	case err != nil:
+		check.State = "MISSING"
+		check.Detail = fmt.Sprintf("%s does not exist", repo.LocalPath)
+		return check
+	case !info.IsDir():
+		check.State = "NOT-A-DIR"
+		check.Detail = fmt.Sprintf("%s is not a directory", repo.LocalPath)
+		return check
+	}
+	if _, err := os.Stat(filepath.Join(repo.LocalPath, ".git")); err != nil {
+		check.State = "NOT-GIT"
+		check.Detail = fmt.Sprintf("%s is not a git working tree", repo.LocalPath)
+		return check
+	}
+
+	dirty := sweepGitDirty(repo.LocalPath)
+	ahead, behind, hasUpstream := sweepGitAheadBehind(repo.LocalPath)
+
+	var notes []string
+	if dirty {
+		notes = append(notes, "uncommitted changes")
+	}
+	switch {
+	case !hasUpstream:
+		notes = append(notes, "no upstream tracking branch configured")
+	default:
+		if ahead > 0 {
+			notes = append(notes, fmt.Sprintf("%d commit(s) ahead of upstream (unpushed)", ahead))
+		}
+		if behind > 0 {
+			notes = append(notes, fmt.Sprintf("%d commit(s) behind upstream", behind))
+		}
+	}
+
+	switch {
+	case dirty:
+		check.State = "DIRTY"
+	case hasUpstream && ahead > 0:
+		check.State = "UNPUSHED"
+	case !hasUpstream:
+		check.State = "UNVERIFIED"
+	case behind > 0:
+		check.State = "BEHIND"
+	default:
+		check.State = "CLEAN"
+	}
+	if len(notes) == 0 {
+		check.Detail = "clean, in sync with upstream"
+	} else {
+		check.Detail = strings.Join(notes, "; ")
+	}
+	return check
+}
+
+// sweepGitDirty reports whether path's working tree has uncommitted changes.
+// Best-effort: a lookup failure is reported as not dirty (git status itself
+// covers the "not a git repo" case earlier in the caller).
+func sweepGitDirty(path string) bool {
+	// #nosec G204 -- path is a caller-supplied local directory for a local
+	// dev CLI, not untrusted network input (same posture as registryDoctorCmd).
+	out, err := exec.Command("git", "-C", path, "status", "--porcelain").Output()
+	if err != nil {
+		return false
+	}
+	return len(strings.TrimSpace(string(out))) > 0
+}
+
+// sweepGitAheadBehind reports how many commits path's HEAD is ahead of and
+// behind its upstream tracking ref, read from the local cache -- no network
+// fetch. ok is false if no upstream is configured or the lookup fails.
+func sweepGitAheadBehind(path string) (ahead, behind int, ok bool) {
+	// #nosec G204 -- path is a caller-supplied local directory for a local
+	// dev CLI, not untrusted network input (same posture as registryDoctorCmd).
+	out, err := exec.Command("git", "-C", path, "rev-list", "--left-right", "--count", "HEAD...@{u}").Output()
+	if err != nil {
+		return 0, 0, false
+	}
+	fields := strings.Fields(strings.TrimSpace(string(out)))
+	if len(fields) != 2 {
+		return 0, 0, false
+	}
+	a, errA := strconv.Atoi(fields[0])
+	b, errB := strconv.Atoi(fields[1])
+	if errA != nil || errB != nil {
+		return 0, 0, false
+	}
+	return a, b, true
 }
 
 func initiativeDepCmd() *cobra.Command {

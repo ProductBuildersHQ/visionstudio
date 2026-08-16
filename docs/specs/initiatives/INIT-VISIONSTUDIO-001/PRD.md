@@ -76,7 +76,7 @@ G4, and Phases 1–4 must not preclude hosted mode.
 ## Success Criteria
 
 - `visionstudio` imports IR types from all four source modules and publishes a
-  composed JSON Schema that passes `schemago lint`.
+  composed JSON Schema that passes `schemakit lint --property-case snake_case`.
 - prism-build's Ent/Dolt/service code lives in visionstudio; prismctl's
   file-mode commands still work standalone in prism-build.
 - The unified local website (specs + execution + spend/accomplishments +

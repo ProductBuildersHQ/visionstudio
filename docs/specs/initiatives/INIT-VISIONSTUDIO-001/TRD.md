@@ -162,7 +162,7 @@ org vs shared tables) is decided in Phase 5 after load/UX validation.
 - Dolt driver requires CGO + ICU (`CGO_CFLAGS=-I/opt/homebrew/opt/icu4c/include`
   etc.); keep the `//go:build dolt` tag pattern so default builds stay pure Go.
 - JSON Schema for composed IR generated Go-first via `invopop/jsonschema`,
-  linted with `schemago lint`, embedded via `go:embed`.
+  linted with `schemakit lint --property-case snake_case`, embedded via `go:embed`.
 - Ent for all new Dolt entities; Cobra for CLI; official Go MCP SDK.
 
 ## Risks

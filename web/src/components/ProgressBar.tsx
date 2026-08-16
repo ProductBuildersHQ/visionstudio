@@ -15,8 +15,12 @@ export function ProgressBar({
 }: ProgressBarProps) {
   const pct = Math.round(progress * 100)
   const cancelledPct = Math.min(Math.round(cancelledProgress * 100), 100 - pct)
-  const bgColor =
-    pct >= 100 ? 'bg-green-500' : pct >= 50 ? 'bg-blue-500' : 'bg-yellow-500'
+  // Nothing left pending once completed + cancelled account for the whole
+  // bar -- there's no more in-flight work, so the completed slice is done,
+  // not merely "in progress" (blue). A still-open remainder keeps the usual
+  // in-progress coloring.
+  const resolved = pct + cancelledPct >= 100
+  const bgColor = resolved ? 'bg-green-500' : pct >= 50 ? 'bg-blue-500' : 'bg-yellow-500'
 
   const heights = {
     sm: 'h-1',

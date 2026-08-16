@@ -46,6 +46,26 @@ If the initiative has no phases and no RMIs, this tab shows an empty state point
 
 Initiative-level dependencies show as chips reading either "requires `OTHER-ID` (Other Title)" (this initiative depends on the other) or "`OTHER-ID` requires this" (the other depends on this initiative). RMI-level dependencies show inline on each RMI row as a "→ N" badge — hover it to see which RMI IDs it requires.
 
+## Initiative Lifecycle
+
+An initiative moves through a status pipeline, managed from the CLI:
+
+```
+proposed → planned → executing → delivery_complete → releasing → released → closed
+```
+
+```bash
+visionstudio initiative transition <initiative-id> <status>
+```
+
+Three transition rules apply:
+
+- **Forward** — one step at a time through the pipeline (no skipping). From `delivery_complete` an initiative can also go straight to `closed` (delivered but never released), and any pre-release status can go to `cancelled`.
+- **Backwards (reopen)** — an initiative can return to *any earlier* pipeline status. Scope evolves: when new phases land in a delivered or released initiative's roadmap, its status can follow the work back (e.g. `delivery_complete → executing`). `closed` can be reopened too, but is only ever *entered* going forward.
+- **Cancelled** — reopens to any pre-release status; it can never jump to `released` or `closed`, which would fabricate lifecycle history that never happened.
+
+Each pipeline stage stamps a timestamp when entered (`planned_at`, `executing_at`, `delivery_complete_at`, `released_at`, `closed_at`). A backwards transition **clears the stamps of the stages it undoes** — an initiative reopened to `executing` is no longer delivery-complete, and its record won't claim otherwise; re-entering a stage later re-stamps it. Cancellation preserves all stamps.
+
 ## Hiding Programs and Initiatives
 
 Programs and initiatives can each be hidden from the dashboard independently:

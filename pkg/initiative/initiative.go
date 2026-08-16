@@ -51,17 +51,50 @@ var forwardTransitions = map[string][]string{
 	StatusCancelled:        {},
 }
 
-// ValidTransition reports whether transitioning from one status to another is allowed.
+// pipelineRank orders the pipeline statuses for backwards-transition checks.
+// Cancelled sits outside the pipeline and has no rank.
+var pipelineRank = map[string]int{
+	StatusProposed:         0,
+	StatusPlanned:          1,
+	StatusExecuting:        2,
+	StatusDeliveryComplete: 3,
+	StatusReleasing:        4,
+	StatusReleased:         5,
+	StatusClosed:           6,
+}
+
+// ValidTransition reports whether transitioning from one status to another is
+// allowed. Forward transitions follow the pipeline one step at a time (plus
+// cancellation from any active status). Backwards transitions reopen the
+// initiative to any earlier pipeline status — an initiative's scope can grow
+// after delivery or release (new phases land in its roadmap), and the status
+// should be able to follow it back. A cancelled initiative reopens the same
+// way, to any pre-release status; it cannot jump to released or closed, which
+// would fabricate lifecycle history that never happened.
 func ValidTransition(from, to string) bool {
-	targets, ok := forwardTransitions[from]
+	if targets, ok := forwardTransitions[from]; ok && slices.Contains(targets, to) {
+		return true
+	}
+	toRank, ok := pipelineRank[to]
+	if !ok || to == StatusClosed {
+		// Closed is reachable only through the forward map.
+		return false
+	}
+	if from == StatusCancelled {
+		return toRank < pipelineRank[StatusReleased]
+	}
+	fromRank, ok := pipelineRank[from]
 	if !ok {
 		return false
 	}
-	return slices.Contains(targets, to)
+	return toRank < fromRank
 }
 
 // Transition updates the initiative status and stamps the appropriate lifecycle
-// timestamp. It returns an error if the transition is invalid.
+// timestamp. It returns an error if the transition is invalid. A backwards
+// transition clears the stamps of every stage later than the new status — an
+// initiative reopened to executing is no longer delivery-complete, and its
+// timestamps must not claim otherwise; re-entering a stage later re-stamps it.
 func Transition(init *store.Initiative, to string, now time.Time) error {
 	if !ValidTransition(init.Status, to) {
 		return fmt.Errorf("invalid transition from %q to %q", init.Status, to)
@@ -80,7 +113,30 @@ func Transition(init *store.Initiative, to string, now time.Time) error {
 	case StatusClosed:
 		init.ClosedAt = &now
 	}
+	if rank, ok := pipelineRank[to]; ok {
+		clearStampsAfter(init, rank)
+	}
 	return nil
+}
+
+// clearStampsAfter clears lifecycle timestamps for pipeline stages ranked
+// strictly later than rank. Cancellation (no rank) preserves all stamps.
+func clearStampsAfter(init *store.Initiative, rank int) {
+	if rank < pipelineRank[StatusClosed] {
+		init.ClosedAt = nil
+	}
+	if rank < pipelineRank[StatusReleased] {
+		init.ReleasedAt = nil
+	}
+	if rank < pipelineRank[StatusDeliveryComplete] {
+		init.DeliveryCompleteAt = nil
+	}
+	if rank < pipelineRank[StatusExecuting] {
+		init.ExecutingAt = nil
+	}
+	if rank < pipelineRank[StatusPlanned] {
+		init.PlannedAt = nil
+	}
 }
 
 // Phase status constants (derived, never stored).

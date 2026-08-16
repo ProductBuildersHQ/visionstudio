@@ -4,6 +4,7 @@ import { getExecution, getSpecs, getMaturity, getSpend } from './api/client'
 import type { ExecutionResponse, SpecsResponse, MaturityResponse, SpendResponse } from './api/types'
 import { Sidebar } from './components/Sidebar'
 import { InitiativesOverview } from './panels/InitiativesOverview'
+import { StatusBoard } from './panels/StatusBoard'
 import { InitiativeDetail } from './panels/InitiativeDetail'
 import { MaturityPanel } from './panels/MaturityPanel'
 import { PerformancePanel } from './panels/PerformancePanel'
@@ -15,6 +16,7 @@ import { LoadingState, ErrorState } from './components'
 export type NavSection = 'initiatives' | 'repositories' | 'maturity' | 'performance'
 export type NavTarget =
   | { section: 'initiatives'; view: 'all' }
+  | { section: 'initiatives'; view: 'status' }
   | { section: 'initiatives'; view: 'program'; programId: string }
   | { section: 'initiatives'; view: 'standalone' }
   | { section: 'initiatives'; view: 'initiative'; initiativeId: string }
@@ -76,6 +78,8 @@ function AppContent() {
       }
     } else if (target.view === 'all') {
       navigate('/')
+    } else if (target.view === 'status') {
+      navigate('/status')
     } else if (target.view === 'program') {
       navigate(`/program/${target.programId}`)
     } else if (target.view === 'standalone') {
@@ -126,6 +130,16 @@ function AppContent() {
                   onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
                   onInitiativeCreated={handleInitiativeCreated}
                   showProgramGroups={true}
+                />
+              }
+            />
+            <Route
+              path="/status"
+              element={
+                <StatusBoard
+                  initiatives={execution.initiatives}
+                  programs={execution.programs}
+                  onInitiativeClick={(id) => navigate(`/initiative/${id}`)}
                 />
               }
             />

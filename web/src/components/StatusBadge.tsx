@@ -10,6 +10,10 @@ const statusColors: Record<string, string> = {
   ready: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   planned: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
   proposed: 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+  delivery_complete: 'bg-teal-500/20 text-teal-400 border-teal-500/30',
+  releasing: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+  released: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+  closed: 'bg-gray-600/20 text-gray-500 border-gray-600/30',
   cancelled: 'bg-red-500/20 text-red-400 border-red-500/30',
 }
 

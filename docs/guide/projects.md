@@ -51,4 +51,4 @@ Profiles determine which specs are required and their workflow:
 |---------|--------------|----------|
 | big-tech-product | MRD | MRD → Press → FAQ → 6-Pager → PRD → TRD |
 | big-tech-feature | OpportunitySpec | OpportunitySpec → Press → FAQ → PRD → TRD |
-| aws-product | MRD | MRD → Press → FAQ → 6-Pager |
+| aws-one-way-door | Press Release | Press → FAQ → MRD(opt) → PRD → 6-Pager |

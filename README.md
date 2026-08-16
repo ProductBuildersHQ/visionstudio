@@ -75,6 +75,7 @@ See [Installation](docs/getting-started/installation.md) and [Quick Start](docs/
 ### Roadmap Execution
 
 - 🗂️ **[Programs → Initiatives → Phases → RMIs](docs/dashboard/initiatives.md)** - Hierarchical tracking of cross-repository roadmap items, with dependencies and progress rollups; programs and initiatives can each be hidden from the dashboard (`visionstudio program hide` / `initiative hide`), with hiding a program cascading to its initiatives
+- 🔁 **[Reversible Lifecycle](docs/dashboard/initiatives.md#initiative-lifecycle)** - Initiatives move forward one stage at a time (`proposed` → … → `closed`) and can reopen to any earlier stage as scope evolves, with lifecycle timestamps cleared for undone stages so history stays truthful
 - 🏢 **[Repositories](docs/dashboard/repositories.md)** - Repository catalog with per-repo RMI counts and progress
 - 📈 **[Performance](docs/dashboard/performance.md)** - Token spend and cost tracking by model, initiative, phase, and RMI
 - 🩺 **[Maturity Assessments](docs/dashboard/maturity.md)** - Framework-based capability maturity scoring, plus SCALE platform adoption and code-leverage/reuse graphs

@@ -125,7 +125,8 @@ cd web && npm run dev
 | `/api/scale/report` | SCALE data as a chart-ready report IR |
 | `/api/leverage` | Code-leverage/reuse dependency graph |
 | `/api/specs` | Spec workflows, judge results |
-| `/api/spec-files/{id}` | Spec file contents for an initiative |
+| `/api/spec-files/{id}` | Spec file contents for an initiative (role-labeled, workflow-ordered) |
+| `POST /api/initiatives` | Create an initiative (the API's first and only mutation endpoint; backs the dashboard's New Initiative form) |
 
 All handlers live in `cmd/visionstudio/api.go`; check there directly rather than trusting this table to stay exhaustive as routes are added.
 
@@ -151,6 +152,17 @@ Judge results use `structured-evaluation/rubric.Rubric` format directly. Eval fi
 **Eval file format:** Must use `rubric.Rubric` schema (schemaVersion: "v2"). See `structured-evaluation` for the full schema.
 
 ## Conventions
+
+### Spec workflows: specification-workflow-spec is the single source of truth
+
+All default (non-user-custom) spec workflow definitions live in `github.com/ProductBuildersHQ/specification-workflow-spec`'s embedded catalog (~25 profiles: `pbhq-lite`, `quick-fix`, `aws-one-way-door`, `aws-two-way-door`, …). VisionStudio only consumes them via `pkg/specworkflow`'s `Loader`; **never** define or fork a workflow locally — the old hardcoded `BuiltInWorkflows()` catalog was removed precisely because it silently diverged from upstream (same IDs, different required-doc sets). Key pieces:
+
+- `specworkflow.Resolve(loader, init)` — the only way to answer "which workflow applies": explicit `Initiative.WorkflowID`, else `DefaultWorkflowForType` (`maintenance`/`refactor`/`migration`→`quick-fix`, else `pbhq-lite`). Never resolve from the DB.
+- The `spec_workflows` table is an **index/cache** of the catalog, not a definition source; `visionstudio workflow sync` refreshes it (idempotent, also remaps initiatives off retired IDs — see `retiredRemap` in `pkg/specworkflow/seed.go`).
+- Spec-type IDs (`prd`, `opportunity-spec`) ↔ filenames (`PRD.md`, `OPPORTUNITY-SPEC.md`) convert via `specworkflow.SpecFileName` and `deriveSpecType` (api.go) — keep them inverse of each other when adding doc types.
+- Two per-initiative workflow records exist and must be kept in step when switching: `Initiative.WorkflowID` (the edge) and the `InitiativeWorkflow` selection row (read by synthesis/eval via `GetWorkflowForInitiative`) — `initiative update --workflow` updates both.
+- Profile YAML gotcha (upstream): the execution block's key is `execution:`, not `workflow:` — yaml.v3 silently drops unknown keys, so a wrong key parses as "no execution ordering" with no error (pbhq-lite shipped that way for a while). Several other profiles still carry unparsed keys (`rubric_extensions`, `cadence`, `cycles`, …).
+- The authoritative flow definitions for AWS Working Backwards are visionspec's D2 diagrams (`visionspec/docs/diagrams/aws-{product,feature}-flow.d2`); `specification-workflow-spec`'s profiles are kept conformant via `pkg/workflows/execution_test.go` upstream.
 
 ### Hiding an entity from the dashboard
 

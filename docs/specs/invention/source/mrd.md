@@ -91,7 +91,7 @@ Product teams creating specifications face several challenges:
    - Projects can be product-level (MRD start) or feature-level (OpportunitySpec start)
 
 2. **Profile-Driven Workflows**
-   - Select from profiles: aws-product, aws-feature, big-tech-product, big-tech-feature, etc.
+   - Select from profiles: aws-one-way-door, aws-two-way-door, big-tech-product, big-tech-feature, etc.
    - Visual workflow diagram showing spec sequence and dependencies
    - Status indicators: not started, draft, evaluated, approved
 

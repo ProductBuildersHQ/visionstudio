@@ -28,7 +28,7 @@ picker, template editor, and rubric viewer load embedded data as Go structs:
 ```go
 import "github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflows"
 
-w, err := workflows.DefaultLoader().Load("aws-feature")
+w, err := workflows.DefaultLoader().Load("aws-two-way-door")
 // w.Workflow  — configuration with extends-inheritance resolved
 // w.Templates — raw markdown per spec type
 // w.Rubrics   — *rubric.RubricSet per spec type (structured-evaluation)

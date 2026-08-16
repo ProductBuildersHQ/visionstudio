@@ -103,7 +103,7 @@ Use PBHQ Lite when:
 - Timeline < 4 weeks
 - Single stakeholder
 
-Use full workflow (big-tech-essentials or aws-product) when:
+Use full workflow (big-tech-essentials or aws-one-way-door) when:
 - Customer-facing product
 - Multiple stakeholders
 - Requires press/marketing alignment

@@ -19,18 +19,34 @@ func TestValidTransition(t *testing.T) {
 		{StatusDeliveryComplete, StatusReleasing, true},
 		{StatusReleasing, StatusReleased, true},
 		{StatusReleased, StatusClosed, true},
-		// backwards not allowed
-		{StatusExecuting, StatusPlanned, false},
-		{StatusReleased, StatusExecuting, false},
+		// forward skipping not allowed
+		{StatusProposed, StatusExecuting, false},
+		{StatusExecuting, StatusReleased, false},
+		// backwards reopens to any earlier pipeline status
+		{StatusExecuting, StatusPlanned, true},
+		{StatusDeliveryComplete, StatusExecuting, true},
+		{StatusDeliveryComplete, StatusProposed, true},
+		{StatusReleasing, StatusExecuting, true},
+		{StatusReleased, StatusExecuting, true},
+		{StatusClosed, StatusProposed, true},
+		{StatusClosed, StatusReleased, true},
+		// backwards never fabricates later stages
+		{StatusReleasing, StatusReleased, true}, // forward, for contrast
+		{StatusDeliveryComplete, StatusReleased, false},
 		// cancellation from any active state
 		{StatusProposed, StatusCancelled, true},
 		{StatusPlanned, StatusCancelled, true},
 		{StatusExecuting, StatusCancelled, true},
 		{StatusDeliveryComplete, StatusCancelled, true},
 		{StatusReleasing, StatusCancelled, true},
-		// terminal states have no transitions
-		{StatusClosed, StatusProposed, false},
-		{StatusCancelled, StatusProposed, false},
+		// released cannot be cancelled, only closed or reopened
+		{StatusReleased, StatusCancelled, false},
+		// cancelled reopens to any pre-release status, never to released/closed
+		{StatusCancelled, StatusProposed, true},
+		{StatusCancelled, StatusExecuting, true},
+		{StatusCancelled, StatusReleasing, true},
+		{StatusCancelled, StatusReleased, false},
+		{StatusCancelled, StatusClosed, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.from+"->"+tt.to, func(t *testing.T) {
@@ -67,11 +83,72 @@ func TestTransitionStampsTimestamp(t *testing.T) {
 func TestTransitionInvalidReturnsError(t *testing.T) {
 	init := &store.Initiative{
 		ID:     "INIT-TEST-001",
-		Status: StatusClosed,
+		Status: StatusExecuting,
 	}
-	err := Transition(init, StatusExecuting, time.Now())
+	err := Transition(init, StatusReleased, time.Now())
 	if err == nil {
-		t.Fatal("expected error for invalid transition")
+		t.Fatal("expected error for forward-skipping transition")
+	}
+}
+
+func TestTransitionBackwardsClearsLaterStamps(t *testing.T) {
+	now := time.Date(2026, 8, 14, 12, 0, 0, 0, time.UTC)
+	init := &store.Initiative{
+		ID:     "INIT-TEST-001",
+		Status: StatusProposed,
+	}
+
+	// Walk forward to delivery_complete.
+	for _, s := range []string{StatusPlanned, StatusExecuting, StatusDeliveryComplete} {
+		if err := Transition(init, s, now); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if init.DeliveryCompleteAt == nil {
+		t.Fatal("expected DeliveryCompleteAt to be stamped")
+	}
+
+	// Scope grew: reopen to executing. The delivery-complete stamp must clear;
+	// the earlier stamps must survive.
+	later := now.Add(time.Hour)
+	if err := Transition(init, StatusExecuting, later); err != nil {
+		t.Fatal(err)
+	}
+	if init.Status != StatusExecuting {
+		t.Fatalf("status = %q, want %q", init.Status, StatusExecuting)
+	}
+	if init.DeliveryCompleteAt != nil {
+		t.Fatal("expected DeliveryCompleteAt cleared after reopening to executing")
+	}
+	if init.PlannedAt == nil {
+		t.Fatal("expected PlannedAt to survive a reopen to executing")
+	}
+	if init.ExecutingAt == nil || !init.ExecutingAt.Equal(later) {
+		t.Fatal("expected ExecutingAt re-stamped at the reopen time")
+	}
+
+	// Completing again re-stamps.
+	if err := Transition(init, StatusDeliveryComplete, later); err != nil {
+		t.Fatal(err)
+	}
+	if init.DeliveryCompleteAt == nil {
+		t.Fatal("expected DeliveryCompleteAt re-stamped")
+	}
+}
+
+func TestTransitionCancelPreservesStamps(t *testing.T) {
+	now := time.Date(2026, 8, 14, 12, 0, 0, 0, time.UTC)
+	init := &store.Initiative{
+		ID:     "INIT-TEST-001",
+		Status: StatusProposed,
+	}
+	for _, s := range []string{StatusPlanned, StatusExecuting, StatusCancelled} {
+		if err := Transition(init, s, now); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if init.ExecutingAt == nil || init.PlannedAt == nil {
+		t.Fatal("expected cancellation to preserve lifecycle stamps")
 	}
 }
 

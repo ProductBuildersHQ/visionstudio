@@ -39,7 +39,7 @@ and the --migrate flag.`,
 				return dbInitEmbedded(cmd, dataDir)
 			}
 
-			dir := defaultDataDir
+			dir := expandHome(defaultDataDir)
 			if len(args) > 0 {
 				dir = args[0]
 			}

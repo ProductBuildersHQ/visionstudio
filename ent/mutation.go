@@ -3341,6 +3341,7 @@ type InitiativeMutation struct {
 	home_repo             *string
 	workspace             *string
 	hidden                *bool
+	visibility            *string
 	specs                 *map[string]string
 	created_at            *time.Time
 	planned_at            *time.Time
@@ -3849,6 +3850,42 @@ func (m *InitiativeMutation) OldHidden(ctx context.Context) (v bool, err error) 
 // ResetHidden resets all changes to the "hidden" field.
 func (m *InitiativeMutation) ResetHidden() {
 	m.hidden = nil
+}
+
+// SetVisibility sets the "visibility" field.
+func (m *InitiativeMutation) SetVisibility(s string) {
+	m.visibility = &s
+}
+
+// Visibility returns the value of the "visibility" field in the mutation.
+func (m *InitiativeMutation) Visibility() (r string, exists bool) {
+	v := m.visibility
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVisibility returns the old "visibility" field's value of the Initiative entity.
+// If the Initiative object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *InitiativeMutation) OldVisibility(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVisibility is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVisibility requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVisibility: %w", err)
+	}
+	return oldValue.Visibility, nil
+}
+
+// ResetVisibility resets all changes to the "visibility" field.
+func (m *InitiativeMutation) ResetVisibility() {
+	m.visibility = nil
 }
 
 // SetSpecs sets the "specs" field.
@@ -4545,7 +4582,7 @@ func (m *InitiativeMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *InitiativeMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 18)
 	if m.organization != nil {
 		fields = append(fields, initiative.FieldOrganization)
 	}
@@ -4572,6 +4609,9 @@ func (m *InitiativeMutation) Fields() []string {
 	}
 	if m.hidden != nil {
 		fields = append(fields, initiative.FieldHidden)
+	}
+	if m.visibility != nil {
+		fields = append(fields, initiative.FieldVisibility)
 	}
 	if m.specs != nil {
 		fields = append(fields, initiative.FieldSpecs)
@@ -4623,6 +4663,8 @@ func (m *InitiativeMutation) Field(name string) (ent.Value, bool) {
 		return m.Workspace()
 	case initiative.FieldHidden:
 		return m.Hidden()
+	case initiative.FieldVisibility:
+		return m.Visibility()
 	case initiative.FieldSpecs:
 		return m.Specs()
 	case initiative.FieldCreatedAt:
@@ -4666,6 +4708,8 @@ func (m *InitiativeMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldWorkspace(ctx)
 	case initiative.FieldHidden:
 		return m.OldHidden(ctx)
+	case initiative.FieldVisibility:
+		return m.OldVisibility(ctx)
 	case initiative.FieldSpecs:
 		return m.OldSpecs(ctx)
 	case initiative.FieldCreatedAt:
@@ -4753,6 +4797,13 @@ func (m *InitiativeMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetHidden(v)
+		return nil
+	case initiative.FieldVisibility:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVisibility(v)
 		return nil
 	case initiative.FieldSpecs:
 		v, ok := value.(map[string]string)
@@ -4948,6 +4999,9 @@ func (m *InitiativeMutation) ResetField(name string) error {
 		return nil
 	case initiative.FieldHidden:
 		m.ResetHidden()
+		return nil
+	case initiative.FieldVisibility:
+		m.ResetVisibility()
 		return nil
 	case initiative.FieldSpecs:
 		m.ResetSpecs()

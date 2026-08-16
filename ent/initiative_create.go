@@ -128,6 +128,20 @@ func (_c *InitiativeCreate) SetNillableHidden(v *bool) *InitiativeCreate {
 	return _c
 }
 
+// SetVisibility sets the "visibility" field.
+func (_c *InitiativeCreate) SetVisibility(v string) *InitiativeCreate {
+	_c.mutation.SetVisibility(v)
+	return _c
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (_c *InitiativeCreate) SetNillableVisibility(v *string) *InitiativeCreate {
+	if v != nil {
+		_c.SetVisibility(*v)
+	}
+	return _c
+}
+
 // SetSpecs sets the "specs" field.
 func (_c *InitiativeCreate) SetSpecs(v map[string]string) *InitiativeCreate {
 	_c.mutation.SetSpecs(v)
@@ -363,6 +377,10 @@ func (_c *InitiativeCreate) defaults() {
 		v := initiative.DefaultHidden
 		_c.mutation.SetHidden(v)
 	}
+	if _, ok := _c.mutation.Visibility(); !ok {
+		v := initiative.DefaultVisibility
+		_c.mutation.SetVisibility(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -416,6 +434,14 @@ func (_c *InitiativeCreate) check() error {
 	}
 	if _, ok := _c.mutation.Hidden(); !ok {
 		return &ValidationError{Name: "hidden", err: errors.New(`ent: missing required field "Initiative.hidden"`)}
+	}
+	if _, ok := _c.mutation.Visibility(); !ok {
+		return &ValidationError{Name: "visibility", err: errors.New(`ent: missing required field "Initiative.visibility"`)}
+	}
+	if v, ok := _c.mutation.Visibility(); ok {
+		if err := initiative.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Initiative.visibility": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Initiative.created_at"`)}
@@ -498,6 +524,10 @@ func (_c *InitiativeCreate) createSpec() (*Initiative, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Hidden(); ok {
 		_spec.SetField(initiative.FieldHidden, field.TypeBool, value)
 		_node.Hidden = value
+	}
+	if value, ok := _c.mutation.Visibility(); ok {
+		_spec.SetField(initiative.FieldVisibility, field.TypeString, value)
+		_node.Visibility = value
 	}
 	if value, ok := _c.mutation.Specs(); ok {
 		_spec.SetField(initiative.FieldSpecs, field.TypeJSON, value)

@@ -118,6 +118,12 @@ func init() {
 	initiativeDescHidden := initiativeFields[9].Descriptor()
 	// initiative.DefaultHidden holds the default value on creation for the hidden field.
 	initiative.DefaultHidden = initiativeDescHidden.Default.(bool)
+	// initiativeDescVisibility is the schema descriptor for visibility field.
+	initiativeDescVisibility := initiativeFields[10].Descriptor()
+	// initiative.DefaultVisibility holds the default value on creation for the visibility field.
+	initiative.DefaultVisibility = initiativeDescVisibility.Default.(string)
+	// initiative.VisibilityValidator is a validator for the "visibility" field. It is called by the builders before save.
+	initiative.VisibilityValidator = initiativeDescVisibility.Validators[0].(func(string) error)
 	// initiativeDescID is the schema descriptor for id field.
 	initiativeDescID := initiativeFields[0].Descriptor()
 	// initiative.IDValidator is a validator for the "id" field. It is called by the builders before save.

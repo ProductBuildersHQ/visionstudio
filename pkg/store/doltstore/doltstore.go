@@ -197,6 +197,7 @@ func entInitiativeToStore(e *ent.Initiative) *store.Initiative {
 		HomeRepo:           e.HomeRepo,
 		Workspace:          e.Workspace,
 		Hidden:             e.Hidden,
+		Visibility:         e.Visibility,
 		Specs:              e.Specs,
 		CreatedAt:          e.CreatedAt,
 		PlannedAt:          e.PlannedAt,
@@ -224,6 +225,9 @@ func (d *DoltStore) CreateInitiative(ctx context.Context, init *store.Initiative
 		SetHidden(init.Hidden).
 		SetCreatedAt(init.CreatedAt).
 		SetUpdatedAt(init.UpdatedAt)
+	if init.Visibility != "" {
+		b.SetVisibility(init.Visibility)
+	}
 	if init.InitType != "" {
 		b.SetInitType(init.InitType)
 	}
@@ -291,6 +295,11 @@ func (d *DoltStore) UpdateInitiative(ctx context.Context, init *store.Initiative
 		SetStatus(init.Status).
 		SetHidden(init.Hidden).
 		SetUpdatedAt(init.UpdatedAt)
+	if init.Visibility != "" {
+		b.SetVisibility(init.Visibility)
+	} else {
+		b.SetVisibility("internal")
+	}
 	if init.InitType != "" {
 		b.SetInitType(init.InitType)
 	}

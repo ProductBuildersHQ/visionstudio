@@ -184,6 +184,20 @@ func (_u *InitiativeUpdate) SetNillableHidden(v *bool) *InitiativeUpdate {
 	return _u
 }
 
+// SetVisibility sets the "visibility" field.
+func (_u *InitiativeUpdate) SetVisibility(v string) *InitiativeUpdate {
+	_u.mutation.SetVisibility(v)
+	return _u
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (_u *InitiativeUpdate) SetNillableVisibility(v *string) *InitiativeUpdate {
+	if v != nil {
+		_u.SetVisibility(*v)
+	}
+	return _u
+}
+
 // SetSpecs sets the "specs" field.
 func (_u *InitiativeUpdate) SetSpecs(v map[string]string) *InitiativeUpdate {
 	_u.mutation.SetSpecs(v)
@@ -587,6 +601,11 @@ func (_u *InitiativeUpdate) check() error {
 			return &ValidationError{Name: "workspace", err: fmt.Errorf(`ent: validator failed for field "Initiative.workspace": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Visibility(); ok {
+		if err := initiative.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Initiative.visibility": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -640,6 +659,9 @@ func (_u *InitiativeUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if value, ok := _u.mutation.Hidden(); ok {
 		_spec.SetField(initiative.FieldHidden, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Visibility(); ok {
+		_spec.SetField(initiative.FieldVisibility, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Specs(); ok {
 		_spec.SetField(initiative.FieldSpecs, field.TypeJSON, value)
@@ -1091,6 +1113,20 @@ func (_u *InitiativeUpdateOne) SetNillableHidden(v *bool) *InitiativeUpdateOne {
 	return _u
 }
 
+// SetVisibility sets the "visibility" field.
+func (_u *InitiativeUpdateOne) SetVisibility(v string) *InitiativeUpdateOne {
+	_u.mutation.SetVisibility(v)
+	return _u
+}
+
+// SetNillableVisibility sets the "visibility" field if the given value is not nil.
+func (_u *InitiativeUpdateOne) SetNillableVisibility(v *string) *InitiativeUpdateOne {
+	if v != nil {
+		_u.SetVisibility(*v)
+	}
+	return _u
+}
+
 // SetSpecs sets the "specs" field.
 func (_u *InitiativeUpdateOne) SetSpecs(v map[string]string) *InitiativeUpdateOne {
 	_u.mutation.SetSpecs(v)
@@ -1507,6 +1543,11 @@ func (_u *InitiativeUpdateOne) check() error {
 			return &ValidationError{Name: "workspace", err: fmt.Errorf(`ent: validator failed for field "Initiative.workspace": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Visibility(); ok {
+		if err := initiative.VisibilityValidator(v); err != nil {
+			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Initiative.visibility": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1577,6 +1618,9 @@ func (_u *InitiativeUpdateOne) sqlSave(ctx context.Context) (_node *Initiative, 
 	}
 	if value, ok := _u.mutation.Hidden(); ok {
 		_spec.SetField(initiative.FieldHidden, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Visibility(); ok {
+		_spec.SetField(initiative.FieldVisibility, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Specs(); ok {
 		_spec.SetField(initiative.FieldSpecs, field.TypeJSON, value)

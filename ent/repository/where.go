@@ -113,6 +113,11 @@ func Visibility(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldEQ(FieldVisibility, v))
 }
 
+// SupersededBy applies equality check predicate on the "superseded_by" field. It's identical to SupersededByEQ.
+func SupersededBy(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEQ(FieldSupersededBy, v))
+}
+
 // OrganizationEQ applies the EQ predicate on the "organization" field.
 func OrganizationEQ(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldEQ(FieldOrganization, v))
@@ -811,6 +816,81 @@ func VisibilityEqualFold(v string) predicate.Repository {
 // VisibilityContainsFold applies the ContainsFold predicate on the "visibility" field.
 func VisibilityContainsFold(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldContainsFold(FieldVisibility, v))
+}
+
+// SupersededByEQ applies the EQ predicate on the "superseded_by" field.
+func SupersededByEQ(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEQ(FieldSupersededBy, v))
+}
+
+// SupersededByNEQ applies the NEQ predicate on the "superseded_by" field.
+func SupersededByNEQ(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldNEQ(FieldSupersededBy, v))
+}
+
+// SupersededByIn applies the In predicate on the "superseded_by" field.
+func SupersededByIn(vs ...string) predicate.Repository {
+	return predicate.Repository(sql.FieldIn(FieldSupersededBy, vs...))
+}
+
+// SupersededByNotIn applies the NotIn predicate on the "superseded_by" field.
+func SupersededByNotIn(vs ...string) predicate.Repository {
+	return predicate.Repository(sql.FieldNotIn(FieldSupersededBy, vs...))
+}
+
+// SupersededByGT applies the GT predicate on the "superseded_by" field.
+func SupersededByGT(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldGT(FieldSupersededBy, v))
+}
+
+// SupersededByGTE applies the GTE predicate on the "superseded_by" field.
+func SupersededByGTE(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldGTE(FieldSupersededBy, v))
+}
+
+// SupersededByLT applies the LT predicate on the "superseded_by" field.
+func SupersededByLT(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldLT(FieldSupersededBy, v))
+}
+
+// SupersededByLTE applies the LTE predicate on the "superseded_by" field.
+func SupersededByLTE(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldLTE(FieldSupersededBy, v))
+}
+
+// SupersededByContains applies the Contains predicate on the "superseded_by" field.
+func SupersededByContains(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldContains(FieldSupersededBy, v))
+}
+
+// SupersededByHasPrefix applies the HasPrefix predicate on the "superseded_by" field.
+func SupersededByHasPrefix(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldHasPrefix(FieldSupersededBy, v))
+}
+
+// SupersededByHasSuffix applies the HasSuffix predicate on the "superseded_by" field.
+func SupersededByHasSuffix(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldHasSuffix(FieldSupersededBy, v))
+}
+
+// SupersededByIsNil applies the IsNil predicate on the "superseded_by" field.
+func SupersededByIsNil() predicate.Repository {
+	return predicate.Repository(sql.FieldIsNull(FieldSupersededBy))
+}
+
+// SupersededByNotNil applies the NotNil predicate on the "superseded_by" field.
+func SupersededByNotNil() predicate.Repository {
+	return predicate.Repository(sql.FieldNotNull(FieldSupersededBy))
+}
+
+// SupersededByEqualFold applies the EqualFold predicate on the "superseded_by" field.
+func SupersededByEqualFold(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEqualFold(FieldSupersededBy, v))
+}
+
+// SupersededByContainsFold applies the ContainsFold predicate on the "superseded_by" field.
+func SupersededByContainsFold(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldContainsFold(FieldSupersededBy, v))
 }
 
 // HasRoadmapItems applies the HasEdge predicate on the "roadmap_items" edge.

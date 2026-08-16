@@ -361,6 +361,10 @@ func init() {
 	repository.DefaultVisibility = repositoryDescVisibility.Default.(string)
 	// repository.VisibilityValidator is a validator for the "visibility" field. It is called by the builders before save.
 	repository.VisibilityValidator = repositoryDescVisibility.Validators[0].(func(string) error)
+	// repositoryDescSupersededBy is the schema descriptor for superseded_by field.
+	repositoryDescSupersededBy := repositoryFields[11].Descriptor()
+	// repository.SupersededByValidator is a validator for the "superseded_by" field. It is called by the builders before save.
+	repository.SupersededByValidator = repositoryDescSupersededBy.Validators[0].(func(string) error)
 	// repositoryDescID is the schema descriptor for id field.
 	repositoryDescID := repositoryFields[0].Descriptor()
 	// repository.IDValidator is a validator for the "id" field. It is called by the builders before save.

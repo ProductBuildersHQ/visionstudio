@@ -201,6 +201,26 @@ func (_u *RepositoryUpdate) SetNillableVisibility(v *string) *RepositoryUpdate {
 	return _u
 }
 
+// SetSupersededBy sets the "superseded_by" field.
+func (_u *RepositoryUpdate) SetSupersededBy(v string) *RepositoryUpdate {
+	_u.mutation.SetSupersededBy(v)
+	return _u
+}
+
+// SetNillableSupersededBy sets the "superseded_by" field if the given value is not nil.
+func (_u *RepositoryUpdate) SetNillableSupersededBy(v *string) *RepositoryUpdate {
+	if v != nil {
+		_u.SetSupersededBy(*v)
+	}
+	return _u
+}
+
+// ClearSupersededBy clears the value of the "superseded_by" field.
+func (_u *RepositoryUpdate) ClearSupersededBy() *RepositoryUpdate {
+	_u.mutation.ClearSupersededBy()
+	return _u
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by IDs.
 func (_u *RepositoryUpdate) AddRoadmapItemIDs(ids ...string) *RepositoryUpdate {
 	_u.mutation.AddRoadmapItemIDs(ids...)
@@ -418,6 +438,11 @@ func (_u *RepositoryUpdate) check() error {
 			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Repository.visibility": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SupersededBy(); ok {
+		if err := repository.SupersededByValidator(v); err != nil {
+			return &ValidationError{Name: "superseded_by", err: fmt.Errorf(`ent: validator failed for field "Repository.superseded_by": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -471,6 +496,12 @@ func (_u *RepositoryUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 	}
 	if value, ok := _u.mutation.Visibility(); ok {
 		_spec.SetField(repository.FieldVisibility, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SupersededBy(); ok {
+		_spec.SetField(repository.FieldSupersededBy, field.TypeString, value)
+	}
+	if _u.mutation.SupersededByCleared() {
+		_spec.ClearField(repository.FieldSupersededBy, field.TypeString)
 	}
 	if _u.mutation.RoadmapItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -826,6 +857,26 @@ func (_u *RepositoryUpdateOne) SetNillableVisibility(v *string) *RepositoryUpdat
 	return _u
 }
 
+// SetSupersededBy sets the "superseded_by" field.
+func (_u *RepositoryUpdateOne) SetSupersededBy(v string) *RepositoryUpdateOne {
+	_u.mutation.SetSupersededBy(v)
+	return _u
+}
+
+// SetNillableSupersededBy sets the "superseded_by" field if the given value is not nil.
+func (_u *RepositoryUpdateOne) SetNillableSupersededBy(v *string) *RepositoryUpdateOne {
+	if v != nil {
+		_u.SetSupersededBy(*v)
+	}
+	return _u
+}
+
+// ClearSupersededBy clears the value of the "superseded_by" field.
+func (_u *RepositoryUpdateOne) ClearSupersededBy() *RepositoryUpdateOne {
+	_u.mutation.ClearSupersededBy()
+	return _u
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by IDs.
 func (_u *RepositoryUpdateOne) AddRoadmapItemIDs(ids ...string) *RepositoryUpdateOne {
 	_u.mutation.AddRoadmapItemIDs(ids...)
@@ -1056,6 +1107,11 @@ func (_u *RepositoryUpdateOne) check() error {
 			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Repository.visibility": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SupersededBy(); ok {
+		if err := repository.SupersededByValidator(v); err != nil {
+			return &ValidationError{Name: "superseded_by", err: fmt.Errorf(`ent: validator failed for field "Repository.superseded_by": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -1126,6 +1182,12 @@ func (_u *RepositoryUpdateOne) sqlSave(ctx context.Context) (_node *Repository, 
 	}
 	if value, ok := _u.mutation.Visibility(); ok {
 		_spec.SetField(repository.FieldVisibility, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SupersededBy(); ok {
+		_spec.SetField(repository.FieldSupersededBy, field.TypeString, value)
+	}
+	if _u.mutation.SupersededByCleared() {
+		_spec.ClearField(repository.FieldSupersededBy, field.TypeString)
 	}
 	if _u.mutation.RoadmapItemsCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -139,6 +139,20 @@ func (_c *RepositoryCreate) SetNillableVisibility(v *string) *RepositoryCreate {
 	return _c
 }
 
+// SetSupersededBy sets the "superseded_by" field.
+func (_c *RepositoryCreate) SetSupersededBy(v string) *RepositoryCreate {
+	_c.mutation.SetSupersededBy(v)
+	return _c
+}
+
+// SetNillableSupersededBy sets the "superseded_by" field if the given value is not nil.
+func (_c *RepositoryCreate) SetNillableSupersededBy(v *string) *RepositoryCreate {
+	if v != nil {
+		_c.SetSupersededBy(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *RepositoryCreate) SetID(v string) *RepositoryCreate {
 	_c.mutation.SetID(v)
@@ -321,6 +335,11 @@ func (_c *RepositoryCreate) check() error {
 			return &ValidationError{Name: "visibility", err: fmt.Errorf(`ent: validator failed for field "Repository.visibility": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.SupersededBy(); ok {
+		if err := repository.SupersededByValidator(v); err != nil {
+			return &ValidationError{Name: "superseded_by", err: fmt.Errorf(`ent: validator failed for field "Repository.superseded_by": %w`, err)}
+		}
+	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := repository.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Repository.id": %w`, err)}
@@ -396,6 +415,10 @@ func (_c *RepositoryCreate) createSpec() (*Repository, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Visibility(); ok {
 		_spec.SetField(repository.FieldVisibility, field.TypeString, value)
 		_node.Visibility = value
+	}
+	if value, ok := _c.mutation.SupersededBy(); ok {
+		_spec.SetField(repository.FieldSupersededBy, field.TypeString, value)
+		_node.SupersededBy = value
 	}
 	if nodes := _c.mutation.RoadmapItemsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

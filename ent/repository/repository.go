@@ -32,6 +32,8 @@ const (
 	FieldOrganizationID = "organization_id"
 	// FieldVisibility holds the string denoting the visibility field in the database.
 	FieldVisibility = "visibility"
+	// FieldSupersededBy holds the string denoting the superseded_by field in the database.
+	FieldSupersededBy = "superseded_by"
 	// EdgeRoadmapItems holds the string denoting the roadmap_items edge name in mutations.
 	EdgeRoadmapItems = "roadmap_items"
 	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
@@ -93,6 +95,7 @@ var Columns = []string{
 	FieldIngestHighWater,
 	FieldOrganizationID,
 	FieldVisibility,
+	FieldSupersededBy,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -130,6 +133,8 @@ var (
 	DefaultVisibility string
 	// VisibilityValidator is a validator for the "visibility" field. It is called by the builders before save.
 	VisibilityValidator func(string) error
+	// SupersededByValidator is a validator for the "superseded_by" field. It is called by the builders before save.
+	SupersededByValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -190,6 +195,11 @@ func ByOrganizationID(opts ...sql.OrderTermOption) OrderOption {
 // ByVisibility orders the results by the visibility field.
 func ByVisibility(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVisibility, opts...).ToFunc()
+}
+
+// BySupersededBy orders the results by the superseded_by field.
+func BySupersededBy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSupersededBy, opts...).ToFunc()
 }
 
 // ByRoadmapItemsCount orders the results by roadmap_items count.

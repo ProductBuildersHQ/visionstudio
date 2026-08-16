@@ -436,6 +436,7 @@ var (
 		{Name: "status", Type: field.TypeString, Size: 32},
 		{Name: "ingest_high_water", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "visibility", Type: field.TypeString, Size: 16, Default: "unknown"},
+		{Name: "superseded_by", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "organization_id", Type: field.TypeString, Nullable: true, Size: 128},
 	}
 	// RepositoriesTable holds the schema information for the "repositories" table.
@@ -446,7 +447,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "repositories_organizations_repositories",
-				Columns:    []*schema.Column{RepositoriesColumns[10]},
+				Columns:    []*schema.Column{RepositoriesColumns[11]},
 				RefColumns: []*schema.Column{OrganizationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

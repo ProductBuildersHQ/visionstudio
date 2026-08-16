@@ -170,6 +170,10 @@ type Repository struct {
 	// Visibility is public|private|unknown, ingested from GitHub — never
 	// hand-maintained. "unknown" must NEVER be treated as public.
 	Visibility string `json:"visibility,omitempty"`
+	// SupersededBy points at the repository ID that replaced this one
+	// (set by `registry archive --superseded-by`). Empty unless archived
+	// as part of a merge/rename.
+	SupersededBy string `json:"superseded_by,omitempty"`
 }
 
 // Organization is a first-class GitHub organization or a user account
@@ -283,6 +287,7 @@ type RepositoryStore interface {
 	ListRepositories(ctx context.Context) ([]*Repository, error)
 	ListRepositoriesByOrg(ctx context.Context, org string) ([]*Repository, error)
 	UpdateRepository(ctx context.Context, repo *Repository) error
+	DeleteRepository(ctx context.Context, id string) error
 	CreateRepoDependency(ctx context.Context, dep *RepositoryDependency) error
 	ListRepoDependencies(ctx context.Context, repoID string) ([]*RepositoryDependency, error)
 	ListAllRepoDependencies(ctx context.Context) ([]*RepositoryDependency, error)

@@ -474,6 +474,16 @@ func (m *MemStore) UpdateRepository(_ context.Context, repo *Repository) error {
 	return nil
 }
 
+func (m *MemStore) DeleteRepository(_ context.Context, id string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if _, exists := m.repositories[id]; !exists {
+		return fmt.Errorf("repository %s not found", id)
+	}
+	delete(m.repositories, id)
+	return nil
+}
+
 func (m *MemStore) ListRepositoriesByOrg(_ context.Context, org string) ([]*Repository, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

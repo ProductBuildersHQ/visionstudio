@@ -130,6 +130,16 @@ export function Sidebar({
               active={currentSection() === 'initiatives'}
               onClick={() => onNavigate({ section: 'initiatives', view: 'all' })}
             >
+              <button
+                onClick={() => onNavigate({ section: 'initiatives', view: 'status' })}
+                className={`w-full text-left px-2 py-1.5 mb-1 text-xs rounded hover:bg-gray-700 flex items-center gap-1.5 ${
+                  isActivePath('/status') ? 'bg-blue-500/20 text-blue-300' : 'text-gray-400'
+                }`}
+              >
+                <span>📊</span>
+                <span>By Status</span>
+              </button>
+
               {/* Programs */}
               {visiblePrograms.map((program) => {
                 const programInits = shownInitiatives.filter((i) => i.programId === program.id)

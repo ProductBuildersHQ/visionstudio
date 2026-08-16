@@ -1041,6 +1041,7 @@ func entRepoToStore(r *ent.Repository) *store.Repository {
 		IngestHighWater: r.IngestHighWater,
 		OrganizationID:  r.OrganizationID,
 		Visibility:      r.Visibility,
+		SupersededBy:    r.SupersededBy,
 	}
 }
 
@@ -1068,6 +1069,9 @@ func (d *DoltStore) CreateRepository(ctx context.Context, repo *store.Repository
 	}
 	if repo.Visibility != "" {
 		b.SetVisibility(repo.Visibility)
+	}
+	if repo.SupersededBy != "" {
+		b.SetSupersededBy(repo.SupersededBy)
 	}
 	_, err := b.Save(ctx)
 	if err != nil {
@@ -1146,9 +1150,21 @@ func (d *DoltStore) UpdateRepository(ctx context.Context, repo *store.Repository
 	} else {
 		b.SetVisibility("unknown")
 	}
+	if repo.SupersededBy != "" {
+		b.SetSupersededBy(repo.SupersededBy)
+	} else {
+		b.ClearSupersededBy()
+	}
 	_, err := b.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("update repository %s: %w", repo.ID, err)
+	}
+	return nil
+}
+
+func (d *DoltStore) DeleteRepository(ctx context.Context, id string) error {
+	if err := d.client.Repository.DeleteOneID(id).Exec(ctx); err != nil {
+		return fmt.Errorf("delete repository %s: %w", id, err)
 	}
 	return nil
 }

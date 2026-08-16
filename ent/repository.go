@@ -37,6 +37,8 @@ type Repository struct {
 	OrganizationID string `json:"organization_id,omitempty"`
 	// Visibility holds the value of the "visibility" field.
 	Visibility string `json:"visibility,omitempty"`
+	// SupersededBy holds the value of the "superseded_by" field.
+	SupersededBy string `json:"superseded_by,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RepositoryQuery when eager-loading is set.
 	Edges        RepositoryEdges `json:"edges"`
@@ -101,7 +103,7 @@ func (*Repository) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID, repository.FieldVisibility:
+		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID, repository.FieldVisibility, repository.FieldSupersededBy:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -183,6 +185,12 @@ func (_m *Repository) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field visibility", values[i])
 			} else if value.Valid {
 				_m.Visibility = value.String
+			}
+		case repository.FieldSupersededBy:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field superseded_by", values[i])
+			} else if value.Valid {
+				_m.SupersededBy = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -269,6 +277,9 @@ func (_m *Repository) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("visibility=")
 	builder.WriteString(_m.Visibility)
+	builder.WriteString(", ")
+	builder.WriteString("superseded_by=")
+	builder.WriteString(_m.SupersededBy)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -15601,6 +15601,7 @@ type RepositoryMutation struct {
 	status                *string
 	ingest_high_water     *string
 	visibility            *string
+	superseded_by         *string
 	clearedFields         map[string]struct{}
 	roadmap_items         map[string]struct{}
 	removedroadmap_items  map[string]struct{}
@@ -16147,6 +16148,55 @@ func (m *RepositoryMutation) ResetVisibility() {
 	m.visibility = nil
 }
 
+// SetSupersededBy sets the "superseded_by" field.
+func (m *RepositoryMutation) SetSupersededBy(s string) {
+	m.superseded_by = &s
+}
+
+// SupersededBy returns the value of the "superseded_by" field in the mutation.
+func (m *RepositoryMutation) SupersededBy() (r string, exists bool) {
+	v := m.superseded_by
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSupersededBy returns the old "superseded_by" field's value of the Repository entity.
+// If the Repository object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RepositoryMutation) OldSupersededBy(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSupersededBy is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSupersededBy requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSupersededBy: %w", err)
+	}
+	return oldValue.SupersededBy, nil
+}
+
+// ClearSupersededBy clears the value of the "superseded_by" field.
+func (m *RepositoryMutation) ClearSupersededBy() {
+	m.superseded_by = nil
+	m.clearedFields[repository.FieldSupersededBy] = struct{}{}
+}
+
+// SupersededByCleared returns if the "superseded_by" field was cleared in this mutation.
+func (m *RepositoryMutation) SupersededByCleared() bool {
+	_, ok := m.clearedFields[repository.FieldSupersededBy]
+	return ok
+}
+
+// ResetSupersededBy resets all changes to the "superseded_by" field.
+func (m *RepositoryMutation) ResetSupersededBy() {
+	m.superseded_by = nil
+	delete(m.clearedFields, repository.FieldSupersededBy)
+}
+
 // AddRoadmapItemIDs adds the "roadmap_items" edge to the RoadmapItem entity by ids.
 func (m *RepositoryMutation) AddRoadmapItemIDs(ids ...string) {
 	if m.roadmap_items == nil {
@@ -16383,7 +16433,7 @@ func (m *RepositoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RepositoryMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.organization != nil {
 		fields = append(fields, repository.FieldOrganization)
 	}
@@ -16414,6 +16464,9 @@ func (m *RepositoryMutation) Fields() []string {
 	if m.visibility != nil {
 		fields = append(fields, repository.FieldVisibility)
 	}
+	if m.superseded_by != nil {
+		fields = append(fields, repository.FieldSupersededBy)
+	}
 	return fields
 }
 
@@ -16442,6 +16495,8 @@ func (m *RepositoryMutation) Field(name string) (ent.Value, bool) {
 		return m.OrganizationID()
 	case repository.FieldVisibility:
 		return m.Visibility()
+	case repository.FieldSupersededBy:
+		return m.SupersededBy()
 	}
 	return nil, false
 }
@@ -16471,6 +16526,8 @@ func (m *RepositoryMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldOrganizationID(ctx)
 	case repository.FieldVisibility:
 		return m.OldVisibility(ctx)
+	case repository.FieldSupersededBy:
+		return m.OldSupersededBy(ctx)
 	}
 	return nil, fmt.Errorf("unknown Repository field %s", name)
 }
@@ -16550,6 +16607,13 @@ func (m *RepositoryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetVisibility(v)
 		return nil
+	case repository.FieldSupersededBy:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSupersededBy(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Repository field %s", name)
 }
@@ -16595,6 +16659,9 @@ func (m *RepositoryMutation) ClearedFields() []string {
 	if m.FieldCleared(repository.FieldOrganizationID) {
 		fields = append(fields, repository.FieldOrganizationID)
 	}
+	if m.FieldCleared(repository.FieldSupersededBy) {
+		fields = append(fields, repository.FieldSupersededBy)
+	}
 	return fields
 }
 
@@ -16623,6 +16690,9 @@ func (m *RepositoryMutation) ClearField(name string) error {
 		return nil
 	case repository.FieldOrganizationID:
 		m.ClearOrganizationID()
+		return nil
+	case repository.FieldSupersededBy:
+		m.ClearSupersededBy()
 		return nil
 	}
 	return fmt.Errorf("unknown Repository nullable field %s", name)
@@ -16661,6 +16731,9 @@ func (m *RepositoryMutation) ResetField(name string) error {
 		return nil
 	case repository.FieldVisibility:
 		m.ResetVisibility()
+		return nil
+	case repository.FieldSupersededBy:
+		m.ResetSupersededBy()
 		return nil
 	}
 	return fmt.Errorf("unknown Repository field %s", name)

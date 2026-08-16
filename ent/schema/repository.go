@@ -24,6 +24,7 @@ func (Repository) Fields() []ent.Field {
 		field.String("ingest_high_water").MaxLen(128).Optional(),
 		field.String("organization_id").MaxLen(128).Optional(),
 		field.String("visibility").MaxLen(16).Default("unknown"),
+		field.String("superseded_by").MaxLen(128).Optional(),
 	}
 }
 

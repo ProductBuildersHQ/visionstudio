@@ -30,6 +30,8 @@ const (
 	FieldIngestHighWater = "ingest_high_water"
 	// FieldOrganizationID holds the string denoting the organization_id field in the database.
 	FieldOrganizationID = "organization_id"
+	// FieldVisibility holds the string denoting the visibility field in the database.
+	FieldVisibility = "visibility"
 	// EdgeRoadmapItems holds the string denoting the roadmap_items edge name in mutations.
 	EdgeRoadmapItems = "roadmap_items"
 	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
@@ -79,6 +81,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldIngestHighWater,
 	FieldOrganizationID,
+	FieldVisibility,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -112,6 +115,10 @@ var (
 	IngestHighWaterValidator func(string) error
 	// OrganizationIDValidator is a validator for the "organization_id" field. It is called by the builders before save.
 	OrganizationIDValidator func(string) error
+	// DefaultVisibility holds the default value on creation for the "visibility" field.
+	DefaultVisibility string
+	// VisibilityValidator is a validator for the "visibility" field. It is called by the builders before save.
+	VisibilityValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -167,6 +174,11 @@ func ByIngestHighWater(opts ...sql.OrderTermOption) OrderOption {
 // ByOrganizationID orders the results by the organization_id field.
 func ByOrganizationID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldOrganizationID, opts...).ToFunc()
+}
+
+// ByVisibility orders the results by the visibility field.
+func ByVisibility(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVisibility, opts...).ToFunc()
 }
 
 // ByRoadmapItemsCount orders the results by roadmap_items count.

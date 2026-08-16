@@ -35,6 +35,8 @@ type Repository struct {
 	IngestHighWater string `json:"ingest_high_water,omitempty"`
 	// OrganizationID holds the value of the "organization_id" field.
 	OrganizationID string `json:"organization_id,omitempty"`
+	// Visibility holds the value of the "visibility" field.
+	Visibility string `json:"visibility,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RepositoryQuery when eager-loading is set.
 	Edges        RepositoryEdges `json:"edges"`
@@ -88,7 +90,7 @@ func (*Repository) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID:
+		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID, repository.FieldVisibility:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -164,6 +166,12 @@ func (_m *Repository) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field organization_id", values[i])
 			} else if value.Valid {
 				_m.OrganizationID = value.String
+			}
+		case repository.FieldVisibility:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field visibility", values[i])
+			} else if value.Valid {
+				_m.Visibility = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -242,6 +250,9 @@ func (_m *Repository) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("organization_id=")
 	builder.WriteString(_m.OrganizationID)
+	builder.WriteString(", ")
+	builder.WriteString("visibility=")
+	builder.WriteString(_m.Visibility)
 	builder.WriteByte(')')
 	return builder.String()
 }

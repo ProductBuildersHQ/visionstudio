@@ -1009,6 +1009,7 @@ func entRepoToStore(r *ent.Repository) *store.Repository {
 		Status:          r.Status,
 		IngestHighWater: r.IngestHighWater,
 		OrganizationID:  r.OrganizationID,
+		Visibility:      r.Visibility,
 	}
 }
 
@@ -1033,6 +1034,9 @@ func (d *DoltStore) CreateRepository(ctx context.Context, repo *store.Repository
 	}
 	if repo.OrganizationID != "" {
 		b.SetOrganizationID(repo.OrganizationID)
+	}
+	if repo.Visibility != "" {
+		b.SetVisibility(repo.Visibility)
 	}
 	_, err := b.Save(ctx)
 	if err != nil {
@@ -1105,6 +1109,11 @@ func (d *DoltStore) UpdateRepository(ctx context.Context, repo *store.Repository
 		b.SetOrganizationID(repo.OrganizationID)
 	} else {
 		b.ClearOrganizationID()
+	}
+	if repo.Visibility != "" {
+		b.SetVisibility(repo.Visibility)
+	} else {
+		b.SetVisibility("unknown")
 	}
 	_, err := b.Save(ctx)
 	if err != nil {

@@ -3,6 +3,7 @@ package specworkflow
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/template"
 	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflow"
@@ -58,7 +59,9 @@ func (l *Loader) Available() []string {
 	return l.loader.Available()
 }
 
-// List returns info for all available workflows.
+// List returns info for all available workflows. Spec lists are ordered by
+// the workflow's execution sequence where one is defined (alphabetical
+// otherwise) so output is deterministic.
 func (l *Loader) List() ([]WorkflowInfo, error) {
 	var result []WorkflowInfo
 	for _, id := range l.loader.Available() {
@@ -66,22 +69,52 @@ func (l *Loader) List() ([]WorkflowInfo, error) {
 		if err != nil {
 			continue
 		}
+		var required, optional []string
+		for specType, req := range w.Workflow.SpecConfig {
+			if req.Required {
+				required = append(required, specType)
+			} else {
+				optional = append(optional, specType)
+			}
+		}
 		info := WorkflowInfo{
 			ID:            id,
 			Name:          w.Workflow.Name,
 			Description:   w.Workflow.Description,
 			Extends:       w.Workflow.Extends,
-			SpecsRequired: w.Workflow.RequiredSpecs(),
-		}
-		// Compute optional specs (non-required entries in SpecConfig)
-		for specType, req := range w.Workflow.SpecConfig {
-			if !req.Required {
-				info.SpecsOptional = append(info.SpecsOptional, specType)
-			}
+			SpecsRequired: orderBySequence(w.Workflow, required),
+			SpecsOptional: orderBySequence(w.Workflow, optional),
 		}
 		result = append(result, info)
 	}
+	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
 	return result, nil
+}
+
+// orderBySequence sorts spec-type IDs by the workflow's execution sequence,
+// with types outside the sequence trailing in alphabetical order.
+func orderBySequence(w *workflow.Workflow, types []string) []string {
+	ordinal := map[string]int{}
+	if w.Execution != nil {
+		for i, specType := range w.Execution.Sequence {
+			ordinal[specType] = i
+		}
+	}
+	sort.SliceStable(types, func(i, j int) bool {
+		oi, iok := ordinal[types[i]]
+		oj, jok := ordinal[types[j]]
+		switch {
+		case iok && jok:
+			return oi < oj
+		case iok:
+			return true
+		case jok:
+			return false
+		default:
+			return types[i] < types[j]
+		}
+	})
+	return types
 }
 
 // GetWorkflow loads a workflow by ID.
@@ -150,5 +183,11 @@ func (l *Loader) GetSynthesisGuidance(workflowID, specType string) (sources []st
 	if !ok {
 		return nil, "", nil
 	}
-	return rule.Sources, rule.Guidance, nil
+	// Profiles express LLM context as either `guidance` or `prompt_context`
+	// (e.g. aws-two-way-door uses only the latter); honor both.
+	g := rule.Guidance
+	if g == "" {
+		g = rule.PromptContext
+	}
+	return rule.Sources, g, nil
 }

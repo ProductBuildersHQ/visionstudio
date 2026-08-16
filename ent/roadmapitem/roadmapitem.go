@@ -24,6 +24,8 @@ const (
 	FieldPriority = "priority"
 	// FieldRequired holds the string denoting the required field in the database.
 	FieldRequired = "required"
+	// FieldOrigin holds the string denoting the origin field in the database.
+	FieldOrigin = "origin"
 	// FieldSequenceNumber holds the string denoting the sequence_number field in the database.
 	FieldSequenceNumber = "sequence_number"
 	// FieldAcceptanceCriteria holds the string denoting the acceptance_criteria field in the database.
@@ -111,6 +113,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldPriority,
 	FieldRequired,
+	FieldOrigin,
 	FieldSequenceNumber,
 	FieldAcceptanceCriteria,
 	FieldCreatedAt,
@@ -158,6 +161,10 @@ var (
 	PriorityValidator func(string) error
 	// DefaultRequired holds the default value on creation for the "required" field.
 	DefaultRequired bool
+	// DefaultOrigin holds the default value on creation for the "origin" field.
+	DefaultOrigin string
+	// OriginValidator is a validator for the "origin" field. It is called by the builders before save.
+	OriginValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -198,6 +205,11 @@ func ByPriority(opts ...sql.OrderTermOption) OrderOption {
 // ByRequired orders the results by the required field.
 func ByRequired(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRequired, opts...).ToFunc()
+}
+
+// ByOrigin orders the results by the origin field.
+func ByOrigin(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrigin, opts...).ToFunc()
 }
 
 // BySequenceNumber orders the results by the sequence_number field.

@@ -33,6 +33,8 @@ type RoadmapItem struct {
 	Priority string `json:"priority,omitempty"`
 	// Required holds the value of the "required" field.
 	Required bool `json:"required,omitempty"`
+	// Origin holds the value of the "origin" field.
+	Origin string `json:"origin,omitempty"`
 	// SequenceNumber holds the value of the "sequence_number" field.
 	SequenceNumber int `json:"sequence_number,omitempty"`
 	// AcceptanceCriteria holds the value of the "acceptance_criteria" field.
@@ -142,7 +144,7 @@ func (*RoadmapItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case roadmapitem.FieldSequenceNumber:
 			values[i] = new(sql.NullInt64)
-		case roadmapitem.FieldID, roadmapitem.FieldTitle, roadmapitem.FieldDescription, roadmapitem.FieldItemType, roadmapitem.FieldStatus, roadmapitem.FieldPriority:
+		case roadmapitem.FieldID, roadmapitem.FieldTitle, roadmapitem.FieldDescription, roadmapitem.FieldItemType, roadmapitem.FieldStatus, roadmapitem.FieldPriority, roadmapitem.FieldOrigin:
 			values[i] = new(sql.NullString)
 		case roadmapitem.FieldCreatedAt, roadmapitem.FieldCompletedAt, roadmapitem.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -208,6 +210,12 @@ func (_m *RoadmapItem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field required", values[i])
 			} else if value.Valid {
 				_m.Required = value.Bool
+			}
+		case roadmapitem.FieldOrigin:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field origin", values[i])
+			} else if value.Valid {
+				_m.Origin = value.String
 			}
 		case roadmapitem.FieldSequenceNumber:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -346,6 +354,9 @@ func (_m *RoadmapItem) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("required=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Required))
+	builder.WriteString(", ")
+	builder.WriteString("origin=")
+	builder.WriteString(_m.Origin)
 	builder.WriteString(", ")
 	builder.WriteString("sequence_number=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SequenceNumber))

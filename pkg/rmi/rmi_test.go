@@ -29,6 +29,28 @@ func TestValidID(t *testing.T) {
 	}
 }
 
+func TestValidOrigin(t *testing.T) {
+	tests := []struct {
+		origin string
+		want   bool
+	}{
+		{"", true},
+		{"spec", true},
+		{"implementation", true},
+		{"acceptance_testing", true},
+		{"discussion", true},
+		{"speculation", false},
+		{"Spec", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.origin, func(t *testing.T) {
+			if got := ValidOrigin(tt.origin); got != tt.want {
+				t.Fatalf("ValidOrigin(%q) = %v, want %v", tt.origin, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestDependencyGraphIsBlocked(t *testing.T) {
 	deps := []*store.RMIDependency{
 		{SourceRMIID: "RMI-A-002", TargetRMIID: "RMI-A-001", Relationship: "requires"},

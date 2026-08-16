@@ -34,3 +34,9 @@ prompted it).
 - [x] `RMI-VISIONSTUDIO-540` Show cancelled RMIs as a distinct red segment in progress bars — `INIT-OMNIAGENT-002` showed `delivery_complete` with a partial blue bar and a long gray tail that was actually ~18% cancelled, indistinguishable from untouched work. Added `cancelledProgress` to `APIInitiative`/`APIPhase` (both dual-struct layers) and a red segment in `ProgressBar` (`ad47edd`)
 - [x] `RMI-VISIONSTUDIO-541` `visionstudio app restart` to replace a stale UI+API server — verifying the fix above required manually finding and killing a stale detached UI process serving an old binary, with no CLI path to do it in one step. Added `ui.pid` tracking (mirroring Dolt's `server.pid`) and `app restart` to stop-and-replace in place (`d0e0b5d`)
 - [x] `RMI-VISIONSTUDIO-542` Color a resolved progress bar green, not blue, when nothing is left pending — `INIT-OMNIAGENT-002` (82% completed + 18% cancelled = fully resolved) still showed blue, the color meant for real remaining work. `ProgressBar` now shows green whenever completed + cancelled account for the whole bar (`11ac490`)
+
+## Phase 5 — RMI Origin Tracking
+
+**Theme:** Structured provenance for how an RMI's scope was identified — spec vs. found during implementation vs. found during acceptance testing vs. proposed in discussion — as telemetry on how complete specs actually are at initiative start
+
+- [x] `RMI-VISIONSTUDIO-543` `RMI.Origin` field: Ent schema (default `spec`, additive migration, backfilled on existing rows), `pkg/rmi` origin constants + `ValidOrigin`, wired through doltstore/memstore and both dual-struct API layers (regenerated schema/Zod/TS), `--origin` on `rmi create`/`rmi update` plus an ORIGIN column and filter on `rmi list`, and the `rmi_create` MCP tool so an agent can self-tag `origin=implementation`. Proposed directly by the user in conversation — generalizes the lightweight description-phrase convention used in Phase 4 into a real, queryable field

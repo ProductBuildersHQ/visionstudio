@@ -20,6 +20,11 @@ func (RoadmapItem) Fields() []ent.Field {
 		field.String("status").MaxLen(32),
 		field.String("priority").MaxLen(32).Optional(),
 		field.Bool("required").Default(true),
+		// Origin records how the RMI's scope was identified (spec,
+		// implementation, acceptance_testing, discussion) -- see
+		// pkg/rmi's Origin constants. Telemetry signal for spec
+		// completeness at initiative start, not a workflow gate.
+		field.String("origin").MaxLen(32).Default("spec"),
 		field.Int("sequence_number").Optional(),
 		field.JSON("acceptance_criteria", []string{}).Optional(),
 		field.Time("created_at"),

@@ -490,6 +490,7 @@ func entRMIToStore(e *ent.RoadmapItem) *store.RoadmapItem {
 		Status:             e.Status,
 		Priority:           e.Priority,
 		Required:           e.Required,
+		Origin:             e.Origin,
 		SequenceNumber:     e.SequenceNumber,
 		AcceptanceCriteria: e.AcceptanceCriteria,
 		CreatedAt:          e.CreatedAt,
@@ -530,6 +531,12 @@ func (d *DoltStore) CreateRMI(ctx context.Context, rmi *store.RoadmapItem) error
 	}
 	if rmi.Priority != "" {
 		b.SetPriority(rmi.Priority)
+	}
+	// Leave unset (falls through to the schema's Default("spec")) when the
+	// caller didn't specify an origin -- an explicit empty string should
+	// mean "use the default," not literally clear the column.
+	if rmi.Origin != "" {
+		b.SetOrigin(rmi.Origin)
 	}
 	if rmi.SequenceNumber != 0 {
 		b.SetSequenceNumber(rmi.SequenceNumber)
@@ -630,6 +637,9 @@ func (d *DoltStore) UpdateRMI(ctx context.Context, rmi *store.RoadmapItem) error
 		b.SetPriority(rmi.Priority)
 	} else {
 		b.ClearPriority()
+	}
+	if rmi.Origin != "" {
+		b.SetOrigin(rmi.Origin)
 	}
 	if rmi.SequenceNumber != 0 {
 		b.SetSequenceNumber(rmi.SequenceNumber)

@@ -131,6 +131,20 @@ func (_u *RoadmapItemUpdate) SetNillableRequired(v *bool) *RoadmapItemUpdate {
 	return _u
 }
 
+// SetOrigin sets the "origin" field.
+func (_u *RoadmapItemUpdate) SetOrigin(v string) *RoadmapItemUpdate {
+	_u.mutation.SetOrigin(v)
+	return _u
+}
+
+// SetNillableOrigin sets the "origin" field if the given value is not nil.
+func (_u *RoadmapItemUpdate) SetNillableOrigin(v *string) *RoadmapItemUpdate {
+	if v != nil {
+		_u.SetOrigin(*v)
+	}
+	return _u
+}
+
 // SetSequenceNumber sets the "sequence_number" field.
 func (_u *RoadmapItemUpdate) SetSequenceNumber(v int) *RoadmapItemUpdate {
 	_u.mutation.ResetSequenceNumber()
@@ -453,6 +467,11 @@ func (_u *RoadmapItemUpdate) check() error {
 			return &ValidationError{Name: "priority", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.priority": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Origin(); ok {
+		if err := roadmapitem.OriginValidator(v); err != nil {
+			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.origin": %w`, err)}
+		}
+	}
 	if _u.mutation.RepositoryCleared() && len(_u.mutation.RepositoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "RoadmapItem.repository"`)
 	}
@@ -494,6 +513,9 @@ func (_u *RoadmapItemUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	}
 	if value, ok := _u.mutation.Required(); ok {
 		_spec.SetField(roadmapitem.FieldRequired, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Origin(); ok {
+		_spec.SetField(roadmapitem.FieldOrigin, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.SequenceNumber(); ok {
 		_spec.SetField(roadmapitem.FieldSequenceNumber, field.TypeInt, value)
@@ -865,6 +887,20 @@ func (_u *RoadmapItemUpdateOne) SetNillableRequired(v *bool) *RoadmapItemUpdateO
 	return _u
 }
 
+// SetOrigin sets the "origin" field.
+func (_u *RoadmapItemUpdateOne) SetOrigin(v string) *RoadmapItemUpdateOne {
+	_u.mutation.SetOrigin(v)
+	return _u
+}
+
+// SetNillableOrigin sets the "origin" field if the given value is not nil.
+func (_u *RoadmapItemUpdateOne) SetNillableOrigin(v *string) *RoadmapItemUpdateOne {
+	if v != nil {
+		_u.SetOrigin(*v)
+	}
+	return _u
+}
+
 // SetSequenceNumber sets the "sequence_number" field.
 func (_u *RoadmapItemUpdateOne) SetSequenceNumber(v int) *RoadmapItemUpdateOne {
 	_u.mutation.ResetSequenceNumber()
@@ -1200,6 +1236,11 @@ func (_u *RoadmapItemUpdateOne) check() error {
 			return &ValidationError{Name: "priority", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.priority": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.Origin(); ok {
+		if err := roadmapitem.OriginValidator(v); err != nil {
+			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.origin": %w`, err)}
+		}
+	}
 	if _u.mutation.RepositoryCleared() && len(_u.mutation.RepositoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "RoadmapItem.repository"`)
 	}
@@ -1258,6 +1299,9 @@ func (_u *RoadmapItemUpdateOne) sqlSave(ctx context.Context) (_node *RoadmapItem
 	}
 	if value, ok := _u.mutation.Required(); ok {
 		_spec.SetField(roadmapitem.FieldRequired, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.Origin(); ok {
+		_spec.SetField(roadmapitem.FieldOrigin, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.SequenceNumber(); ok {
 		_spec.SetField(roadmapitem.FieldSequenceNumber, field.TypeInt, value)

@@ -95,6 +95,11 @@ func Required(v bool) predicate.RoadmapItem {
 	return predicate.RoadmapItem(sql.FieldEQ(FieldRequired, v))
 }
 
+// Origin applies equality check predicate on the "origin" field. It's identical to OriginEQ.
+func Origin(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldEQ(FieldOrigin, v))
+}
+
 // SequenceNumber applies equality check predicate on the "sequence_number" field. It's identical to SequenceNumberEQ.
 func SequenceNumber(v int) predicate.RoadmapItem {
 	return predicate.RoadmapItem(sql.FieldEQ(FieldSequenceNumber, v))
@@ -468,6 +473,71 @@ func RequiredEQ(v bool) predicate.RoadmapItem {
 // RequiredNEQ applies the NEQ predicate on the "required" field.
 func RequiredNEQ(v bool) predicate.RoadmapItem {
 	return predicate.RoadmapItem(sql.FieldNEQ(FieldRequired, v))
+}
+
+// OriginEQ applies the EQ predicate on the "origin" field.
+func OriginEQ(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldEQ(FieldOrigin, v))
+}
+
+// OriginNEQ applies the NEQ predicate on the "origin" field.
+func OriginNEQ(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldNEQ(FieldOrigin, v))
+}
+
+// OriginIn applies the In predicate on the "origin" field.
+func OriginIn(vs ...string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldIn(FieldOrigin, vs...))
+}
+
+// OriginNotIn applies the NotIn predicate on the "origin" field.
+func OriginNotIn(vs ...string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldNotIn(FieldOrigin, vs...))
+}
+
+// OriginGT applies the GT predicate on the "origin" field.
+func OriginGT(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldGT(FieldOrigin, v))
+}
+
+// OriginGTE applies the GTE predicate on the "origin" field.
+func OriginGTE(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldGTE(FieldOrigin, v))
+}
+
+// OriginLT applies the LT predicate on the "origin" field.
+func OriginLT(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldLT(FieldOrigin, v))
+}
+
+// OriginLTE applies the LTE predicate on the "origin" field.
+func OriginLTE(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldLTE(FieldOrigin, v))
+}
+
+// OriginContains applies the Contains predicate on the "origin" field.
+func OriginContains(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldContains(FieldOrigin, v))
+}
+
+// OriginHasPrefix applies the HasPrefix predicate on the "origin" field.
+func OriginHasPrefix(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldHasPrefix(FieldOrigin, v))
+}
+
+// OriginHasSuffix applies the HasSuffix predicate on the "origin" field.
+func OriginHasSuffix(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldHasSuffix(FieldOrigin, v))
+}
+
+// OriginEqualFold applies the EqualFold predicate on the "origin" field.
+func OriginEqualFold(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldEqualFold(FieldOrigin, v))
+}
+
+// OriginContainsFold applies the ContainsFold predicate on the "origin" field.
+func OriginContainsFold(v string) predicate.RoadmapItem {
+	return predicate.RoadmapItem(sql.FieldContainsFold(FieldOrigin, v))
 }
 
 // SequenceNumberEQ applies the EQ predicate on the "sequence_number" field.

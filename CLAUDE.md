@@ -186,6 +186,17 @@ An initiative can be transitioned all the way to `closed` once its work is **com
 - A `completed` RMI status is not proof the shipped code matches what the RMI describes — spot-check gaps between spec and implementation before trusting the status field (a 12-RMI audit this session found 4 with real gaps despite `completed` status and a matching commit).
 - `visionstudio release record --repo <id> --tag <version>` works before the tag exists — it's a DB upsert with no git validation, keyed off a `CHANGELOG.json` entry (add `--strict` to require one). Record it, then `initiative transition <id> releasing`, `released`, `closed` in sequence.
 
+### RMI provenance: scope discovered after the initial spec is normal, and gets tracked, not hidden
+
+Real work never matches its spec exactly — an initiative's original PRD/ROADMAP is a starting point, not a ceiling. When new scope turns out to be needed partway through (or after) delivering an initiative, add it as a new RMI (new phase if it doesn't fit an existing one) rather than silently folding it into an existing RMI's implementation or leaving it untracked. Tag it via `RoadmapItem.Origin` (`--origin` on `rmi create`/`rmi update`, or `origin` on the `rmi_create` MCP tool) so the historical record — and eventually telemetry on how complete specs actually are at project start — stays honest:
+
+- `spec` (default) — in the initiative's original PRD/ROADMAP before implementation began
+- `implementation` — the agent found it necessary or clearly beneficial while implementing another RMI in the same initiative; not from testing a finished feature, just from being in the code (e.g. `StatusBadge` needing colors for four more statuses, discovered while building the workflow-status board)
+- `acceptance_testing` — a human found the gap using the already-shipped result, often after the initiative first closed (reopen it — see above — rather than tracking the fix outside any initiative)
+- `discussion` — scope proposed directly by a human in conversation; not derived from testing a shipped artifact or mid-build discovery, but also not part of the original spec
+
+The discipline that keeps this from being scope creep: each addition traces to a **concrete finding** the work surfaced ("I noticed X is broken/missing while doing Y"), never speculation ("this would also be nice" goes back to the human as a new proposal). Small inline fixes that are directly load-bearing for the RMI in progress stay folded into it; only things substantial enough to be their own reviewable unit get a dedicated RMI.
+
 ### Rebuilding the embedded web UI
 
 `web/dist/.gitkeep` is the only tracked file in `web/dist/` — the real build output is gitignored. Running `npm run build` (or `go install ./cmd/visionstudio` after it) deletes `.gitkeep` as part of clearing the output dir; `git checkout -- web/dist/.gitkeep` afterward, or a `git status` diff will show a phantom deletion.

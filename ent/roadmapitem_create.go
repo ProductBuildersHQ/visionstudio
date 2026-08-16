@@ -86,6 +86,20 @@ func (_c *RoadmapItemCreate) SetNillableRequired(v *bool) *RoadmapItemCreate {
 	return _c
 }
 
+// SetOrigin sets the "origin" field.
+func (_c *RoadmapItemCreate) SetOrigin(v string) *RoadmapItemCreate {
+	_c.mutation.SetOrigin(v)
+	return _c
+}
+
+// SetNillableOrigin sets the "origin" field if the given value is not nil.
+func (_c *RoadmapItemCreate) SetNillableOrigin(v *string) *RoadmapItemCreate {
+	if v != nil {
+		_c.SetOrigin(*v)
+	}
+	return _c
+}
+
 // SetSequenceNumber sets the "sequence_number" field.
 func (_c *RoadmapItemCreate) SetSequenceNumber(v int) *RoadmapItemCreate {
 	_c.mutation.SetSequenceNumber(v)
@@ -271,6 +285,10 @@ func (_c *RoadmapItemCreate) defaults() {
 		v := roadmapitem.DefaultRequired
 		_c.mutation.SetRequired(v)
 	}
+	if _, ok := _c.mutation.Origin(); !ok {
+		v := roadmapitem.DefaultOrigin
+		_c.mutation.SetOrigin(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -306,6 +324,14 @@ func (_c *RoadmapItemCreate) check() error {
 	}
 	if _, ok := _c.mutation.Required(); !ok {
 		return &ValidationError{Name: "required", err: errors.New(`ent: missing required field "RoadmapItem.required"`)}
+	}
+	if _, ok := _c.mutation.Origin(); !ok {
+		return &ValidationError{Name: "origin", err: errors.New(`ent: missing required field "RoadmapItem.origin"`)}
+	}
+	if v, ok := _c.mutation.Origin(); ok {
+		if err := roadmapitem.OriginValidator(v); err != nil {
+			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.origin": %w`, err)}
+		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "RoadmapItem.created_at"`)}
@@ -379,6 +405,10 @@ func (_c *RoadmapItemCreate) createSpec() (*RoadmapItem, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Required(); ok {
 		_spec.SetField(roadmapitem.FieldRequired, field.TypeBool, value)
 		_node.Required = value
+	}
+	if value, ok := _c.mutation.Origin(); ok {
+		_spec.SetField(roadmapitem.FieldOrigin, field.TypeString, value)
+		_node.Origin = value
 	}
 	if value, ok := _c.mutation.SequenceNumber(); ok {
 		_spec.SetField(roadmapitem.FieldSequenceNumber, field.TypeInt, value)

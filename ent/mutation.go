@@ -17339,6 +17339,7 @@ type RoadmapItemMutation struct {
 	status                    *string
 	priority                  *string
 	required                  *bool
+	origin                    *string
 	sequence_number           *int
 	addsequence_number        *int
 	acceptance_criteria       *[]string
@@ -17711,6 +17712,42 @@ func (m *RoadmapItemMutation) OldRequired(ctx context.Context) (v bool, err erro
 // ResetRequired resets all changes to the "required" field.
 func (m *RoadmapItemMutation) ResetRequired() {
 	m.required = nil
+}
+
+// SetOrigin sets the "origin" field.
+func (m *RoadmapItemMutation) SetOrigin(s string) {
+	m.origin = &s
+}
+
+// Origin returns the value of the "origin" field in the mutation.
+func (m *RoadmapItemMutation) Origin() (r string, exists bool) {
+	v := m.origin
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrigin returns the old "origin" field's value of the RoadmapItem entity.
+// If the RoadmapItem object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoadmapItemMutation) OldOrigin(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrigin is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrigin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrigin: %w", err)
+	}
+	return oldValue.Origin, nil
+}
+
+// ResetOrigin resets all changes to the "origin" field.
+func (m *RoadmapItemMutation) ResetOrigin() {
+	m.origin = nil
 }
 
 // SetSequenceNumber sets the "sequence_number" field.
@@ -18282,7 +18319,7 @@ func (m *RoadmapItemMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RoadmapItemMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.title != nil {
 		fields = append(fields, roadmapitem.FieldTitle)
 	}
@@ -18300,6 +18337,9 @@ func (m *RoadmapItemMutation) Fields() []string {
 	}
 	if m.required != nil {
 		fields = append(fields, roadmapitem.FieldRequired)
+	}
+	if m.origin != nil {
+		fields = append(fields, roadmapitem.FieldOrigin)
 	}
 	if m.sequence_number != nil {
 		fields = append(fields, roadmapitem.FieldSequenceNumber)
@@ -18336,6 +18376,8 @@ func (m *RoadmapItemMutation) Field(name string) (ent.Value, bool) {
 		return m.Priority()
 	case roadmapitem.FieldRequired:
 		return m.Required()
+	case roadmapitem.FieldOrigin:
+		return m.Origin()
 	case roadmapitem.FieldSequenceNumber:
 		return m.SequenceNumber()
 	case roadmapitem.FieldAcceptanceCriteria:
@@ -18367,6 +18409,8 @@ func (m *RoadmapItemMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldPriority(ctx)
 	case roadmapitem.FieldRequired:
 		return m.OldRequired(ctx)
+	case roadmapitem.FieldOrigin:
+		return m.OldOrigin(ctx)
 	case roadmapitem.FieldSequenceNumber:
 		return m.OldSequenceNumber(ctx)
 	case roadmapitem.FieldAcceptanceCriteria:
@@ -18427,6 +18471,13 @@ func (m *RoadmapItemMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRequired(v)
+		return nil
+	case roadmapitem.FieldOrigin:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrigin(v)
 		return nil
 	case roadmapitem.FieldSequenceNumber:
 		v, ok := value.(int)
@@ -18577,6 +18628,9 @@ func (m *RoadmapItemMutation) ResetField(name string) error {
 		return nil
 	case roadmapitem.FieldRequired:
 		m.ResetRequired()
+		return nil
+	case roadmapitem.FieldOrigin:
+		m.ResetOrigin()
 		return nil
 	case roadmapitem.FieldSequenceNumber:
 		m.ResetSequenceNumber()

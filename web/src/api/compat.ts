@@ -107,6 +107,7 @@ export interface APIRMI {
   type?: string
   status: string
   priority?: string
+  origin?: string
   sequenceNumber: number
   claimedBy?: string
   claimedAt?: string
@@ -261,6 +262,7 @@ export function toAPIRMI(gen: GenAPIRMI): APIRMI {
     type: gen.type,
     status: gen.status ?? '',
     priority: gen.priority,
+    origin: gen.origin,
     sequenceNumber: gen.sequenceNumber ?? 0,
     claimedBy: gen.claimedBy,
     claimedAt: gen.claimedAt,

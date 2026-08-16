@@ -247,7 +247,7 @@ func rmiCreateCmd() *cobra.Command {
 }
 
 func rmiGetCmd() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "get <rmi-id>",
 		Short: "Show RMI details with dependencies",
 		Args:  cobra.ExactArgs(1),
@@ -261,6 +261,18 @@ func rmiGetCmd() *cobra.Command {
 			detail, err := svc.GetRMIDetail(cmd.Context(), args[0])
 			if err != nil {
 				return err
+			}
+
+			format, _ := cmd.Flags().GetString("format")
+			switch format {
+			case "json":
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(detail)
+			case "text":
+				// falls through to the text rendering below
+			default:
+				return fmt.Errorf("unknown format: %s (use text or json)", format)
 			}
 
 			rmi := detail.RMI
@@ -328,6 +340,8 @@ func rmiGetCmd() *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().String("format", "text", "Output format: text or json")
+	return cmd
 }
 
 func rmiListCmd() *cobra.Command {
@@ -355,23 +369,26 @@ func rmiListCmd() *cobra.Command {
 				}
 			}
 
-			var rmis []*rmiListItem
+			var rmis []*store.RoadmapItem
 			if initiative != "" {
-				items, err := svc.ListRMIs(cmd.Context(), initiative)
-				if err != nil {
-					return err
-				}
-				for _, r := range items {
-					rmis = append(rmis, &rmiListItem{r})
-				}
+				rmis, err = svc.ListRMIs(cmd.Context(), initiative)
 			} else {
-				items, err := svc.ListRMIsByRepo(cmd.Context(), repo)
-				if err != nil {
-					return err
-				}
-				for _, r := range items {
-					rmis = append(rmis, &rmiListItem{r})
-				}
+				rmis, err = svc.ListRMIsByRepo(cmd.Context(), repo)
+			}
+			if err != nil {
+				return err
+			}
+
+			format, _ := cmd.Flags().GetString("format")
+			switch format {
+			case "json":
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(rmis)
+			case "text":
+				// falls through to the tabwriter rendering below
+			default:
+				return fmt.Errorf("unknown format: %s (use text or json)", format)
 			}
 
 			if len(rmis) == 0 {
@@ -383,26 +400,23 @@ func rmiListCmd() *cobra.Command {
 			_, _ = fmt.Fprintln(w, "ID\tTITLE\tSTATUS\tTYPE\tREQUIRED\tREPO")
 			for _, r := range rmis {
 				req := "yes"
-				if !r.item.Required {
+				if !r.Required {
 					req = "no"
 				}
-				repoShort := r.item.RepositoryID
+				repoShort := r.RepositoryID
 				if idx := strings.LastIndex(repoShort, "/"); idx >= 0 {
 					repoShort = repoShort[idx+1:]
 				}
 				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
-					r.item.ID, r.item.Title, r.item.Status, r.item.ItemType, req, repoShort)
+					r.ID, r.Title, r.Status, r.ItemType, req, repoShort)
 			}
 			return w.Flush()
 		},
 	}
 	cmd.Flags().String("initiative", "", "Filter by initiative ID")
 	cmd.Flags().String("repo", "", "Filter by repository ID")
+	cmd.Flags().String("format", "text", "Output format: text or json")
 	return cmd
-}
-
-type rmiListItem struct {
-	item *store.RoadmapItem
 }
 
 func rmiUpdateCmd() *cobra.Command {

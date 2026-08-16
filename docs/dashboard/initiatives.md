@@ -2,11 +2,12 @@
 
 ## Initiatives Overview
 
-**Routes:** `/` (all initiatives, grouped by program), `/program/:programId` (one program), `/standalone` (initiatives with no program).
+**Routes:** `/` (all initiatives, grouped by program), `/status` (all initiatives, grouped by lifecycle status), `/program/:programId` (one program), `/standalone` (initiatives with no program).
 
 The header shows a count ("N initiatives, M RMIs") and, when there's any RMI status data, a small donut chart with the top 4 statuses and their counts alongside it.
 
 - **All Initiatives** (`/`) groups initiative tiles under each program's name, with a per-program progress bar showing the average progress across that program's initiatives, followed by a **Standalone** group for initiatives with no `programId`. Hidden programs and hidden initiatives are excluded — see [Hiding Programs and Initiatives](#hiding-programs-and-initiatives).
+- **By Status** (`/status`, sidebar entry above the program list) groups every visible initiative into pipeline-ordered columns — `proposed` through `cancelled` — for managing WIP at a glance: how many initiatives are actually `executing` right now vs. sitting `delivery_complete` unreleased vs. still `proposed`. Reuses the same `/api/execution` data as every other initiative view; no separate endpoint.
 - **Program view** (`/program/:programId`) shows only that program's initiatives, ungrouped.
 - **Standalone view** (`/standalone`) shows only initiatives with no program, ungrouped.
 
@@ -65,6 +66,16 @@ Three transition rules apply:
 - **Cancelled** — reopens to any pre-release status; it can never jump to `released` or `closed`, which would fabricate lifecycle history that never happened.
 
 Each pipeline stage stamps a timestamp when entered (`planned_at`, `executing_at`, `delivery_complete_at`, `released_at`, `closed_at`). A backwards transition **clears the stamps of the stages it undoes** — an initiative reopened to `executing` is no longer delivery-complete, and its record won't claim otherwise; re-entering a stage later re-stamps it. Cancellation preserves all stamps.
+
+### Finding initiatives ready to advance
+
+```bash
+visionstudio initiative sweep [--format json]
+```
+
+Lists non-terminal initiatives (`proposed`/`planned`/`executing`) where **every** RMI is `completed` — a signal that recorded status has fallen behind actual progress. For each candidate, `sweep` resolves every distinct repository referenced by its RMIs (not just the initiative's home repo — an initiative's work often spans more than one) and reports local git state per repo: clean and in sync, dirty (uncommitted changes), unpushed commits, behind upstream, or not found/not registered locally. Read-only checks against cached refs, same posture as [`registry doctor`](repositories.md#managing-repository-entries) — no network fetch.
+
+`sweep` never transitions anything itself. It's a starting point for review, not an auto-closer: a `completed` RMI status doesn't guarantee the shipped code actually matches what the RMI describes — verify that by hand (or with an agent) before transitioning or recording a release, especially for multi-repo initiatives.
 
 ## Hiding Programs and Initiatives
 

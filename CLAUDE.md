@@ -178,6 +178,14 @@ All default (non-user-custom) spec workflow definitions live in `github.com/Prod
 
 Use `github.com/grokify/mogo/os/osutil`'s `ValidatePathComponent` (allowlist check on a single ID) and `JoinSecure` (containment check via `filepath.Rel`/`filepath.IsAbs`) at request boundaries and immediately before any filesystem call built from user/agent-supplied input. `FindFirstExistingSecure` wraps the common "try N filename patterns for an ID" lookup. These were added upstream to mogo (not a local package) specifically because CodeQL's `go/path-injection` query recognizes the `filepath.Rel`+`filepath.IsAbs` idiom as a sanitizer but does *not* recognize a `strings.HasPrefix`-based containment check wrapped in a helper function — verified empirically, so don't "simplify" back to a manual `strings.Contains(path, "..")` check or a local reimplementation.
 
+### Closing an initiative doesn't require a git tag
+
+An initiative can be transitioned all the way to `closed` once its work is **committed and pushed**, with release notes/CHANGELOG.json prepared for the version it'll eventually ship under — it does not need to wait for that version to actually be tagged. Tagging is a separate, later, batched action once a release owner decides enough initiatives have accumulated to cut. This exists because initiatives close on their own schedule but releases are batched across several of them (see `docs/releases/unreleased.md`'s pattern of holding several initiatives' worth of changes before a version is cut and tagged). Before closing:
+
+- Verify **every distinct repository referenced by the initiative's RMIs**, not just its `Home repo` field — an initiative's RMIs can span multiple repos (e.g. `INIT-AGENTPROTOCOLS-001` touched `agent-protocols`, `mcp-google`, and `omniskill`). `visionstudio initiative sweep` automates finding candidates (all RMIs `completed`, status not yet advanced) and reports per-repo git state, but never transitions or records anything itself — it's a starting point for review, not an auto-closer.
+- A `completed` RMI status is not proof the shipped code matches what the RMI describes — spot-check gaps between spec and implementation before trusting the status field (a 12-RMI audit this session found 4 with real gaps despite `completed` status and a matching commit).
+- `visionstudio release record --repo <id> --tag <version>` works before the tag exists — it's a DB upsert with no git validation, keyed off a `CHANGELOG.json` entry (add `--strict` to require one). Record it, then `initiative transition <id> releasing`, `released`, `closed` in sequence.
+
 ### Rebuilding the embedded web UI
 
 `web/dist/.gitkeep` is the only tracked file in `web/dist/` — the real build output is gitignored. Running `npm run build` (or `go install ./cmd/visionstudio` after it) deletes `.gitkeep` as part of clearing the output dir; `git checkout -- web/dist/.gitkeep` afterward, or a `git status` diff will show a phantom deletion.

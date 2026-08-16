@@ -64,9 +64,11 @@ type RoadmapItemEdges struct {
 	Assignments []*Assignment `json:"assignments,omitempty"`
 	// Evidence holds the value of the evidence edge.
 	Evidence []*DeliveryEvidence `json:"evidence,omitempty"`
+	// Releases holds the value of the releases edge.
+	Releases []*Release `json:"releases,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [5]bool
+	loadedTypes [6]bool
 }
 
 // InitiativeOrErr returns the Initiative value or an error if the edge
@@ -118,6 +120,15 @@ func (e RoadmapItemEdges) EvidenceOrErr() ([]*DeliveryEvidence, error) {
 		return e.Evidence, nil
 	}
 	return nil, &NotLoadedError{edge: "evidence"}
+}
+
+// ReleasesOrErr returns the Releases value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoadmapItemEdges) ReleasesOrErr() ([]*Release, error) {
+	if e.loadedTypes[5] {
+		return e.Releases, nil
+	}
+	return nil, &NotLoadedError{edge: "releases"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -288,6 +299,11 @@ func (_m *RoadmapItem) QueryAssignments() *AssignmentQuery {
 // QueryEvidence queries the "evidence" edge of the RoadmapItem entity.
 func (_m *RoadmapItem) QueryEvidence() *DeliveryEvidenceQuery {
 	return NewRoadmapItemClient(_m.config).QueryEvidence(_m)
+}
+
+// QueryReleases queries the "releases" edge of the RoadmapItem entity.
+func (_m *RoadmapItem) QueryReleases() *ReleaseQuery {
+	return NewRoadmapItemClient(_m.config).QueryReleases(_m)
 }
 
 // Update returns a builder for updating this RoadmapItem.

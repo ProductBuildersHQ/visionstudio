@@ -23,6 +23,7 @@ type Store interface {
 	RepositoryStore
 	OrganizationStore
 	PersonStore
+	ReleaseStore
 	SpecWorkflowStore
 	JudgeStore
 	MaturityStore
@@ -285,6 +286,37 @@ type RepositoryStore interface {
 	CreateRepoDependency(ctx context.Context, dep *RepositoryDependency) error
 	ListRepoDependencies(ctx context.Context, repoID string) ([]*RepositoryDependency, error)
 	ListAllRepoDependencies(ctx context.Context) ([]*RepositoryDependency, error)
+}
+
+// Release is a per-repository release (a shipped git tag). ID is
+// "<repository-id>@<tag>". InitiativeIDs and RMIIDs carry the
+// associations: which initiatives and roadmap items this release shipped.
+type Release struct {
+	ID           string    `json:"id"`
+	RepositoryID string    `json:"repository_id"`
+	Tag          string    `json:"tag"`
+	ReleasedAt   time.Time `json:"released_at"`
+	URL          string    `json:"url,omitempty"`
+	NotesRef     string    `json:"notes_ref,omitempty"`
+	// Body is release-notes text captured as match evidence for
+	// AI-assisted historical backfill (RMI-VISIONSTUDIO-315) — never
+	// treated as fact, never auto-interpreted.
+	Body          string    `json:"body,omitempty"`
+	InitiativeIDs []string  `json:"initiative_ids,omitempty"`
+	RMIIDs        []string  `json:"rmi_ids,omitempty"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+// ReleaseStore defines persistence for releases and their associations.
+type ReleaseStore interface {
+	CreateRelease(ctx context.Context, rel *Release) error
+	GetRelease(ctx context.Context, id string) (*Release, error)
+	ListReleases(ctx context.Context) ([]*Release, error)
+	ListReleasesByRepo(ctx context.Context, repoID string) ([]*Release, error)
+	ListReleasesByInitiative(ctx context.Context, initiativeID string) ([]*Release, error)
+	UpdateRelease(ctx context.Context, rel *Release) error
+	DeleteRelease(ctx context.Context, id string) error
 }
 
 // OrganizationStore defines persistence for first-class organizations.

@@ -17,6 +17,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 )
@@ -302,6 +303,21 @@ func (_u *RoadmapItemUpdate) AddEvidence(v ...*DeliveryEvidence) *RoadmapItemUpd
 	return _u.AddEvidenceIDs(ids...)
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_u *RoadmapItemUpdate) AddReleaseIDs(ids ...string) *RoadmapItemUpdate {
+	_u.mutation.AddReleaseIDs(ids...)
+	return _u
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_u *RoadmapItemUpdate) AddReleases(v ...*Release) *RoadmapItemUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReleaseIDs(ids...)
+}
+
 // Mutation returns the RoadmapItemMutation object of the builder.
 func (_u *RoadmapItemUpdate) Mutation() *RoadmapItemMutation {
 	return _u.mutation
@@ -365,6 +381,27 @@ func (_u *RoadmapItemUpdate) RemoveEvidence(v ...*DeliveryEvidence) *RoadmapItem
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveEvidenceIDs(ids...)
+}
+
+// ClearReleases clears all "releases" edges to the Release entity.
+func (_u *RoadmapItemUpdate) ClearReleases() *RoadmapItemUpdate {
+	_u.mutation.ClearReleases()
+	return _u
+}
+
+// RemoveReleaseIDs removes the "releases" edge to Release entities by IDs.
+func (_u *RoadmapItemUpdate) RemoveReleaseIDs(ids ...string) *RoadmapItemUpdate {
+	_u.mutation.RemoveReleaseIDs(ids...)
+	return _u
+}
+
+// RemoveReleases removes "releases" edges to Release entities.
+func (_u *RoadmapItemUpdate) RemoveReleases(v ...*Release) *RoadmapItemUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReleaseIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -667,6 +704,51 @@ func (_u *RoadmapItemUpdate) sqlSave(ctx context.Context) (_node int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReleasesIDs(); len(nodes) > 0 && !_u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{roadmapitem.Label}
@@ -955,6 +1037,21 @@ func (_u *RoadmapItemUpdateOne) AddEvidence(v ...*DeliveryEvidence) *RoadmapItem
 	return _u.AddEvidenceIDs(ids...)
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_u *RoadmapItemUpdateOne) AddReleaseIDs(ids ...string) *RoadmapItemUpdateOne {
+	_u.mutation.AddReleaseIDs(ids...)
+	return _u
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_u *RoadmapItemUpdateOne) AddReleases(v ...*Release) *RoadmapItemUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReleaseIDs(ids...)
+}
+
 // Mutation returns the RoadmapItemMutation object of the builder.
 func (_u *RoadmapItemUpdateOne) Mutation() *RoadmapItemMutation {
 	return _u.mutation
@@ -1018,6 +1115,27 @@ func (_u *RoadmapItemUpdateOne) RemoveEvidence(v ...*DeliveryEvidence) *RoadmapI
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveEvidenceIDs(ids...)
+}
+
+// ClearReleases clears all "releases" edges to the Release entity.
+func (_u *RoadmapItemUpdateOne) ClearReleases() *RoadmapItemUpdateOne {
+	_u.mutation.ClearReleases()
+	return _u
+}
+
+// RemoveReleaseIDs removes the "releases" edge to Release entities by IDs.
+func (_u *RoadmapItemUpdateOne) RemoveReleaseIDs(ids ...string) *RoadmapItemUpdateOne {
+	_u.mutation.RemoveReleaseIDs(ids...)
+	return _u
+}
+
+// RemoveReleases removes "releases" edges to Release entities.
+func (_u *RoadmapItemUpdateOne) RemoveReleases(v ...*Release) *RoadmapItemUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReleaseIDs(ids...)
 }
 
 // Where appends a list predicates to the RoadmapItemUpdate builder.
@@ -1343,6 +1461,51 @@ func (_u *RoadmapItemUpdateOne) sqlSave(ctx context.Context) (_node *RoadmapItem
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(deliveryevidence.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReleasesIDs(); len(nodes) > 0 && !_u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

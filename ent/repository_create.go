@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
@@ -172,6 +173,21 @@ func (_c *RepositoryCreate) AddSpecDocuments(v ...*SpecDocument) *RepositoryCrea
 		ids[i] = v[i].ID
 	}
 	return _c.AddSpecDocumentIDs(ids...)
+}
+
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_c *RepositoryCreate) AddReleaseIDs(ids ...string) *RepositoryCreate {
+	_c.mutation.AddReleaseIDs(ids...)
+	return _c
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_c *RepositoryCreate) AddReleases(v ...*Release) *RepositoryCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddReleaseIDs(ids...)
 }
 
 // SetOrgID sets the "org" edge to the Organization entity by ID.
@@ -406,6 +422,22 @@ func (_c *RepositoryCreate) createSpec() (*Repository, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specdocument.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   repository.ReleasesTable,
+			Columns: []string{repository.ReleasesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

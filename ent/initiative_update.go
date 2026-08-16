@@ -16,6 +16,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
@@ -436,6 +437,21 @@ func (_u *InitiativeUpdate) SetWorkflow(v *SpecWorkflow) *InitiativeUpdate {
 	return _u.SetWorkflowID(v.ID)
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_u *InitiativeUpdate) AddReleaseIDs(ids ...string) *InitiativeUpdate {
+	_u.mutation.AddReleaseIDs(ids...)
+	return _u
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_u *InitiativeUpdate) AddReleases(v ...*Release) *InitiativeUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReleaseIDs(ids...)
+}
+
 // Mutation returns the InitiativeMutation object of the builder.
 func (_u *InitiativeUpdate) Mutation() *InitiativeMutation {
 	return _u.mutation
@@ -535,6 +551,27 @@ func (_u *InitiativeUpdate) ClearProgram() *InitiativeUpdate {
 func (_u *InitiativeUpdate) ClearWorkflow() *InitiativeUpdate {
 	_u.mutation.ClearWorkflow()
 	return _u
+}
+
+// ClearReleases clears all "releases" edges to the Release entity.
+func (_u *InitiativeUpdate) ClearReleases() *InitiativeUpdate {
+	_u.mutation.ClearReleases()
+	return _u
+}
+
+// RemoveReleaseIDs removes the "releases" edge to Release entities by IDs.
+func (_u *InitiativeUpdate) RemoveReleaseIDs(ids ...string) *InitiativeUpdate {
+	_u.mutation.RemoveReleaseIDs(ids...)
+	return _u
+}
+
+// RemoveReleases removes "releases" edges to Release entities.
+func (_u *InitiativeUpdate) RemoveReleases(v ...*Release) *InitiativeUpdate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReleaseIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -936,6 +973,51 @@ func (_u *InitiativeUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReleasesIDs(); len(nodes) > 0 && !_u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -1365,6 +1447,21 @@ func (_u *InitiativeUpdateOne) SetWorkflow(v *SpecWorkflow) *InitiativeUpdateOne
 	return _u.SetWorkflowID(v.ID)
 }
 
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_u *InitiativeUpdateOne) AddReleaseIDs(ids ...string) *InitiativeUpdateOne {
+	_u.mutation.AddReleaseIDs(ids...)
+	return _u
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_u *InitiativeUpdateOne) AddReleases(v ...*Release) *InitiativeUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddReleaseIDs(ids...)
+}
+
 // Mutation returns the InitiativeMutation object of the builder.
 func (_u *InitiativeUpdateOne) Mutation() *InitiativeMutation {
 	return _u.mutation
@@ -1464,6 +1561,27 @@ func (_u *InitiativeUpdateOne) ClearProgram() *InitiativeUpdateOne {
 func (_u *InitiativeUpdateOne) ClearWorkflow() *InitiativeUpdateOne {
 	_u.mutation.ClearWorkflow()
 	return _u
+}
+
+// ClearReleases clears all "releases" edges to the Release entity.
+func (_u *InitiativeUpdateOne) ClearReleases() *InitiativeUpdateOne {
+	_u.mutation.ClearReleases()
+	return _u
+}
+
+// RemoveReleaseIDs removes the "releases" edge to Release entities by IDs.
+func (_u *InitiativeUpdateOne) RemoveReleaseIDs(ids ...string) *InitiativeUpdateOne {
+	_u.mutation.RemoveReleaseIDs(ids...)
+	return _u
+}
+
+// RemoveReleases removes "releases" edges to Release entities.
+func (_u *InitiativeUpdateOne) RemoveReleases(v ...*Release) *InitiativeUpdateOne {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveReleaseIDs(ids...)
 }
 
 // Where appends a list predicates to the InitiativeUpdate builder.
@@ -1895,6 +2013,51 @@ func (_u *InitiativeUpdateOne) sqlSave(ctx context.Context) (_node *Initiative, 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(specworkflow.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedReleasesIDs(); len(nodes) > 0 && !_u.mutation.ReleasesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   initiative.ReleasesTable,
+			Columns: initiative.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

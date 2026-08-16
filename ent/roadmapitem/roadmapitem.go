@@ -44,6 +44,8 @@ const (
 	EdgeAssignments = "assignments"
 	// EdgeEvidence holds the string denoting the evidence edge name in mutations.
 	EdgeEvidence = "evidence"
+	// EdgeReleases holds the string denoting the releases edge name in mutations.
+	EdgeReleases = "releases"
 	// InitiativeFieldID holds the string denoting the ID field of the Initiative.
 	InitiativeFieldID = "initiative_id"
 	// PhaseFieldID holds the string denoting the ID field of the Phase.
@@ -54,6 +56,8 @@ const (
 	AssignmentFieldID = "assignment_id"
 	// DeliveryEvidenceFieldID holds the string denoting the ID field of the DeliveryEvidence.
 	DeliveryEvidenceFieldID = "evidence_id"
+	// ReleaseFieldID holds the string denoting the ID field of the Release.
+	ReleaseFieldID = "release_id"
 	// Table holds the table name of the roadmapitem in the database.
 	Table = "roadmap_items"
 	// InitiativeTable is the table that holds the initiative relation/edge.
@@ -91,6 +95,11 @@ const (
 	EvidenceInverseTable = "delivery_evidences"
 	// EvidenceColumn is the table column denoting the evidence relation/edge.
 	EvidenceColumn = "roadmap_item_evidence"
+	// ReleasesTable is the table that holds the releases relation/edge. The primary key declared below.
+	ReleasesTable = "release_roadmap_items"
+	// ReleasesInverseTable is the table name for the Release entity.
+	// It exists in this package in order to avoid circular dependency with the "release" package.
+	ReleasesInverseTable = "releases"
 )
 
 // Columns holds all SQL columns for roadmapitem fields.
@@ -116,6 +125,12 @@ var ForeignKeys = []string{
 	"phase_roadmap_items",
 	"repository_roadmap_items",
 }
+
+var (
+	// ReleasesPrimaryKey and ReleasesColumn2 are the table columns denoting the
+	// primary key for the releases relation (M2M).
+	ReleasesPrimaryKey = []string{"release_id", "roadmap_item_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -253,6 +268,20 @@ func ByEvidence(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newEvidenceStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByReleasesCount orders the results by releases count.
+func ByReleasesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newReleasesStep(), opts...)
+	}
+}
+
+// ByReleases orders the results by releases terms.
+func ByReleases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newReleasesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newInitiativeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -286,5 +315,12 @@ func newEvidenceStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(EvidenceInverseTable, DeliveryEvidenceFieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, EvidenceTable, EvidenceColumn),
+	)
+}
+func newReleasesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ReleasesInverseTable, ReleaseFieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, ReleasesTable, ReleasesPrimaryKey...),
 	)
 }

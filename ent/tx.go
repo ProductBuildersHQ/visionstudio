@@ -48,6 +48,8 @@ type Tx struct {
 	Program *ProgramClient
 	// RMIDependency is the client for interacting with the RMIDependency builders.
 	RMIDependency *RMIDependencyClient
+	// Release is the client for interacting with the Release builders.
+	Release *ReleaseClient
 	// Repository is the client for interacting with the Repository builders.
 	Repository *RepositoryClient
 	// RepositoryDependency is the client for interacting with the RepositoryDependency builders.
@@ -207,6 +209,7 @@ func (tx *Tx) init() {
 	tx.Phase = NewPhaseClient(tx.config)
 	tx.Program = NewProgramClient(tx.config)
 	tx.RMIDependency = NewRMIDependencyClient(tx.config)
+	tx.Release = NewReleaseClient(tx.config)
 	tx.Repository = NewRepositoryClient(tx.config)
 	tx.RepositoryDependency = NewRepositoryDependencyClient(tx.config)
 	tx.RoadmapItem = NewRoadmapItemClient(tx.config)

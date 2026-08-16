@@ -15,6 +15,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/person"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repositorydependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
@@ -288,6 +289,32 @@ func init() {
 	rmidependencyDescRelationship := rmidependencyFields[2].Descriptor()
 	// rmidependency.RelationshipValidator is a validator for the "relationship" field. It is called by the builders before save.
 	rmidependency.RelationshipValidator = rmidependencyDescRelationship.Validators[0].(func(string) error)
+	releaseFields := schema.Release{}.Fields()
+	_ = releaseFields
+	// releaseDescTag is the schema descriptor for tag field.
+	releaseDescTag := releaseFields[1].Descriptor()
+	// release.TagValidator is a validator for the "tag" field. It is called by the builders before save.
+	release.TagValidator = releaseDescTag.Validators[0].(func(string) error)
+	// releaseDescURL is the schema descriptor for url field.
+	releaseDescURL := releaseFields[3].Descriptor()
+	// release.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	release.URLValidator = releaseDescURL.Validators[0].(func(string) error)
+	// releaseDescNotesRef is the schema descriptor for notes_ref field.
+	releaseDescNotesRef := releaseFields[4].Descriptor()
+	// release.NotesRefValidator is a validator for the "notes_ref" field. It is called by the builders before save.
+	release.NotesRefValidator = releaseDescNotesRef.Validators[0].(func(string) error)
+	// releaseDescBody is the schema descriptor for body field.
+	releaseDescBody := releaseFields[5].Descriptor()
+	// release.BodyValidator is a validator for the "body" field. It is called by the builders before save.
+	release.BodyValidator = releaseDescBody.Validators[0].(func(string) error)
+	// releaseDescRepositoryID is the schema descriptor for repository_id field.
+	releaseDescRepositoryID := releaseFields[6].Descriptor()
+	// release.RepositoryIDValidator is a validator for the "repository_id" field. It is called by the builders before save.
+	release.RepositoryIDValidator = releaseDescRepositoryID.Validators[0].(func(string) error)
+	// releaseDescID is the schema descriptor for id field.
+	releaseDescID := releaseFields[0].Descriptor()
+	// release.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	release.IDValidator = releaseDescID.Validators[0].(func(string) error)
 	repositoryFields := schema.Repository{}.Fields()
 	_ = repositoryFields
 	// repositoryDescOrganization is the schema descriptor for organization field.

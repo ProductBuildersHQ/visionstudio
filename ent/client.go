@@ -32,6 +32,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismroadmap"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repositorydependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
@@ -81,6 +82,8 @@ type Client struct {
 	Program *ProgramClient
 	// RMIDependency is the client for interacting with the RMIDependency builders.
 	RMIDependency *RMIDependencyClient
+	// Release is the client for interacting with the Release builders.
+	Release *ReleaseClient
 	// Repository is the client for interacting with the Repository builders.
 	Repository *RepositoryClient
 	// RepositoryDependency is the client for interacting with the RepositoryDependency builders.
@@ -120,6 +123,7 @@ func (c *Client) init() {
 	c.Phase = NewPhaseClient(c.config)
 	c.Program = NewProgramClient(c.config)
 	c.RMIDependency = NewRMIDependencyClient(c.config)
+	c.Release = NewReleaseClient(c.config)
 	c.Repository = NewRepositoryClient(c.config)
 	c.RepositoryDependency = NewRepositoryDependencyClient(c.config)
 	c.RoadmapItem = NewRoadmapItemClient(c.config)
@@ -235,6 +239,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		Phase:                NewPhaseClient(cfg),
 		Program:              NewProgramClient(cfg),
 		RMIDependency:        NewRMIDependencyClient(cfg),
+		Release:              NewReleaseClient(cfg),
 		Repository:           NewRepositoryClient(cfg),
 		RepositoryDependency: NewRepositoryDependencyClient(cfg),
 		RoadmapItem:          NewRoadmapItemClient(cfg),
@@ -277,6 +282,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		Phase:                NewPhaseClient(cfg),
 		Program:              NewProgramClient(cfg),
 		RMIDependency:        NewRMIDependencyClient(cfg),
+		Release:              NewReleaseClient(cfg),
 		Repository:           NewRepositoryClient(cfg),
 		RepositoryDependency: NewRepositoryDependencyClient(cfg),
 		RoadmapItem:          NewRoadmapItemClient(cfg),
@@ -315,7 +321,7 @@ func (c *Client) Use(hooks ...Hook) {
 		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
 		c.JudgeRubric, c.MaturityAssessment, c.Organization, c.PRISMDocument,
 		c.PRISMGoal, c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency,
-		c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
+		c.Release, c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
 		c.SpecWorkflow,
 	} {
 		n.Use(hooks...)
@@ -330,7 +336,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
 		c.JudgeRubric, c.MaturityAssessment, c.Organization, c.PRISMDocument,
 		c.PRISMGoal, c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency,
-		c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
+		c.Release, c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
 		c.SpecWorkflow,
 	} {
 		n.Intercept(interceptors...)
@@ -376,6 +382,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Program.mutate(ctx, m)
 	case *RMIDependencyMutation:
 		return c.RMIDependency.mutate(ctx, m)
+	case *ReleaseMutation:
+		return c.Release.mutate(ctx, m)
 	case *RepositoryMutation:
 		return c.Repository.mutate(ctx, m)
 	case *RepositoryDependencyMutation:
@@ -1168,6 +1176,22 @@ func (c *InitiativeClient) QueryWorkflow(_m *Initiative) *SpecWorkflowQuery {
 			sqlgraph.From(initiative.Table, initiative.FieldID, id),
 			sqlgraph.To(specworkflow.Table, specworkflow.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, initiative.WorkflowTable, initiative.WorkflowColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReleases queries the releases edge of a Initiative.
+func (c *InitiativeClient) QueryReleases(_m *Initiative) *ReleaseQuery {
+	query := (&ReleaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(initiative.Table, initiative.FieldID, id),
+			sqlgraph.To(release.Table, release.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, initiative.ReleasesTable, initiative.ReleasesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3105,6 +3129,187 @@ func (c *RMIDependencyClient) mutate(ctx context.Context, m *RMIDependencyMutati
 	}
 }
 
+// ReleaseClient is a client for the Release schema.
+type ReleaseClient struct {
+	config
+}
+
+// NewReleaseClient returns a client for the Release from the given config.
+func NewReleaseClient(c config) *ReleaseClient {
+	return &ReleaseClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `release.Hooks(f(g(h())))`.
+func (c *ReleaseClient) Use(hooks ...Hook) {
+	c.hooks.Release = append(c.hooks.Release, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `release.Intercept(f(g(h())))`.
+func (c *ReleaseClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Release = append(c.inters.Release, interceptors...)
+}
+
+// Create returns a builder for creating a Release entity.
+func (c *ReleaseClient) Create() *ReleaseCreate {
+	mutation := newReleaseMutation(c.config, OpCreate)
+	return &ReleaseCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Release entities.
+func (c *ReleaseClient) CreateBulk(builders ...*ReleaseCreate) *ReleaseCreateBulk {
+	return &ReleaseCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *ReleaseClient) MapCreateBulk(slice any, setFunc func(*ReleaseCreate, int)) *ReleaseCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &ReleaseCreateBulk{err: fmt.Errorf("calling to ReleaseClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*ReleaseCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &ReleaseCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Release.
+func (c *ReleaseClient) Update() *ReleaseUpdate {
+	mutation := newReleaseMutation(c.config, OpUpdate)
+	return &ReleaseUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ReleaseClient) UpdateOne(_m *Release) *ReleaseUpdateOne {
+	mutation := newReleaseMutation(c.config, OpUpdateOne, withRelease(_m))
+	return &ReleaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ReleaseClient) UpdateOneID(id string) *ReleaseUpdateOne {
+	mutation := newReleaseMutation(c.config, OpUpdateOne, withReleaseID(id))
+	return &ReleaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Release.
+func (c *ReleaseClient) Delete() *ReleaseDelete {
+	mutation := newReleaseMutation(c.config, OpDelete)
+	return &ReleaseDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ReleaseClient) DeleteOne(_m *Release) *ReleaseDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ReleaseClient) DeleteOneID(id string) *ReleaseDeleteOne {
+	builder := c.Delete().Where(release.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ReleaseDeleteOne{builder}
+}
+
+// Query returns a query builder for Release.
+func (c *ReleaseClient) Query() *ReleaseQuery {
+	return &ReleaseQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeRelease},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Release entity by its id.
+func (c *ReleaseClient) Get(ctx context.Context, id string) (*Release, error) {
+	return c.Query().Where(release.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ReleaseClient) GetX(ctx context.Context, id string) *Release {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryRepository queries the repository edge of a Release.
+func (c *ReleaseClient) QueryRepository(_m *Release) *RepositoryQuery {
+	query := (&RepositoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(release.Table, release.FieldID, id),
+			sqlgraph.To(repository.Table, repository.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, release.RepositoryTable, release.RepositoryColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryInitiatives queries the initiatives edge of a Release.
+func (c *ReleaseClient) QueryInitiatives(_m *Release) *InitiativeQuery {
+	query := (&InitiativeClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(release.Table, release.FieldID, id),
+			sqlgraph.To(initiative.Table, initiative.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, release.InitiativesTable, release.InitiativesPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryRoadmapItems queries the roadmap_items edge of a Release.
+func (c *ReleaseClient) QueryRoadmapItems(_m *Release) *RoadmapItemQuery {
+	query := (&RoadmapItemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(release.Table, release.FieldID, id),
+			sqlgraph.To(roadmapitem.Table, roadmapitem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, release.RoadmapItemsTable, release.RoadmapItemsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ReleaseClient) Hooks() []Hook {
+	return c.hooks.Release
+}
+
+// Interceptors returns the client interceptors.
+func (c *ReleaseClient) Interceptors() []Interceptor {
+	return c.inters.Release
+}
+
+func (c *ReleaseClient) mutate(ctx context.Context, m *ReleaseMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ReleaseCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ReleaseUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ReleaseUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ReleaseDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Release mutation op: %q", m.Op())
+	}
+}
+
 // RepositoryClient is a client for the Repository schema.
 type RepositoryClient struct {
 	config
@@ -3238,6 +3443,22 @@ func (c *RepositoryClient) QuerySpecDocuments(_m *Repository) *SpecDocumentQuery
 			sqlgraph.From(repository.Table, repository.FieldID, id),
 			sqlgraph.To(specdocument.Table, specdocument.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, repository.SpecDocumentsTable, repository.SpecDocumentsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReleases queries the releases edge of a Repository.
+func (c *RepositoryClient) QueryReleases(_m *Repository) *ReleaseQuery {
+	query := (&ReleaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(repository.Table, repository.FieldID, id),
+			sqlgraph.To(release.Table, release.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, repository.ReleasesTable, repository.ReleasesColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3600,6 +3821,22 @@ func (c *RoadmapItemClient) QueryEvidence(_m *RoadmapItem) *DeliveryEvidenceQuer
 			sqlgraph.From(roadmapitem.Table, roadmapitem.FieldID, id),
 			sqlgraph.To(deliveryevidence.Table, deliveryevidence.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, roadmapitem.EvidenceTable, roadmapitem.EvidenceColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryReleases queries the releases edge of a RoadmapItem.
+func (c *RoadmapItemClient) QueryReleases(_m *RoadmapItem) *ReleaseQuery {
+	query := (&ReleaseClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(roadmapitem.Table, roadmapitem.FieldID, id),
+			sqlgraph.To(release.Table, release.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, roadmapitem.ReleasesTable, roadmapitem.ReleasesPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -4000,14 +4237,14 @@ type (
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
 		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
 		MaturityAssessment, Organization, PRISMDocument, PRISMGoal, PRISMRoadmap,
-		Person, Phase, Program, RMIDependency, Repository, RepositoryDependency,
-		RoadmapItem, SpecDocument, SpecWorkflow []ent.Hook
+		Person, Phase, Program, RMIDependency, Release, Repository,
+		RepositoryDependency, RoadmapItem, SpecDocument, SpecWorkflow []ent.Hook
 	}
 	inters struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
 		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
 		MaturityAssessment, Organization, PRISMDocument, PRISMGoal, PRISMRoadmap,
-		Person, Phase, Program, RMIDependency, Repository, RepositoryDependency,
-		RoadmapItem, SpecDocument, SpecWorkflow []ent.Interceptor
+		Person, Phase, Program, RMIDependency, Release, Repository,
+		RepositoryDependency, RoadmapItem, SpecDocument, SpecWorkflow []ent.Interceptor
 	}
 )

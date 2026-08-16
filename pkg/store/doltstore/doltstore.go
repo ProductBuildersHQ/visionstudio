@@ -338,11 +338,33 @@ func (d *DoltStore) UpdateInitiative(ctx context.Context, init *store.Initiative
 	} else {
 		b.ClearSpecs()
 	}
-	b.SetNillablePlannedAt(init.PlannedAt)
-	b.SetNillableExecutingAt(init.ExecutingAt)
-	b.SetNillableDeliveryCompleteAt(init.DeliveryCompleteAt)
-	b.SetNillableReleasedAt(init.ReleasedAt)
-	b.SetNillableClosedAt(init.ClosedAt)
+	// SetNillable*(nil) is a no-op in Ent; a backwards lifecycle transition
+	// clears stamps, so nil must explicitly clear the column.
+	if init.PlannedAt != nil {
+		b.SetPlannedAt(*init.PlannedAt)
+	} else {
+		b.ClearPlannedAt()
+	}
+	if init.ExecutingAt != nil {
+		b.SetExecutingAt(*init.ExecutingAt)
+	} else {
+		b.ClearExecutingAt()
+	}
+	if init.DeliveryCompleteAt != nil {
+		b.SetDeliveryCompleteAt(*init.DeliveryCompleteAt)
+	} else {
+		b.ClearDeliveryCompleteAt()
+	}
+	if init.ReleasedAt != nil {
+		b.SetReleasedAt(*init.ReleasedAt)
+	} else {
+		b.ClearReleasedAt()
+	}
+	if init.ClosedAt != nil {
+		b.SetClosedAt(*init.ClosedAt)
+	} else {
+		b.ClearClosedAt()
+	}
 	_, err := b.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("update initiative %s: %w", init.ID, err)

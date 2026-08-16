@@ -225,6 +225,18 @@ func (f RMIDependencyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Valu
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.RMIDependencyMutation", m)
 }
 
+// The ReleaseFunc type is an adapter to allow the use of ordinary
+// function as Release mutator.
+type ReleaseFunc func(context.Context, *ent.ReleaseMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ReleaseFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ReleaseMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ReleaseMutation", m)
+}
+
 // The RepositoryFunc type is an adapter to allow the use of ordinary
 // function as Repository mutator.
 type RepositoryFunc func(context.Context, *ent.RepositoryMutation) (ent.Value, error)

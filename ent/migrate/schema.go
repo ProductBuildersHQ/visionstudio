@@ -398,6 +398,32 @@ var (
 			},
 		},
 	}
+	// ReleasesColumns holds the columns for the "releases" table.
+	ReleasesColumns = []*schema.Column{
+		{Name: "release_id", Type: field.TypeString, Size: 256},
+		{Name: "tag", Type: field.TypeString, Size: 128},
+		{Name: "released_at", Type: field.TypeTime},
+		{Name: "url", Type: field.TypeString, Nullable: true, Size: 512},
+		{Name: "notes_ref", Type: field.TypeString, Nullable: true, Size: 256},
+		{Name: "body", Type: field.TypeString, Nullable: true, Size: 4096},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "repository_id", Type: field.TypeString, Size: 128},
+	}
+	// ReleasesTable holds the schema information for the "releases" table.
+	ReleasesTable = &schema.Table{
+		Name:       "releases",
+		Columns:    ReleasesColumns,
+		PrimaryKey: []*schema.Column{ReleasesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "releases_repositories_releases",
+				Columns:    []*schema.Column{ReleasesColumns[8]},
+				RefColumns: []*schema.Column{RepositoriesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+	}
 	// RepositoriesColumns holds the columns for the "repositories" table.
 	RepositoriesColumns = []*schema.Column{
 		{Name: "repository_id", Type: field.TypeString, Size: 128},
@@ -574,6 +600,56 @@ var (
 			},
 		},
 	}
+	// ReleaseInitiativesColumns holds the columns for the "release_initiatives" table.
+	ReleaseInitiativesColumns = []*schema.Column{
+		{Name: "release_id", Type: field.TypeString, Size: 256},
+		{Name: "initiative_id", Type: field.TypeString, Size: 64},
+	}
+	// ReleaseInitiativesTable holds the schema information for the "release_initiatives" table.
+	ReleaseInitiativesTable = &schema.Table{
+		Name:       "release_initiatives",
+		Columns:    ReleaseInitiativesColumns,
+		PrimaryKey: []*schema.Column{ReleaseInitiativesColumns[0], ReleaseInitiativesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "release_initiatives_release_id",
+				Columns:    []*schema.Column{ReleaseInitiativesColumns[0]},
+				RefColumns: []*schema.Column{ReleasesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "release_initiatives_initiative_id",
+				Columns:    []*schema.Column{ReleaseInitiativesColumns[1]},
+				RefColumns: []*schema.Column{InitiativesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// ReleaseRoadmapItemsColumns holds the columns for the "release_roadmap_items" table.
+	ReleaseRoadmapItemsColumns = []*schema.Column{
+		{Name: "release_id", Type: field.TypeString, Size: 256},
+		{Name: "roadmap_item_id", Type: field.TypeString, Size: 64},
+	}
+	// ReleaseRoadmapItemsTable holds the schema information for the "release_roadmap_items" table.
+	ReleaseRoadmapItemsTable = &schema.Table{
+		Name:       "release_roadmap_items",
+		Columns:    ReleaseRoadmapItemsColumns,
+		PrimaryKey: []*schema.Column{ReleaseRoadmapItemsColumns[0], ReleaseRoadmapItemsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "release_roadmap_items_release_id",
+				Columns:    []*schema.Column{ReleaseRoadmapItemsColumns[0]},
+				RefColumns: []*schema.Column{ReleasesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "release_roadmap_items_roadmap_item_id",
+				Columns:    []*schema.Column{ReleaseRoadmapItemsColumns[1]},
+				RefColumns: []*schema.Column{RoadmapItemsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		AssignmentsTable,
@@ -594,12 +670,15 @@ var (
 		PhasesTable,
 		ProgramsTable,
 		RmiDependenciesTable,
+		ReleasesTable,
 		RepositoriesTable,
 		RepositoryDependenciesTable,
 		RoadmapItemsTable,
 		SpecDocumentsTable,
 		SpecWorkflowsTable,
 		PersonOrganizationsTable,
+		ReleaseInitiativesTable,
+		ReleaseRoadmapItemsTable,
 	}
 )
 
@@ -613,6 +692,7 @@ func init() {
 	JudgeRubricsTable.ForeignKeys[0].RefTable = SpecWorkflowsTable
 	MaturityAssessmentsTable.ForeignKeys[0].RefTable = CapabilityModelsTable
 	PhasesTable.ForeignKeys[0].RefTable = InitiativesTable
+	ReleasesTable.ForeignKeys[0].RefTable = RepositoriesTable
 	RepositoriesTable.ForeignKeys[0].RefTable = OrganizationsTable
 	RoadmapItemsTable.ForeignKeys[0].RefTable = InitiativesTable
 	RoadmapItemsTable.ForeignKeys[1].RefTable = PhasesTable
@@ -622,4 +702,8 @@ func init() {
 	SpecDocumentsTable.ForeignKeys[2].RefTable = SpecWorkflowsTable
 	PersonOrganizationsTable.ForeignKeys[0].RefTable = PersonsTable
 	PersonOrganizationsTable.ForeignKeys[1].RefTable = OrganizationsTable
+	ReleaseInitiativesTable.ForeignKeys[0].RefTable = ReleasesTable
+	ReleaseInitiativesTable.ForeignKeys[1].RefTable = InitiativesTable
+	ReleaseRoadmapItemsTable.ForeignKeys[0].RefTable = ReleasesTable
+	ReleaseRoadmapItemsTable.ForeignKeys[1].RefTable = RoadmapItemsTable
 }

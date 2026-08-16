@@ -36,12 +36,16 @@ const (
 	EdgeRoadmapItems = "roadmap_items"
 	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
 	EdgeSpecDocuments = "spec_documents"
+	// EdgeReleases holds the string denoting the releases edge name in mutations.
+	EdgeReleases = "releases"
 	// EdgeOrg holds the string denoting the org edge name in mutations.
 	EdgeOrg = "org"
 	// RoadmapItemFieldID holds the string denoting the ID field of the RoadmapItem.
 	RoadmapItemFieldID = "rmi_id"
 	// SpecDocumentFieldID holds the string denoting the ID field of the SpecDocument.
 	SpecDocumentFieldID = "id"
+	// ReleaseFieldID holds the string denoting the ID field of the Release.
+	ReleaseFieldID = "release_id"
 	// OrganizationFieldID holds the string denoting the ID field of the Organization.
 	OrganizationFieldID = "org_entity_id"
 	// Table holds the table name of the repository in the database.
@@ -60,6 +64,13 @@ const (
 	SpecDocumentsInverseTable = "spec_documents"
 	// SpecDocumentsColumn is the table column denoting the spec_documents relation/edge.
 	SpecDocumentsColumn = "repository_id"
+	// ReleasesTable is the table that holds the releases relation/edge.
+	ReleasesTable = "releases"
+	// ReleasesInverseTable is the table name for the Release entity.
+	// It exists in this package in order to avoid circular dependency with the "release" package.
+	ReleasesInverseTable = "releases"
+	// ReleasesColumn is the table column denoting the releases relation/edge.
+	ReleasesColumn = "repository_id"
 	// OrgTable is the table that holds the org relation/edge.
 	OrgTable = "repositories"
 	// OrgInverseTable is the table name for the Organization entity.
@@ -209,6 +220,20 @@ func BySpecDocuments(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
+// ByReleasesCount orders the results by releases count.
+func ByReleasesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newReleasesStep(), opts...)
+	}
+}
+
+// ByReleases orders the results by releases terms.
+func ByReleases(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newReleasesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByOrgField orders the results by org field.
 func ByOrgField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -227,6 +252,13 @@ func newSpecDocumentsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(SpecDocumentsInverseTable, SpecDocumentFieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, SpecDocumentsTable, SpecDocumentsColumn),
+	)
+}
+func newReleasesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ReleasesInverseTable, ReleaseFieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, ReleasesTable, ReleasesColumn),
 	)
 }
 func newOrgStep() *sqlgraph.Step {

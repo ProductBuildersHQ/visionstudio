@@ -49,11 +49,13 @@ type RepositoryEdges struct {
 	RoadmapItems []*RoadmapItem `json:"roadmap_items,omitempty"`
 	// SpecDocuments holds the value of the spec_documents edge.
 	SpecDocuments []*SpecDocument `json:"spec_documents,omitempty"`
+	// Releases holds the value of the releases edge.
+	Releases []*Release `json:"releases,omitempty"`
 	// Org holds the value of the org edge.
 	Org *Organization `json:"org,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 }
 
 // RoadmapItemsOrErr returns the RoadmapItems value or an error if the edge
@@ -74,12 +76,21 @@ func (e RepositoryEdges) SpecDocumentsOrErr() ([]*SpecDocument, error) {
 	return nil, &NotLoadedError{edge: "spec_documents"}
 }
 
+// ReleasesOrErr returns the Releases value or an error if the edge
+// was not loaded in eager-loading.
+func (e RepositoryEdges) ReleasesOrErr() ([]*Release, error) {
+	if e.loadedTypes[2] {
+		return e.Releases, nil
+	}
+	return nil, &NotLoadedError{edge: "releases"}
+}
+
 // OrgOrErr returns the Org value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e RepositoryEdges) OrgOrErr() (*Organization, error) {
 	if e.Org != nil {
 		return e.Org, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: organization.Label}
 	}
 	return nil, &NotLoadedError{edge: "org"}
@@ -194,6 +205,11 @@ func (_m *Repository) QueryRoadmapItems() *RoadmapItemQuery {
 // QuerySpecDocuments queries the "spec_documents" edge of the Repository entity.
 func (_m *Repository) QuerySpecDocuments() *SpecDocumentQuery {
 	return NewRepositoryClient(_m.config).QuerySpecDocuments(_m)
+}
+
+// QueryReleases queries the "releases" edge of the Repository entity.
+func (_m *Repository) QueryReleases() *ReleaseQuery {
+	return NewRepositoryClient(_m.config).QueryReleases(_m)
 }
 
 // QueryOrg queries the "org" edge of the Repository entity.

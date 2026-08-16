@@ -14,6 +14,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/deliveryevidence"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 )
@@ -214,6 +215,21 @@ func (_c *RoadmapItemCreate) AddEvidence(v ...*DeliveryEvidence) *RoadmapItemCre
 		ids[i] = v[i].ID
 	}
 	return _c.AddEvidenceIDs(ids...)
+}
+
+// AddReleaseIDs adds the "releases" edge to the Release entity by IDs.
+func (_c *RoadmapItemCreate) AddReleaseIDs(ids ...string) *RoadmapItemCreate {
+	_c.mutation.AddReleaseIDs(ids...)
+	return _c
+}
+
+// AddReleases adds the "releases" edges to the Release entity.
+func (_c *RoadmapItemCreate) AddReleases(v ...*Release) *RoadmapItemCreate {
+	ids := make([]string, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddReleaseIDs(ids...)
 }
 
 // Mutation returns the RoadmapItemMutation object of the builder.
@@ -460,6 +476,22 @@ func (_c *RoadmapItemCreate) createSpec() (*RoadmapItem, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(deliveryevidence.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.ReleasesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   roadmapitem.ReleasesTable,
+			Columns: roadmapitem.ReleasesPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(release.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

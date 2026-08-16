@@ -29,6 +29,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismgoal"
 	"github.com/ProductBuildersHQ/visionstudio/ent/prismroadmap"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
+	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repositorydependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
@@ -113,6 +114,7 @@ func checkColumn(t, c string) error {
 			phase.Table:                phase.ValidColumn,
 			program.Table:              program.ValidColumn,
 			rmidependency.Table:        rmidependency.ValidColumn,
+			release.Table:              release.ValidColumn,
 			repository.Table:           repository.ValidColumn,
 			repositorydependency.Table: repositorydependency.ValidColumn,
 			roadmapitem.Table:          roadmapitem.ValidColumn,

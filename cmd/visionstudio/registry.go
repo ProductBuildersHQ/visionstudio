@@ -22,7 +22,69 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	return cmd
+}
+
+func registryArchiveCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "archive <repo-id>",
+		Short: "Archive a repository (status change, record preserved)",
+		Long: `Marks a repository archived without deleting its record or the
+RMIs/releases/spec documents that reference it. Preferred over
+'registry remove' for a merge or rename — pair with --superseded-by to
+point at the repository that replaced it.`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			id, err := resolveRepoID(cmd.Context(), svc, args[0])
+			if err != nil {
+				return err
+			}
+			repo, err := svc.GetRepository(cmd.Context(), id)
+			if err != nil {
+				return err
+			}
+
+			supersededBy, _ := cmd.Flags().GetString("superseded-by")
+			if supersededBy != "" {
+				supersededBy, err = resolveRepoID(cmd.Context(), svc, supersededBy)
+				if err != nil {
+					return fmt.Errorf("--superseded-by: %w", err)
+				}
+				if supersededBy == repo.ID {
+					return fmt.Errorf("--superseded-by cannot be the repository being archived")
+				}
+			}
+
+			if repo.Status == "archived" && repo.SupersededBy == supersededBy {
+				cmd.Printf("Repository %s is already archived\n", repo.ID)
+				return nil
+			}
+
+			repo.Status = "archived"
+			repo.SupersededBy = supersededBy
+			if err := svc.Store.UpdateRepository(cmd.Context(), repo); err != nil {
+				return err
+			}
+
+			cmd.Printf("Archived %s\n", repo.ID)
+			if supersededBy != "" {
+				cmd.Printf("Superseded by: %s\n", supersededBy)
+			}
+			if reason, _ := cmd.Flags().GetString("reason"); reason != "" {
+				cmd.Printf("Reason: %s\n", reason)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("reason", "", "Why this repository is being archived (echoed to output)")
+	cmd.Flags().String("superseded-by", "", "Repository ID that replaced this one")
 	return cmd
 }
 

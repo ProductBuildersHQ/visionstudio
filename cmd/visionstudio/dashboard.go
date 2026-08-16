@@ -48,7 +48,7 @@ Use --unified to serve the React SPA from web/dist/ instead of Go templates.`,
 				return runDashboardStatic(cmd)
 			}
 			if unified {
-				return runUnifiedServer(cmd, true)
+				return runUnifiedServer(cmd)
 			}
 			return runDashboardServer(cmd, port)
 		},
@@ -90,11 +90,11 @@ func runDashboardStatic(cmd *cobra.Command) error {
 	return openBrowser(outPath)
 }
 
-// runUnifiedServer serves the React SPA and the JSON API on a single listener.
-// The SPA is resolved via resolveWebUI (override / disk / embedded) so it works
-// from any directory, and the bind address via resolveListenAddr. When openUI
-// is true it also opens the browser.
-func runUnifiedServer(cmd *cobra.Command, openUI bool) error {
+// runUnifiedServer serves the React SPA and the JSON API on a single listener,
+// and opens it in the browser. The SPA is resolved via resolveWebUI (override
+// / disk / embedded) so it works from any directory, and the bind address via
+// resolveListenAddr.
+func runUnifiedServer(cmd *cobra.Command) error {
 	mux := http.NewServeMux()
 	dataDir, _ := cmd.Flags().GetString("data-dir")
 
@@ -135,12 +135,17 @@ func runUnifiedServer(cmd *cobra.Command, openUI bool) error {
 		return fmt.Errorf("listen %s: %w", addr, err)
 	}
 
+	if tcpAddr, ok := listener.Addr().(*net.TCPAddr); ok {
+		if err := writeUIPIDFile(os.Getpid(), tcpAddr.Port); err != nil {
+			cmd.PrintErrf("warning: could not write ui pid file: %v\n", err)
+		}
+		defer removeUIPIDFile()
+	}
+
 	dashURL := fmt.Sprintf("http://%s", addr)
 	cmd.Printf("VisionStudio UI + API running at %s (ui: %s, Ctrl-C to stop)\n", dashURL, uiSource)
-	if openUI {
-		if err := openBrowser(dashURL); err != nil {
-			cmd.Printf("Open %s in your browser\n", dashURL)
-		}
+	if err := openBrowser(dashURL); err != nil {
+		cmd.Printf("Open %s in your browser\n", dashURL)
 	}
 
 	ctx, stop := signal.NotifyContext(cmd.Context(), os.Interrupt)

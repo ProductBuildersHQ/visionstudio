@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"syscall"
@@ -23,11 +24,12 @@ import (
 	"github.com/grokify/mogo/os/osutil"
 
 	specconfig "github.com/ProductBuildersHQ/visionspec/pkg/config"
+	"github.com/ProductBuildersHQ/visionspec/pkg/execgraph"
+	"github.com/ProductBuildersHQ/visionspec/pkg/execgraph/specworkflow"
 	"github.com/ProductBuildersHQ/visionspec/pkg/lint"
-	"github.com/ProductBuildersHQ/visionspec/pkg/profiles"
+	"github.com/ProductBuildersHQ/visionspec/pkg/templates"
 	"github.com/ProductBuildersHQ/visionspec/pkg/types"
-	"github.com/ProductBuildersHQ/visionspec/pkg/workflow"
-	"github.com/ProductBuildersHQ/visionspec/pkg/workflow/specworkflow"
+	"github.com/ProductBuildersHQ/visionspec/pkg/workflows"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/api"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/config"
 	"github.com/plexusone/structured-evaluation/rubric"
@@ -249,8 +251,8 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	s.writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
-// profileLoader is the visionspec profile loader (cached)
-var profileLoader = profiles.DefaultLoader()
+// profileLoader is the visionspec workflow loader (cached)
+var profileLoader = workflows.DefaultLoader()
 
 // loadAPIProfile loads a profile from visionspec and converts to API type
 func loadAPIProfile(name string) api.Profile {
@@ -265,19 +267,20 @@ func loadAPIProfile(name string) api.Profile {
 	}
 
 	// Get required specs as workflow
-	workflow := p.RequiredSpecs()
+	workflow := types.SpecConfigFromWorkflow(p.Workflow).RequiredSpecs()
 
 	return api.Profile{
-		Name:        p.Name,
-		Description: p.Description,
+		Name:        p.Workflow.Name,
+		Description: p.Workflow.Description,
 		Workflow:    workflow,
 	}
 }
 
 // availableProfiles returns the list of available workflow profiles from visionspec
 func availableProfiles() []api.Profile {
-	result := make([]api.Profile, 0, len(profiles.DefaultProfileNames))
-	for _, name := range profiles.DefaultProfileNames {
+	names := profileLoader.Available()
+	result := make([]api.Profile, 0, len(names))
+	for _, name := range names {
 		result = append(result, loadAPIProfile(name))
 	}
 	return result
@@ -285,7 +288,7 @@ func availableProfiles() []api.Profile {
 
 // getProfileByName returns a profile by name
 func getProfileByName(name string) api.Profile {
-	if profiles.IsDefaultProfile(name) {
+	if slices.Contains(profileLoader.Available(), name) {
 		return loadAPIProfile(name)
 	}
 	// Default to startup if not found
@@ -469,13 +472,9 @@ func (s *Server) initializeProject(projectPath, projectName, profileName string)
 	}
 
 	// Scaffold spec files from templates
-	templateLoader := profile.GetTemplateLoader()
-	if templateLoader == nil {
-		s.logger.Warn("No template loader for profile", "profile", profileName)
-		return nil
-	}
+	templateLoader := templates.LoaderForWorkflow(profile)
 
-	specConfig := profile.GetSpecConfig()
+	specConfig := types.SpecConfigFromWorkflow(profile.Workflow)
 	if specConfig == nil {
 		return nil
 	}
@@ -556,7 +555,7 @@ func (s *Server) handleLintProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create linter with profile's spec config
-	linter := lint.NewWithConfig(tracked.Path, profile.GetSpecConfig())
+	linter := lint.NewWithConfig(tracked.Path, types.SpecConfigFromWorkflow(profile.Workflow))
 	result, err := linter.LintProject(projectName, tracked.Path)
 	if err != nil {
 		s.writeJSON(w, http.StatusInternalServerError, api.LintProjectResponse{
@@ -1366,7 +1365,7 @@ func (s *Server) handleGetWorkflow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate workflow from profile
-	wf, err := specworkflow.FromProfile(profile)
+	wf, err := specworkflow.FromWorkflow(profile)
 	if err != nil {
 		s.writeJSON(w, http.StatusInternalServerError, api.GetWorkflowResponse{
 			Error: fmt.Sprintf("failed to generate workflow: %v", err),
@@ -1381,7 +1380,7 @@ func (s *Server) handleGetWorkflow(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render Mermaid diagram
-	renderer := workflow.NewMermaidRenderer()
+	renderer := execgraph.NewMermaidRenderer()
 	mermaid := renderer.Render(wf)
 
 	// Convert to API types
@@ -1433,8 +1432,8 @@ func (s *Server) loadProjectState(projectPath string) *types.Project {
 	return project
 }
 
-// convertWorkflowToAPI converts a workflow.Workflow to api.Workflow
-func convertWorkflowToAPI(wf *workflow.Workflow) api.Workflow {
+// convertWorkflowToAPI converts an execgraph.Workflow to api.Workflow
+func convertWorkflowToAPI(wf *execgraph.Workflow) api.Workflow {
 	phases := make([]api.WorkflowPhase, len(wf.Phases))
 	for i, p := range wf.Phases {
 		phases[i] = api.WorkflowPhase{

@@ -1,13 +1,13 @@
-// Package specworkflow provides workflow loading from specification-workflow-spec.
+// Package specworkflow provides workflow loading from visionspec.
 package specworkflow
 
 import (
 	"fmt"
 	"sort"
 
-	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/template"
-	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflow"
-	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflows"
+	"github.com/ProductBuildersHQ/visionspec/pkg/template"
+	"github.com/ProductBuildersHQ/visionspec/pkg/workflow"
+	"github.com/ProductBuildersHQ/visionspec/pkg/workflows"
 	"github.com/plexusone/structured-evaluation/rubric"
 )
 
@@ -21,7 +21,7 @@ type WorkflowInfo struct {
 	SpecsOptional []string `json:"specs_optional"`
 }
 
-// LoadedWorkflow wraps the specification-workflow-spec LoadedWorkflow.
+// LoadedWorkflow wraps visionspec's LoadedWorkflow.
 type LoadedWorkflow = workflows.LoadedWorkflow
 
 // Loader wraps the workflow loader with optional custom directory.

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflows"
+	"github.com/ProductBuildersHQ/visionspec/pkg/workflows"
 	"github.com/plexusone/structured-evaluation/rubric"
 )
 

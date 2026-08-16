@@ -15,7 +15,7 @@ Compose domain IRs in `pkg/ir` by importing source modules (TRD T1).
 | RMI-VISIONSTUDIO-102 | Integrate devfolio devx dashboard IR | Import `output/devxdashboard`; period reports included |
 | RMI-VISIONSTUDIO-103 | Integrate prism-maturity IR | Root `prism` package (MaturityModel, cells, levels); verify JSON-clean |
 | RMI-VISIONSTUDIO-104 | Integrate prism-roadmap IR | `rmi`, `roadmap`, `goals` packages; verify JSON-clean |
-| RMI-VISIONSTUDIO-105 | Composed `RepoSnapshot` + JSON Schema generation | invopop/jsonschema → `schemago lint` → `go:embed` |
+| RMI-VISIONSTUDIO-105 | Composed `RepoSnapshot` + JSON Schema generation | invopop/jsonschema → `schemakit lint` → `go:embed` |
 
 ## Phase 2 — Local Web Foundation
 

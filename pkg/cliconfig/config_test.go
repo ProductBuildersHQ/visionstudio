@@ -83,3 +83,60 @@ func TestSaveEmptyDSN(t *testing.T) {
 		t.Fatalf("expected empty DSN after unset, got %q", loaded.DSN)
 	}
 }
+
+func TestTenantAssignments(t *testing.T) {
+	c := &Config{}
+
+	if _, ok := c.TenantFor("github.com/x/r"); ok {
+		t.Fatal("expected no assignment on empty config")
+	}
+
+	c.AssignTenant("github.com/x/r", "acme")
+	slug, ok := c.TenantFor("github.com/x/r")
+	if !ok || slug != "acme" {
+		t.Fatalf("TenantFor = %q, %v", slug, ok)
+	}
+
+	// Reassign overwrites.
+	c.AssignTenant("github.com/x/r", "acme-personal")
+	slug, _ = c.TenantFor("github.com/x/r")
+	if slug != "acme-personal" {
+		t.Fatalf("reassign = %q, want acme-personal", slug)
+	}
+
+	// A second repo can map to a different tenant — one machine, many tenants.
+	c.AssignTenant("github.com/x/other", "acme-work")
+	if slug, _ := c.TenantFor("github.com/x/other"); slug != "acme-work" {
+		t.Fatalf("second repo = %q", slug)
+	}
+	if slug, _ := c.TenantFor("github.com/x/r"); slug != "acme-personal" {
+		t.Fatal("first assignment disturbed by second")
+	}
+
+	if !c.UnassignTenant("github.com/x/r") {
+		t.Fatal("expected unassign to report existing")
+	}
+	if _, ok := c.TenantFor("github.com/x/r"); ok {
+		t.Fatal("expected no assignment after unassign")
+	}
+	if c.UnassignTenant("github.com/x/r") {
+		t.Fatal("expected unassign of already-gone entry to report false")
+	}
+}
+
+func TestTenantAssignmentsPersist(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "config.json")
+	orig := &Config{}
+	orig.AssignTenant("github.com/x/r", "acme")
+	if err := orig.SaveTo(path); err != nil {
+		t.Fatal(err)
+	}
+
+	loaded, err := LoadFrom(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if slug, ok := loaded.TenantFor("github.com/x/r"); !ok || slug != "acme" {
+		t.Fatalf("loaded assignment = %q, %v", slug, ok)
+	}
+}

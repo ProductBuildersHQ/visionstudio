@@ -67,6 +67,7 @@ func rootCmd() *cobra.Command {
 		workflowCmd(),
 		specCmd(),
 		maturityCmd(),
+		cloudCmd(),
 	)
 
 	return cmd

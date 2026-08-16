@@ -117,10 +117,22 @@ func TestTransitionInitiative(t *testing.T) {
 		t.Fatal("expected ExecutingAt to be set")
 	}
 
-	// invalid: executing -> proposed
-	_, err = svc.TransitionInitiative(ctx, "INIT-T-001", "proposed")
+	// backwards reopen: executing -> proposed is allowed and clears later stamps
+	init, err = svc.TransitionInitiative(ctx, "INIT-T-001", "proposed")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if init.Status != "proposed" {
+		t.Fatalf("expected proposed, got %s", init.Status)
+	}
+	if init.ExecutingAt != nil || init.PlannedAt != nil {
+		t.Fatal("expected reopen to proposed to clear later lifecycle stamps")
+	}
+
+	// invalid: forward skip proposed -> executing
+	_, err = svc.TransitionInitiative(ctx, "INIT-T-001", "executing")
 	if err == nil {
-		t.Fatal("expected error on invalid transition")
+		t.Fatal("expected error on forward-skipping transition")
 	}
 }
 

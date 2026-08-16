@@ -22,6 +22,9 @@
         },
         "evalJson": {
           "type": "string"
+        },
+        "role": {
+          "type": "string"
         }
       },
       "additionalProperties": false,

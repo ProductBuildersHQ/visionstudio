@@ -31,6 +31,36 @@
             "type": "string"
           },
           "type": "array"
+        },
+        "sequence": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "phases": {
+          "items": {
+            "$ref": "#/$defs/SpecWorkflowPhase"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "SpecWorkflowPhase": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "specs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         }
       },
       "additionalProperties": false,

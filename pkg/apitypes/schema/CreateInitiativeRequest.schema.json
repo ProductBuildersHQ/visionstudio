@@ -1,29 +1,32 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://visionstudio.productbuildershq.com/SpecFile.schema.json",
-  "$ref": "#/$defs/SpecFile",
+  "$id": "https://visionstudio.productbuildershq.com/CreateInitiativeRequest.schema.json",
+  "$ref": "#/$defs/CreateInitiativeRequest",
   "$defs": {
-    "SpecFile": {
+    "CreateInitiativeRequest": {
       "properties": {
-        "initiativeId": {
+        "id": {
           "type": "string"
         },
-        "specType": {
+        "title": {
           "type": "string"
         },
-        "path": {
+        "description": {
           "type": "string"
         },
-        "content": {
+        "priority": {
           "type": "string"
         },
-        "modTime": {
+        "initType": {
           "type": "string"
         },
-        "evalJson": {
+        "workflowId": {
           "type": "string"
         },
-        "role": {
+        "programId": {
+          "type": "string"
+        },
+        "homeRepo": {
           "type": "string"
         }
       },

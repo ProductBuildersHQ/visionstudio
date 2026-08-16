@@ -21,6 +21,7 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/apitypes"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/ir"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/tokens"
 )
@@ -44,6 +45,7 @@ type APIInitiative struct {
 	ProgramID   string  `json:"programId,omitempty"`
 	ProgramName string  `json:"programName,omitempty"`
 	HomeRepo    string  `json:"homeRepo,omitempty"`
+	WorkflowID  string  `json:"workflowId,omitempty"`
 	Hidden      bool    `json:"hidden,omitempty"`
 	Progress    float64 `json:"progress"`
 }
@@ -246,6 +248,8 @@ type SpecFile struct {
 	Content      string `json:"content"`
 	ModTime      string `json:"modTime,omitempty"`
 	EvalJSON     string `json:"evalJson,omitempty"`
+	// Role: "required" | "optional" | "extra" per the initiative's workflow.
+	Role string `json:"role,omitempty"`
 }
 
 // SpecFilesResponse is the response for /api/spec-files.
@@ -259,7 +263,7 @@ func registerAPIRoutes(mux *http.ServeMux, connectSvc func() (*service.Service, 
 	cors := func(h http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusNoContent)
@@ -277,6 +281,58 @@ func registerAPIRoutes(mux *http.ServeMux, connectSvc func() (*service.Service, 
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
+
+	// GET /api/workflows/{workflowId}/specs/{specType} — template + rubric
+	// for one spec type, served from the embedded workflow catalog.
+	mux.HandleFunc("/api/workflows/", cors(func(w http.ResponseWriter, r *http.Request) {
+		rest := strings.TrimPrefix(r.URL.Path, "/api/workflows/")
+		parts := strings.Split(rest, "/")
+		if len(parts) != 3 || parts[1] != "specs" {
+			http.Error(w, "expected /api/workflows/{workflowId}/specs/{specType}", http.StatusNotFound)
+			return
+		}
+		workflowID, specType := parts[0], parts[2]
+		if !initiativeIDPattern.MatchString(workflowID) || !initiativeIDPattern.MatchString(specType) {
+			http.Error(w, "invalid workflow or spec type identifier", http.StatusBadRequest)
+			return
+		}
+
+		detail, err := buildWorkflowSpecDetail(workflowID, specType)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		writeJSON(w, detail)
+	}))
+
+	// POST /api/initiatives — the API's first mutation endpoint. Mutations
+	// remain CLI/API-first; this exists to back the dashboard's "New
+	// Initiative" form.
+	mux.HandleFunc("/api/initiatives", cors(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		svc, cleanup, err := connectSvc()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		defer cleanup()
+
+		resp, status, err := handleCreateInitiative(r, svc)
+		if err != nil {
+			http.Error(w, err.Error(), status)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "  ")
+		if err := enc.Encode(resp); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	}))
 
 	mux.HandleFunc("/api/execution", cors(func(w http.ResponseWriter, r *http.Request) {
 		svc, cleanup, err := connectSvc()
@@ -510,6 +566,7 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 			ProgramID:   init.ProgramID,
 			ProgramName: programName,
 			HomeRepo:    init.HomeRepo,
+			WorkflowID:  init.WorkflowID,
 			Hidden:      init.Hidden,
 			Progress:    progress,
 		})
@@ -900,10 +957,9 @@ func buildMaturityResponse(ctx context.Context, svc *service.Service) (*Maturity
 }
 
 func buildSpecsResponse(ctx context.Context, svc *service.Service) (*SpecsResponse, error) {
-	workflows, err := svc.Store.ListSpecWorkflows(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// Workflow definitions come from the specification-workflow-spec catalog
+	// (the single source of truth), not the DB index.
+	loader := specworkflow.DefaultLoader()
 
 	// Get all judge results across all initiatives
 	initiatives, err := svc.Store.ListInitiatives(ctx)
@@ -961,10 +1017,18 @@ func buildSpecsResponse(ctx context.Context, svc *service.Service) (*SpecsRespon
 		}
 	}
 
-	// Convert store types to API types (camelCase JSON)
-	apiWorkflows := make([]apitypes.SpecWorkflow, 0, len(workflows))
-	for _, w := range workflows {
-		apiWorkflows = append(apiWorkflows, storeWorkflowToAPI(w))
+	// Convert catalog workflows to API types (camelCase JSON)
+	infos, err := loader.List()
+	if err != nil {
+		return nil, err
+	}
+	apiWorkflows := make([]apitypes.SpecWorkflow, 0, len(infos))
+	for _, info := range infos {
+		lw, err := loader.Load(info.ID)
+		if err != nil {
+			return nil, fmt.Errorf("load workflow %q: %w", info.ID, err)
+		}
+		apiWorkflows = append(apiWorkflows, catalogWorkflowToAPI(info.ID, lw))
 	}
 
 	apiResults := make([]apitypes.JudgeResult, 0, len(allResults))
@@ -978,16 +1042,34 @@ func buildSpecsResponse(ctx context.Context, svc *service.Service) (*SpecsRespon
 	}, nil
 }
 
-// storeWorkflowToAPI converts store.SpecWorkflow to apitypes.SpecWorkflow.
-func storeWorkflowToAPI(w *store.SpecWorkflow) apitypes.SpecWorkflow {
-	return apitypes.SpecWorkflow{
-		ID:            w.ID,
-		Name:          w.Name,
-		Description:   w.Description,
-		SpecsRequired: w.SpecsRequired,
-		SpecsOptional: w.SpecsOptional,
-		InitTypes:     w.InitTypes,
+// catalogWorkflowToAPI converts a loaded catalog workflow to
+// apitypes.SpecWorkflow, including the flow structure (sequence, phases) the
+// frontend uses to render workflow diagrams. Spec types in Sequence/Phases
+// use the uppercase form matching SpecFile.SpecType (e.g. "PRD",
+// "OPPORTUNITY-SPEC"); SpecsRequired/SpecsOptional remain filenames.
+func catalogWorkflowToAPI(id string, lw *specworkflow.LoadedWorkflow) apitypes.SpecWorkflow {
+	sw := specworkflow.StoreWorkflow(id, lw)
+	api := apitypes.SpecWorkflow{
+		ID:            sw.ID,
+		Name:          sw.Name,
+		Description:   sw.Description,
+		SpecsRequired: sw.SpecsRequired,
+		SpecsOptional: sw.SpecsOptional,
+		InitTypes:     sw.InitTypes,
 	}
+	if exec := lw.Workflow.Execution; exec != nil {
+		for _, specType := range exec.Sequence {
+			api.Sequence = append(api.Sequence, strings.ToUpper(specType))
+		}
+		for _, p := range exec.Phases {
+			phase := apitypes.SpecWorkflowPhase{ID: p.ID, Name: p.Name}
+			for _, specType := range p.Specs {
+				phase.Specs = append(phase.Specs, strings.ToUpper(specType))
+			}
+			api.Phases = append(api.Phases, phase)
+		}
+	}
+	return api
 }
 
 // storeJudgeResultToAPI converts store.JudgeResult to apitypes.JudgeResult.
@@ -1111,6 +1193,75 @@ func isValidInitiativeID(id string) bool {
 	return initiativeIDPattern.MatchString(id)
 }
 
+// buildWorkflowSpecDetail serves the authoring template and judge rubric for
+// one spec type of a catalog workflow. specType arrives in either case
+// ("PRD" from the frontend, "prd" canonical). Returns (nil, 404-able error)
+// when the workflow doesn't exist; a workflow without a template or rubric
+// for the type still returns 200 with the corresponding fields empty.
+func buildWorkflowSpecDetail(workflowID, specType string) (*apitypes.WorkflowSpecDetail, error) {
+	loader := specworkflow.DefaultLoader()
+	lw, err := loader.Load(workflowID)
+	if err != nil {
+		return nil, fmt.Errorf("workflow %q not found: %w", workflowID, err)
+	}
+
+	st := strings.ToLower(specType)
+	detail := &apitypes.WorkflowSpecDetail{
+		WorkflowID: workflowID,
+		SpecType:   strings.ToUpper(st),
+	}
+	if tmpl, ok := lw.Templates[st]; ok {
+		detail.Template = tmpl.Content
+	}
+	if rs, ok := lw.Rubrics[st]; ok {
+		data, err := json.Marshal(rs)
+		if err != nil {
+			return nil, fmt.Errorf("marshal rubric for %s/%s: %w", workflowID, st, err)
+		}
+		detail.RubricJSON = string(data)
+	}
+	return detail, nil
+}
+
+// handleCreateInitiative validates and executes a POST /api/initiatives
+// request. Returns the response, or an HTTP status code and error.
+func handleCreateInitiative(r *http.Request, svc *service.Service) (*apitypes.CreateInitiativeResponse, int, error) {
+	var req apitypes.CreateInitiativeRequest
+	if err := json.NewDecoder(http.MaxBytesReader(nil, r.Body, 1<<20)).Decode(&req); err != nil {
+		return nil, http.StatusBadRequest, fmt.Errorf("invalid request body: %w", err)
+	}
+
+	if req.ID == "" || req.Title == "" {
+		return nil, http.StatusBadRequest, fmt.Errorf("id and title are required")
+	}
+	if !isValidInitiativeID(req.ID) {
+		return nil, http.StatusBadRequest, fmt.Errorf("invalid initiative ID %q (allowed: letters, digits, '-', '_')", req.ID)
+	}
+	if req.WorkflowID == "" {
+		return nil, http.StatusBadRequest, fmt.Errorf("workflowId is required")
+	}
+	if _, err := specworkflow.DefaultLoader().Load(req.WorkflowID); err != nil {
+		return nil, http.StatusBadRequest, fmt.Errorf("unknown workflow %q: %w", req.WorkflowID, err)
+	}
+	if _, err := svc.Store.GetInitiative(r.Context(), req.ID); err == nil {
+		return nil, http.StatusConflict, fmt.Errorf("initiative %s already exists", req.ID)
+	}
+
+	init, err := svc.CreateInitiative(r.Context(), req.ID, "default", req.Title, req.Description, req.Priority, req.InitType, req.WorkflowID)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+	if req.ProgramID != "" || req.HomeRepo != "" {
+		init.ProgramID = req.ProgramID
+		init.HomeRepo = req.HomeRepo
+		if err := svc.UpdateInitiative(r.Context(), init); err != nil {
+			return nil, http.StatusInternalServerError, fmt.Errorf("initiative created but program/home-repo not set: %w", err)
+		}
+	}
+
+	return &apitypes.CreateInitiativeResponse{ID: init.ID, Status: init.Status}, http.StatusCreated, nil
+}
+
 func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativeID string) (*SpecFilesResponse, error) {
 	init, err := svc.Store.GetInitiative(ctx, initiativeID)
 	if err != nil {
@@ -1155,6 +1306,47 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 	files, err := readSpecFiles(specDir, initiativeID)
 	if err != nil {
 		return &SpecFilesResponse{Files: []SpecFile{}}, nil
+	}
+
+	// Classify each file against the initiative's resolved workflow and sort
+	// into workflow order: required (in sequence), then optional, then extra.
+	// Best-effort: an unresolvable workflow must not break spec viewing, so
+	// files are then served unlabeled in directory order instead.
+	if wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init); err == nil {
+		roleByFile := map[string]string{}
+		orderByFile := map[string]int{}
+		for i, name := range wf.SpecsRequired {
+			roleByFile[strings.ToLower(name)] = "required"
+			orderByFile[strings.ToLower(name)] = i
+		}
+		for i, name := range wf.SpecsOptional {
+			roleByFile[strings.ToLower(name)] = "optional"
+			orderByFile[strings.ToLower(name)] = len(wf.SpecsRequired) + i
+		}
+		extraOrder := len(wf.SpecsRequired) + len(wf.SpecsOptional)
+		for i := range files {
+			role, ok := roleByFile[strings.ToLower(filepath.Base(files[i].Path))]
+			if !ok {
+				role = "extra"
+			}
+			files[i].Role = role
+		}
+		sort.SliceStable(files, func(i, j int) bool {
+			ni := strings.ToLower(filepath.Base(files[i].Path))
+			nj := strings.ToLower(filepath.Base(files[j].Path))
+			oi, iok := orderByFile[ni]
+			oj, jok := orderByFile[nj]
+			if !iok {
+				oi = extraOrder
+			}
+			if !jok {
+				oj = extraOrder
+			}
+			if oi != oj {
+				return oi < oj
+			}
+			return ni < nj
+		})
 	}
 
 	return &SpecFilesResponse{Files: files}, nil
@@ -1310,7 +1502,7 @@ func deriveSpecType(filename string) string {
 	case strings.Contains(name, "uxd"):
 		return "UXD"
 	case strings.Contains(name, "opportunity"):
-		return "OPPORTUNITY"
+		return "OPPORTUNITY-SPEC"
 	default:
 		return strings.ToUpper(name)
 	}

@@ -188,7 +188,9 @@ func registryArchiveCmd() *cobra.Command {
 		Long: `Marks a repository archived without deleting its record or the
 RMIs/releases/spec documents that reference it. Preferred over
 'registry remove' for a merge or rename — pair with --superseded-by to
-point at the repository that replaced it.`,
+point at the repository that replaced it, and --reassign-rmis to also
+repoint every RMI still on this repository to --superseded-by as part
+of the same operation (equivalent to running 'rmi bulk-update' first).`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
@@ -217,7 +219,27 @@ point at the repository that replaced it.`,
 				}
 			}
 
-			if repo.Status == "archived" && repo.SupersededBy == supersededBy {
+			reassignRMIs, _ := cmd.Flags().GetBool("reassign-rmis")
+			if reassignRMIs && supersededBy == "" {
+				return fmt.Errorf("--reassign-rmis requires --superseded-by")
+			}
+
+			alreadyArchived := repo.Status == "archived" && repo.SupersededBy == supersededBy
+
+			if reassignRMIs {
+				candidates, err := matchingRMIsForRepo(cmd.Context(), svc, repo.ID, "")
+				if err != nil {
+					return err
+				}
+				if len(candidates) > 0 {
+					if err := reassignRMIRepo(cmd.Context(), svc, candidates, supersededBy); err != nil {
+						return err
+					}
+					cmd.Printf("Reassigned %d RMI(s) from %s to %s\n", len(candidates), repo.ID, supersededBy)
+				}
+			}
+
+			if alreadyArchived {
 				cmd.Printf("Repository %s is already archived\n", repo.ID)
 				return nil
 			}
@@ -240,6 +262,7 @@ point at the repository that replaced it.`,
 	}
 	cmd.Flags().String("reason", "", "Why this repository is being archived (echoed to output)")
 	cmd.Flags().String("superseded-by", "", "Repository ID that replaced this one")
+	cmd.Flags().Bool("reassign-rmis", false, "Also reassign every RMI on this repository to --superseded-by")
 	return cmd
 }
 

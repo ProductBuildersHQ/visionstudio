@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 )
 
 // JudgeResult is the model entity for the JudgeResult schema.
@@ -36,33 +35,21 @@ type JudgeResult struct {
 	Pass bool `json:"pass,omitempty"`
 	// Judge model from report.Judge.Model
 	Model string `json:"model,omitempty"`
+	// Catalog rubric ID this result was judged against
+	RubricID string `json:"rubric_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the JudgeResultQuery when eager-loading is set.
-	Edges                JudgeResultEdges `json:"edges"`
-	judge_rubric_results *string
-	selectValues         sql.SelectValues
+	Edges        JudgeResultEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // JudgeResultEdges holds the relations/edges for other nodes in the graph.
 type JudgeResultEdges struct {
-	// Rubric holds the value of the rubric edge.
-	Rubric *JudgeRubric `json:"rubric,omitempty"`
 	// Initiative holds the value of the initiative edge.
 	Initiative *Initiative `json:"initiative,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-}
-
-// RubricOrErr returns the Rubric value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e JudgeResultEdges) RubricOrErr() (*JudgeRubric, error) {
-	if e.Rubric != nil {
-		return e.Rubric, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: judgerubric.Label}
-	}
-	return nil, &NotLoadedError{edge: "rubric"}
+	loadedTypes [1]bool
 }
 
 // InitiativeOrErr returns the Initiative value or an error if the edge
@@ -70,7 +57,7 @@ func (e JudgeResultEdges) RubricOrErr() (*JudgeRubric, error) {
 func (e JudgeResultEdges) InitiativeOrErr() (*Initiative, error) {
 	if e.Initiative != nil {
 		return e.Initiative, nil
-	} else if e.loadedTypes[1] {
+	} else if e.loadedTypes[0] {
 		return nil, &NotFoundError{label: initiative.Label}
 	}
 	return nil, &NotLoadedError{edge: "initiative"}
@@ -87,12 +74,10 @@ func (*JudgeResult) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case judgeresult.FieldIntScore:
 			values[i] = new(sql.NullInt64)
-		case judgeresult.FieldID, judgeresult.FieldInitiativeID, judgeresult.FieldSpecPath, judgeresult.FieldSpecType, judgeresult.FieldModel:
+		case judgeresult.FieldID, judgeresult.FieldInitiativeID, judgeresult.FieldSpecPath, judgeresult.FieldSpecType, judgeresult.FieldModel, judgeresult.FieldRubricID:
 			values[i] = new(sql.NullString)
 		case judgeresult.FieldEvaluatedAt:
 			values[i] = new(sql.NullTime)
-		case judgeresult.ForeignKeys[0]: // judge_rubric_results
-			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -164,12 +149,11 @@ func (_m *JudgeResult) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Model = value.String
 			}
-		case judgeresult.ForeignKeys[0]:
+		case judgeresult.FieldRubricID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field judge_rubric_results", values[i])
+				return fmt.Errorf("unexpected type %T for field rubric_id", values[i])
 			} else if value.Valid {
-				_m.judge_rubric_results = new(string)
-				*_m.judge_rubric_results = value.String
+				_m.RubricID = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -182,11 +166,6 @@ func (_m *JudgeResult) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *JudgeResult) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
-}
-
-// QueryRubric queries the "rubric" edge of the JudgeResult entity.
-func (_m *JudgeResult) QueryRubric() *JudgeRubricQuery {
-	return NewJudgeResultClient(_m.config).QueryRubric(_m)
 }
 
 // QueryInitiative queries the "initiative" edge of the JudgeResult entity.
@@ -240,6 +219,9 @@ func (_m *JudgeResult) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("model=")
 	builder.WriteString(_m.Model)
+	builder.WriteString(", ")
+	builder.WriteString("rubric_id=")
+	builder.WriteString(_m.RubricID)
 	builder.WriteByte(')')
 	return builder.String()
 }

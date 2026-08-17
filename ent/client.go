@@ -23,7 +23,6 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativeworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/person"
@@ -62,8 +61,6 @@ type Client struct {
 	InitiativeWorkflow *InitiativeWorkflowClient
 	// JudgeResult is the client for interacting with the JudgeResult builders.
 	JudgeResult *JudgeResultClient
-	// JudgeRubric is the client for interacting with the JudgeRubric builders.
-	JudgeRubric *JudgeRubricClient
 	// MaturityAssessment is the client for interacting with the MaturityAssessment builders.
 	MaturityAssessment *MaturityAssessmentClient
 	// Organization is the client for interacting with the Organization builders.
@@ -113,7 +110,6 @@ func (c *Client) init() {
 	c.InitiativeDependency = NewInitiativeDependencyClient(c.config)
 	c.InitiativeWorkflow = NewInitiativeWorkflowClient(c.config)
 	c.JudgeResult = NewJudgeResultClient(c.config)
-	c.JudgeRubric = NewJudgeRubricClient(c.config)
 	c.MaturityAssessment = NewMaturityAssessmentClient(c.config)
 	c.Organization = NewOrganizationClient(c.config)
 	c.PRISMDocument = NewPRISMDocumentClient(c.config)
@@ -229,7 +225,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		InitiativeDependency: NewInitiativeDependencyClient(cfg),
 		InitiativeWorkflow:   NewInitiativeWorkflowClient(cfg),
 		JudgeResult:          NewJudgeResultClient(cfg),
-		JudgeRubric:          NewJudgeRubricClient(cfg),
 		MaturityAssessment:   NewMaturityAssessmentClient(cfg),
 		Organization:         NewOrganizationClient(cfg),
 		PRISMDocument:        NewPRISMDocumentClient(cfg),
@@ -272,7 +267,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		InitiativeDependency: NewInitiativeDependencyClient(cfg),
 		InitiativeWorkflow:   NewInitiativeWorkflowClient(cfg),
 		JudgeResult:          NewJudgeResultClient(cfg),
-		JudgeRubric:          NewJudgeRubricClient(cfg),
 		MaturityAssessment:   NewMaturityAssessmentClient(cfg),
 		Organization:         NewOrganizationClient(cfg),
 		PRISMDocument:        NewPRISMDocumentClient(cfg),
@@ -319,9 +313,9 @@ func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Assignment, c.CapabilityModel, c.DeliveryEvidence, c.DevXPeriodReport,
 		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
-		c.JudgeRubric, c.MaturityAssessment, c.Organization, c.PRISMDocument,
-		c.PRISMGoal, c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency,
-		c.Release, c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
+		c.MaturityAssessment, c.Organization, c.PRISMDocument, c.PRISMGoal,
+		c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency, c.Release,
+		c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
 		c.SpecWorkflow,
 	} {
 		n.Use(hooks...)
@@ -334,9 +328,9 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Assignment, c.CapabilityModel, c.DeliveryEvidence, c.DevXPeriodReport,
 		c.Initiative, c.InitiativeDependency, c.InitiativeWorkflow, c.JudgeResult,
-		c.JudgeRubric, c.MaturityAssessment, c.Organization, c.PRISMDocument,
-		c.PRISMGoal, c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency,
-		c.Release, c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
+		c.MaturityAssessment, c.Organization, c.PRISMDocument, c.PRISMGoal,
+		c.PRISMRoadmap, c.Person, c.Phase, c.Program, c.RMIDependency, c.Release,
+		c.Repository, c.RepositoryDependency, c.RoadmapItem, c.SpecDocument,
 		c.SpecWorkflow,
 	} {
 		n.Intercept(interceptors...)
@@ -362,8 +356,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.InitiativeWorkflow.mutate(ctx, m)
 	case *JudgeResultMutation:
 		return c.JudgeResult.mutate(ctx, m)
-	case *JudgeRubricMutation:
-		return c.JudgeRubric.mutate(ctx, m)
 	case *MaturityAssessmentMutation:
 		return c.MaturityAssessment.mutate(ctx, m)
 	case *OrganizationMutation:
@@ -1598,22 +1590,6 @@ func (c *JudgeResultClient) GetX(ctx context.Context, id string) *JudgeResult {
 	return obj
 }
 
-// QueryRubric queries the rubric edge of a JudgeResult.
-func (c *JudgeResultClient) QueryRubric(_m *JudgeResult) *JudgeRubricQuery {
-	query := (&JudgeRubricClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(judgeresult.Table, judgeresult.FieldID, id),
-			sqlgraph.To(judgerubric.Table, judgerubric.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, judgeresult.RubricTable, judgeresult.RubricColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QueryInitiative queries the initiative edge of a JudgeResult.
 func (c *JudgeResultClient) QueryInitiative(_m *JudgeResult) *InitiativeQuery {
 	query := (&InitiativeClient{config: c.config}).Query()
@@ -1652,171 +1628,6 @@ func (c *JudgeResultClient) mutate(ctx context.Context, m *JudgeResultMutation) 
 		return (&JudgeResultDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown JudgeResult mutation op: %q", m.Op())
-	}
-}
-
-// JudgeRubricClient is a client for the JudgeRubric schema.
-type JudgeRubricClient struct {
-	config
-}
-
-// NewJudgeRubricClient returns a client for the JudgeRubric from the given config.
-func NewJudgeRubricClient(c config) *JudgeRubricClient {
-	return &JudgeRubricClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `judgerubric.Hooks(f(g(h())))`.
-func (c *JudgeRubricClient) Use(hooks ...Hook) {
-	c.hooks.JudgeRubric = append(c.hooks.JudgeRubric, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `judgerubric.Intercept(f(g(h())))`.
-func (c *JudgeRubricClient) Intercept(interceptors ...Interceptor) {
-	c.inters.JudgeRubric = append(c.inters.JudgeRubric, interceptors...)
-}
-
-// Create returns a builder for creating a JudgeRubric entity.
-func (c *JudgeRubricClient) Create() *JudgeRubricCreate {
-	mutation := newJudgeRubricMutation(c.config, OpCreate)
-	return &JudgeRubricCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of JudgeRubric entities.
-func (c *JudgeRubricClient) CreateBulk(builders ...*JudgeRubricCreate) *JudgeRubricCreateBulk {
-	return &JudgeRubricCreateBulk{config: c.config, builders: builders}
-}
-
-// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
-// a builder and applies setFunc on it.
-func (c *JudgeRubricClient) MapCreateBulk(slice any, setFunc func(*JudgeRubricCreate, int)) *JudgeRubricCreateBulk {
-	rv := reflect.ValueOf(slice)
-	if rv.Kind() != reflect.Slice {
-		return &JudgeRubricCreateBulk{err: fmt.Errorf("calling to JudgeRubricClient.MapCreateBulk with wrong type %T, need slice", slice)}
-	}
-	builders := make([]*JudgeRubricCreate, rv.Len())
-	for i := 0; i < rv.Len(); i++ {
-		builders[i] = c.Create()
-		setFunc(builders[i], i)
-	}
-	return &JudgeRubricCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for JudgeRubric.
-func (c *JudgeRubricClient) Update() *JudgeRubricUpdate {
-	mutation := newJudgeRubricMutation(c.config, OpUpdate)
-	return &JudgeRubricUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *JudgeRubricClient) UpdateOne(_m *JudgeRubric) *JudgeRubricUpdateOne {
-	mutation := newJudgeRubricMutation(c.config, OpUpdateOne, withJudgeRubric(_m))
-	return &JudgeRubricUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *JudgeRubricClient) UpdateOneID(id string) *JudgeRubricUpdateOne {
-	mutation := newJudgeRubricMutation(c.config, OpUpdateOne, withJudgeRubricID(id))
-	return &JudgeRubricUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for JudgeRubric.
-func (c *JudgeRubricClient) Delete() *JudgeRubricDelete {
-	mutation := newJudgeRubricMutation(c.config, OpDelete)
-	return &JudgeRubricDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *JudgeRubricClient) DeleteOne(_m *JudgeRubric) *JudgeRubricDeleteOne {
-	return c.DeleteOneID(_m.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *JudgeRubricClient) DeleteOneID(id string) *JudgeRubricDeleteOne {
-	builder := c.Delete().Where(judgerubric.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &JudgeRubricDeleteOne{builder}
-}
-
-// Query returns a query builder for JudgeRubric.
-func (c *JudgeRubricClient) Query() *JudgeRubricQuery {
-	return &JudgeRubricQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeJudgeRubric},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a JudgeRubric entity by its id.
-func (c *JudgeRubricClient) Get(ctx context.Context, id string) (*JudgeRubric, error) {
-	return c.Query().Where(judgerubric.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *JudgeRubricClient) GetX(ctx context.Context, id string) *JudgeRubric {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryWorkflow queries the workflow edge of a JudgeRubric.
-func (c *JudgeRubricClient) QueryWorkflow(_m *JudgeRubric) *SpecWorkflowQuery {
-	query := (&SpecWorkflowClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(judgerubric.Table, judgerubric.FieldID, id),
-			sqlgraph.To(specworkflow.Table, specworkflow.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, judgerubric.WorkflowTable, judgerubric.WorkflowColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryResults queries the results edge of a JudgeRubric.
-func (c *JudgeRubricClient) QueryResults(_m *JudgeRubric) *JudgeResultQuery {
-	query := (&JudgeResultClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(judgerubric.Table, judgerubric.FieldID, id),
-			sqlgraph.To(judgeresult.Table, judgeresult.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, judgerubric.ResultsTable, judgerubric.ResultsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *JudgeRubricClient) Hooks() []Hook {
-	return c.hooks.JudgeRubric
-}
-
-// Interceptors returns the client interceptors.
-func (c *JudgeRubricClient) Interceptors() []Interceptor {
-	return c.inters.JudgeRubric
-}
-
-func (c *JudgeRubricClient) mutate(ctx context.Context, m *JudgeRubricMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&JudgeRubricCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&JudgeRubricUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&JudgeRubricUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&JudgeRubricDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown JudgeRubric mutation op: %q", m.Op())
 	}
 }
 
@@ -4174,22 +3985,6 @@ func (c *SpecWorkflowClient) QueryInitiatives(_m *SpecWorkflow) *InitiativeQuery
 	return query
 }
 
-// QueryRubrics queries the rubrics edge of a SpecWorkflow.
-func (c *SpecWorkflowClient) QueryRubrics(_m *SpecWorkflow) *JudgeRubricQuery {
-	query := (&JudgeRubricClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := _m.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(specworkflow.Table, specworkflow.FieldID, id),
-			sqlgraph.To(judgerubric.Table, judgerubric.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, specworkflow.RubricsTable, specworkflow.RubricsColumn),
-		)
-		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
 // QuerySpecDocuments queries the spec_documents edge of a SpecWorkflow.
 func (c *SpecWorkflowClient) QuerySpecDocuments(_m *SpecWorkflow) *SpecDocumentQuery {
 	query := (&SpecDocumentClient{config: c.config}).Query()
@@ -4235,16 +4030,16 @@ func (c *SpecWorkflowClient) mutate(ctx context.Context, m *SpecWorkflowMutation
 type (
 	hooks struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
-		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
-		MaturityAssessment, Organization, PRISMDocument, PRISMGoal, PRISMRoadmap,
-		Person, Phase, Program, RMIDependency, Release, Repository,
-		RepositoryDependency, RoadmapItem, SpecDocument, SpecWorkflow []ent.Hook
+		InitiativeDependency, InitiativeWorkflow, JudgeResult, MaturityAssessment,
+		Organization, PRISMDocument, PRISMGoal, PRISMRoadmap, Person, Phase, Program,
+		RMIDependency, Release, Repository, RepositoryDependency, RoadmapItem,
+		SpecDocument, SpecWorkflow []ent.Hook
 	}
 	inters struct {
 		Assignment, CapabilityModel, DeliveryEvidence, DevXPeriodReport, Initiative,
-		InitiativeDependency, InitiativeWorkflow, JudgeResult, JudgeRubric,
-		MaturityAssessment, Organization, PRISMDocument, PRISMGoal, PRISMRoadmap,
-		Person, Phase, Program, RMIDependency, Release, Repository,
-		RepositoryDependency, RoadmapItem, SpecDocument, SpecWorkflow []ent.Interceptor
+		InitiativeDependency, InitiativeWorkflow, JudgeResult, MaturityAssessment,
+		Organization, PRISMDocument, PRISMGoal, PRISMRoadmap, Person, Phase, Program,
+		RMIDependency, Release, Repository, RepositoryDependency, RoadmapItem,
+		SpecDocument, SpecWorkflow []ent.Interceptor
 	}
 )

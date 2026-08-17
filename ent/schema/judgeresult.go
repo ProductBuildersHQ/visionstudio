@@ -28,12 +28,15 @@ func (JudgeResult) Fields() []ent.Field {
 		field.Int("int_score").Optional().Comment("1-5 integer score from report.IntScore"),
 		field.Bool("pass").Default(false).Comment("Pass/fail from report.Pass"),
 		field.String("model").MaxLen(128).Optional().Comment("Judge model from report.Judge.Model"),
+		// Catalog rubric ID this result was judged against (e.g.
+		// "pbhq-prd-rubric"). Plain data, not a foreign key: rubrics live in
+		// the visionspec catalog, not this database.
+		field.String("rubric_id").MaxLen(64).Optional().Comment("Catalog rubric ID this result was judged against"),
 	}
 }
 
 func (JudgeResult) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("rubric", JudgeRubric.Type).Ref("results").Unique(),
 		edge.From("initiative", Initiative.Type).Ref("judge_results").Unique().Required().Field("initiative_id"),
 	}
 }

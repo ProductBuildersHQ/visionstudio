@@ -9,7 +9,6 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/person"
@@ -165,20 +164,14 @@ func init() {
 	judgeresultDescModel := judgeresultFields[8].Descriptor()
 	// judgeresult.ModelValidator is a validator for the "model" field. It is called by the builders before save.
 	judgeresult.ModelValidator = judgeresultDescModel.Validators[0].(func(string) error)
+	// judgeresultDescRubricID is the schema descriptor for rubric_id field.
+	judgeresultDescRubricID := judgeresultFields[9].Descriptor()
+	// judgeresult.RubricIDValidator is a validator for the "rubric_id" field. It is called by the builders before save.
+	judgeresult.RubricIDValidator = judgeresultDescRubricID.Validators[0].(func(string) error)
 	// judgeresultDescID is the schema descriptor for id field.
 	judgeresultDescID := judgeresultFields[0].Descriptor()
 	// judgeresult.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	judgeresult.IDValidator = judgeresultDescID.Validators[0].(func(string) error)
-	judgerubricFields := schema.JudgeRubric{}.Fields()
-	_ = judgerubricFields
-	// judgerubricDescSpecType is the schema descriptor for spec_type field.
-	judgerubricDescSpecType := judgerubricFields[1].Descriptor()
-	// judgerubric.SpecTypeValidator is a validator for the "spec_type" field. It is called by the builders before save.
-	judgerubric.SpecTypeValidator = judgerubricDescSpecType.Validators[0].(func(string) error)
-	// judgerubricDescID is the schema descriptor for id field.
-	judgerubricDescID := judgerubricFields[0].Descriptor()
-	// judgerubric.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	judgerubric.IDValidator = judgerubricDescID.Validators[0].(func(string) error)
 	maturityassessmentFields := schema.MaturityAssessment{}.Fields()
 	_ = maturityassessmentFields
 	// maturityassessmentDescInitiativeID is the schema descriptor for initiative_id field.

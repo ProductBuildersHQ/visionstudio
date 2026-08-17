@@ -355,15 +355,6 @@ type SpecWorkflow struct {
 	InitTypes     []string `json:"init_types,omitempty"`
 }
 
-// JudgeRubric defines scoring criteria for evaluating a spec type.
-type JudgeRubric struct {
-	ID             string         `json:"id"`
-	WorkflowID     string         `json:"workflow_id"`
-	SpecType       string         `json:"spec_type"`
-	Criteria       map[string]any `json:"criteria,omitempty"`
-	PromptTemplate string         `json:"prompt_template,omitempty"`
-}
-
 // JudgeResult stores an LLM-as-a-Judge evaluation result.
 // It wraps structured-evaluation's rubric.Rubric with additional metadata
 // for persistence and querying.
@@ -425,11 +416,10 @@ type SpecWorkflowStore interface {
 	GetWorkflowForInitiative(ctx context.Context, initiativeID string) (*InitiativeWorkflow, error)
 }
 
-// JudgeStore defines persistence for judge rubrics and results.
+// JudgeStore defines persistence for judge results. Rubrics are resolved live
+// from the visionspec catalog (see cmd/visionstudio spec judge), not persisted
+// here.
 type JudgeStore interface {
-	CreateJudgeRubric(ctx context.Context, rubric *JudgeRubric) error
-	GetJudgeRubric(ctx context.Context, id string) (*JudgeRubric, error)
-	ListJudgeRubrics(ctx context.Context, workflowID string) ([]*JudgeRubric, error)
 	CreateJudgeResult(ctx context.Context, result *JudgeResult) error
 	ListJudgeResults(ctx context.Context, initiativeID string) ([]*JudgeResult, error)
 }

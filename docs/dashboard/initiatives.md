@@ -23,7 +23,7 @@ On create you land on the new initiative's **Definition** tab, which renders the
 
 **Route:** `/initiative/:initiativeId`
 
-The header shows the initiative ID, status badge, a chip with the initiative's spec workflow (read-only; hover for the full name, and whether it's a type default), title, description (if any), and an overall completion percentage. Below that, four summary cards: **Definition** (how many of the assigned workflow's *required* spec documents exist on disk, as a fraction and percentage — the denominator follows the workflow, e.g. 4 for `pbhq-lite`, 7 for `aws-two-way-door`), **Phases**, **RMIs**, and **Repos** (distinct repository count across the initiative's RMIs).
+The header shows the initiative ID, status badge, a chip with the initiative's spec workflow (read-only; hover for the full name, and whether it's a type default), title, description (if any), and an overall completion percentage. If the initiative is attached to any recorded releases, a "Released in:" row shows one chip per `repo@tag` (linked to the release URL if one was recorded) — an initiative's RMIs can span multiple repos, so this can show more than one tag. Below that, four summary cards: **Definition** (how many of the assigned workflow's *required* spec documents exist on disk, as a fraction and percentage — the denominator follows the workflow, e.g. 4 for `pbhq-lite`, 7 for `aws-two-way-door`), **Phases**, **RMIs**, and **Repos** (distinct repository count across the initiative's RMIs).
 
 Two tabs follow — **Definition Details** and **Execution Details**. The initiative opens on whichever tab has data (Execution if the initiative has any phases or RMIs, otherwise Definition); the Execution tab carries an "empty" badge if there's nothing in it yet.
 
@@ -84,6 +84,8 @@ visionstudio release candidates --repo <repo-id> [--format json]
 ```
 
 Lists every non-terminal initiative with at least one RMI in that repo, classified `ready` (every RMI across every repo it touches is done), `partial` (this repo's RMIs are done but the initiative has open work elsewhere — record the release, don't close yet), `not_ready`, or `already_attached` (a prior release of this repo already lists it). Same report-only discipline as `sweep`.
+
+Once a release is recorded and attached, `initiative get <id>` prints a `Releases:` section listing every `repo@tag` it's attached to — the CLI counterpart to the dashboard's "Released in" chips.
 
 ## Hiding Programs and Initiatives
 

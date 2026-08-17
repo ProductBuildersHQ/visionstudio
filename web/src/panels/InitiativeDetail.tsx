@@ -41,6 +41,9 @@ export function InitiativeDetail({
   const initDeps = (execution.initiativeDependencies ?? []).filter(
     (d) => d.sourceInitiativeId === initiative.id || d.targetInitiativeId === initiative.id
   )
+  const releases = (execution.releases ?? []).filter((r) =>
+    r.initiativeIds.includes(initiative.id)
+  )
   const judgeResults = (specs.judgeResults ?? []).filter((r) => r.initiativeId === initiative.id)
 
   const hasExecution = phases.length > 0 || rmis.length > 0
@@ -117,6 +120,28 @@ export function InitiativeDetail({
             <p className="text-gray-300 mt-1">{initiative.title}</p>
             {initiative.description && (
               <p className="text-gray-500 text-sm mt-2 max-w-2xl">{initiative.description}</p>
+            )}
+            {releases.length > 0 && (
+              <div className="flex items-center flex-wrap gap-2 mt-2">
+                <span className="text-xs text-gray-500">Released in:</span>
+                {releases.map((r) => {
+                  const repoShort = r.repositoryId.split('/').pop()
+                  const chip = (
+                    <span className="font-mono text-xs px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded">
+                      {repoShort}@{r.tag}
+                    </span>
+                  )
+                  return r.url ? (
+                    <a key={r.id} href={r.url} target="_blank" rel="noreferrer" title={r.releasedAt}>
+                      {chip}
+                    </a>
+                  ) : (
+                    <span key={r.id} title={r.releasedAt}>
+                      {chip}
+                    </span>
+                  )
+                })}
+              </div>
             )}
           </div>
           <div className="text-right">

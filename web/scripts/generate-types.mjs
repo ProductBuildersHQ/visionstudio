@@ -74,6 +74,7 @@ const schemaNames = [
   'APIRMIDependency',
   'APIInitiativeDependency',
   'APIStatusCount',
+  'APIRelease',
   'APIPhase',
   'APIInitiative',
   'APIProgram',

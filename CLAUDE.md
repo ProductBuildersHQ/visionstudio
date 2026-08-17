@@ -57,6 +57,8 @@ TypeScript types (web/src/api/types.gen.ts)
    cd web && npm run generate:types
    ```
 
+**Gotcha — a brand-new top-level `apitypes` struct needs two registrations, not one.** `pkg/apitypes/gen/main.go` lists which Go types get a `.schema.json` file (`go generate ./pkg/apitypes` silently emits nothing for a struct missing from that list). Separately, `web/scripts/generate-types.mjs`'s `schemaNames` array decides which of those `.schema.json` files actually get converted to Zod/TS — it is **not** auto-discovered from the `schema/` directory, so a schema file can exist and still produce no `types.gen.ts`/`schemas.gen.ts` export, failing as `Module has no exported member 'X'` in `compat.ts` with no other error. Add the new type name to both lists.
+
 ### Compat Layer
 
 The compat layer (`web/src/api/compat.ts`) normalizes optional fields to required fields with defaults. It re-exports the generated rubric types directly:

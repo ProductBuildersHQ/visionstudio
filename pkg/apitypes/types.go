@@ -265,12 +265,26 @@ type ExecutionResponse struct {
 	StatusDistribution     []APIStatusCount          `json:"statusDistribution,omitempty"`
 	RMIDependencies        []APIRMIDependency        `json:"rmiDependencies,omitempty"`
 	InitiativeDependencies []APIInitiativeDependency `json:"initiativeDependencies,omitempty"`
+	Releases               []APIRelease              `json:"releases,omitempty"`
 }
 
 // APIStatusCount is a status with its count.
 type APIStatusCount struct {
 	Status string `json:"status"`
 	Count  int    `json:"count"`
+}
+
+// APIRelease is a recorded repo@tag release, with the initiatives it's
+// attached to -- an initiative can be attached to releases from multiple
+// repos (its RMIs span more than one), so "what did this initiative ship
+// in" is a list, not a single tag.
+type APIRelease struct {
+	ID            string   `json:"id"`
+	RepositoryID  string   `json:"repositoryId"`
+	Tag           string   `json:"tag"`
+	ReleasedAt    string   `json:"releasedAt"`
+	URL           string   `json:"url,omitempty"`
+	InitiativeIDs []string `json:"initiativeIds,omitempty"`
 }
 
 // SpecFile represents a spec document read from disk.

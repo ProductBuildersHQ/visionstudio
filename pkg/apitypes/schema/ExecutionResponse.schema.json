@@ -186,6 +186,33 @@
       "additionalProperties": false,
       "type": "object"
     },
+    "APIRelease": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "repositoryId": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "releasedAt": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "initiativeIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
     "APIRepository": {
       "properties": {
         "id": {
@@ -275,6 +302,12 @@
         "initiativeDependencies": {
           "items": {
             "$ref": "#/$defs/APIInitiativeDependency"
+          },
+          "type": "array"
+        },
+        "releases": {
+          "items": {
+            "$ref": "#/$defs/APIRelease"
           },
           "type": "array"
         }

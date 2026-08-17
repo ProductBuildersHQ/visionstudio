@@ -8,6 +8,7 @@
     "APIProgram": true,
     "APIRMI": true,
     "APIRMIDependency": true,
+    "APIRelease": true,
     "APIRepository": true,
     "APIStatusCount": true,
     "ActionItem": {

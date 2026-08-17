@@ -143,7 +143,7 @@ func TestBuildSpecsResponse(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Workflows come from the specification-workflow-spec catalog, not the DB.
+	// Workflows come from the visionspec catalog, not the DB.
 	wantCount := len(specworkflow.DefaultLoader().Available())
 	if len(resp.Workflows) != wantCount {
 		t.Errorf("expected %d catalog workflows, got %d", wantCount, len(resp.Workflows))

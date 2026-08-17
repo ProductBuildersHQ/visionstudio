@@ -30,7 +30,7 @@ type JudgeResult struct {
 }
 
 // SpecWorkflow defines a specification workflow template.
-// Definitions are sourced from the specification-workflow-spec catalog.
+// Definitions are sourced from the visionspec catalog.
 type SpecWorkflow struct {
 	ID            string              `json:"id"`
 	Name          string              `json:"name"`
@@ -57,7 +57,7 @@ type SpecsResponse struct {
 
 // WorkflowSpecDetail is the response for /api/workflows/{id}/specs/{type}:
 // the authoring template and LLM-as-a-Judge rubric for one spec type of a
-// workflow, served from the specification-workflow-spec catalog.
+// workflow, served from the visionspec catalog.
 type WorkflowSpecDetail struct {
 	WorkflowID string `json:"workflowId"`
 	SpecType   string `json:"specType"`

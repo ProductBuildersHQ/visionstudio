@@ -661,7 +661,7 @@ func workflowListTool() *mcp.Tool {
 
 func workflowListHandler(svc *service.Service) mcp.ToolHandler {
 	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		// Get embedded workflows from specification-workflow-spec
+		// Get embedded workflows from visionspec
 		loader := specworkflow.DefaultLoader()
 		embeddedWorkflows, err := loader.List()
 		if err != nil {

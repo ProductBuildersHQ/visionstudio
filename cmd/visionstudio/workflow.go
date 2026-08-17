@@ -15,7 +15,7 @@ func workflowCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "workflow",
 		Aliases: []string{"wf"},
-		Short:   "Manage spec workflows (definitions from specification-workflow-spec)",
+		Short:   "Manage spec workflows (definitions from visionspec)",
 	}
 	cmd.AddCommand(workflowListCmd(), workflowGetCmd(), workflowSyncCmd(), workflowSeedCmd())
 	return cmd
@@ -97,7 +97,7 @@ func workflowGetCmd() *cobra.Command {
 func workflowSyncCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "sync",
-		Short: "Sync the database workflow index from the specification-workflow-spec catalog",
+		Short: "Sync the database workflow index from the visionspec catalog",
 		Long: `Upsert a database row for every workflow in the catalog, remap initiatives
 referencing retired workflow IDs to their canonical replacement, and delete
 retired rows that are no longer referenced. Idempotent.`,

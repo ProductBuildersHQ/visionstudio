@@ -203,6 +203,39 @@ func TestDerivePhaseStatus(t *testing.T) {
 			},
 			want: PhasePlanned,
 		},
+		{
+			name: "all required cancelled, no optional",
+			rmis: []*store.RoadmapItem{
+				{Status: "cancelled", Required: true},
+				{Status: "cancelled", Required: true},
+			},
+			want: PhaseCompleted,
+		},
+		{
+			name: "required mix of completed and cancelled, no optional",
+			rmis: []*store.RoadmapItem{
+				{Status: "completed", Required: true},
+				{Status: "cancelled", Required: true},
+				{Status: "completed", Required: true},
+			},
+			want: PhaseCompleted,
+		},
+		{
+			name: "required cancelled but optional still open",
+			rmis: []*store.RoadmapItem{
+				{Status: "cancelled", Required: true},
+				{Status: "in_progress", Required: false},
+			},
+			want: PhasePartial,
+		},
+		{
+			name: "some required cancelled, some required still open",
+			rmis: []*store.RoadmapItem{
+				{Status: "cancelled", Required: true},
+				{Status: "planned", Required: true},
+			},
+			want: PhasePlanned,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

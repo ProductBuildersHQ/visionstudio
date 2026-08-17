@@ -171,16 +171,23 @@ what activates the acceptance-mark quality signal.`,
 // releaseCandidate is one initiative's readiness to ride along with a
 // repo's release.
 type releaseCandidate struct {
-	InitiativeID     string `json:"initiative_id"`
-	Title            string `json:"title"`
-	Status           string `json:"status"`
-	RepoRMIsDone     int    `json:"repo_rmis_done"`
-	RepoRMIsTotal    int    `json:"repo_rmis_total"`
-	OverallRMIsDone  int    `json:"overall_rmis_done"`
-	OverallRMIsTotal int    `json:"overall_rmis_total"`
-	// Verdict is one of: ready (every RMI in every repo is done -- a full
-	// close candidate), partial (this repo's RMIs are done but the
-	// initiative still has open work elsewhere), not_ready (this repo
+	InitiativeID string `json:"initiative_id"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	// RMIsDone/RMIsTotal count resolved RMIs -- completed or cancelled.
+	// Cancelled work leaves nothing pending, the same as done (matches
+	// DerivePhaseStatus's treatment of cancelled work). RMIsCancelled
+	// breaks out how many of RMIsDone were cancelled rather than
+	// completed, so that distinction stays visible.
+	RepoRMIsDone         int `json:"repo_rmis_done"`
+	RepoRMIsCancelled    int `json:"repo_rmis_cancelled,omitempty"`
+	RepoRMIsTotal        int `json:"repo_rmis_total"`
+	OverallRMIsDone      int `json:"overall_rmis_done"`
+	OverallRMIsCancelled int `json:"overall_rmis_cancelled,omitempty"`
+	OverallRMIsTotal     int `json:"overall_rmis_total"`
+	// Verdict is one of: ready (every RMI in every repo is resolved -- a
+	// full close candidate), partial (this repo's RMIs are resolved but
+	// the initiative still has open work elsewhere), not_ready (this repo
 	// still has open work), already_attached (a release of this repo
 	// already lists this initiative -- nothing new to do).
 	Verdict string `json:"verdict"`
@@ -194,12 +201,14 @@ func releaseCandidatesCmd() *cobra.Command {
 with at least one RMI in that repo, and whether it's a candidate to move
 to released/closed as part of this release:
 
-  ready             every RMI in every repo the initiative touches is done --
-                     a full close candidate (release record + transition
-                     through delivery_complete/releasing/released/closed)
-  partial           this repo's RMIs are done, but the initiative still has
-                     open work in other repos -- record this release against
-                     it, but don't close it yet
+  ready             every RMI in every repo the initiative touches is resolved
+                     (completed or cancelled -- cancelled work leaves nothing
+                     pending, the same as done) -- a full close candidate
+                     (release record + transition through
+                     delivery_complete/releasing/released/closed)
+  partial           this repo's RMIs are resolved, but the initiative still
+                     has open work in other repos -- record this release
+                     against it, but don't close it yet
   not_ready         this repo still has open work
   already_attached  a release of this repo already lists this initiative
 
@@ -272,10 +281,14 @@ acting, the same as any other candidate list.`,
 				}
 
 				thisRepoRMIs := repoRMIsByInit[id]
-				repoTotal, repoDone := len(thisRepoRMIs), 0
+				repoTotal, repoDone, repoCancelled := len(thisRepoRMIs), 0, 0
 				for _, r := range thisRepoRMIs {
-					if r.Status == "completed" {
+					switch r.Status {
+					case "completed":
 						repoDone++
+					case "cancelled":
+						repoDone++
+						repoCancelled++
 					}
 				}
 
@@ -283,10 +296,14 @@ acting, the same as any other candidate list.`,
 				if err != nil {
 					return err
 				}
-				overallTotal, overallDone := len(allRMIs), 0
+				overallTotal, overallDone, overallCancelled := len(allRMIs), 0, 0
 				for _, r := range allRMIs {
-					if r.Status == "completed" {
+					switch r.Status {
+					case "completed":
 						overallDone++
+					case "cancelled":
+						overallDone++
+						overallCancelled++
 					}
 				}
 
@@ -301,14 +318,16 @@ acting, the same as any other candidate list.`,
 				}
 
 				candidates = append(candidates, releaseCandidate{
-					InitiativeID:     id,
-					Title:            init.Title,
-					Status:           init.Status,
-					RepoRMIsDone:     repoDone,
-					RepoRMIsTotal:    repoTotal,
-					OverallRMIsDone:  overallDone,
-					OverallRMIsTotal: overallTotal,
-					Verdict:          verdict,
+					InitiativeID:         id,
+					Title:                init.Title,
+					Status:               init.Status,
+					RepoRMIsDone:         repoDone,
+					RepoRMIsCancelled:    repoCancelled,
+					RepoRMIsTotal:        repoTotal,
+					OverallRMIsDone:      overallDone,
+					OverallRMIsCancelled: overallCancelled,
+					OverallRMIsTotal:     overallTotal,
+					Verdict:              verdict,
 				})
 			}
 
@@ -327,10 +346,10 @@ acting, the same as any other candidate list.`,
 			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 			_, _ = fmt.Fprintln(w, "VERDICT\tINITIATIVE\tSTATUS\tTHIS REPO\tOVERALL\tTITLE")
 			for _, c := range candidates {
-				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%d/%d\t%d/%d\t%s\n",
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
 					c.Verdict, c.InitiativeID, c.Status,
-					c.RepoRMIsDone, c.RepoRMIsTotal,
-					c.OverallRMIsDone, c.OverallRMIsTotal,
+					formatRMIFraction(c.RepoRMIsDone, c.RepoRMIsCancelled, c.RepoRMIsTotal),
+					formatRMIFraction(c.OverallRMIsDone, c.OverallRMIsCancelled, c.OverallRMIsTotal),
 					c.Title)
 			}
 			if err := w.Flush(); err != nil {
@@ -343,6 +362,16 @@ acting, the same as any other candidate list.`,
 	cmd.Flags().String("repo", "", "Repository about to be released (short name, org/name, or full ID) (required)")
 	cmd.Flags().String("format", "text", "Output format: text or json")
 	return cmd
+}
+
+// formatRMIFraction renders "done/total", adding a "(Nc)" suffix when some
+// of done are cancelled rather than completed, so that distinction stays
+// visible instead of collapsing into one number.
+func formatRMIFraction(done, cancelled, total int) string {
+	if cancelled == 0 {
+		return fmt.Sprintf("%d/%d", done, total)
+	}
+	return fmt.Sprintf("%d/%d (%dc)", done, total, cancelled)
 }
 
 func releaseDeleteCmd() *cobra.Command {

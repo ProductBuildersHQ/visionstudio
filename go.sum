@@ -178,8 +178,8 @@ github.com/ProductBuildersHQ/prism-build v0.2.0 h1:/BCbb7F3UHVjT2gOWwg6DqpWB2FMW
 github.com/ProductBuildersHQ/prism-build v0.2.0/go.mod h1:kl42lQGsxe8J7xJQgd9Npnoa2ksxUhwKBL7VtRVO964=
 github.com/ProductBuildersHQ/scale v0.2.0 h1:NeNLOHq1sNcaHO1jZCpVhAOVEnuwO7qf2Wef7SLhBkg=
 github.com/ProductBuildersHQ/scale v0.2.0/go.mod h1:1UDtB3LdIUP3x5UqUQavHMUbH8NMIPFC2NFmQBbj5aw=
-github.com/ProductBuildersHQ/visionspec v0.16.0 h1:rSE/aZyeqwbKcZNlKyCvxyLDEWNO430IYVllQyhMPkM=
-github.com/ProductBuildersHQ/visionspec v0.16.0/go.mod h1:fa9ualzdiAfarZXn76vdXb82Q0X+P0JkhmMTWPA3ohU=
+github.com/ProductBuildersHQ/visionspec v0.16.1-0.20260817051750-0357b92a4942 h1:jEA/3JU4CWfO3e0jrHIdeXNNYmvTDOTtM3VzkB4KHvo=
+github.com/ProductBuildersHQ/visionspec v0.16.1-0.20260817051750-0357b92a4942/go.mod h1:EteGmKM+X1EZCpO+6lzLV9oyqTfSKeXXWGWghtM/HYs=
 github.com/Shopify/toxiproxy/v2 v2.5.0 h1:i4LPT+qrSlKNtQf5QliVjdP08GyAH8+BUIc9gT0eahc=
 github.com/Shopify/toxiproxy/v2 v2.5.0/go.mod h1:yhM2epWtAmel9CB8r2+L+PCmhH6yH2pITaPAo7jxJl0=
 github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db h1:CjPUSXOiYptLbTdr1RceuZgSFDQ7U15ITERUGrUORx8=
@@ -645,8 +645,8 @@ github.com/grokify/prism-core v0.4.0 h1:aJy92m4ls41RqfRt/FETZyDNj6ECzPtTyh8nVEtR
 github.com/grokify/prism-core v0.4.0/go.mod h1:MGwhaaZdFW8WShYx3lqzGkcx8f07xFDbwd+u+4uBAT0=
 github.com/grokify/prism-maturity v0.14.0 h1:QiwdI2zTaKE9B6TpzzPxqGpqPM9RL6vNbCGLL1+JDhM=
 github.com/grokify/prism-maturity v0.14.0/go.mod h1:K2JMGxlzAvShUsHSoTWtHYpUuGtysqZWREojuRfFTWM=
-github.com/grokify/prism-roadmap v0.17.0 h1:xsM+LDffaocNQQ4cdYlchJ7565fj+0PGIBte1me4dgU=
-github.com/grokify/prism-roadmap v0.17.0/go.mod h1:B3XMoton1box8nhTk/i9TcG+tPouz2tbbUUi3I7mvzo=
+github.com/grokify/prism-roadmap v0.18.0 h1:cAtiS26U8d6Xgs0OPmP8tkqzqstDALvjWefD2cFqgJ4=
+github.com/grokify/prism-roadmap v0.18.0/go.mod h1:B3XMoton1box8nhTk/i9TcG+tPouz2tbbUUi3I7mvzo=
 github.com/grpc-ecosystem/grpc-gateway v1.16.0/go.mod h1:BDjrQk3hbvj6Nolgz8mAMFbcEtjT1g+wF4CSlocrBnw=
 github.com/hanwen/go-fuse v1.0.0/go.mod h1:unqXarDXqzAk0rt98O2tVndEPIpUgLD9+rwFisZH3Ok=
 github.com/hanwen/go-fuse/v2 v2.1.0/go.mod h1:oRyA5eK+pvJyv5otpO/DgccS8y/RvYMaO00GgRLGryc=

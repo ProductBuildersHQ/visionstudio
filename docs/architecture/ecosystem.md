@@ -1,32 +1,35 @@
 # Ecosystem
 
 VisionStudio sits at the top of the ProductBuildersHQ spec stack. This page
-describes how it consumes the two layers beneath it and the rules that keep
-the layering intact. The canonical cross-repo reference lives in the
+describes how it consumes the layer beneath it and the rules that keep the
+layering intact. The canonical cross-repo reference lives in the
 [org architecture doc](https://github.com/ProductBuildersHQ/.github/blob/main/ARCHITECTURE.md).
 
 ```
-visionstudio  ──▶  visionspec  ──▶  specification-workflow-spec
- (studio)           (engine)           (contract)
+visionstudio  ──▶  visionspec
+ (studio)           (contract + engine)
 ```
 
-## The Three Layers
+specification-workflow-spec, the former standalone home for the contract
+layer, was merged into visionspec in v0.16.0 and archived. What used to be
+a three-repo stack is now two.
+
+## The Two Layers
 
 | Layer | Repository | Role |
 |-------|-----------|------|
-| Contract | [specification-workflow-spec](https://github.com/ProductBuildersHQ/specification-workflow-spec) | Go types, JSON Schemas, and the embedded library of 24 default workflows — configurations, markdown templates, and structured-evaluation rubrics — with composable loaders. No execution logic, no LLM dependencies. |
-| Engine | [visionspec](https://github.com/ProductBuildersHQ/visionspec) | Everything that acts on the contract: project scaffolding, LLM synthesis, LLM-as-Judge evaluation, lint/drift/status/reconcile, MCP server, execution-target export, and the organization CLI framework. |
+| Contract + Engine | [visionspec](https://github.com/ProductBuildersHQ/visionspec) | Go types, JSON Schemas, and the embedded library of 25 default workflows — configurations, markdown templates, and structured-evaluation rubrics — with composable loaders, **plus** everything that acts on them: project scaffolding, LLM synthesis, LLM-as-Judge evaluation, lint/drift/status/reconcile, MCP server, execution-target export, and the organization CLI framework. |
 | Studio | visionstudio (this repo) | LLM-powered application for authoring, evaluating, and managing spec portfolios, with daemon/web/desktop surfaces and ent + Dolt persistence. |
 
 ## Interaction Planes
 
-### 1. Data Plane — specification-workflow-spec, directly
+### 1. Data Plane — visionspec's workflow catalog, directly
 
-Workflow browsing and rendering never touches visionspec. The methodology
-picker, template editor, and rubric viewer load embedded data as Go structs:
+Workflow browsing and rendering loads embedded data as Go structs directly
+from visionspec's `pkg/workflows`:
 
 ```go
-import "github.com/ProductBuildersHQ/specification-workflow-spec/pkg/workflows"
+import "github.com/ProductBuildersHQ/visionspec/pkg/workflows"
 
 w, err := workflows.DefaultLoader().Load("aws-two-way-door")
 // w.Workflow  — configuration with extends-inheritance resolved
@@ -59,20 +62,18 @@ Rules of engagement:
 VisionStudio does not use MCP for its own calls (it is in-process Go).
 visionspec's MCP server exists so external AI assistants (Claude Code, Claude
 Tag) can operate on the same projects VisionStudio manages. The shared source
-of truth is the on-disk project layout defined by
-specification-workflow-spec's `pkg/layout`; the daemon's fsnotify watchers
-pick up changes agents make.
+of truth is the on-disk project layout defined by visionspec's `pkg/layout`;
+the daemon's fsnotify watchers pick up changes agents make.
 
 ## Version Discipline
 
-VisionStudio pins tagged releases of both libraries — never local `replace`
-directives on `main`. Release order flows up the stack: tag
-specification-workflow-spec, then visionspec, then adopt here.
+VisionStudio pins tagged releases of visionspec — never local `replace`
+directives on `main`.
 
 ## Boundary Rules (Summary)
 
-- Workflow data and definition types live in specification-workflow-spec —
-  contributions of new default workflows go there.
+- Workflow data and definition types live in visionspec's `pkg/workflows` —
+  contributions of new default workflows go there, not into VisionStudio.
 - Execution behavior lives in visionspec — VisionStudio does not reimplement
   synthesis, evaluation, or linting.
 - VisionStudio owns the experience: UI, persistence, jobs, portfolio views,

@@ -4,7 +4,7 @@ Project-specific guidelines for Claude Code in VisionStudio.
 
 ## Project Overview
 
-VisionStudio is an LLM-powered specification authoring and evaluation tool. It provides a dashboard for managing initiatives, roadmap items, and spec quality via LLM-as-a-Judge evaluations. It is the top of the ProductBuildersHQ "spec stack" (`visionstudio → visionspec → specification-workflow-spec`).
+VisionStudio is an LLM-powered specification authoring and evaluation tool. It provides a dashboard for managing initiatives, roadmap items, and spec quality via LLM-as-a-Judge evaluations. It is the top of the ProductBuildersHQ "spec stack" (`visionstudio → visionspec`). specification-workflow-spec, the former standalone home for the workflow-definition contract, was merged into visionspec in v0.16.0 and archived.
 
 Deeper architecture docs live in `docs/architecture/` (`overview.md`, `daemon.md`, `frontend.md`, `types.md`, `ecosystem.md`). Read those for the full picture; this file is for durable conventions and gotchas, not a structural map.
 
@@ -155,16 +155,16 @@ Judge results use `structured-evaluation/rubric.Rubric` format directly. Eval fi
 
 ## Conventions
 
-### Spec workflows: specification-workflow-spec is the single source of truth
+### Spec workflows: visionspec is the single source of truth
 
-All default (non-user-custom) spec workflow definitions live in `github.com/ProductBuildersHQ/specification-workflow-spec`'s embedded catalog (~25 profiles: `pbhq-lite`, `quick-fix`, `aws-one-way-door`, `aws-two-way-door`, …). VisionStudio only consumes them via `pkg/specworkflow`'s `Loader`; **never** define or fork a workflow locally — the old hardcoded `BuiltInWorkflows()` catalog was removed precisely because it silently diverged from upstream (same IDs, different required-doc sets). Key pieces:
+All default (non-user-custom) spec workflow definitions live in `github.com/ProductBuildersHQ/visionspec`'s embedded catalog (25 profiles: `pbhq-lite`, `quick-fix`, `aws-one-way-door`, `aws-two-way-door`, …) — `pkg/workflows`, merged in from the former standalone specification-workflow-spec repo in v0.16.0. VisionStudio only consumes them via `pkg/specworkflow`'s `Loader`; **never** define or fork a workflow locally — the old hardcoded `BuiltInWorkflows()` catalog was removed precisely because it silently diverged from upstream (same IDs, different required-doc sets). Key pieces:
 
 - `specworkflow.Resolve(loader, init)` — the only way to answer "which workflow applies": explicit `Initiative.WorkflowID`, else `DefaultWorkflowForType` (`maintenance`/`refactor`/`migration`→`quick-fix`, else `pbhq-lite`). Never resolve from the DB.
 - The `spec_workflows` table is an **index/cache** of the catalog, not a definition source; `visionstudio workflow sync` refreshes it (idempotent, also remaps initiatives off retired IDs — see `retiredRemap` in `pkg/specworkflow/seed.go`).
 - Spec-type IDs (`prd`, `opportunity-spec`) ↔ filenames (`PRD.md`, `OPPORTUNITY-SPEC.md`) convert via `specworkflow.SpecFileName` and `deriveSpecType` (api.go) — keep them inverse of each other when adding doc types.
 - Two per-initiative workflow records exist and must be kept in step when switching: `Initiative.WorkflowID` (the edge) and the `InitiativeWorkflow` selection row (read by synthesis/eval via `GetWorkflowForInitiative`) — `initiative update --workflow` updates both.
 - Profile YAML gotcha (upstream): the execution block's key is `execution:`, not `workflow:` — yaml.v3 silently drops unknown keys, so a wrong key parses as "no execution ordering" with no error (pbhq-lite shipped that way for a while). Several other profiles still carry unparsed keys (`rubric_extensions`, `cadence`, `cycles`, …).
-- The authoritative flow definitions for AWS Working Backwards are visionspec's D2 diagrams (`visionspec/docs/diagrams/aws-{product,feature}-flow.d2`); `specification-workflow-spec`'s profiles are kept conformant via `pkg/workflows/execution_test.go` upstream.
+- The authoritative flow definitions for AWS Working Backwards are visionspec's D2 diagrams (`visionspec/docs/diagrams/aws-{one-way-door,two-way-door}-flow.d2`); the profiles are kept conformant via visionspec's own `pkg/workflows/execution_test.go`.
 
 ### Hiding an entity from the dashboard
 

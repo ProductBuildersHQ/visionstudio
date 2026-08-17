@@ -34,7 +34,7 @@ When invoked, you will receive:
    docs/specs/initiatives/{INITIATIVE_ID}/{SPEC_TYPE}.md
    ```
 
-2. **Load the rubric** from specification-workflow-spec (PBHQ Lite by default)
+2. **Load the rubric** from visionspec's embedded catalog (PBHQ Lite by default)
    - PRD: problem definition, goals/non-goals, user stories, requirements, success metrics
    - TRD: architecture, data model, APIs, security, testing strategy
    - PLAN: phases, milestones, dependencies, risks, resource estimates

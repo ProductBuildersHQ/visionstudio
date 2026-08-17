@@ -28,8 +28,6 @@ type Tx struct {
 	InitiativeWorkflow *InitiativeWorkflowClient
 	// JudgeResult is the client for interacting with the JudgeResult builders.
 	JudgeResult *JudgeResultClient
-	// JudgeRubric is the client for interacting with the JudgeRubric builders.
-	JudgeRubric *JudgeRubricClient
 	// MaturityAssessment is the client for interacting with the MaturityAssessment builders.
 	MaturityAssessment *MaturityAssessmentClient
 	// Organization is the client for interacting with the Organization builders.
@@ -199,7 +197,6 @@ func (tx *Tx) init() {
 	tx.InitiativeDependency = NewInitiativeDependencyClient(tx.config)
 	tx.InitiativeWorkflow = NewInitiativeWorkflowClient(tx.config)
 	tx.JudgeResult = NewJudgeResultClient(tx.config)
-	tx.JudgeRubric = NewJudgeRubricClient(tx.config)
 	tx.MaturityAssessment = NewMaturityAssessmentClient(tx.config)
 	tx.Organization = NewOrganizationClient(tx.config)
 	tx.PRISMDocument = NewPRISMDocumentClient(tx.config)

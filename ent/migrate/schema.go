@@ -181,8 +181,8 @@ var (
 		{Name: "int_score", Type: field.TypeInt, Nullable: true},
 		{Name: "pass", Type: field.TypeBool, Default: false},
 		{Name: "model", Type: field.TypeString, Nullable: true, Size: 128},
+		{Name: "rubric_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "initiative_id", Type: field.TypeString, Size: 64},
-		{Name: "judge_rubric_results", Type: field.TypeString, Nullable: true, Size: 64},
 	}
 	// JudgeResultsTable holds the schema information for the "judge_results" table.
 	JudgeResultsTable = &schema.Table{
@@ -192,37 +192,9 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "judge_results_initiatives_judge_results",
-				Columns:    []*schema.Column{JudgeResultsColumns[8]},
+				Columns:    []*schema.Column{JudgeResultsColumns[9]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.NoAction,
-			},
-			{
-				Symbol:     "judge_results_judge_rubrics_results",
-				Columns:    []*schema.Column{JudgeResultsColumns[9]},
-				RefColumns: []*schema.Column{JudgeRubricsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
-	// JudgeRubricsColumns holds the columns for the "judge_rubrics" table.
-	JudgeRubricsColumns = []*schema.Column{
-		{Name: "rubric_id", Type: field.TypeString, Size: 64},
-		{Name: "spec_type", Type: field.TypeString, Size: 64},
-		{Name: "criteria", Type: field.TypeJSON, Nullable: true},
-		{Name: "prompt_template", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "spec_workflow_rubrics", Type: field.TypeString, Nullable: true, Size: 64},
-	}
-	// JudgeRubricsTable holds the schema information for the "judge_rubrics" table.
-	JudgeRubricsTable = &schema.Table{
-		Name:       "judge_rubrics",
-		Columns:    JudgeRubricsColumns,
-		PrimaryKey: []*schema.Column{JudgeRubricsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "judge_rubrics_spec_workflows_rubrics",
-				Columns:    []*schema.Column{JudgeRubricsColumns[4]},
-				RefColumns: []*schema.Column{SpecWorkflowsColumns[0]},
-				OnDelete:   schema.SetNull,
 			},
 		},
 	}
@@ -662,7 +634,6 @@ var (
 		InitiativeDependenciesTable,
 		InitiativeWorkflowsTable,
 		JudgeResultsTable,
-		JudgeRubricsTable,
 		MaturityAssessmentsTable,
 		OrganizationsTable,
 		PrismDocumentsTable,
@@ -690,8 +661,6 @@ func init() {
 	InitiativesTable.ForeignKeys[0].RefTable = ProgramsTable
 	InitiativesTable.ForeignKeys[1].RefTable = SpecWorkflowsTable
 	JudgeResultsTable.ForeignKeys[0].RefTable = InitiativesTable
-	JudgeResultsTable.ForeignKeys[1].RefTable = JudgeRubricsTable
-	JudgeRubricsTable.ForeignKeys[0].RefTable = SpecWorkflowsTable
 	MaturityAssessmentsTable.ForeignKeys[0].RefTable = CapabilityModelsTable
 	PhasesTable.ForeignKeys[0].RefTable = InitiativesTable
 	ReleasesTable.ForeignKeys[0].RefTable = RepositoriesTable

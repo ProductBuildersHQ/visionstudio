@@ -266,29 +266,6 @@ func HasInitiativesWith(preds ...predicate.Initiative) predicate.SpecWorkflow {
 	})
 }
 
-// HasRubrics applies the HasEdge predicate on the "rubrics" edge.
-func HasRubrics() predicate.SpecWorkflow {
-	return predicate.SpecWorkflow(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, RubricsTable, RubricsColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
-}
-
-// HasRubricsWith applies the HasEdge predicate on the "rubrics" edge with a given conditions (other predicates).
-func HasRubricsWith(preds ...predicate.JudgeRubric) predicate.SpecWorkflow {
-	return predicate.SpecWorkflow(func(s *sql.Selector) {
-		step := newRubricsStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
-}
-
 // HasSpecDocuments applies the HasEdge predicate on the "spec_documents" edge.
 func HasSpecDocuments() predicate.SpecWorkflow {
 	return predicate.SpecWorkflow(func(s *sql.Selector) {

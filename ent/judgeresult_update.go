@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 )
 
@@ -165,23 +164,24 @@ func (_u *JudgeResultUpdate) ClearModel() *JudgeResultUpdate {
 	return _u
 }
 
-// SetRubricID sets the "rubric" edge to the JudgeRubric entity by ID.
-func (_u *JudgeResultUpdate) SetRubricID(id string) *JudgeResultUpdate {
-	_u.mutation.SetRubricID(id)
+// SetRubricID sets the "rubric_id" field.
+func (_u *JudgeResultUpdate) SetRubricID(v string) *JudgeResultUpdate {
+	_u.mutation.SetRubricID(v)
 	return _u
 }
 
-// SetNillableRubricID sets the "rubric" edge to the JudgeRubric entity by ID if the given value is not nil.
-func (_u *JudgeResultUpdate) SetNillableRubricID(id *string) *JudgeResultUpdate {
-	if id != nil {
-		_u = _u.SetRubricID(*id)
+// SetNillableRubricID sets the "rubric_id" field if the given value is not nil.
+func (_u *JudgeResultUpdate) SetNillableRubricID(v *string) *JudgeResultUpdate {
+	if v != nil {
+		_u.SetRubricID(*v)
 	}
 	return _u
 }
 
-// SetRubric sets the "rubric" edge to the JudgeRubric entity.
-func (_u *JudgeResultUpdate) SetRubric(v *JudgeRubric) *JudgeResultUpdate {
-	return _u.SetRubricID(v.ID)
+// ClearRubricID clears the value of the "rubric_id" field.
+func (_u *JudgeResultUpdate) ClearRubricID() *JudgeResultUpdate {
+	_u.mutation.ClearRubricID()
+	return _u
 }
 
 // SetInitiative sets the "initiative" edge to the Initiative entity.
@@ -192,12 +192,6 @@ func (_u *JudgeResultUpdate) SetInitiative(v *Initiative) *JudgeResultUpdate {
 // Mutation returns the JudgeResultMutation object of the builder.
 func (_u *JudgeResultUpdate) Mutation() *JudgeResultMutation {
 	return _u.mutation
-}
-
-// ClearRubric clears the "rubric" edge to the JudgeRubric entity.
-func (_u *JudgeResultUpdate) ClearRubric() *JudgeResultUpdate {
-	_u.mutation.ClearRubric()
-	return _u
 }
 
 // ClearInitiative clears the "initiative" edge to the Initiative entity.
@@ -255,6 +249,11 @@ func (_u *JudgeResultUpdate) check() error {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.RubricID(); ok {
+		if err := judgeresult.RubricIDValidator(v); err != nil {
+			return &ValidationError{Name: "rubric_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.rubric_id": %w`, err)}
+		}
+	}
 	if _u.mutation.InitiativeCleared() && len(_u.mutation.InitiativeIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "JudgeResult.initiative"`)
 	}
@@ -309,34 +308,11 @@ func (_u *JudgeResultUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if _u.mutation.ModelCleared() {
 		_spec.ClearField(judgeresult.FieldModel, field.TypeString)
 	}
-	if _u.mutation.RubricCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   judgeresult.RubricTable,
-			Columns: []string{judgeresult.RubricColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := _u.mutation.RubricID(); ok {
+		_spec.SetField(judgeresult.FieldRubricID, field.TypeString, value)
 	}
-	if nodes := _u.mutation.RubricIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   judgeresult.RubricTable,
-			Columns: []string{judgeresult.RubricColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if _u.mutation.RubricIDCleared() {
+		_spec.ClearField(judgeresult.FieldRubricID, field.TypeString)
 	}
 	if _u.mutation.InitiativeCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -522,23 +498,24 @@ func (_u *JudgeResultUpdateOne) ClearModel() *JudgeResultUpdateOne {
 	return _u
 }
 
-// SetRubricID sets the "rubric" edge to the JudgeRubric entity by ID.
-func (_u *JudgeResultUpdateOne) SetRubricID(id string) *JudgeResultUpdateOne {
-	_u.mutation.SetRubricID(id)
+// SetRubricID sets the "rubric_id" field.
+func (_u *JudgeResultUpdateOne) SetRubricID(v string) *JudgeResultUpdateOne {
+	_u.mutation.SetRubricID(v)
 	return _u
 }
 
-// SetNillableRubricID sets the "rubric" edge to the JudgeRubric entity by ID if the given value is not nil.
-func (_u *JudgeResultUpdateOne) SetNillableRubricID(id *string) *JudgeResultUpdateOne {
-	if id != nil {
-		_u = _u.SetRubricID(*id)
+// SetNillableRubricID sets the "rubric_id" field if the given value is not nil.
+func (_u *JudgeResultUpdateOne) SetNillableRubricID(v *string) *JudgeResultUpdateOne {
+	if v != nil {
+		_u.SetRubricID(*v)
 	}
 	return _u
 }
 
-// SetRubric sets the "rubric" edge to the JudgeRubric entity.
-func (_u *JudgeResultUpdateOne) SetRubric(v *JudgeRubric) *JudgeResultUpdateOne {
-	return _u.SetRubricID(v.ID)
+// ClearRubricID clears the value of the "rubric_id" field.
+func (_u *JudgeResultUpdateOne) ClearRubricID() *JudgeResultUpdateOne {
+	_u.mutation.ClearRubricID()
+	return _u
 }
 
 // SetInitiative sets the "initiative" edge to the Initiative entity.
@@ -549,12 +526,6 @@ func (_u *JudgeResultUpdateOne) SetInitiative(v *Initiative) *JudgeResultUpdateO
 // Mutation returns the JudgeResultMutation object of the builder.
 func (_u *JudgeResultUpdateOne) Mutation() *JudgeResultMutation {
 	return _u.mutation
-}
-
-// ClearRubric clears the "rubric" edge to the JudgeRubric entity.
-func (_u *JudgeResultUpdateOne) ClearRubric() *JudgeResultUpdateOne {
-	_u.mutation.ClearRubric()
-	return _u
 }
 
 // ClearInitiative clears the "initiative" edge to the Initiative entity.
@@ -623,6 +594,11 @@ func (_u *JudgeResultUpdateOne) check() error {
 	if v, ok := _u.mutation.Model(); ok {
 		if err := judgeresult.ModelValidator(v); err != nil {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RubricID(); ok {
+		if err := judgeresult.RubricIDValidator(v); err != nil {
+			return &ValidationError{Name: "rubric_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.rubric_id": %w`, err)}
 		}
 	}
 	if _u.mutation.InitiativeCleared() && len(_u.mutation.InitiativeIDs()) > 0 {
@@ -696,34 +672,11 @@ func (_u *JudgeResultUpdateOne) sqlSave(ctx context.Context) (_node *JudgeResult
 	if _u.mutation.ModelCleared() {
 		_spec.ClearField(judgeresult.FieldModel, field.TypeString)
 	}
-	if _u.mutation.RubricCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   judgeresult.RubricTable,
-			Columns: []string{judgeresult.RubricColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	if value, ok := _u.mutation.RubricID(); ok {
+		_spec.SetField(judgeresult.FieldRubricID, field.TypeString, value)
 	}
-	if nodes := _u.mutation.RubricIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   judgeresult.RubricTable,
-			Columns: []string{judgeresult.RubricColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	if _u.mutation.RubricIDCleared() {
+		_spec.ClearField(judgeresult.FieldRubricID, field.TypeString)
 	}
 	if _u.mutation.InitiativeCleared() {
 		edge := &sqlgraph.EdgeSpec{

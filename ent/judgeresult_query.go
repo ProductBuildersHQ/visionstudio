@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 )
 
@@ -24,9 +23,7 @@ type JudgeResultQuery struct {
 	order          []judgeresult.OrderOption
 	inters         []Interceptor
 	predicates     []predicate.JudgeResult
-	withRubric     *JudgeRubricQuery
 	withInitiative *InitiativeQuery
-	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,28 +58,6 @@ func (_q *JudgeResultQuery) Unique(unique bool) *JudgeResultQuery {
 func (_q *JudgeResultQuery) Order(o ...judgeresult.OrderOption) *JudgeResultQuery {
 	_q.order = append(_q.order, o...)
 	return _q
-}
-
-// QueryRubric chains the current query on the "rubric" edge.
-func (_q *JudgeResultQuery) QueryRubric() *JudgeRubricQuery {
-	query := (&JudgeRubricClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(judgeresult.Table, judgeresult.FieldID, selector),
-			sqlgraph.To(judgerubric.Table, judgerubric.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, judgeresult.RubricTable, judgeresult.RubricColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
 }
 
 // QueryInitiative chains the current query on the "initiative" edge.
@@ -299,23 +274,11 @@ func (_q *JudgeResultQuery) Clone() *JudgeResultQuery {
 		order:          append([]judgeresult.OrderOption{}, _q.order...),
 		inters:         append([]Interceptor{}, _q.inters...),
 		predicates:     append([]predicate.JudgeResult{}, _q.predicates...),
-		withRubric:     _q.withRubric.Clone(),
 		withInitiative: _q.withInitiative.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
-}
-
-// WithRubric tells the query-builder to eager-load the nodes that are connected to
-// the "rubric" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *JudgeResultQuery) WithRubric(opts ...func(*JudgeRubricQuery)) *JudgeResultQuery {
-	query := (&JudgeRubricClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withRubric = query
-	return _q
 }
 
 // WithInitiative tells the query-builder to eager-load the nodes that are connected to
@@ -406,19 +369,11 @@ func (_q *JudgeResultQuery) prepareQuery(ctx context.Context) error {
 func (_q *JudgeResultQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*JudgeResult, error) {
 	var (
 		nodes       = []*JudgeResult{}
-		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
-			_q.withRubric != nil,
+		loadedTypes = [1]bool{
 			_q.withInitiative != nil,
 		}
 	)
-	if _q.withRubric != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, judgeresult.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*JudgeResult).scanValues(nil, columns)
 	}
@@ -437,12 +392,6 @@ func (_q *JudgeResultQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withRubric; query != nil {
-		if err := _q.loadRubric(ctx, query, nodes, nil,
-			func(n *JudgeResult, e *JudgeRubric) { n.Edges.Rubric = e }); err != nil {
-			return nil, err
-		}
-	}
 	if query := _q.withInitiative; query != nil {
 		if err := _q.loadInitiative(ctx, query, nodes, nil,
 			func(n *JudgeResult, e *Initiative) { n.Edges.Initiative = e }); err != nil {
@@ -452,38 +401,6 @@ func (_q *JudgeResultQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 	return nodes, nil
 }
 
-func (_q *JudgeResultQuery) loadRubric(ctx context.Context, query *JudgeRubricQuery, nodes []*JudgeResult, init func(*JudgeResult), assign func(*JudgeResult, *JudgeRubric)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*JudgeResult)
-	for i := range nodes {
-		if nodes[i].judge_rubric_results == nil {
-			continue
-		}
-		fk := *nodes[i].judge_rubric_results
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(judgerubric.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "judge_rubric_results" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 func (_q *JudgeResultQuery) loadInitiative(ctx context.Context, query *InitiativeQuery, nodes []*JudgeResult, init func(*JudgeResult), assign func(*JudgeResult, *Initiative)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*JudgeResult)

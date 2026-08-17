@@ -58,3 +58,9 @@ prompted it).
 **Theme:** A cancelled RMI leaves nothing pending, the same as completed — every done-check in the codebase should agree
 
 - [x] `RMI-VISIONSTUDIO-546` Treat cancelled RMIs as resolved in `DerivePhaseStatus`, `sweep`, and `release candidates` — found via `INIT-PRISMCONTROL-003` (13 completed + 8 cancelled RMIs, 0 pending, fully resolved) still showing two phases `in_progress` and one `planned`, with neither `sweep` nor `candidates` flagging it as a close candidate. `DerivePhaseStatus` only counted literal `completed` toward required-work-done, so a phase with a cancelled required RMI never reached the completed-vs-partial branch. Fixed by tracking required-resolved (completed OR cancelled) separately, matching `ProgressBar`'s existing green-vs-blue treatment; `sweep`/`candidates` had the identical gap in their `ready`/`partial` verdicts, fixed the same way, and both now surface the cancelled count alongside the resolved count so the distinction stays visible. Found through direct use of the tools this initiative shipped, on a real case — acceptance testing in the fullest sense
+
+## Phase 9 — Troubleshooting Documentation
+
+**Theme:** Capture real operational failure modes hit this session before they're forgotten
+
+- [x] `RMI-VISIONSTUDIO-547` Add a Troubleshooting page (schema drift, stale binary, DB down) — found live: `/api/specs` failed with `Error 1105 "does not have column rubric_id"`, traced to the local Dolt database being several Ent schema generations behind code (another session's schema-changing commit landed via `git pull`, nobody ran a migration against this database afterward). Fixed with `db init --migrate` (additive-only, always safe). No troubleshooting doc existed; added `docs/getting-started/troubleshooting.md` covering three concrete failure modes hit this session — schema drift, a stale UI+API process after a rebuild (`app restart`), and the database not running — plus a `CLAUDE.md` pointer section

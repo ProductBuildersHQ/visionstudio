@@ -216,12 +216,11 @@ visionstudio/
 ## Ecosystem
 
 VisionStudio is the top layer of the ProductBuildersHQ spec stack
-(`visionstudio → visionspec → specification-workflow-spec`); see the
+(`visionstudio → visionspec`); see the
 [Ecosystem architecture page](docs/architecture/ecosystem.md) for how the
 layers interact.
 
-- [specification-workflow-spec](https://github.com/ProductBuildersHQ/specification-workflow-spec) - The contract: workflow types, schemas, and the embedded 24-workflow library (configs, templates, rubrics) VisionStudio loads directly
-- [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) - The engine: scaffolding, LLM synthesis, LLM-as-Judge evaluation, lint/drift/status, and MCP server, consumed as an imported SDK
+- [VisionSpec](https://github.com/ProductBuildersHQ/visionspec) - The contract and the engine: workflow types, schemas, and the embedded 25-workflow library (configs, templates, rubrics), plus scaffolding, LLM synthesis, LLM-as-Judge evaluation, lint/drift/status, and MCP server — all consumed as an imported SDK. specification-workflow-spec, the former standalone home for the contract, was merged into visionspec in v0.16.0 and archived.
 
 ## Related Projects
 

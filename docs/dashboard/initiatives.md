@@ -15,7 +15,7 @@ Each initiative tile shows: the initiative ID (monospace), a status badge, the t
 
 ### Creating an initiative
 
-A **+ New Initiative** button in the header (also shown on the empty state) opens a creation form: ID, title, description, type, priority, program, and — required — a **spec workflow** chosen from the [`specification-workflow-spec` catalog](specs-and-evaluation.md#spec-workflows). Selecting a workflow previews its required document sequence and optional documents; changing the initiative type updates the suggested workflow (maintenance/refactor/migration → `quick-fix`, otherwise `pbhq-lite`) until you pick one explicitly. In a program view, the program field is pre-selected.
+A **+ New Initiative** button in the header (also shown on the empty state) opens a creation form: ID, title, description, type, priority, program, and — required — a **spec workflow** chosen from the [`visionspec` catalog](specs-and-evaluation.md#spec-workflows). Selecting a workflow previews its required document sequence and optional documents; changing the initiative type updates the suggested workflow (maintenance/refactor/migration → `quick-fix`, otherwise `pbhq-lite`) until you pick one explicitly. In a program view, the program field is pre-selected.
 
 On create you land on the new initiative's **Definition** tab, which renders the selected workflow's document layout. Mutations remain CLI/API-first — this form is backed by `POST /api/initiatives`, the API's only write endpoint; everything else (workflow switching, hiding, transitions) is still done via the CLI.
 

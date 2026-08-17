@@ -2,7 +2,7 @@
 
 ## Spec Workflows
 
-Each initiative has a **spec workflow** that defines which documents it needs. All default workflows are defined in [`specification-workflow-spec`](https://github.com/ProductBuildersHQ/specification-workflow-spec) — the single source of truth — and include PBHQ Lite (PRD → TRD → PLAN → ROADMAP), Quick Fix (ROADMAP only), AWS Working Backwards Product and Feature (PR/FAQ-driven), and ~20 others.
+Each initiative has a **spec workflow** that defines which documents it needs. All default workflows are defined in [`visionspec`](https://github.com/ProductBuildersHQ/visionspec)'s embedded catalog — the single source of truth — and include PBHQ Lite (PRD → TRD → PLAN → ROADMAP), Quick Fix (ROADMAP only), AWS One-Way Door and Two-Way Door (PR/FAQ-driven), and ~20 others.
 
 - **Selecting:** `visionstudio initiative create --workflow <id>` (required; falls back to `defaults.workflow` in config). Browse the catalog with `visionstudio workflow list` / `workflow get <id>`.
 - **Switching after creation:** `visionstudio initiative update <id> --workflow <new-id>`. The initiative page, spec expectations, and evaluation rubrics all follow the new workflow. Switching is CLI-only; the dashboard shows the current workflow read-only as a chip next to the initiative status.

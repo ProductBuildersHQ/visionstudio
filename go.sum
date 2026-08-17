@@ -178,8 +178,8 @@ github.com/ProductBuildersHQ/prism-build v0.2.0 h1:/BCbb7F3UHVjT2gOWwg6DqpWB2FMW
 github.com/ProductBuildersHQ/prism-build v0.2.0/go.mod h1:kl42lQGsxe8J7xJQgd9Npnoa2ksxUhwKBL7VtRVO964=
 github.com/ProductBuildersHQ/scale v0.2.0 h1:NeNLOHq1sNcaHO1jZCpVhAOVEnuwO7qf2Wef7SLhBkg=
 github.com/ProductBuildersHQ/scale v0.2.0/go.mod h1:1UDtB3LdIUP3x5UqUQavHMUbH8NMIPFC2NFmQBbj5aw=
-github.com/ProductBuildersHQ/visionspec v0.16.1-0.20260817051750-0357b92a4942 h1:jEA/3JU4CWfO3e0jrHIdeXNNYmvTDOTtM3VzkB4KHvo=
-github.com/ProductBuildersHQ/visionspec v0.16.1-0.20260817051750-0357b92a4942/go.mod h1:EteGmKM+X1EZCpO+6lzLV9oyqTfSKeXXWGWghtM/HYs=
+github.com/ProductBuildersHQ/visionspec v0.17.0 h1:3Ek9OAKo7FPrnwqV1cxW2JOmkG6HBRFOg2RrnGMfFJs=
+github.com/ProductBuildersHQ/visionspec v0.17.0/go.mod h1:EteGmKM+X1EZCpO+6lzLV9oyqTfSKeXXWGWghtM/HYs=
 github.com/Shopify/toxiproxy/v2 v2.5.0 h1:i4LPT+qrSlKNtQf5QliVjdP08GyAH8+BUIc9gT0eahc=
 github.com/Shopify/toxiproxy/v2 v2.5.0/go.mod h1:yhM2epWtAmel9CB8r2+L+PCmhH6yH2pITaPAo7jxJl0=
 github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db h1:CjPUSXOiYptLbTdr1RceuZgSFDQ7U15ITERUGrUORx8=

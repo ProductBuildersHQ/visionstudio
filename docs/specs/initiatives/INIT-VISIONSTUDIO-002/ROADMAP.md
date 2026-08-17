@@ -28,7 +28,7 @@ New RMIs use the RMI-VISIONSTUDIO-5xx block; RMI-VISIONSTUDIO-201..205 predate t
   - Explicit synced-entity list (TRD T2: initiatives incl lifecycle+visibility, phases, RMIs, releases, orgs, persons, repo metadata WITHOUT local_path); never-sync list (local paths, raw logs, raw ACTS evidence, source); visionstudio cloud login + sync --tenant with per-project tenant assignment
 - [ ] `RMI-VISIONSTUDIO-503` Hosted Dolt operations baseline
   - Deploy topology, TESTED backup/restore, upgrade procedure, per-tenant size monitoring; proven with dogfood tenants before any site depends on the service
-- [ ] `RMI-VISIONSTUDIO-535` Cloud-to-local pull + fast-forward-only sync policy
+- [x] `RMI-VISIONSTUDIO-535` Cloud-to-local pull + fast-forward-only sync policy
   - Added by MVP re-scope 2026-08-14 (sync + multi-user is the primary launch value; multi-user breaks the single-writer assumption in RMI-205's conflict story). `visionstudio pull --tenant <slug>`: Dolt-native fetch + LOCAL merge — conflicts surface locally via Dolt conflict tables, the cloud never merges divergent user work server-side. Push becomes fast-forward-only: rejected with a "pull first" error when the tenant remote has commits the client lacks. This is the entire multi-user concurrency model (the git model). Client side of the facade protocol in `RMI-VISIONSTUDIOCLOUD-002`; dogfood M1 proof: push/pull round-trip between two of our own machines before any auth exists
 
 ## Phase 2 — Public Hosting MVP: Roadmap and Release Log

@@ -154,12 +154,16 @@ func DerivePhaseStatus(rmis []*store.RoadmapItem) string {
 		return PhasePlanned
 	}
 
-	var requiredTotal, requiredCompleted, anyActive, anyBlocked int
+	var requiredTotal, requiredResolved, requiredCompleted, anyActive, anyBlocked int
 	for _, r := range rmis {
 		if r.Required {
 			requiredTotal++
-			if r.Status == "completed" {
+			switch r.Status {
+			case "completed":
 				requiredCompleted++
+				requiredResolved++
+			case "cancelled":
+				requiredResolved++
 			}
 		}
 		switch r.Status {
@@ -173,15 +177,17 @@ func DerivePhaseStatus(rmis []*store.RoadmapItem) string {
 	if anyBlocked > 0 {
 		return PhaseBlocked
 	}
-	if requiredTotal > 0 && requiredCompleted == requiredTotal {
-		allComplete := true
+	// A phase is resolved once every required RMI is either completed or
+	// cancelled -- cancelled work leaves nothing pending, the same as done.
+	if requiredTotal > 0 && requiredResolved == requiredTotal {
+		allResolved := true
 		for _, r := range rmis {
 			if r.Status != "completed" && r.Status != "cancelled" {
-				allComplete = false
+				allResolved = false
 				break
 			}
 		}
-		if allComplete {
+		if allResolved {
 			return PhaseCompleted
 		}
 		return PhasePartial

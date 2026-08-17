@@ -73,7 +73,7 @@ Each pipeline stage stamps a timestamp when entered (`planned_at`, `executing_at
 visionstudio initiative sweep [--format json]
 ```
 
-Lists non-terminal initiatives (`proposed`/`planned`/`executing`) where **every** RMI is `completed` — a signal that recorded status has fallen behind actual progress. For each candidate, `sweep` resolves every distinct repository referenced by its RMIs (not just the initiative's home repo — an initiative's work often spans more than one) and reports local git state per repo: clean and in sync, dirty (uncommitted changes), unpushed commits, behind upstream, or not found/not registered locally. Read-only checks against cached refs, same posture as [`registry doctor`](repositories.md#managing-repository-entries) — no network fetch.
+Lists non-terminal initiatives (`proposed`/`planned`/`executing`) where **every** RMI is resolved — `completed` or `cancelled` (cancelled work leaves nothing pending, the same as done) — a signal that recorded status has fallen behind actual progress. For each candidate, `sweep` resolves every distinct repository referenced by its RMIs (not just the initiative's home repo — an initiative's work often spans more than one) and reports local git state per repo: clean and in sync, dirty (uncommitted changes), unpushed commits, behind upstream, or not found/not registered locally. Read-only checks against cached refs, same posture as [`registry doctor`](repositories.md#managing-repository-entries) — no network fetch.
 
 `sweep` never transitions anything itself. It's a starting point for review, not an auto-closer: a `completed` RMI status doesn't guarantee the shipped code actually matches what the RMI describes — verify that by hand (or with an agent) before transitioning or recording a release, especially for multi-repo initiatives.
 
@@ -83,7 +83,7 @@ Lists non-terminal initiatives (`proposed`/`planned`/`executing`) where **every*
 visionstudio release candidates --repo <repo-id> [--format json]
 ```
 
-Lists every non-terminal initiative with at least one RMI in that repo, classified `ready` (every RMI across every repo it touches is done), `partial` (this repo's RMIs are done but the initiative has open work elsewhere — record the release, don't close yet), `not_ready`, or `already_attached` (a prior release of this repo already lists it). Same report-only discipline as `sweep`.
+Lists every non-terminal initiative with at least one RMI in that repo, classified `ready` (every RMI across every repo it touches is resolved — completed or cancelled), `partial` (this repo's RMIs are resolved but the initiative has open work elsewhere — record the release, don't close yet), `not_ready`, or `already_attached` (a prior release of this repo already lists it). Same report-only discipline as `sweep`.
 
 Once a release is recorded and attached, `initiative get <id>` prints a `Releases:` section listing every `repo@tag` it's attached to — the CLI counterpart to the dashboard's "Released in" chips.
 

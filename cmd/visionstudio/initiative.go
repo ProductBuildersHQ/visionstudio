@@ -513,10 +513,14 @@ type sweepRepoCheck struct {
 
 // sweepCandidate is a non-terminal initiative whose RMIs are all completed.
 type sweepCandidate struct {
-	InitiativeID string           `json:"initiative_id"`
-	Title        string           `json:"title"`
-	Status       string           `json:"status"`
-	RMICount     int              `json:"rmi_count"`
+	InitiativeID string `json:"initiative_id"`
+	Title        string `json:"title"`
+	Status       string `json:"status"`
+	RMICount     int    `json:"rmi_count"`
+	// RMICancelled is how many of RMICount are cancelled rather than
+	// completed -- both count as "resolved," but this keeps that
+	// distinction visible instead of collapsing it into one number.
+	RMICancelled int              `json:"rmi_cancelled,omitempty"`
 	Repos        []sweepRepoCheck `json:"repos"`
 	NeedsReview  bool             `json:"needs_review"`
 }
@@ -526,11 +530,13 @@ func initiativeSweepCmd() *cobra.Command {
 		Use:   "sweep",
 		Short: "Find initiatives whose RMI completion has outrun their recorded status",
 		Long: `Lists non-terminal initiatives (proposed/planned/executing) where every RMI
-is completed. For each candidate, resolves every distinct repository referenced
-by its RMIs -- not just the initiative's home repo -- and reports local git
-state: clean/dirty working tree, ahead/behind the cached remote-tracking ref
-(no network fetch), or not found/not registered locally. Same best-effort,
-report-only posture as 'registry doctor'.
+is resolved -- completed or cancelled (cancelled work leaves nothing pending,
+the same as done -- matches DerivePhaseStatus's treatment). For each candidate,
+resolves every distinct repository referenced by its RMIs -- not just the
+initiative's home repo -- and reports local git state: clean/dirty working
+tree, ahead/behind the cached remote-tracking ref (no network fetch), or not
+found/not registered locally. Same best-effort, report-only posture as
+'registry doctor'.
 
 sweep never calls transition or release record itself, and it cannot verify
 that a completed RMI's shipped code actually matches its written description
@@ -574,12 +580,20 @@ that a completed RMI's shipped code actually matches its written description
 				if len(rmis) == 0 {
 					continue
 				}
+				// "Done" means every RMI is resolved -- completed or
+				// cancelled -- not just literally completed. A cancelled
+				// RMI leaves nothing pending, the same as a completed one
+				// (matches DerivePhaseStatus's treatment of cancelled work).
 				allDone := true
+				cancelledCount := 0
 				repoIDSet := map[string]bool{}
 				for _, r := range rmis {
-					if r.Status != "completed" {
+					if r.Status != "completed" && r.Status != "cancelled" {
 						allDone = false
 						break
+					}
+					if r.Status == "cancelled" {
+						cancelledCount++
 					}
 					if r.RepositoryID != "" {
 						repoIDSet[r.RepositoryID] = true
@@ -613,6 +627,7 @@ that a completed RMI's shipped code actually matches its written description
 					Title:        init.Title,
 					Status:       init.Status,
 					RMICount:     len(rmis),
+					RMICancelled: cancelledCount,
 					Repos:        checks,
 					NeedsReview:  needsReview,
 				})
@@ -635,7 +650,11 @@ that a completed RMI's shipped code actually matches its written description
 				if c.NeedsReview {
 					marker = "needs review"
 				}
-				cmd.Printf("%s [%s -> %s] %s (%d RMIs, all completed)\n", c.InitiativeID, c.Status, marker, c.Title, c.RMICount)
+				resolution := "all completed"
+				if c.RMICancelled > 0 {
+					resolution = fmt.Sprintf("%d completed, %d cancelled", c.RMICount-c.RMICancelled, c.RMICancelled)
+				}
+				cmd.Printf("%s [%s -> %s] %s (%d RMIs, %s)\n", c.InitiativeID, c.Status, marker, c.Title, c.RMICount, resolution)
 				for _, r := range c.Repos {
 					cmd.Printf("  %-12s %-45s %s\n", r.State, r.RepositoryID, r.Detail)
 				}

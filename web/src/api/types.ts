@@ -19,6 +19,7 @@ export type {
   APIRepository,
   APIRMIDependency,
   APIInitiativeDependency,
+  APIRelease,
   APIProgram,
   SpecFile,
   SpecFilesResponse,

@@ -86,6 +86,10 @@ func (s *Service) TransitionInitiative(ctx context.Context, id, toStatus string)
 type InitiativeDetail struct {
 	Initiative *store.Initiative
 	Phases     []PhaseDetail
+	// Releases lists every repo@tag release this initiative is attached
+	// to -- an initiative's RMIs can span multiple repos, so this can
+	// have entries from more than one repository.
+	Releases []*store.Release
 }
 
 // PhaseDetail is a phase with its derived status from member RMIs.
@@ -117,7 +121,12 @@ func (s *Service) GetInitiativeDetail(ctx context.Context, id string) (*Initiati
 		rmisByPhase[r.PhaseID] = append(rmisByPhase[r.PhaseID], r)
 	}
 
-	detail := &InitiativeDetail{Initiative: init}
+	releases, err := s.ListReleases(ctx, "", id)
+	if err != nil {
+		return nil, fmt.Errorf("list releases: %w", err)
+	}
+
+	detail := &InitiativeDetail{Initiative: init, Releases: releases}
 	for _, p := range phases {
 		phaseRMIs := rmisByPhase[p.ID]
 		detail.Phases = append(detail.Phases, PhaseDetail{

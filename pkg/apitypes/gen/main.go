@@ -60,6 +60,7 @@ func run() error {
 		{"APIRMIDependency", apitypes.APIRMIDependency{}},
 		{"APIInitiativeDependency", apitypes.APIInitiativeDependency{}},
 		{"APIStatusCount", apitypes.APIStatusCount{}},
+		{"APIRelease", apitypes.APIRelease{}},
 	}
 
 	outDir := "schema"

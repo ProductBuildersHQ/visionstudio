@@ -46,3 +46,9 @@ prompted it).
 **Theme:** For a repo about to be released, find every non-terminal initiative touching it and whether it's ready to ride along
 
 - [x] `RMI-VISIONSTUDIO-544` `visionstudio release candidates --repo <repo-id>` — lists every non-terminal initiative with ≥1 RMI in the given repo and classifies it: `ready` (every RMI in every repo the initiative touches is done — full close candidate), `partial` (this repo's RMIs are done but other repos still have open work — record the release but don't close yet), `not_ready` (this repo still has open work), `already_attached` (a release of this repo already lists this initiative). Report-only, same discipline as `sweep`. Proposed directly by the user: complements `initiative sweep`'s initiative-first direction with the repo-first direction an agent actually needs when releasing a specific repo
+
+## Phase 7 — Release Visibility on Initiatives
+
+**Theme:** Surface which repo@tag releases an initiative shipped in, wherever you'd naturally look for it
+
+- [x] `RMI-VISIONSTUDIO-545` Show attached releases on `initiative get` and the Initiative Detail dashboard page — the `Release` entity already recorded repo-scoped tags with an initiative M2M edge, correctly handling multi-repo initiatives (one tag per repo), but neither the CLI nor the dashboard surfaced it. `GetInitiativeDetail` gains a `Releases` field; `initiative get` prints a `Releases:` section; `ExecutionResponse` (both dual-struct API layers) gains a `releases` array; `InitiativeDetail.tsx` shows a "Released in:" chip row per `repo@tag`, linked to the release URL when recorded. Proposed directly by the user, after confirming the underlying data already handled the multi-repo case correctly (`INIT-AGENTPROTOCOLS-001`'s 3 repo tags) — the gap was visibility, not recording

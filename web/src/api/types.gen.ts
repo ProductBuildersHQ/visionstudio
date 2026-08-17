@@ -30,6 +30,7 @@ import {
   APIRMIDependencySchema,
   APIInitiativeDependencySchema,
   APIStatusCountSchema,
+  APIReleaseSchema,
   APIPhaseSchema,
   APIInitiativeSchema,
   APIProgramSchema,
@@ -65,6 +66,7 @@ export type APIRepository = z.infer<typeof APIRepositorySchema>
 export type APIRMIDependency = z.infer<typeof APIRMIDependencySchema>
 export type APIInitiativeDependency = z.infer<typeof APIInitiativeDependencySchema>
 export type APIStatusCount = z.infer<typeof APIStatusCountSchema>
+export type APIRelease = z.infer<typeof APIReleaseSchema>
 export type APIPhase = z.infer<typeof APIPhaseSchema>
 export type APIInitiative = z.infer<typeof APIInitiativeSchema>
 export type APIProgram = z.infer<typeof APIProgramSchema>
@@ -101,6 +103,7 @@ export {
   APIRMIDependencySchema,
   APIInitiativeDependencySchema,
   APIStatusCountSchema,
+  APIReleaseSchema,
   APIPhaseSchema,
   APIInitiativeSchema,
   APIProgramSchema,

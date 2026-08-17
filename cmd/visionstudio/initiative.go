@@ -344,6 +344,12 @@ func initiativeGetCmd() *cobra.Command {
 			if init.ClosedAt != nil {
 				cmd.Printf("Closed:     %s\n", init.ClosedAt.Format("2006-01-02 15:04"))
 			}
+			if len(detail.Releases) > 0 {
+				cmd.Println("Releases:")
+				for _, r := range detail.Releases {
+					cmd.Printf("  %s@%s (%s)\n", r.RepositoryID, r.Tag, r.ReleasedAt.Format("2006-01-02"))
+				}
+			}
 
 			if len(detail.Phases) > 0 {
 				var totalRMIs, completedRMIs, requiredTotal, requiredCompleted int

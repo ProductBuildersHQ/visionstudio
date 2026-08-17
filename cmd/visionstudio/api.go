@@ -131,6 +131,20 @@ type ExecutionResponse struct {
 	StatusDist             []APIStatusCount          `json:"statusDistribution"`
 	RMIDependencies        []APIRMIDependency        `json:"rmiDependencies"`
 	InitiativeDependencies []APIInitiativeDependency `json:"initiativeDependencies"`
+	Releases               []APIRelease              `json:"releases"`
+}
+
+// APIRelease is a recorded repo@tag release, with the initiatives it's
+// attached to -- an initiative can be attached to releases from multiple
+// repos (its RMIs span more than one), so "what did this initiative ship
+// in" is a list, not a single tag.
+type APIRelease struct {
+	ID            string   `json:"id"`
+	RepositoryID  string   `json:"repositoryId"`
+	Tag           string   `json:"tag"`
+	ReleasedAt    string   `json:"releasedAt"`
+	URL           string   `json:"url,omitempty"`
+	InitiativeIDs []string `json:"initiativeIds,omitempty"`
 }
 
 // APITimeBucket represents token spend for a time bucket (week/month).
@@ -647,6 +661,23 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 		})
 	}
 
+	// Load releases
+	releases, err := svc.ListReleases(ctx, "", "")
+	if err != nil {
+		return nil, err
+	}
+	var apiReleases []APIRelease
+	for _, r := range releases {
+		apiReleases = append(apiReleases, APIRelease{
+			ID:            r.ID,
+			RepositoryID:  r.RepositoryID,
+			Tag:           r.Tag,
+			ReleasedAt:    r.ReleasedAt.Format("2006-01-02"),
+			URL:           r.URL,
+			InitiativeIDs: r.InitiativeIDs,
+		})
+	}
+
 	return &ExecutionResponse{
 		Programs:               apiPrograms,
 		Initiatives:            apiInitiatives,
@@ -656,6 +687,7 @@ func buildExecutionResponse(ctx context.Context, svc *service.Service) (*Executi
 		StatusDist:             statusDist,
 		RMIDependencies:        rmiDeps,
 		InitiativeDependencies: apiInitDeps,
+		Releases:               apiReleases,
 	}, nil
 }
 

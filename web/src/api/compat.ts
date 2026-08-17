@@ -25,6 +25,7 @@ import type {
   SpecWorkflow as GenSpecWorkflow,
   APIInitiativeDependency as GenAPIInitiativeDependency,
   APIStatusCount as GenAPIStatusCount,
+  APIRelease as GenAPIRelease,
 } from './types.gen'
 
 // Re-export generated rubric types for direct use
@@ -170,6 +171,15 @@ export interface APIRepository {
   status: string
 }
 
+export interface APIRelease {
+  id: string
+  repositoryId: string
+  tag: string
+  releasedAt: string
+  url?: string
+  initiativeIds: string[]
+}
+
 export interface ExecutionResponse {
   programs: APIProgram[]
   initiatives: APIInitiative[]
@@ -179,6 +189,7 @@ export interface ExecutionResponse {
   statusDistribution: APIStatusCount[]
   rmiDependencies: APIRMIDependency[]
   initiativeDependencies: APIInitiativeDependency[]
+  releases: APIRelease[]
 }
 
 // Conversion functions with defaults
@@ -319,6 +330,17 @@ export function toAPIRepository(gen: GenAPIRepository): APIRepository {
   }
 }
 
+export function toAPIRelease(gen: GenAPIRelease): APIRelease {
+  return {
+    id: gen.id ?? '',
+    repositoryId: gen.repositoryId ?? '',
+    tag: gen.tag ?? '',
+    releasedAt: gen.releasedAt ?? '',
+    url: gen.url,
+    initiativeIds: gen.initiativeIds ?? [],
+  }
+}
+
 export function toExecutionResponse(gen: GenExecutionResponse): ExecutionResponse {
   return {
     programs: (gen.programs ?? []).map(toAPIProgram),
@@ -329,6 +351,7 @@ export function toExecutionResponse(gen: GenExecutionResponse): ExecutionRespons
     statusDistribution: (gen.statusDistribution ?? []).map(toAPIStatusCount),
     rmiDependencies: (gen.rmiDependencies ?? []).map(toAPIRMIDependency),
     initiativeDependencies: (gen.initiativeDependencies ?? []).map(toAPIInitiativeDependency),
+    releases: (gen.releases ?? []).map(toAPIRelease),
   }
 }
 

@@ -38,7 +38,7 @@ go build -o bin/visionstudio ./cmd/visionstudio
 ./bin/visionstudio db init --migrate
 ```
 
-This bootstraps a Dolt database at `~/.productbuildershq/visionstudio` (override with `--data-dir`, or point at an existing MySQL-compatible server with `--dsn`).
+This bootstraps a Dolt database at `~/.productbuildershq/visionstudio` (override with `--data-dir`, or point at an existing MySQL-compatible server with `--dsn`). Re-running this command is always safe — it's additive-only, so it's also the fix if you ever see a `does not have column` error after pulling new code (see [Troubleshooting](troubleshooting.md)).
 
 ## Verify Installation
 

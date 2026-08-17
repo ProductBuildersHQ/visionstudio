@@ -205,6 +205,14 @@ The discipline that keeps this from being scope creep: each addition traces to a
 
 `web/dist/.gitkeep` is the only tracked file in `web/dist/` — the real build output is gitignored. Running `npm run build` (or `go install ./cmd/visionstudio` after it) deletes `.gitkeep` as part of clearing the output dir; `git checkout -- web/dist/.gitkeep` afterward, or a `git status` diff will show a phantom deletion.
 
+## Troubleshooting
+
+See `docs/getting-started/troubleshooting.md` for the full write-up (kept current there; this is a pointer, not the source). Quick index:
+
+- **`Error 1105 (HY000): table "X" does not have column "Y"`** — the local Dolt database is behind the Ent schema in code (a schema-changing commit landed via `git pull`/another session, and nobody ran a migration against *this* database afterward). Fix: `visionstudio db init --migrate`. It's additive-only (adds missing columns/tables, never drops), so it's always safe to run, including as a first troubleshooting step when anything API-related throws a raw SQL error.
+- **Dashboard shows old behavior after a fix, or serves stale data** — the running UI+API process predates your rebuild. `visionstudio app restart` replaces a tracked process in place (see the "closing an initiative" convention above for the `ui.pid` mechanism); if it can't find one to stop, the process predates that tracking and needs a manual kill once.
+- **`cannot reach the VisionStudio database at 127.0.0.1:13306`** — Dolt itself isn't running, most often because an earlier `app start` (which auto-stops the database it started, on exit) exited. `visionstudio db start`, or `app start`/`app restart` to bring both up together.
+
 ## Commands
 
 ```bash

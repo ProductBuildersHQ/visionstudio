@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.14.6
 	github.com/ProductBuildersHQ/prism-build v0.2.0
 	github.com/ProductBuildersHQ/scale v0.2.0
-	github.com/ProductBuildersHQ/visionspec v0.16.0
+	github.com/ProductBuildersHQ/visionspec v0.16.1-0.20260817051750-0357b92a4942
 	github.com/dolthub/driver v1.88.1
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.3.1
@@ -17,7 +17,7 @@ require (
 	github.com/grokify/mogo v0.74.7
 	github.com/grokify/oscompat v0.5.0
 	github.com/grokify/prism-maturity v0.14.0
-	github.com/grokify/prism-roadmap v0.17.0
+	github.com/grokify/prism-roadmap v0.18.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/modelcontextprotocol/go-sdk v1.7.0
 	github.com/plexusone/devfolio v0.3.0

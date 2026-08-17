@@ -77,6 +77,14 @@ Lists non-terminal initiatives (`proposed`/`planned`/`executing`) where **every*
 
 `sweep` never transitions anything itself. It's a starting point for review, not an auto-closer: a `completed` RMI status doesn't guarantee the shipped code actually matches what the RMI describes — verify that by hand (or with an agent) before transitioning or recording a release, especially for multi-repo initiatives.
 
+`sweep` is initiative-first. When you're instead releasing a specific repo and want to know which initiatives should ride along, flip the direction:
+
+```bash
+visionstudio release candidates --repo <repo-id> [--format json]
+```
+
+Lists every non-terminal initiative with at least one RMI in that repo, classified `ready` (every RMI across every repo it touches is done), `partial` (this repo's RMIs are done but the initiative has open work elsewhere — record the release, don't close yet), `not_ready`, or `already_attached` (a prior release of this repo already lists it). Same report-only discipline as `sweep`.
+
 ## Hiding Programs and Initiatives
 
 Programs and initiatives can each be hidden from the dashboard independently:

@@ -10,6 +10,7 @@ import (
 
 	"github.com/plexusone/structured-evaluation/rubric"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -209,7 +210,8 @@ func specJudgeShowCmd() *cobra.Command {
 				return fmt.Errorf("get home repo: %w", err)
 			}
 
-			wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init)
+			loader := specworkflow.DefaultLoader()
+			wf, err := specworkflow.Resolve(loader, init)
 			if err != nil {
 				return err
 			}
@@ -220,23 +222,22 @@ func specJudgeShowCmd() *cobra.Command {
 				return fmt.Errorf("read spec: %w", err)
 			}
 
-			rubrics, err := svc.Store.ListJudgeRubrics(cmd.Context(), wf.ID)
-			if err != nil {
-				return fmt.Errorf("list rubrics: %w", err)
-			}
-			var rubric *store.JudgeRubric
-			for _, r := range rubrics {
-				if r.SpecType == specFile {
-					rubric = r
-					break
-				}
-			}
+			// Resolve the rubric live from the visionspec catalog (the single
+			// source of truth), deriving the spec type from the filename
+			// (PRD.md -> prd). The judge_rubrics DB table is never populated
+			// from the catalog, so we resolve through the workflow loader here.
+			specType := strings.ToLower(strings.TrimSuffix(specFile, filepath.Ext(specFile)))
+			rs, rubricErr := loader.GetRubric(wf.ID, specType)
 
 			cmd.Printf("=== Spec: %s (initiative %s, workflow %s) ===\n\n", specFile, init.ID, wf.ID)
-			if rubric != nil {
-				cmd.Printf("--- Rubric (%s) ---\n%s\n\n", rubric.ID, rubric.PromptTemplate)
+			if rubricErr != nil || rs == nil {
+				cmd.Printf("--- No rubric defined for spec type %q in workflow %s; use general judgment ---\n\n", specType, wf.ID)
 			} else {
-				cmd.Printf("--- No rubric defined for %s in workflow %s; use general judgment ---\n\n", specFile, wf.ID)
+				rubricYAML, err := yaml.Marshal(rs)
+				if err != nil {
+					return fmt.Errorf("render rubric %s: %w", rs.ID, err)
+				}
+				cmd.Printf("--- Rubric (%s) ---\n%s\n", rs.ID, string(rubricYAML))
 			}
 			cmd.Printf("--- Content (%s) ---\n%s\n", specPath, string(content))
 			cmd.Printf("\n--- To record your evaluation ---\n")
@@ -274,25 +275,23 @@ func specJudgeRecordCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			wf, err := specworkflow.Resolve(specworkflow.DefaultLoader(), init)
+			loader := specworkflow.DefaultLoader()
+			wf, err := specworkflow.Resolve(loader, init)
 			if err != nil {
 				return err
 			}
 
+			// Resolve the rubric ID from the catalog (single source of truth)
+			// so the recorded result references the same layered rubric that
+			// 'spec judge show' displays. Spec type derives from the filename
+			// (PRD.md -> prd).
+			specType := strings.ToLower(strings.TrimSuffix(specFile, filepath.Ext(specFile)))
 			var rubricID string
-			rubrics, err := svc.Store.ListJudgeRubrics(cmd.Context(), wf.ID)
-			if err != nil {
-				return fmt.Errorf("list rubrics: %w", err)
-			}
-			for _, r := range rubrics {
-				if r.SpecType == specFile {
-					rubricID = r.ID
-					break
-				}
+			if rs, rerr := loader.GetRubric(wf.ID, specType); rerr == nil && rs != nil {
+				rubricID = rs.ID
 			}
 
 			now := time.Now()
-			specType := strings.TrimSuffix(specFile, filepath.Ext(specFile))
 
 			// Build structured-evaluation report
 			intScore := rubric.IntegerScore(score)

@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.14.6
 	github.com/ProductBuildersHQ/prism-build v0.2.0
 	github.com/ProductBuildersHQ/scale v0.2.0
-	github.com/ProductBuildersHQ/visionspec v0.16.1-0.20260817051750-0357b92a4942
+	github.com/ProductBuildersHQ/visionspec v0.17.0
 	github.com/dolthub/driver v1.88.1
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.3.1
@@ -25,6 +25,7 @@ require (
 	github.com/plexusone/structured-evaluation v0.14.0
 	github.com/plexusone/uiforge v0.4.0
 	github.com/spf13/cobra v1.10.2
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 // fslock v0.0.5 breaks dolthub/dolt/go — fslock.New signature changed.
@@ -221,5 +222,4 @@ require (
 	gopkg.in/go-jose/go-jose.v2 v2.6.3 // indirect
 	gopkg.in/src-d/go-errors.v1 v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

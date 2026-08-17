@@ -1667,6 +1667,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.5.0/" class="md-nav__link">
         
   
@@ -1939,9 +1967,15 @@
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>visionstudio<span class="w"> </span>spec<span class="w"> </span>judge<span class="w"> </span>record<span class="w"> </span>&lt;initiative-id&gt;<span class="w"> </span>&lt;spec-file&gt;<span class="w"> </span>--score<span class="w"> </span>&lt;<span class="m">1</span>-5&gt;<span class="w"> </span>--rationale<span class="w"> </span><span class="s2">&quot;&lt;why&gt;&quot;</span><span class="w"> </span>--model<span class="w"> </span>&lt;model-id&gt;
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>visionstudio<span class="w"> </span>roadmap<span class="w"> </span>import<span class="w"> </span>docs/specs/initiatives/&lt;initiative-id&gt;/ROADMAP.md<span class="w">   </span><span class="c1"># sync ROADMAP.md into the database</span>
 </code></pre></div>
+<p>Every initiative has a <strong>spec workflow</strong> (which documents it needs — PBHQ Lite, AWS Working Backwards, Quick Fix, etc.), selected at creation and changeable later:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>visionstudio<span class="w"> </span>workflow<span class="w"> </span>list<span class="w">                                    </span><span class="c1"># browse the catalog</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>create<span class="w"> </span>--workflow<span class="w"> </span>aws-two-way-door<span class="w"> </span>...<span class="w">     </span><span class="c1"># select at creation</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>update<span class="w"> </span>&lt;initiative-id&gt;<span class="w"> </span>--workflow<span class="w"> </span>aws-one-way-door<span class="w">   </span><span class="c1"># switch later</span>
+</code></pre></div>
+<p>See <a href="../../dashboard/specs-and-evaluation/#spec-workflows">Spec Workflows</a> for how required/optional/extra files and the workflow diagram follow the selection.</p>
 <p>To keep the dashboard focused, programs and initiatives can each be hidden independently — hiding a program cascades to hide its initiatives too:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>hide<span class="w"> </span>&lt;program-id&gt;
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>hide<span class="w"> </span>&lt;initiative-id&gt;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>hide<span class="w"> </span>&lt;program-id&gt;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>hide<span class="w"> </span>&lt;initiative-id&gt;
 </code></pre></div>
 <p>See <a href="../../dashboard/initiatives/#hiding-programs-and-initiatives">Hiding Programs and Initiatives</a> for exactly where this takes effect.</p>
 <p>Run <code>visionstudio --help</code> for the full command list, or <code>visionstudio &lt;command&gt; --help</code> for any subcommand.</p>
@@ -1949,7 +1983,7 @@
 <p>Specs are evaluated against workflow rubrics (<code>structured-evaluation/rubric.Rubric</code>) — a 1–5 integer score, per-category findings with severity, and an overall pass/fail decision. See <a href="../../dashboard/specs-and-evaluation/">Specs &amp; Evaluation</a> for how results are recorded and displayed.</p>
 <h2 id="agent-access-mcp">Agent Access (MCP)<a class="headerlink" href="#agent-access-mcp" title="Permanent link">&para;</a></h2>
 <p>Agent sessions can query initiatives, RMIs, and work assignments directly via the MCP stdio server:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>visionstudio<span class="w"> </span>mcp
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>visionstudio<span class="w"> </span>mcp
 </code></pre></div>
 
 

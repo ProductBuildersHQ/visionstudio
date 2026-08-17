@@ -1550,6 +1550,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../releases/v0.5.0/" class="md-nav__link">
         
   
@@ -2032,7 +2060,7 @@ org vs shared tables) is decided in Phase 5 after load/UX validation.</p>
 <li>Dolt driver requires CGO + ICU (<code>CGO_CFLAGS=-I/opt/homebrew/opt/icu4c/include</code>
   etc.); keep the <code>//go:build dolt</code> tag pattern so default builds stay pure Go.</li>
 <li>JSON Schema for composed IR generated Go-first via <code>invopop/jsonschema</code>,
-  linted with <code>schemago lint</code>, embedded via <code>go:embed</code>.</li>
+  linted with <code>schemakit lint --property-case snake_case</code>, embedded via <code>go:embed</code>.</li>
 <li>Ent for all new Dolt entities; Cobra for CLI; official Go MCP SDK.</li>
 </ul>
 <h2 id="risks">Risks<a class="headerlink" href="#risks" title="Permanent link">&para;</a></h2>

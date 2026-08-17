@@ -561,6 +561,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Initiatives Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-an-initiative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating an initiative
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -614,6 +631,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#initiative-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initiative Lifecycle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Initiative Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#finding-initiatives-ready-to-advance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding initiatives ready to advance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hiding-programs-and-initiatives" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -632,6 +677,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Working with RMIs from the CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rmi-origin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RMI origin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reassigning-rmis-to-a-different-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassigning RMIs to a different repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1684,6 +1757,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.5.0/" class="md-nav__link">
         
   
@@ -1859,6 +1960,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Initiatives Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#creating-an-initiative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating an initiative
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1912,6 +2030,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#initiative-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initiative Lifecycle
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Initiative Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#finding-initiatives-ready-to-advance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding initiatives ready to advance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#hiding-programs-and-initiatives" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1930,6 +2076,34 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Working with RMIs from the CLI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rmi-origin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RMI origin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reassigning-rmis-to-a-different-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reassigning RMIs to a different repository
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1955,21 +2129,25 @@
 
 <h1 id="programs-initiatives-and-rmis">Programs, Initiatives, and RMIs<a class="headerlink" href="#programs-initiatives-and-rmis" title="Permanent link">&para;</a></h1>
 <h2 id="initiatives-overview">Initiatives Overview<a class="headerlink" href="#initiatives-overview" title="Permanent link">&para;</a></h2>
-<p><strong>Routes:</strong> <code>/</code> (all initiatives, grouped by program), <code>/program/:programId</code> (one program), <code>/standalone</code> (initiatives with no program).</p>
+<p><strong>Routes:</strong> <code>/</code> (all initiatives, grouped by program), <code>/status</code> (all initiatives, grouped by lifecycle status), <code>/program/:programId</code> (one program), <code>/standalone</code> (initiatives with no program).</p>
 <p>The header shows a count ("N initiatives, M RMIs") and, when there's any RMI status data, a small donut chart with the top 4 statuses and their counts alongside it.</p>
 <ul>
 <li><strong>All Initiatives</strong> (<code>/</code>) groups initiative tiles under each program's name, with a per-program progress bar showing the average progress across that program's initiatives, followed by a <strong>Standalone</strong> group for initiatives with no <code>programId</code>. Hidden programs and hidden initiatives are excluded — see <a href="#hiding-programs-and-initiatives">Hiding Programs and Initiatives</a>.</li>
+<li><strong>By Status</strong> (<code>/status</code>, sidebar entry above the program list) groups every visible initiative into pipeline-ordered columns — <code>proposed</code> through <code>cancelled</code> — for managing WIP at a glance: how many initiatives are actually <code>executing</code> right now vs. sitting <code>delivery_complete</code> unreleased vs. still <code>proposed</code>. Reuses the same <code>/api/execution</code> data as every other initiative view; no separate endpoint.</li>
 <li><strong>Program view</strong> (<code>/program/:programId</code>) shows only that program's initiatives, ungrouped.</li>
 <li><strong>Standalone view</strong> (<code>/standalone</code>) shows only initiatives with no program, ungrouped.</li>
 </ul>
 <p>Each initiative tile shows: the initiative ID (monospace), a status badge, the title (clamped to 2 lines), and a progress bar with percentage. Click a tile to open its detail view.</p>
+<h3 id="creating-an-initiative">Creating an initiative<a class="headerlink" href="#creating-an-initiative" title="Permanent link">&para;</a></h3>
+<p>A <strong>+ New Initiative</strong> button in the header (also shown on the empty state) opens a creation form: ID, title, description, type, priority, program, and — required — a <strong>spec workflow</strong> chosen from the <a href="../specs-and-evaluation/#spec-workflows"><code>specification-workflow-spec</code> catalog</a>. Selecting a workflow previews its required document sequence and optional documents; changing the initiative type updates the suggested workflow (maintenance/refactor/migration → <code>quick-fix</code>, otherwise <code>pbhq-lite</code>) until you pick one explicitly. In a program view, the program field is pre-selected.</p>
+<p>On create you land on the new initiative's <strong>Definition</strong> tab, which renders the selected workflow's document layout. Mutations remain CLI/API-first — this form is backed by <code>POST /api/initiatives</code>, the API's only write endpoint; everything else (workflow switching, hiding, transitions) is still done via the CLI.</p>
 <h2 id="initiative-detail">Initiative Detail<a class="headerlink" href="#initiative-detail" title="Permanent link">&para;</a></h2>
 <p><strong>Route:</strong> <code>/initiative/:initiativeId</code></p>
-<p>The header shows the initiative ID, status badge, title, description (if any), and an overall completion percentage. Below that, four summary cards: <strong>Definition</strong> (how many of the 4 core PBHQ Lite specs — PRD/TRD/PLAN/ROADMAP — exist on disk, as a fraction and percentage), <strong>Phases</strong>, <strong>RMIs</strong>, and <strong>Repos</strong> (distinct repository count across the initiative's RMIs).</p>
+<p>The header shows the initiative ID, status badge, a chip with the initiative's spec workflow (read-only; hover for the full name, and whether it's a type default), title, description (if any), and an overall completion percentage. If the initiative is attached to any recorded releases, a "Released in:" row shows one chip per <code>repo@tag</code> (linked to the release URL if one was recorded) — an initiative's RMIs can span multiple repos, so this can show more than one tag. Below that, four summary cards: <strong>Definition</strong> (how many of the assigned workflow's <em>required</em> spec documents exist on disk, as a fraction and percentage — the denominator follows the workflow, e.g. 4 for <code>pbhq-lite</code>, 7 for <code>aws-two-way-door</code>), <strong>Phases</strong>, <strong>RMIs</strong>, and <strong>Repos</strong> (distinct repository count across the initiative's RMIs).</p>
 <p>Two tabs follow — <strong>Definition Details</strong> and <strong>Execution Details</strong>. The initiative opens on whichever tab has data (Execution if the initiative has any phases or RMIs, otherwise Definition); the Execution tab carries an "empty" badge if there's nothing in it yet.</p>
 <h3 id="definition-details-tab">Definition Details tab<a class="headerlink" href="#definition-details-tab" title="Permanent link">&para;</a></h3>
 <ul>
-<li><strong>PBHQ Lite Workflow diagram</strong> — PRD → TRD → PLAN → ROADMAP shown as connected boxes. Each box is colored by its most-advanced known state: gray "not created" (no file, no evaluation), blue "spec exists (not evaluated)", or green/yellow/red for an evaluated spec scoring ≥4, ≥3, or below 3 out of 5 respectively. An average score badge appears next to the diagram once any spec has been evaluated, using the same ≥4/≥3/below-3 color scale as the individual boxes.</li>
+<li><strong>Workflow diagram</strong> — the assigned workflow's required documents shown as connected boxes in flow order (e.g. PRD → TRD → PLAN → ROADMAP for <code>pbhq-lite</code>; PRESS → FAQ → … for the AWS door workflows). Each box is colored by its most-advanced known state: gray "not created" (no file, no evaluation), blue "spec exists (not evaluated)", or green/yellow/red for an evaluated spec scoring ≥4, ≥3, or below 3 out of 5 respectively. An average score badge appears next to the diagram once any spec has been evaluated, using the same ≥4/≥3/below-3 color scale as the individual boxes. <strong>Click any box</strong> to open that document type's authoring <strong>template</strong> (including its Leadership Principle guidance, for the AWS workflows) and its <strong>LLM-as-a-Judge rubric</strong> (categories, weights, and pass/partial/fail criteria) — most useful for gray boxes, answering "what should this document contain and how will it be judged?" before writing it. The same Template/Rubric buttons appear in the spec files viewer for the currently selected document.</li>
 <li><strong>Spec file viewer</strong> — tabs across the initiative's spec files (in workflow order first: PRD, TRD, PLAN, ROADMAP, then anything else), rendering the selected file's Markdown inline (max height, scrollable) along with its file path and last-modified date. "Open Full View" links to the standalone <a href="../specs-and-evaluation/">Spec Viewer</a> for the selected spec.</li>
 <li><strong>LLM-as-a-Judge results</strong> — a collapsible list of every judge evaluation for this initiative, newest first, each row showing spec type, filename, model (if recorded), date, and a pass/fail or score-colored badge (green ≥4, yellow ≥3, red below 3, out of 5). Click a row to expand its rationale text.</li>
 <li><strong>Initiative dependencies</strong>, if any — see <a href="#dependencies">below</a>.</li>
@@ -1984,13 +2162,36 @@
 </ul>
 <h3 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">&para;</a></h3>
 <p>Initiative-level dependencies show as chips reading either "requires <code>OTHER-ID</code> (Other Title)" (this initiative depends on the other) or "<code>OTHER-ID</code> requires this" (the other depends on this initiative). RMI-level dependencies show inline on each RMI row as a "→ N" badge — hover it to see which RMI IDs it requires.</p>
+<h2 id="initiative-lifecycle">Initiative Lifecycle<a class="headerlink" href="#initiative-lifecycle" title="Permanent link">&para;</a></h2>
+<p>An initiative moves through a status pipeline, managed from the CLI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>proposed → planned → executing → delivery_complete → releasing → released → closed
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>transition<span class="w"> </span>&lt;initiative-id&gt;<span class="w"> </span>&lt;status&gt;
+</code></pre></div>
+<p>Three transition rules apply:</p>
+<ul>
+<li><strong>Forward</strong> — one step at a time through the pipeline (no skipping). From <code>delivery_complete</code> an initiative can also go straight to <code>closed</code> (delivered but never released), and any pre-release status can go to <code>cancelled</code>.</li>
+<li><strong>Backwards (reopen)</strong> — an initiative can return to <em>any earlier</em> pipeline status. Scope evolves: when new phases land in a delivered or released initiative's roadmap, its status can follow the work back (e.g. <code>delivery_complete → executing</code>). <code>closed</code> can be reopened too, but is only ever <em>entered</em> going forward.</li>
+<li><strong>Cancelled</strong> — reopens to any pre-release status; it can never jump to <code>released</code> or <code>closed</code>, which would fabricate lifecycle history that never happened.</li>
+</ul>
+<p>Each pipeline stage stamps a timestamp when entered (<code>planned_at</code>, <code>executing_at</code>, <code>delivery_complete_at</code>, <code>released_at</code>, <code>closed_at</code>). A backwards transition <strong>clears the stamps of the stages it undoes</strong> — an initiative reopened to <code>executing</code> is no longer delivery-complete, and its record won't claim otherwise; re-entering a stage later re-stamps it. Cancellation preserves all stamps.</p>
+<h3 id="finding-initiatives-ready-to-advance">Finding initiatives ready to advance<a class="headerlink" href="#finding-initiatives-ready-to-advance" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>sweep<span class="w"> </span><span class="o">[</span>--format<span class="w"> </span>json<span class="o">]</span>
+</code></pre></div>
+<p>Lists non-terminal initiatives (<code>proposed</code>/<code>planned</code>/<code>executing</code>) where <strong>every</strong> RMI is <code>completed</code> — a signal that recorded status has fallen behind actual progress. For each candidate, <code>sweep</code> resolves every distinct repository referenced by its RMIs (not just the initiative's home repo — an initiative's work often spans more than one) and reports local git state per repo: clean and in sync, dirty (uncommitted changes), unpushed commits, behind upstream, or not found/not registered locally. Read-only checks against cached refs, same posture as <a href="../repositories/#managing-repository-entries"><code>registry doctor</code></a> — no network fetch.</p>
+<p><code>sweep</code> never transitions anything itself. It's a starting point for review, not an auto-closer: a <code>completed</code> RMI status doesn't guarantee the shipped code actually matches what the RMI describes — verify that by hand (or with an agent) before transitioning or recording a release, especially for multi-repo initiatives.</p>
+<p><code>sweep</code> is initiative-first. When you're instead releasing a specific repo and want to know which initiatives should ride along, flip the direction:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>visionstudio<span class="w"> </span>release<span class="w"> </span>candidates<span class="w"> </span>--repo<span class="w"> </span>&lt;repo-id&gt;<span class="w"> </span><span class="o">[</span>--format<span class="w"> </span>json<span class="o">]</span>
+</code></pre></div>
+<p>Lists every non-terminal initiative with at least one RMI in that repo, classified <code>ready</code> (every RMI across every repo it touches is done), <code>partial</code> (this repo's RMIs are done but the initiative has open work elsewhere — record the release, don't close yet), <code>not_ready</code>, or <code>already_attached</code> (a prior release of this repo already lists it). Same report-only discipline as <code>sweep</code>.</p>
+<p>Once a release is recorded and attached, <code>initiative get &lt;id&gt;</code> prints a <code>Releases:</code> section listing every <code>repo@tag</code> it's attached to — the CLI counterpart to the dashboard's "Released in" chips.</p>
 <h2 id="hiding-programs-and-initiatives">Hiding Programs and Initiatives<a class="headerlink" href="#hiding-programs-and-initiatives" title="Permanent link">&para;</a></h2>
 <p>Programs and initiatives can each be hidden from the dashboard independently:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>hide<span class="w"> </span>&lt;program-id&gt;
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>show<span class="w"> </span>&lt;program-id&gt;
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>hide<span class="w"> </span>&lt;initiative-id&gt;
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>show<span class="w"> </span>&lt;initiative-id&gt;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>hide<span class="w"> </span>&lt;program-id&gt;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>visionstudio<span class="w"> </span>program<span class="w"> </span>show<span class="w"> </span>&lt;program-id&gt;
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>hide<span class="w"> </span>&lt;initiative-id&gt;
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>show<span class="w"> </span>&lt;initiative-id&gt;
 </code></pre></div>
 <p><strong>Hiding a program cascades to its initiatives</strong> — every initiative attached to a hidden program is excluded everywhere initiatives are listed, not just from that program's own group. Individually hiding a single initiative has the same effect, scoped to just that initiative.</p>
 <p>This is enforced consistently across:</p>
@@ -2003,11 +2204,19 @@
 <p>Hiding is a <em>listing</em> concept, not access control: an initiative or program hidden this way is still reachable by navigating directly to its URL (<code>/initiative/:id</code> or <code>/program/:id</code>) if you already know the ID — it just won't appear in navigation or browsing. <code>initiative list</code> and <code>program list</code> both show a <code>HIDDEN</code> column so you can check status without opening the dashboard.</p>
 <p>The <a href="../maturity/#capability-models">Maturity page's Capability Models initiative filter</a> also excludes hidden initiatives. One narrow exception: Performance's <a href="../performance/#accomplishments">Accomplishments</a> list shows completed RMIs (not initiatives) with their parent initiative's title for context, and doesn't currently filter by the parent initiative's hidden status.</p>
 <h2 id="working-with-rmis-from-the-cli">Working with RMIs from the CLI<a class="headerlink" href="#working-with-rmis-from-the-cli" title="Permanent link">&para;</a></h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>list
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>list<span class="w"> </span>--initiative<span class="w"> </span>&lt;initiative-id&gt;
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>list<span class="w"> </span>--repo<span class="w"> </span>&lt;repository-id&gt;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>list
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>visionstudio<span class="w"> </span>initiative<span class="w"> </span>list<span class="w"> </span>--repo<span class="w"> </span>&lt;repo&gt;<span class="w"> </span>--status<span class="w"> </span>&lt;status&gt;<span class="w"> </span>--program<span class="w"> </span>&lt;program-id&gt;
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>list<span class="w"> </span>--initiative<span class="w"> </span>&lt;initiative-id&gt;
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>list<span class="w"> </span>--repo<span class="w"> </span>&lt;repo&gt;
 </code></pre></div>
+<p><code>--repo</code> flags (here and on <code>rmi create</code>/<code>rmi update</code>) accept a short repository name or <code>org/name</code>, not just the full <code>github.com/org/name</code> ID. Add <code>--format json</code> to <code>initiative list</code>, <code>rmi list</code>, <code>rmi get</code>, and <code>registry list</code> for scriptable output.</p>
 <p>Roadmap items and phases are populated by syncing <code>ROADMAP.md</code> into the database — see <a href="../../getting-started/quickstart/#working-with-initiatives-from-the-cli">Quick Start</a>.</p>
+<h3 id="rmi-origin">RMI origin<a class="headerlink" href="#rmi-origin" title="Permanent link">&para;</a></h3>
+<p>Every RMI has an <code>origin</code> — how its scope was identified: <code>spec</code> (default, in the original PRD/ROADMAP), <code>implementation</code> (the agent found it necessary while building another RMI), <code>acceptance_testing</code> (a human found it using the shipped result), or <code>discussion</code> (proposed directly in conversation). Set it with <code>--origin</code> on <code>rmi create</code>/<code>rmi update</code>, filter with <code>rmi list --origin &lt;value&gt;</code>; non-default origins show in <code>rmi get</code>'s output and an ORIGIN column on <code>rmi list</code>. See CLAUDE.md's "RMI provenance" convention for when to file scope discovered mid-work as a new RMI rather than folding it into an existing one.</p>
+<h3 id="reassigning-rmis-to-a-different-repository">Reassigning RMIs to a different repository<a class="headerlink" href="#reassigning-rmis-to-a-different-repository" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>bulk-update<span class="w"> </span>--repo<span class="w"> </span>&lt;old-repo&gt;<span class="w"> </span>--set-repo<span class="w"> </span>&lt;new-repo&gt;<span class="w"> </span><span class="o">[</span>--initiative<span class="w"> </span>&lt;id&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span>
+</code></pre></div>
+<p>Repoints every matching RMI's repository field in one call — <code>--dry-run</code> previews the change first. This is folded into <code>registry archive --superseded-by &lt;new-id&gt; --reassign-rmis</code> as a single operation when the reassignment is part of retiring the old repository — see <a href="../repositories/#managing-repository-entries">Repositories</a>.</p>
 
 
 

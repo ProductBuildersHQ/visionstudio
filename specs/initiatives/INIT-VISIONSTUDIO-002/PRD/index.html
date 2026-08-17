@@ -23,7 +23,7 @@
     
     
       
-        <title>PRD — INIT-VISIONSTUDIO-002: Hosted Multi-Tenant Backend (Remote Mode) - VisionStudio</title>
+        <title>PRD — INIT-VISIONSTUDIO-002: VisionStudio Cloud — Multi-Tenant Hosted Backend - VisionStudio</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#prd-init-visionstudio-002-hosted-multi-tenant-backend-remote-mode" class="md-skip">
+        <a href="#prd-init-visionstudio-002-visionstudio-cloud-multi-tenant-hosted-backend" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              PRD — INIT-VISIONSTUDIO-002: Hosted Multi-Tenant Backend (Remote Mode)
+              PRD — INIT-VISIONSTUDIO-002: VisionStudio Cloud — Multi-Tenant Hosted Backend
             
           </span>
         </div>
@@ -1550,6 +1550,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../releases/v0.5.0/" class="md-nav__link">
         
   
@@ -1739,10 +1767,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scope-carried-from-init-visionstudio-001-former-phase-5" class="md-nav__link">
+  <a href="#first-workloads-the-reason-to-build-now" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scope (carried from INIT-VISIONSTUDIO-001 former Phase 5)
+        First workloads (the reason to build now)
       
     </span>
   </a>
@@ -1750,10 +1778,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#open-questions-answer-before-execution" class="md-nav__link">
+  <a href="#goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Open Questions (answer before execution)
+        Goals
       
     </span>
   </a>
@@ -1761,10 +1789,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#success-criteria-draft" class="md-nav__link">
+  <a href="#non-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Success Criteria (draft)
+        Non-Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#success-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Success Criteria
       
     </span>
   </a>
@@ -1791,75 +1830,95 @@
   
 
 
-<h1 id="prd-init-visionstudio-002-hosted-multi-tenant-backend-remote-mode">PRD — INIT-VISIONSTUDIO-002: Hosted Multi-Tenant Backend (Remote Mode)<a class="headerlink" href="#prd-init-visionstudio-002-hosted-multi-tenant-backend-remote-mode" title="Permanent link">&para;</a></h1>
+<h1 id="prd-init-visionstudio-002-visionstudio-cloud-multi-tenant-hosted-backend">PRD — INIT-VISIONSTUDIO-002: VisionStudio Cloud — Multi-Tenant Hosted Backend<a class="headerlink" href="#prd-init-visionstudio-002-visionstudio-cloud-multi-tenant-hosted-backend" title="Permanent link">&para;</a></h1>
 <p><strong>Initiative:</strong> INIT-VISIONSTUDIO-002
-<strong>Status:</strong> proposed (vision — not yet prioritized)
+<strong>Status:</strong> planned (re-prioritized 2026-08: build now, dogfood-first, no billing)
 <strong>Type:</strong> feature
-<strong>Workflow:</strong> pbhq-standard (TRD/PLAN authored when prioritized)
-<strong>Depends on:</strong> INIT-VISIONSTUDIO-001 (Phases 1–4 complete)</p>
+<strong>Workflow:</strong> pbhq-lite</p>
 <h2 id="problem">Problem<a class="headerlink" href="#problem" title="Permanent link">&para;</a></h2>
-<p>After INIT-VISIONSTUDIO-001, VisionStudio is a unified multi-domain platform —
-but local-only: one user, one machine, one Dolt instance. Teams need shared
-org data in a browser, and the IDE should work against that shared backend
-from anywhere.</p>
-<h2 id="vision">Vision<a class="headerlink" href="#vision" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Hosted daemon + Dolt</strong> serving the same JSON API the IDE already uses
-  locally; the website (<code>web/</code>) is the same React panels behind login.</li>
-<li><strong>IDE backend-picker:</strong> local Dolt or remote URL — a base-URL + auth-token
-  switch, nothing more (the HTTP-only frontend contract from
-  INIT-VISIONSTUDIO-001 guarantees this).</li>
-<li><strong>Multi-tenant by org scoping</strong> enforced in the service layer from the
-  authenticated principal (org columns already exist on core entities).</li>
-</ul>
-<h2 id="scope-carried-from-init-visionstudio-001-former-phase-5">Scope (carried from INIT-VISIONSTUDIO-001 former Phase 5)<a class="headerlink" href="#scope-carried-from-init-visionstudio-001-former-phase-5" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>RMI</th>
-<th>Title</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>RMI-VISIONSTUDIO-201</td>
-<td>IDE backend-picker: local Dolt vs remote URL</td>
-</tr>
-<tr>
-<td>RMI-VISIONSTUDIO-202</td>
-<td>AuthN/AuthZ for hosted daemon</td>
-</tr>
-<tr>
-<td>RMI-VISIONSTUDIO-203</td>
-<td>Multi-tenant org scoping enforcement + isolation model decision</td>
-</tr>
-<tr>
-<td>RMI-VISIONSTUDIO-204</td>
-<td>Hosted web shell (<code>web/</code>) — same React panels behind login</td>
-</tr>
-<tr>
-<td>RMI-VISIONSTUDIO-205</td>
-<td>Local↔remote sync strategy (Dolt remotes/push-pull, spike)</td>
-</tr>
-</tbody>
-</table>
-<h2 id="open-questions-answer-before-execution">Open Questions (answer before execution)<a class="headerlink" href="#open-questions-answer-before-execution" title="Permanent link">&para;</a></h2>
+<p>VisionStudio is an effective local, single-developer system (one user, one
+machine, one Dolt instance). Three forces now pull parts of it into the
+cloud:</p>
 <ol>
-<li><strong>Tenant isolation:</strong> database-per-org (Dolt databases are directories —
-   natural isolation, per-org branch/merge/audit) vs shared tables with org
-   columns. Leaning database-per-org for Dolt's strengths.</li>
-<li><strong>Hosted Dolt operations:</strong> backup, scaling, upgrade story — the
-   least-traveled part of the stack; needs a spike before commitment.</li>
-<li><strong>Auth provider:</strong> build vs integrate (GitHub OAuth is the natural fit for
-   this audience).</li>
-<li><strong>Billing/payments:</strong> explicitly out of scope here; a later initiative.</li>
+<li><strong>Hosting our own public assets.</strong> The roadmap board and release log
+   need to be <em>served</em>, not just statically exported — and we want
+   productbuildershq.com to host them. plexusone.dev's existing release
+   log (and a future roadmap) could be powered by the same service,
+   making PBHQ's cloud the backend for a second site on day one.</li>
+<li><strong>Cross-machine, cross-tenant identity.</strong> A single developer belongs to
+   multiple contexts — a company, a personal/open-source identity. The
+   local system should sync each project to the right tenant.</li>
+<li><strong>Aggregation-value features</strong> — ACTS interpretation, forecasting,
+   release management, CI/CD monitoring, eventually adoption (Stripe/MAU)
+   — get better with history and correlation, and belong in the cloud.</li>
 </ol>
-<h2 id="success-criteria-draft">Success Criteria (draft)<a class="headerlink" href="#success-criteria-draft" title="Permanent link">&para;</a></h2>
+<h2 id="vision">Vision<a class="headerlink" href="#vision" title="Permanent link">&para;</a></h2>
+<p><strong>VisionStudio Cloud</strong>: a multi-tenant hosted backend that local
+single-developer VisionStudio instances sync to.</p>
 <ul>
-<li>A user signs into the hosted website and sees only their org's programs,
-  initiatives, spend, and maturity data.</li>
-<li>The same IDE build connects to local or hosted backend by switching a
-  setting; all panels work identically.</li>
+<li><strong>Tenancy:</strong> every cloud tenant has a <code>tenant_id</code>. A person can be a
+  member of multiple tenants (company tenant, personal/OSS tenant). One
+  local install syncs different projects to different tenants.</li>
+<li><strong>Local stays fast and private:</strong> the solo developer's loop remains
+  local — develop fast, watch token spend. Raw session logs and source
+  never sync. The cloud receives the sync contract's entities only.</li>
+<li><strong>Cloud owns aggregation:</strong> hosted roadmap boards, release log,
+  release management, ACTS <em>interpretation</em> (judging, coaching,
+  longitudinal reports — consuming synced summaries and locally-redacted
+  excerpts, never raw transcripts), forecasting, CI/CD monitoring, and
+  later adoption analytics.</li>
+<li><strong>Dogfood first, billing never (yet):</strong> tenants #1–#3 are our own orgs
+  (ProductBuildersHQ, plexusone, grokify). No auth needed for the first
+  deliverable (public read-only serving); no billing in this initiative at
+  all. Freemium tiers (free: 2–5 deletable projects, monthly ACTS report,
+  release log, token-vs-conventional-commit report, GitHub CI monitoring;
+  paid: cadence/depth/retention, forecasting, adoption connectors, seats)
+  are <em>designed for</em> here, implemented in a later initiative.</li>
+</ul>
+<h2 id="first-workloads-the-reason-to-build-now">First workloads (the reason to build now)<a class="headerlink" href="#first-workloads-the-reason-to-build-now" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Hosted roadmap board</strong> — productbuildershq.com/roadmap served from
+   the cloud (VS-006's board data as a public, CDN-cacheable endpoint).</li>
+<li><strong>Hosted release log</strong> — serving the releaselog-widget JSON for
+   productbuildershq.com/releases <em>and</em> plexusone.dev/releases: the
+   plexusone site re-points its existing widget from a committed static
+   file to a cloud URL. Two sites, one service, zero new UI.</li>
+</ol>
+<h2 id="goals">Goals<a class="headerlink" href="#goals" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>G1 — Tenant model.</strong> Tenant entity + Person↔Tenant membership
+   (multi-tenant users); database-per-tenant isolation on Dolt.</li>
+<li><strong>G2 — Sync contract and sync-up.</strong> Explicit list of entities that
+   sync (initiatives, phases, RMIs, releases, orgs, visibility…) and that
+   never sync (local paths, raw logs, raw ACTS evidence); local pushes to
+   tenant-scoped Dolt remotes.</li>
+<li><strong>G3 — Public serving MVP.</strong> Read-only, tenant/org-scoped JSON
+   endpoints for roadmap board and release log, enforcing the two-filter
+   visibility rail at serve time; both sites re-pointed.</li>
+<li><strong>G4 — Authenticated remote mode</strong> (carried from original scope):
+   auth, org scoping, hosted web shell, IDE backend-picker.</li>
+<li><strong>G5 — Cloud ACTS seam.</strong> Free monthly ACTS report generated
+   cloud-side from synced evidence; metering groundwork for tiers.</li>
+</ol>
+<h2 id="non-goals">Non-Goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Billing/payments</strong> — later initiative; this one meters but never
+  charges.</li>
+<li><strong>Third-party tenants</strong> — design for them, onboard only our own orgs.</li>
+<li><strong>Moving the local loop to the cloud</strong> — local VisionStudio remains the
+  primary developer experience; cloud is sync target and serving layer.</li>
+<li><strong>ACTS capture in the cloud</strong> — capture and redaction stay local
+  (INIT-ACTS-001 privacy model); only interpretation moves.</li>
+</ul>
+<h2 id="success-criteria">Success Criteria<a class="headerlink" href="#success-criteria" title="Permanent link">&para;</a></h2>
+<ul>
+<li>plexusone.dev/releases renders from a VisionStudio Cloud URL with no
+  visible change to visitors.</li>
+<li>productbuildershq.com serves /roadmap and /releases from the cloud.</li>
+<li>A local instance syncs selected projects to two different tenants from
+  one machine.</li>
+<li>Private repos/initiatives provably never appear in any served payload
+  (two-filter rail at serve time).</li>
 <li>Hosted Dolt has a tested backup/restore procedure.</li>
 </ul>
 

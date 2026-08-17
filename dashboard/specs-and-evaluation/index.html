@@ -609,6 +609,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#spec-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec Workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spec Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-optional-and-extra-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required, optional, and extra files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec-viewer" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1668,6 +1696,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.5.0/" class="md-nav__link">
         
   
@@ -1835,6 +1891,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#spec-workflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec Workflows
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spec Workflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-optional-and-extra-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required, optional, and extra files
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#spec-viewer" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1922,9 +2006,23 @@
 
 
 <h1 id="spec-viewer-and-evaluation">Spec Viewer and Evaluation<a class="headerlink" href="#spec-viewer-and-evaluation" title="Permanent link">&para;</a></h1>
+<h2 id="spec-workflows">Spec Workflows<a class="headerlink" href="#spec-workflows" title="Permanent link">&para;</a></h2>
+<p>Each initiative has a <strong>spec workflow</strong> that defines which documents it needs. All default workflows are defined in <a href="https://github.com/ProductBuildersHQ/specification-workflow-spec"><code>specification-workflow-spec</code></a> — the single source of truth — and include PBHQ Lite (PRD → TRD → PLAN → ROADMAP), Quick Fix (ROADMAP only), AWS Working Backwards Product and Feature (PR/FAQ-driven), and ~20 others.</p>
+<ul>
+<li><strong>Selecting:</strong> <code>visionstudio initiative create --workflow &lt;id&gt;</code> (required; falls back to <code>defaults.workflow</code> in config). Browse the catalog with <code>visionstudio workflow list</code> / <code>workflow get &lt;id&gt;</code>.</li>
+<li><strong>Switching after creation:</strong> <code>visionstudio initiative update &lt;id&gt; --workflow &lt;new-id&gt;</code>. The initiative page, spec expectations, and evaluation rubrics all follow the new workflow. Switching is CLI-only; the dashboard shows the current workflow read-only as a chip next to the initiative status.</li>
+<li><strong>Defaults by type:</strong> initiatives without an explicit workflow resolve by type — <code>maintenance</code>/<code>refactor</code>/<code>migration</code> → <code>quick-fix</code>, everything else → <code>pbhq-lite</code>.</li>
+<li><strong>Syncing the index:</strong> <code>visionstudio workflow sync</code> refreshes the database's workflow index from the catalog (idempotent; also migrates initiatives off retired workflow IDs).</li>
+</ul>
+<h3 id="required-optional-and-extra-files">Required, optional, and extra files<a class="headerlink" href="#required-optional-and-extra-files" title="Permanent link">&para;</a></h3>
+<p>Every spec file in <code>docs/specs/initiatives/&lt;id&gt;/</code> is classified against the initiative's workflow:</p>
+<ul>
+<li><strong>Required</strong> / <strong>Optional</strong> — part of the workflow's defined spec set.</li>
+<li><strong>Extra</strong> — present on disk but not part of the selected workflow (e.g. a loose <code>NOTES.md</code>). Extra files still render normally but carry an "Extra" badge, and sort after the workflow's own documents. They're context, not obligations — switching workflows can reclassify a file (e.g. <code>OPPORTUNITY-SPEC.md</code> is required on <code>aws-two-way-door</code> but extra on <code>aws-one-way-door</code>).</li>
+</ul>
 <h2 id="spec-viewer">Spec Viewer<a class="headerlink" href="#spec-viewer" title="Permanent link">&para;</a></h2>
 <p><strong>Routes:</strong> <code>/initiative/:initiativeId/spec/:specType</code>, <code>/initiative/:initiativeId/spec</code> (redirects to the first spec in workflow order)</p>
-<p>Tabs across the top list every spec file found for the initiative, ordered PRD → TRD → PLAN → ROADMAP first, then any other spec types. Selecting a tab navigates to that spec's URL, so links to a specific spec are shareable.</p>
+<p>Tabs across the top list every spec file found for the initiative, in the selected workflow's order — required documents first (in flow sequence), then optional ones, then extras (badged). Selecting a tab navigates to that spec's URL, so links to a specific spec are shareable.</p>
 <h3 id="display-vs-markdown">Display vs. Markdown<a class="headerlink" href="#display-vs-markdown" title="Permanent link">&para;</a></h3>
 <p>A toggle in the header switches between:</p>
 <ul>
@@ -1942,7 +2040,7 @@
 <h2 id="llm-as-a-judge-evaluation">LLM-as-a-Judge Evaluation<a class="headerlink" href="#llm-as-a-judge-evaluation" title="Permanent link">&para;</a></h2>
 <p>Specs are evaluated against workflow rubrics (<code>structured-evaluation/rubric.Rubric</code>): a 1–5 integer score, an overall pass/fail decision, per-category scores and reasoning, findings with severity, and next steps. Results are stored as <code>*.eval.json</code> files under <code>docs/specs/initiatives/&lt;id&gt;/evaluations/</code> and shown:</p>
 <ul>
-<li>Inline in the <a href="../initiatives/#definition-details-tab">initiative detail Definition tab</a> — as color-coded boxes in the PBHQ Lite workflow diagram, and as an expandable list of every judge result with score and rationale.</li>
+<li>Inline in the <a href="../initiatives/#definition-details-tab">initiative detail Definition tab</a> — as color-coded boxes in the initiative's workflow diagram (rendered from whichever workflow the initiative is on, showing its required documents in flow order), and as an expandable list of every judge result with score and rationale.</li>
 <li>Score color-coding is consistent throughout the dashboard: green for a score ≥4, yellow for ≥3, red below 3 (out of 5).</li>
 </ul>
 <h3 id="recording-an-evaluation">Recording an evaluation<a class="headerlink" href="#recording-an-evaluation" title="Permanent link">&para;</a></h3>

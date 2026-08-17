@@ -603,6 +603,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#managing-repository-entries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing repository entries
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1640,6 +1651,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.5.0/" class="md-nav__link">
         
   
@@ -1829,6 +1868,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#managing-repository-entries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing repository entries
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1873,7 +1923,21 @@
 <h3 id="registering-a-repository">Registering a repository<a class="headerlink" href="#registering-a-repository" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>visionstudio<span class="w"> </span>registry<span class="w"> </span>add<span class="w"> </span>--org<span class="w"> </span>&lt;github-org&gt;<span class="w"> </span>--name<span class="w"> </span>&lt;repo-name&gt;<span class="w"> </span>--path<span class="w"> </span>/path/to/your/repo
 </code></pre></div>
-<p>See <code>visionstudio registry --help</code> for the full set of registry commands (<code>add</code>, <code>list</code>, <code>deps</code>, <code>scan</code>, <code>unpushed</code>).</p>
+<p><code>registry add</code> warns (without blocking) if <code>--path</code> is missing, isn't a directory, isn't a git working tree, or collides with an already-registered repository's path or git remote.</p>
+<h3 id="managing-repository-entries">Managing repository entries<a class="headerlink" href="#managing-repository-entries" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>visionstudio<span class="w"> </span>registry<span class="w"> </span>update<span class="w"> </span>&lt;repo-id&gt;<span class="w"> </span><span class="o">[</span>--path<span class="w"> </span>--org<span class="w"> </span>--branch<span class="w"> </span>--name<span class="o">]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>visionstudio<span class="w"> </span>registry<span class="w"> </span>archive<span class="w"> </span>&lt;repo-id&gt;<span class="w"> </span>--superseded-by<span class="w"> </span>&lt;new-id&gt;<span class="w"> </span><span class="o">[</span>--reassign-rmis<span class="o">]</span><span class="w"> </span><span class="o">[</span>--reason<span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="o">]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>visionstudio<span class="w"> </span>registry<span class="w"> </span>remove<span class="w"> </span>&lt;repo-id&gt;<span class="w"> </span>--force
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>visionstudio<span class="w"> </span>registry<span class="w"> </span>doctor
+</code></pre></div>
+<ul>
+<li><code>update</code> repoints or corrects an entry's metadata. <code>--org</code>/<code>--name</code> edit metadata only — they don't rename the repository ID.</li>
+<li><code>archive</code> marks a repository archived without deleting its record (or the RMIs/releases/spec documents that reference it) — the preferred way to handle a merge or rename. <code>--superseded-by</code> records the replacement repository; add <code>--reassign-rmis</code> to also repoint every RMI on this repository to the replacement in the same operation (equivalent to running <code>rmi bulk-update</code> first).</li>
+<li><code>remove</code> hard-deletes a repository record — for true mistakes only (e.g. a typo'd <code>add</code>). It always refuses while any RMI, release, or spec document still references the repository, and otherwise requires <code>--force</code>.</li>
+<li><code>doctor</code> walks every registered repository's local path and reports missing directories, directories that aren't git working trees, and git remotes that no longer match the registered ID. Report-only.</li>
+</ul>
+<p>Repository references accepted by <code>--repo</code> flags across the CLI (<code>rmi list</code>, <code>rmi create</code>, <code>rmi update</code>, <code>rmi bulk-update</code>, <code>initiative list</code>) resolve short names and <code>org/name</code>, not just the full <code>github.com/org/name</code> ID — an unrecognized value returns a did-you-mean suggestion instead of silently matching nothing.</p>
+<p>See <code>visionstudio registry --help</code> for the full set of registry commands (<code>add</code>, <code>list</code>, <code>update</code>, <code>archive</code>, <code>remove</code>, <code>doctor</code>, <code>deps</code>, <code>scan</code>, <code>unpushed</code>, <code>org</code>, <code>person</code>, <code>visibility</code>, <code>focus</code>).</p>
 <h2 id="repository-detail">Repository Detail<a class="headerlink" href="#repository-detail" title="Permanent link">&para;</a></h2>
 <p><strong>Route:</strong> <code>/repository/*</code> (matches nested paths, since repository IDs can contain slashes)</p>
 <p>The header shows the repository name and status badge, with its organization underneath. Four stat cards follow: <strong>RMIs</strong>, <strong>Initiatives</strong> (distinct count of initiatives with at least one RMI in this repo), <strong>Progress</strong> (percentage of this repo's RMIs completed/released/done), and <strong>Completed</strong>.</p>

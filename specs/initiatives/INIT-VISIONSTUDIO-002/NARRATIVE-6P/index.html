@@ -1,0 +1,2249 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="LLM-powered platform for roadmap execution, specification authoring, and evaluation">
+      
+      
+      
+        <link rel="canonical" href="https://productbuildershq.com/visionstudio/specs/initiatives/INIT-VISIONSTUDIO-002/NARRATIVE-6P/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Six-Pager — VisionStudio Cloud: Multi-Tenant Hosted Backend - VisionStudio</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="https://productbuildershq.com/css/productbuildershq-mkdocs.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#six-pager-visionstudio-cloud-multi-tenant-hosted-backend" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+<!-- ProductBuildersHQ Unified Navigation -->
+<div id="pbhq-navbar-container"></div>
+
+
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="VisionStudio" class="md-header__button md-logo" aria-label="VisionStudio" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VisionStudio
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Six-Pager — VisionStudio Cloud: Multi-Tenant Hosted Backend
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ProductBuildersHQ/visionstudio" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ProductBuildersHQ/visionstudio
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="VisionStudio" class="md-nav__button md-logo" aria-label="VisionStudio" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    VisionStudio
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ProductBuildersHQ/visionstudio" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ProductBuildersHQ/visionstudio
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dashboard Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/initiatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programs, Initiatives & RMIs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/repositories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/specs-and-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specs & Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/maturity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maturity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../dashboard/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide (Legacy Desktop App)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide (Legacy Desktop App)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/methodologies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Methodology Selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/editor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Editor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/aidlc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIDLC Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/v2mom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V2MOM Cascade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/maturity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maturity Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/organization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Organization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sample Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/devx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DevX Usage Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/aidlc-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIDLC API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go Daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Releases
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/unreleased/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unreleased
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.3.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.3.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.2.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../releases/v0.1.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.1.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-customer-and-need" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Customer and need
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Approach
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-goals-milestone-gated-investment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Goals — milestone-gated investment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Goals — milestone-gated investment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#investment-sizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Investment sizing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customer-evidence-plan-build-in-public" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customer-evidence plan (build in public)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-risks-and-alternatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Risks and alternatives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-ask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Ask
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="six-pager-visionstudio-cloud-multi-tenant-hosted-backend">Six-Pager — VisionStudio Cloud: Multi-Tenant Hosted Backend<a class="headerlink" href="#six-pager-visionstudio-cloud-multi-tenant-hosted-backend" title="Permanent link">&para;</a></h1>
+<p><strong>Initiative:</strong> INIT-VISIONSTUDIO-002
+<strong>Decision sought:</strong> proceed with Phase 1–2 build (tenancy, sync, public
+serving) under the milestone-gated investment plan below.</p>
+<h2 id="1-context">1. Context<a class="headerlink" href="#1-context" title="Permanent link">&para;</a></h2>
+<p><strong>We did not set out to build a platform.</strong> Each capability below was
+built independently, for its own need, and proved itself standalone
+before any consolidation was planned:</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Built as</th>
+<th>Proven by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Capability stacks &amp; maturity models</td>
+<td>prism-capability, prism-maturity</td>
+<td>Models and assessments in active use</td>
+</tr>
+<tr>
+<td>Token spend &amp; DevX reporting</td>
+<td>omnidevx, devfolio</td>
+<td>Changed our own behavior: model switching and /compact discipline driven by our own devx reports</td>
+</tr>
+<tr>
+<td>Working Backwards specs</td>
+<td>visionspec</td>
+<td>This document set is authored and evaluated through it</td>
+</tr>
+<tr>
+<td>Release log</td>
+<td>releaselog (v0.1.0 shipped 2026-02-02)</td>
+<td>plexusone.dev/releases in production and actively used since; the format itself is proven across developer-program portals with many SDKs</td>
+</tr>
+<tr>
+<td>Public roadmap board</td>
+<td>Initiative lifecycle (visionstudio)</td>
+<td>Slack's public Trello roadmap proved the format at scale</td>
+</tr>
+<tr>
+<td>SaaS app platform (identity, OAuth2, sessions, multi-tenant orgs, React shell)</td>
+<td>systemforge (~215 commits) + systemforge-web (~34 commits)</td>
+<td>Built to derisk/accelerate new web apps; exercised across multiple site buildouts — <strong>production-unproven</strong> (see gradient below)</td>
+</tr>
+</tbody>
+</table>
+<p>The catalyst was <strong>DoltDB for multi-repo spec and progress tracking</strong> —
+it allowed these separately-proven components to consolidate into one
+app. That consolidation is <strong>Step 1: VisionStudio Local</strong>, and it has
+proven itself as a daily-driver: initiatives, phases, RMIs, specs,
+maturity, and token spend in one local Dolt-backed system, wrapped in a
+standardized operating model (lifecycle-transitions-as-data, per-repo
+releases recorded at changelog time, escaped-defect quality signals,
+ACTS efficiency measurement) whose value compounds with history.</p>
+<p>The honest epistemic gradient, and what this initiative actually bets on:</p>
+<ul>
+<li><strong>Proven:</strong> each component individually; consolidation locally (daily
+  use); consolidation's UI advantage over standalone static HTML.</li>
+<li><strong>Step 2, precedent-backed:</strong> hosting the release log and roadmap —
+  both formats proven elsewhere (dev-portal release logs, Slack's public
+  board), ours proven locally; only the <em>serving</em> is new.</li>
+<li><strong>Construction-proven, production-unproven:</strong> systemforge — the app
+  platform (identity, OAuth2 server, sessions, multi-tenant
+  organizations, RBAC, React shell) built precisely to derisk and
+  accelerate buildouts like this one. VisionStudio Cloud is its first
+  production deployment: platform and app prove out together (risk
+  in §5).</li>
+<li><strong>Theorized, gated:</strong> that hosting enables the build-out to CI/CD
+  monitoring and adoption/revenue metrics. This is the part the M-ladder
+  exists to test cheaply.</li>
+</ul>
+<p>Three pressures point at a hosted layer: (a) our public assets — the
+roadmap board and release log — need to be <em>served</em>, and we want
+productbuildershq.com to host them; (b) plexusone.dev already maintains a
+release page from static JSON that the same service could power, making
+PBHQ's cloud the backend for a second site immediately; (c) the
+aggregation features (ACTS interpretation, forecasting, release
+management, CI monitoring, adoption analytics) belong where history
+accumulates.</p>
+<p>Moving to the cloud is a big move: operational commitment, public
+dependencies, eventually other people's data. That is why this initiative
+runs Working Backwards with explicit adoption gates rather than as a
+feature build.</p>
+<h2 id="2-customer-and-need">2. Customer and need<a class="headerlink" href="#2-customer-and-need" title="Permanent link">&para;</a></h2>
+<p><strong>Primary (now): Customer Zero</strong> — ourselves: plexusone and the other
+grokify properties. A solo builder running many initiatives across three
+GitHub orgs, needing hosted public views and cross-machine, cross-tenant
+continuity without giving up the fast, private local loop. Customer Zero
+is a discipline, not just a label: every feature ships to us first, and
+nothing reaches friendly users that Customer Zero doesn't run daily.</p>
+<p><strong>Next (gated):</strong> solo product builders and solo founders using coding
+agents. The mission is sharper than "help people build with AI": it is
+<strong>the 1-person business built with AI, where everything is owned by one
+person</strong> — product, code, releases, roadmap, economics. Initial channels
+are where those people already gather: the Lovable subreddit, r/SaaS,
+and the MicroConf/TinySeed communities.</p>
+<p><strong>Core theory (and its risk):</strong> our development model is proven for
+<em>ourselves</em> — plexusone.dev is a working solo-product-builder operation.
+The theory is that this model generalizes to other solo builders, and we
+de-risk it by staying as close as possible to the model we know is
+proven: target people whose situation matches ours before anyone
+else's. The explicit risk is that it generalizes less than we think
+(see §5).</p>
+<p><strong>Also in scope (multi-tenant, multi-user build-out):</strong> small AI-native
+startup teams — think GitHub itself with its three early founders. A
+few founders who <em>all build</em> are the same persona as the solo builder,
+just sharing a tenant: the Person↔Tenant membership model supports them
+with zero new machinery. The scope line is <strong>persona uniformity</strong>: teams
+where everyone is a product builder are in; organizations that need
+persona differentiation are not.</p>
+<p><strong>Later (approached carefully, not locked out):</strong> enterprises. Different
+roles, personas, and requirements — PM vs. Eng structure, org controls,
+integration surface — that the AI-native builder model doesn't need.
+The pattern we expect to matter there is the "1-person product builder
+inside a large enterprise" (the kind we study in our Block/Jack Dorsey
+analysis on the ProductBuildersHQ site), but serving it means platform
+infrastructure we won't build until the solo/small-team segment is a
+<strong>profitable revenue line</strong> (gate M6).</p>
+<p>Two postures govern any growth beyond the core segment:</p>
+<ul>
+<li><strong>Grow with our customers.</strong> The fence is <em>persona focus</em> (Product
+  Builders), not customer size. If a 3-founder tenant grows into a
+  50-person company and still wants us, we follow that demand — organic,
+  customer-led expansion is welcome; <em>outbound</em> enterprise pursuit and
+  persona dilution are what's fenced.</li>
+<li><strong>Willing to be outgrown.</strong> Per the 37signals/Basecamp precedent: it is
+  acceptable for customers to outgrow the product while it remains
+  profitable. We optimize for a durable, profitable core serving Product
+  Builders — not for retaining every customer at any complexity cost.</li>
+</ul>
+<p>The underserved need: every existing tool tracks either project management
+(Linear, GitHub Projects) or spend (usage dashboards) or releases
+(changelogs). None connects <em>delivered releases ↔ roadmap ↔ token economics
+↔ working practice</em> — and none is local-first with a cloud that receives
+only the project record.</p>
+<h2 id="3-approach">3. Approach<a class="headerlink" href="#3-approach" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Tenancy:</strong> every tenant has a <code>tenant_id</code>; a person belongs to
+  multiple tenants (company, personal/OSS). Database-per-tenant on Dolt —
+  natural isolation, versioned history, deletion = database removal.</li>
+<li><strong>Sync:</strong> Dolt-native push/pull to tenant remotes under an explicit
+  contract — never source, raw logs, local paths, or unredacted ACTS
+  evidence. Local stays the fast private loop; the cloud is sync target
+  and serving layer.</li>
+<li><strong>First workloads:</strong> public read-only JSON — <code>/t/&lt;tenant&gt;/roadmap.json</code>
+  and <code>/t/&lt;tenant&gt;/releases.json</code> (releaselog IR shape, so plexusone.dev
+  re-points its existing widget by URL). No auth needed; not blocked on
+  the unfinished local web foundation (INIT-VISIONSTUDIO-001).</li>
+<li><strong>Then:</strong> GitHub OAuth + hosted shell (blocked on VS-001 Phases 2–3),
+  free monthly cloud ACTS report, per-tenant metering. Billing is a
+  future initiative, gated below.</li>
+</ul>
+<h2 id="4-goals-milestone-gated-investment">4. Goals — milestone-gated investment<a class="headerlink" href="#4-goals-milestone-gated-investment" title="Permanent link">&para;</a></h2>
+<p>Each milestone is a gate: the next stage's investment does not start
+until the gate passes. Regressions close the gate again.</p>
+<p><strong>M1 — Launched, basic functions working.</strong>
+Hosted roadmap + release log live for the PBHQ tenant;
+plexusone.dev/releases served from the cloud with no visitor-visible
+change; tested backup/restore. <em>Gate: both sites serving from cloud for
+2+ weeks without manual intervention.</em> (≈ end of Phase 2.)</p>
+<p><strong>M2 — Part of our daily routine.</strong>
+The cloud views are used the way VisionStudio Local is used today —
+daily: unshipped queue worked in cloud, releases recorded at changelog
+time land visibly, weekly review happens against hosted views. <em>Gate:
+4+ consecutive weeks of daily-routine use; we'd notice within a day if it
+broke.</em> (During/after Phase 3.)</p>
+<p><strong>M3 — Friendly free users.</strong>
+Auth on; 3–10 invited builders on the free tier (2–5 projects, monthly
+ACTS report). <em>Gate: ≥2 external tenants active in a normal week without
+hand-holding; onboarding is one command; metering shows per-tenant COGS.</em>
+<strong>Passing M3 opens the billing initiative</strong> — priced against real
+metering data.</p>
+<p><strong>M4 — Paid users.</strong>
+A small number of paying users. <em>Gate: &gt;$100 MRR sustained for a month,
+with churn understood.</em> Deliberately small: the bar is proof of
+willingness to pay, not revenue.</p>
+<p><strong>M5 — Public launch (ProductHunt).</strong>
+Only after M4 — publicity lands on a proven conversion story. <em>Gate
+review before launch: support load, abuse controls, deletion/retention
+obligations, free-tier COGS at 10× signups.</em></p>
+<p><strong>M6 — Profitable revenue line (the branch-out gate).</strong>
+The solo/small-team segment becomes a real business: <em>sustained revenue
+exceeding its full costs — metered COGS, operations, and support time —
+for a quarter.</em> <strong>No proactive branch-out (outbound enterprise pursuit,
+new personas, new segments) before M6.</strong> Depth beats breadth: until the
+core segment is profitable, all investment deepens it rather than
+widening the market. Growing <em>with</em> an existing customer who grows is
+not branch-out (see §2 postures); building new persona infrastructure
+to chase customers we don't have is.</p>
+<h3 id="investment-sizing">Investment sizing<a class="headerlink" href="#investment-sizing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Infrastructure: $0 incremental.</strong> We already pay ~$600/month for a
+  server that is currently idle (it previously hosted sites that are now
+  non-operational). Repurposing it converts an unrecouped expense into
+  product infrastructure; it comfortably hosts the Dolt server and the
+  serving service. Alternative if we prefer isolation: a ~$10/month AWS
+  Lightsail instance suffices for the MVP (and matches existing Lightsail
+  deployment experience — PROG-OMNIAGENT-LIGHTSAIL, omnideploy). Either
+  way, hosting is not a cost gate.</li>
+<li><strong>Domain:</strong> already owned (the marketing site's domain is paid).</li>
+<li><strong>Variable COGS: subscription-first, then metered.</strong> Our own ACTS
+  analysis initially runs inside the existing Claude Code subscription
+  (agent-session mode, ACTS TRD T11 — the <code>spec judge</code> pattern) at zero
+  marginal API cost. API-metered cloud analysis is enabled only after the
+  local workflow is proven under subscription or controlled costs — so
+  Phase 4's cloud report carries no unbounded spend at launch.
+  Hypothesis once metered: single-digit dollars per tenant-month at the
+  free tier's monthly cadence; replaced with real numbers by per-tenant
+  metering (RMI-VISIONSTUDIO-508). Public-page serving is CDN-cached
+  static-shaped JSON — negligible.</li>
+<li><strong>COGS partially offsets as marketing:</strong> aggregated, anonymized ACTS
+  statistics feed the planned <em>ProductBuildersHQ Annual Research Report
+  on Agentic Coding</em> (ACTS TRD T12), reclassifying part of the analysis
+  spend as research/marketing. Free-tier analysis includes aggregate
+  inclusion (disclosed; disabling ACTS LLM is the full opt-out).</li>
+<li><strong>Build effort (estimated, systemforge-accelerated):</strong> the cloud is
+  built on <strong>systemforge</strong> (Go platform: identity with multi-tenant
+  Organizations/Memberships/plan field, full OAuth2 server with GitHub
+  login, JWT/BFF sessions, RBAC) and <strong>systemforge-web</strong> (React: auth,
+  tenant context, shell, pre-built pages) — built for exactly this
+  purpose. Estimate: <strong>Phases 1–2 ≈ 2–4 part-time weeks</strong> of agentic
+  development (9 RMIs: tenancy mapping onto systemforge identity, sync
+  CLI, ops baseline, serving endpoints, two site re-points); <strong>Phase 3 ≈
+  a similar block</strong>, since auth/sessions/shell are integration rather
+  than construction. The build is itself ACTS evidence — token spend per
+  delivered RMI is measured by the system being extended, so estimates
+  are replaced by measurement from the first week.</li>
+</ul>
+<h3 id="customer-evidence-plan-build-in-public">Customer-evidence plan (build in public)<a class="headerlink" href="#customer-evidence-plan-build-in-public" title="Permanent link">&para;</a></h3>
+<p>We are the proof, published. Once M1–M2 hold, we post the working system
+from existing audience channels — X (x.com/Grokify), Medium
+(@grokify), Reddit (u/grokify), Dev.to — with the hosted roadmap and
+release pages as living demos and cleansed ACTS/efficiency reports as
+content, aimed at the communities where solo builders gather (Lovable
+subreddit, r/SaaS, MicroConf/TinySeed). All of this happens <strong>before
+ProductHunt</strong>. M3's friendly users are recruited from respondents; the
+M3 gate itself is unchanged (≥2 external tenants active weekly). This
+converts customer evidence from assumption to a dated pipeline:
+build → use daily → publish → invite → charge → launch.</p>
+<p>Beyond our own posts, ProductBuildersHQ's research output — case studies
+and statement/article analysis of other builders (e.g., the Block/Dorsey
+analysis) — positions us as a <strong>thought leader in the product builder
+movement</strong>, not just an app vendor: actual experience and code
+(PlexusOne) combined with apps (VisionStudio) and teaching
+(ProductBuildersHQ). The research channel compounds the recruitment
+channel: people who read the analysis are the audience for the app.</p>
+<h2 id="5-risks-and-alternatives">5. Risks and alternatives<a class="headerlink" href="#5-risks-and-alternatives" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Hosted Dolt operations</strong> (highest): least-traveled stack component.
+  Mitigation: ops RMI in Phase 1 with <em>tested</em> restore; dogfood-only
+  tenants until M2; M-gates prevent premature exposure.</li>
+<li><strong>Platform and app prove together:</strong> VisionStudio Cloud is
+  systemforge's first production deployment — a defect in either looks
+  like a defect in both. Mitigation: derisking buildouts is systemforge's
+  design goal (multiple full site buildouts already exercised it);
+  dogfood-only tenants until M2 mean production hardening happens on
+  ourselves; the auth-heavy surface (Phase 3) lands only after M1's
+  no-auth serving has proven the ops story. Its multi-property user
+  model — consistent users and app health across systemforge apps, so
+  properties can be acquired or divested cleanly — is a long-term asset,
+  not a launch dependency.</li>
+<li><strong>Free-tier COGS:</strong> ACTS analysis is the only tenant-scaling cost —
+  infra is the repurposed server. Mitigation, layered: launch analysis
+  runs in subscription agent-session mode at zero marginal API cost
+  (Mode A, ACTS TRD T11); API-metered automation (Mode B) cannot enable
+  before Mode A is trusted; once metered, monthly cadence is the free
+  tier and cadence/depth the paid axis; part of the spend reclassifies as
+  research/marketing via the annual report.</li>
+<li><strong>Customer-evidence risk:</strong> demand beyond ourselves is unproven until
+  the build-in-public posts land. Mitigation: the posting plan above uses
+  existing audiences and living demo pages; if posts draw no interest by
+  M3, that is itself gate data — we keep an excellent internal tool and
+  stop external investment cheaply.</li>
+<li><strong>Model-generalization risk:</strong> the core theory (§2) is that our proven
+  solo model transfers to other solo builders — but plexusone.dev proves
+  <em>our</em> practice, not the market's. Mitigation: minimize the transfer
+  distance in two steps — lookalike solo builders first (Lovable/r/SaaS/
+  MicroConf-TinySeed circles), then same-persona startup teams of ~3
+  founders (a supported tenant shape, not a new model). The enterprise
+  extension (persona differentiation, PM-vs-Eng structure) is
+  separately-gated theory requiring platform build-out we have
+  deliberately not started — the persona-uniformity line is the fence.</li>
+<li><strong>Privacy failure</strong> (serving private data): two-filter rail enforced at
+  sync <em>and</em> serve; <code>unknown</code> never public; private-repo fixture test
+  gates every re-point.</li>
+<li><strong>Alternative considered — static-only forever:</strong> cheapest, but no
+  cross-site serving, no tenancy, no aggregation features; keeps two
+  sites duplicating pipelines. Static remains as degraded-mode fallback,
+  so the alternative is preserved rather than rejected.</li>
+<li><strong>Alternative considered — third-party backend (Supabase/Postgres):</strong>
+  loses Dolt's versioned history and the git-like sync we already run
+  locally; rejected while Dolt-native sync remains viable (Phase 1 spike
+  is the check).</li>
+</ul>
+<h2 id="6-ask">6. Ask<a class="headerlink" href="#6-ask" title="Permanent link">&para;</a></h2>
+<p>Approve Phase 1–2 (tenancy, sync contract, ops baseline, public serving;
+RMI-VISIONSTUDIO-501–506 + 205) under the gates above. No billing work,
+no third-party onboarding, no ProductHunt planning until their gates
+open; no API-metered analysis (Mode B) until subscription-mode analysis
+(Mode A) is trusted. UXD and TPD are authored before the Phase 3 gate
+(hosted shell — the first surface with real UX). After M1, this document
+gains an appendix of real baselines (metering, page traffic,
+post-response data) and is re-judged before M3 opens.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ProductBuildersHQ/visionstudio" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://productbuildershq.com/js/site-nav.min.js"></script>
+      
+        <script src="https://productbuildershq.com/js/pbhq-nav.js"></script>
+      
+    
+  </body>
+</html>

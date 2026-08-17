@@ -1013,7 +1013,7 @@ func buildMaturityResponse(ctx context.Context, svc *service.Service) (*Maturity
 }
 
 func buildSpecsResponse(ctx context.Context, svc *service.Service) (*SpecsResponse, error) {
-	// Workflow definitions come from the specification-workflow-spec catalog
+	// Workflow definitions come from the visionspec catalog
 	// (the single source of truth), not the DB index.
 	loader := specworkflow.DefaultLoader()
 

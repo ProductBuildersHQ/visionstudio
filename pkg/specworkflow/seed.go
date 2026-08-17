@@ -1,6 +1,6 @@
 // Package specworkflow provides spec workflow management backed by the
-// specification-workflow-spec catalog (the single source of truth for all
-// default workflow definitions).
+// visionspec catalog (the single source of truth for all default workflow
+// definitions).
 package specworkflow
 
 import (

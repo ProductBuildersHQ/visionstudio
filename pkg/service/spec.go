@@ -227,7 +227,7 @@ func (s *Service) UpdateSpecEvaluation(ctx context.Context, id string, score int
 }
 
 // EvaluateSpec runs LLM-as-judge evaluation on a spec document.
-// Uses rubrics from specification-workflow-spec if a workflow is selected.
+// Uses rubrics from visionspec if a workflow is selected.
 func (s *Service) EvaluateSpec(ctx context.Context, initiativeID, specType, repoPath, model string, llmClient speceval.LLMClient) (*speceval.EvaluationResult, error) {
 	content, err := s.ReadSpecContent(ctx, initiativeID, specType, repoPath)
 	if err != nil {
@@ -288,7 +288,7 @@ func (s *Service) CheckGates(ctx context.Context, initiativeID string) (bool, []
 }
 
 // SynthesizeSpec generates a spec document from source documents using LLM.
-// Uses templates and guidance from specification-workflow-spec if a workflow is selected.
+// Uses templates and guidance from visionspec if a workflow is selected.
 func (s *Service) SynthesizeSpec(ctx context.Context, req *synthesis.SynthesisRequest, llmClient synthesis.LLMClient) (*synthesis.SynthesisResult, error) {
 	executor := synthesis.NewExecutor(llmClient)
 

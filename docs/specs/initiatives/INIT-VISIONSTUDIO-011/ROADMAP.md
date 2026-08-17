@@ -40,3 +40,9 @@ prompted it).
 **Theme:** Structured provenance for how an RMI's scope was identified — spec vs. found during implementation vs. found during acceptance testing vs. proposed in discussion — as telemetry on how complete specs actually are at initiative start
 
 - [x] `RMI-VISIONSTUDIO-543` `RMI.Origin` field: Ent schema (default `spec`, additive migration, backfilled on existing rows), `pkg/rmi` origin constants + `ValidOrigin`, wired through doltstore/memstore and both dual-struct API layers (regenerated schema/Zod/TS), `--origin` on `rmi create`/`rmi update` plus an ORIGIN column and filter on `rmi list`, and the `rmi_create` MCP tool so an agent can self-tag `origin=implementation`. Proposed directly by the user in conversation — generalizes the lightweight description-phrase convention used in Phase 4 into a real, queryable field
+
+## Phase 6 — Release Candidate Discovery
+
+**Theme:** For a repo about to be released, find every non-terminal initiative touching it and whether it's ready to ride along
+
+- [x] `RMI-VISIONSTUDIO-544` `visionstudio release candidates --repo <repo-id>` — lists every non-terminal initiative with ≥1 RMI in the given repo and classifies it: `ready` (every RMI in every repo the initiative touches is done — full close candidate), `partial` (this repo's RMIs are done but other repos still have open work — record the release but don't close yet), `not_ready` (this repo still has open work), `already_attached` (a release of this repo already lists this initiative). Report-only, same discipline as `sweep`. Proposed directly by the user: complements `initiative sweep`'s initiative-first direction with the repo-first direction an agent actually needs when releasing a specific repo

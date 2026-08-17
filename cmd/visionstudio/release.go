@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -21,7 +23,7 @@ func releaseCmd() *cobra.Command {
 		Use:   "release",
 		Short: "Release planning and management",
 	}
-	cmd.AddCommand(releasePlanCmd(), releaseRecordCmd(), releaseListCmd(), releaseShowCmd(), releaseAttachCmd(), releaseDetachCmd(), releaseDeleteCmd(), releaseUnshippedCmd(), releaseBackfillMatchCmd())
+	cmd.AddCommand(releasePlanCmd(), releaseRecordCmd(), releaseListCmd(), releaseShowCmd(), releaseAttachCmd(), releaseDetachCmd(), releaseDeleteCmd(), releaseUnshippedCmd(), releaseCandidatesCmd(), releaseBackfillMatchCmd())
 	return cmd
 }
 
@@ -164,6 +166,183 @@ what activates the acceptance-mark quality signal.`,
 			return w.Flush()
 		},
 	}
+}
+
+// releaseCandidate is one initiative's readiness to ride along with a
+// repo's release.
+type releaseCandidate struct {
+	InitiativeID     string `json:"initiative_id"`
+	Title            string `json:"title"`
+	Status           string `json:"status"`
+	RepoRMIsDone     int    `json:"repo_rmis_done"`
+	RepoRMIsTotal    int    `json:"repo_rmis_total"`
+	OverallRMIsDone  int    `json:"overall_rmis_done"`
+	OverallRMIsTotal int    `json:"overall_rmis_total"`
+	// Verdict is one of: ready (every RMI in every repo is done -- a full
+	// close candidate), partial (this repo's RMIs are done but the
+	// initiative still has open work elsewhere), not_ready (this repo
+	// still has open work), already_attached (a release of this repo
+	// already lists this initiative -- nothing new to do).
+	Verdict string `json:"verdict"`
+}
+
+func releaseCandidatesCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "candidates",
+		Short: "Initiatives that could move to released/closed alongside a repo's release",
+		Long: `For a repository about to be released, lists every non-terminal initiative
+with at least one RMI in that repo, and whether it's a candidate to move
+to released/closed as part of this release:
+
+  ready             every RMI in every repo the initiative touches is done --
+                     a full close candidate (release record + transition
+                     through delivery_complete/releasing/released/closed)
+  partial           this repo's RMIs are done, but the initiative still has
+                     open work in other repos -- record this release against
+                     it, but don't close it yet
+  not_ready         this repo still has open work
+  already_attached  a release of this repo already lists this initiative
+
+Like 'initiative sweep', this is report-only -- it never calls release
+record or initiative transition itself, and a 'ready'/'partial' verdict is
+not proof the shipped code matches what the RMI describes. Review before
+acting, the same as any other candidate list.`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			repoID, _ := cmd.Flags().GetString("repo")
+			if repoID == "" {
+				return fmt.Errorf("--repo is required")
+			}
+			repoID, err = resolveRepoID(cmd.Context(), svc, repoID)
+			if err != nil {
+				return err
+			}
+
+			repoRMIs, err := svc.ListRMIsByRepo(cmd.Context(), repoID)
+			if err != nil {
+				return err
+			}
+
+			initIDs := map[string]bool{}
+			repoRMIsByInit := map[string][]*store.RoadmapItem{}
+			for _, r := range repoRMIs {
+				if r.InitiativeID == "" {
+					continue
+				}
+				initIDs[r.InitiativeID] = true
+				repoRMIsByInit[r.InitiativeID] = append(repoRMIsByInit[r.InitiativeID], r)
+			}
+
+			inits, err := svc.ListInitiatives(cmd.Context())
+			if err != nil {
+				return err
+			}
+			initByID := make(map[string]*store.Initiative, len(inits))
+			for _, i := range inits {
+				initByID[i.ID] = i
+			}
+
+			releases, err := svc.ListReleases(cmd.Context(), repoID, "")
+			if err != nil {
+				return err
+			}
+			alreadyAttached := map[string]bool{}
+			for _, rel := range releases {
+				for _, id := range rel.InitiativeIDs {
+					alreadyAttached[id] = true
+				}
+			}
+
+			ids := make([]string, 0, len(initIDs))
+			for id := range initIDs {
+				ids = append(ids, id)
+			}
+			sort.Strings(ids)
+
+			var candidates []releaseCandidate
+			for _, id := range ids {
+				init, ok := initByID[id]
+				if !ok || init.Status == "closed" || init.Status == "cancelled" {
+					continue
+				}
+
+				thisRepoRMIs := repoRMIsByInit[id]
+				repoTotal, repoDone := len(thisRepoRMIs), 0
+				for _, r := range thisRepoRMIs {
+					if r.Status == "completed" {
+						repoDone++
+					}
+				}
+
+				allRMIs, err := svc.ListRMIs(cmd.Context(), id)
+				if err != nil {
+					return err
+				}
+				overallTotal, overallDone := len(allRMIs), 0
+				for _, r := range allRMIs {
+					if r.Status == "completed" {
+						overallDone++
+					}
+				}
+
+				verdict := "not_ready"
+				switch {
+				case alreadyAttached[id]:
+					verdict = "already_attached"
+				case overallTotal > 0 && overallDone == overallTotal:
+					verdict = "ready"
+				case repoTotal > 0 && repoDone == repoTotal:
+					verdict = "partial"
+				}
+
+				candidates = append(candidates, releaseCandidate{
+					InitiativeID:     id,
+					Title:            init.Title,
+					Status:           init.Status,
+					RepoRMIsDone:     repoDone,
+					RepoRMIsTotal:    repoTotal,
+					OverallRMIsDone:  overallDone,
+					OverallRMIsTotal: overallTotal,
+					Verdict:          verdict,
+				})
+			}
+
+			format, _ := cmd.Flags().GetString("format")
+			if format == "json" {
+				enc := json.NewEncoder(os.Stdout)
+				enc.SetIndent("", "  ")
+				return enc.Encode(candidates)
+			}
+
+			if len(candidates) == 0 {
+				cmd.Printf("No non-terminal initiatives reference %s.\n", repoID)
+				return nil
+			}
+
+			w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+			_, _ = fmt.Fprintln(w, "VERDICT\tINITIATIVE\tSTATUS\tTHIS REPO\tOVERALL\tTITLE")
+			for _, c := range candidates {
+				_, _ = fmt.Fprintf(w, "%s\t%s\t%s\t%d/%d\t%d/%d\t%s\n",
+					c.Verdict, c.InitiativeID, c.Status,
+					c.RepoRMIsDone, c.RepoRMIsTotal,
+					c.OverallRMIsDone, c.OverallRMIsTotal,
+					c.Title)
+			}
+			if err := w.Flush(); err != nil {
+				return err
+			}
+			cmd.Printf("\n%d initiative(s). Verify each RMI's shipped work actually matches its spec before recording a release or transitioning a 'ready'/'partial' candidate.\n", len(candidates))
+			return nil
+		},
+	}
+	cmd.Flags().String("repo", "", "Repository about to be released (short name, org/name, or full ID) (required)")
+	cmd.Flags().String("format", "text", "Output format: text or json")
+	return cmd
 }
 
 func releaseDeleteCmd() *cobra.Command {

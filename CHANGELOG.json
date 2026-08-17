@@ -10,6 +10,27 @@
   "unreleased": {},
   "releases": [
     {
+      "version": "v0.11.0",
+      "date": "2026-08-16",
+      "highlights": [
+        {
+          "description": "Attached releases are now visible on initiatives -- initiative get prints a Releases: repo@tag section, and the Initiative Detail dashboard page shows a \"Released in:\" chip row -- surfacing data the Release entity already recorded correctly (one tag per repo for multi-repo initiatives) but nothing displayed"
+        }
+      ],
+      "added": [
+        {
+          "description": "GetInitiativeDetail gains a Releases field; initiative get prints a Releases: repo@tag (date) section; ExecutionResponse (both dual-struct API layers, regenerated schema/Zod/TS) gains a releases array; InitiativeDetail.tsx shows a linked \"Released in:\" chip row",
+          "commit": "4619647"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "CLAUDE.md gotcha: a new top-level apitypes struct needs registering in both pkg/apitypes/gen/main.go and web/scripts/generate-types.mjs's separate, non-auto-discovered schemaNames list, or generate:types succeeds while silently producing no TS export for it",
+          "commit": "4619647"
+        }
+      ]
+    },
+    {
       "version": "v0.10.0",
       "date": "2026-08-16",
       "highlights": [

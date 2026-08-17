@@ -10,156 +10,50 @@
   "unreleased": {},
   "releases": [
     {
-      "version": "v0.11.0",
-      "date": "2026-08-16",
+      "version": "v0.6.0",
+      "date": "2026-08-17",
       "highlights": [
         {
-          "description": "Attached releases are now visible on initiatives -- initiative get prints a Releases: repo@tag section, and the Initiative Detail dashboard page shows a \"Released in:\" chip row -- surfacing data the Release entity already recorded correctly (one tag per repo for multi-repo initiatives) but nothing displayed"
-        }
-      ],
-      "added": [
-        {
-          "description": "GetInitiativeDetail gains a Releases field; initiative get prints a Releases: repo@tag (date) section; ExecutionResponse (both dual-struct API layers, regenerated schema/Zod/TS) gains a releases array; InitiativeDetail.tsx shows a linked \"Released in:\" chip row",
-          "commit": "4619647"
-        }
-      ],
-      "documentation": [
-        {
-          "description": "CLAUDE.md gotcha: a new top-level apitypes struct needs registering in both pkg/apitypes/gen/main.go and web/scripts/generate-types.mjs's separate, non-auto-discovered schemaNames list, or generate:types succeeds while silently producing no TS export for it",
-          "commit": "4619647"
-        }
-      ]
-    },
-    {
-      "version": "v0.10.0",
-      "date": "2026-08-16",
-      "highlights": [
-        {
-          "description": "visionstudio release candidates --repo <repo-id>: repo-first release readiness, complementing initiative sweep's initiative-first direction -- for a repo about to be released, find every touching initiative and whether it's ready/partial/not_ready/already_attached"
-        }
-      ],
-      "added": [
-        {
-          "description": "release candidates --repo <repo-id> [--format json] classifies every non-terminal initiative with >=1 RMI in the repo: ready (fully done everywhere), partial (this repo done, other repos pending), not_ready, already_attached. Report-only, same discipline as sweep",
-          "commit": "df17977"
-        }
-      ],
-      "documentation": [
-        {
-          "description": "CLAUDE.md: when to use sweep (initiative-first) vs. candidates (repo-first); dashboard guide cross-reference alongside sweep",
-          "commit": "df17977"
-        }
-      ]
-    },
-    {
-      "version": "v0.9.0",
-      "date": "2026-08-16",
-      "highlights": [
-        {
-          "description": "RMI.Origin: structured tracking of how an RMI's scope was identified (spec, implementation, acceptance_testing, discussion) -- generalizes the ad hoc \"found during acceptance testing\" description-phrase convention into a real, queryable field, and a telemetry foundation for how complete specs actually are at project start"
-        }
-      ],
-      "added": [
-        {
-          "description": "Ent schema field on RoadmapItem (origin, default \"spec\", additive migration, backfills existing rows); pkg/rmi Origin constants and ValidOrigin",
-          "commit": "8141f5c"
+          "description": "Spec workflow single source of truth — specification-workflow-spec's catalog (~25 profiles) is now the only workflow definition source; VisionStudio's divergent local catalog was retired, a workflow can be switched after creation, and the Initiative page adapts to whichever workflow is assigned"
         },
         {
-          "description": "--origin on rmi create/update, an ORIGIN column and filter on rmi list, and origin support on the rmi_create MCP tool so an agent can self-tag origin=implementation while it works",
-          "commit": "8141f5c"
-        }
-      ],
-      "documentation": [
+          "description": "Authentic AWS Working Backwards — aws-one-way-door/aws-two-way-door profiles reordered to be PR-first per actual Amazon practice and infused with the 16 Leadership Principles, alongside the dashboard's first web mutation (New Initiative creation, POST /api/initiatives)"
+        },
         {
-          "description": "CLAUDE.md convention: RMI provenance -- scope discovered after the initial spec is normal and gets tracked (new RMI, tagged origin), not hidden; the discipline that keeps it from being scope creep is that every addition traces to a concrete finding, not speculation",
-          "commit": "8141f5c"
-        }
-      ]
-    },
-    {
-      "version": "v0.8.0",
-      "date": "2026-08-16",
-      "highlights": [
+          "description": "Registry & RMI lifecycle CLI — repository records can be updated, archived with supersession, removed, and health-checked (registry doctor); RMIs can be bulk-reassigned across repositories as one auditable operation"
+        },
+        {
+          "description": "Release tracking system — a Release entity with initiative/RMI/repository edges, a full release CLI (plan/record/list/show/attach/detach/delete/backfill-match), a changelog gate, an unshipped-initiatives queue, and CHANGELOG.json/git-tag/GitHub-Releases ingest — the very system used to prepare this release"
+        },
+        {
+          "description": "Registry org/person/visibility modeling — Organization and Person entities, GitHub-derived repository visibility, and a publicrail export safety rail gating what any public roadmap view can ever show"
+        },
+        {
+          "description": "Reversible initiative lifecycle — an initiative can reopen to any earlier pipeline status as scope evolves, with later-stage lifecycle timestamps cleared so history stays truthful"
+        },
+        {
+          "description": "VisionStudio Cloud groundwork (dogfood-only) — local tenant-assignment config and a whole-database sync command over godolt"
+        },
+        {
+          "description": "initiative sweep — finds initiatives whose RMI completion has outrun their recorded lifecycle status, verified against real per-repo git state across every repository an initiative's RMIs touch (not just its home repo)"
+        },
+        {
+          "description": "Dashboard By Status view — the initiative portfolio grouped into pipeline-ordered columns (proposed through cancelled), for managing WIP at a glance alongside the existing By Program grouping"
+        },
         {
           "description": "Progress bars distinguish cancelled RMIs (red) from genuinely pending ones (blank), and show green once completed + cancelled account for the whole bar -- previously a fully-resolved initiative with some cancelled work still read as \"in progress\" (blue) with an indistinguishable gray tail"
         },
         {
           "description": "visionstudio app restart -- replaces a stale UI+API server (e.g. serving an old binary after a rebuild) in place, without hunting down and killing a PID by hand"
-        }
-      ],
-      "added": [
-        {
-          "description": "cancelledProgress on APIInitiative/APIPhase (both dual-struct layers), and a red ProgressBar segment sized off it, wired through initiative tiles, the by-program aggregate bar, the By Status board, and phase bars",
-          "commit": "ad47edd"
         },
         {
-          "description": "visionstudio app restart -- stops whatever UI+API server is recorded as running (ui.pid, mirroring Dolt's server.pid) and starts fresh, leaving the database alone if already running",
-          "commit": "d0e0b5d"
-        }
-      ],
-      "fixed": [
-        {
-          "description": "ProgressBar showed blue (meaning \"still in progress\") for an initiative that was actually fully resolved -- completed + cancelled accounting for the whole bar with nothing left pending -- instead of green",
-          "commit": "11ac490"
-        }
-      ]
-    },
-    {
-      "version": "v0.7.0",
-      "date": "2026-08-16",
-      "highlights": [
-        {
-          "description": "initiative sweep \u2014 finds initiatives whose RMI completion has outrun their recorded lifecycle status, verified against real per-repo git state across every repository an initiative's RMIs touch (not just its home repo)"
+          "description": "RMI.Origin: structured tracking of how an RMI's scope was identified (spec, implementation, acceptance_testing, discussion) -- generalizes the ad hoc \"found during acceptance testing\" description-phrase convention into a real, queryable field, and a telemetry foundation for how complete specs actually are at project start"
         },
         {
-          "description": "Dashboard By Status view \u2014 the initiative portfolio grouped into pipeline-ordered columns (proposed through cancelled), for managing WIP at a glance alongside the existing By Program grouping"
-        }
-      ],
-      "added": [
-        {
-          "description": "visionstudio initiative sweep [--format json] \u2014 lists non-terminal initiatives with every RMI completed; reports per-repo git state (clean/dirty, ahead/behind cached upstream, missing, unregistered) using the same best-effort, no-network-fetch posture as registry doctor. Report-only",
-          "commit": "ef9945a"
+          "description": "visionstudio release candidates --repo <repo-id>: repo-first release readiness, complementing initiative sweep's initiative-first direction -- for a repo about to be released, find every touching initiative and whether it's ready/partial/not_ready/already_attached"
         },
         {
-          "description": "Dashboard /status route and Sidebar entry: initiatives grouped by lifecycle status, reusing the existing /api/execution response",
-          "commit": "839f024"
-        },
-        {
-          "description": "StatusBadge colors for delivery_complete/releasing/released/closed (previously all fell back to proposed's gray)",
-          "commit": "839f024"
-        }
-      ],
-      "documentation": [
-        {
-          "description": "PRD/ROADMAP for INIT-VISIONSTUDIO-011 (Portfolio WIP Management); initiative sweep and the By Status view documented in the dashboard guide and tour; CLAUDE.md convention for closing an initiative on commit+push without waiting for a git tag",
-          "commit": "b8d59d2"
-        }
-      ]
-    },
-    {
-      "version": "v0.6.0",
-      "date": "2026-08-16",
-      "highlights": [
-        {
-          "description": "Spec workflow single source of truth \u2014 specification-workflow-spec's catalog (~25 profiles) is now the only workflow definition source; VisionStudio's divergent local catalog was retired, a workflow can be switched after creation, and the Initiative page adapts to whichever workflow is assigned"
-        },
-        {
-          "description": "Authentic AWS Working Backwards \u2014 aws-one-way-door/aws-two-way-door profiles reordered to be PR-first per actual Amazon practice and infused with the 16 Leadership Principles, alongside the dashboard's first web mutation (New Initiative creation, POST /api/initiatives)"
-        },
-        {
-          "description": "Registry & RMI lifecycle CLI \u2014 repository records can be updated, archived with supersession, removed, and health-checked (registry doctor); RMIs can be bulk-reassigned across repositories as one auditable operation"
-        },
-        {
-          "description": "Release tracking system \u2014 a Release entity with initiative/RMI/repository edges, a full release CLI (plan/record/list/show/attach/detach/delete/backfill-match), a changelog gate, an unshipped-initiatives queue, and CHANGELOG.json/git-tag/GitHub-Releases ingest \u2014 the very system used to prepare this release"
-        },
-        {
-          "description": "Registry org/person/visibility modeling \u2014 Organization and Person entities, GitHub-derived repository visibility, and a publicrail export safety rail gating what any public roadmap view can ever show"
-        },
-        {
-          "description": "Reversible initiative lifecycle \u2014 an initiative can reopen to any earlier pipeline status as scope evolves, with later-stage lifecycle timestamps cleared so history stays truthful"
-        },
-        {
-          "description": "VisionStudio Cloud groundwork (dogfood-only) \u2014 local tenant-assignment config and a whole-database sync command over godolt"
+          "description": "Attached releases are now visible on initiatives -- initiative get prints a Releases: repo@tag section, and the Initiative Detail dashboard page shows a \"Released in:\" chip row -- surfacing data the Release entity already recorded correctly (one tag per repo for multi-repo initiatives) but nothing displayed"
         }
       ],
       "added": [
@@ -172,7 +66,7 @@
           "commit": "de22d65"
         },
         {
-          "description": "publicrail package \u2014 the single implementation of the export predicate for all external projections (static export, cloud serving), gated on explicit repo/initiative visibility flags",
+          "description": "publicrail package — the single implementation of the export predicate for all external projections (static export, cloud serving), gated on explicit repo/initiative visibility flags",
           "commit": "1454863"
         },
         {
@@ -207,7 +101,7 @@
           "commit": "fb9ef2c"
         },
         {
-          "description": "release CLI \u2014 plan/record/list/show/attach/detach/delete over the Release entity; a changelog gate that checks/scaffolds CHANGELOG.json entries at record time; release unshipped surfaces initiatives claiming delivery with no release attached (a 14-day forcing function); release backfill-match reviews AI-assisted matches between historical commits/tags and initiatives for confirmation",
+          "description": "release CLI — plan/record/list/show/attach/detach/delete over the Release entity; a changelog gate that checks/scaffolds CHANGELOG.json entries at record time; release unshipped surfaces initiatives claiming delivery with no release attached (a 14-day forcing function); release backfill-match reviews AI-assisted matches between historical commits/tags and initiatives for confirmation",
           "commit": "c03e25d"
         },
         {
@@ -219,11 +113,11 @@
           "commit": "5d3242d"
         },
         {
-          "description": "visionstudio cloud \u2014 client-side config recording which VisionStudio Cloud tenant a local install is assigned to",
+          "description": "visionstudio cloud — client-side config recording which VisionStudio Cloud tenant a local install is assigned to",
           "commit": "be02043"
         },
         {
-          "description": "visionstudio sync \u2014 whole-database push to a VisionStudio Cloud tenant over godolt (dogfood-only)",
+          "description": "visionstudio sync — whole-database push to a VisionStudio Cloud tenant over godolt (dogfood-only)",
           "commit": "0a83537"
         },
         {
@@ -239,27 +133,27 @@
           "commit": "6836606"
         },
         {
-          "description": "registry archive <repo-id> \u2014 status change preserving the record, with --superseded-by pointing at a replacement repository",
+          "description": "registry archive <repo-id> — status change preserving the record, with --superseded-by pointing at a replacement repository",
           "commit": "519efdd"
         },
         {
-          "description": "registry remove <repo-id> \u2014 hard delete for true mistakes, refusing while RMIs/releases/spec documents still reference the repository",
+          "description": "registry remove <repo-id> — hard delete for true mistakes, refusing while RMIs/releases/spec documents still reference the repository",
           "commit": "84c3950"
         },
         {
-          "description": "registry add conflict/duplicate detection \u2014 warns on a --path that's missing or not a git working tree, and on a path or git remote collision with an existing entry",
+          "description": "registry add conflict/duplicate detection — warns on a --path that's missing or not a git working tree, and on a path or git remote collision with an existing entry",
           "commit": "b3352ee"
         },
         {
-          "description": "rmi bulk-update --repo --set-repo \u2014 reassign every RMI on a repository in one call, with a --dry-run preview",
+          "description": "rmi bulk-update --repo --set-repo — reassign every RMI on a repository in one call, with a --dry-run preview",
           "commit": "4c66520"
         },
         {
-          "description": "registry doctor \u2014 flags a missing directory, a non-git working tree, or a git remote origin URL that no longer matches the registered ID, across every non-archived repository",
+          "description": "registry doctor — flags a missing directory, a non-git working tree, or a git remote origin URL that no longer matches the registered ID, across every non-archived repository",
           "commit": "867c503"
         },
         {
-          "description": "registry archive --superseded-by --reassign-rmis \u2014 folds RMI reassignment and the archive status change into one auditable operation",
+          "description": "registry archive --superseded-by --reassign-rmis — folds RMI reassignment and the archive status change into one auditable operation",
           "commit": "4b0baa1"
         },
         {
@@ -269,17 +163,53 @@
         {
           "description": "initiative list --repo/--status/--program filters",
           "commit": "5277b11"
+        },
+        {
+          "description": "visionstudio initiative sweep [--format json] — lists non-terminal initiatives with every RMI completed; reports per-repo git state (clean/dirty, ahead/behind cached upstream, missing, unregistered) using the same best-effort, no-network-fetch posture as registry doctor. Report-only",
+          "commit": "ef9945a"
+        },
+        {
+          "description": "Dashboard /status route and Sidebar entry: initiatives grouped by lifecycle status, reusing the existing /api/execution response",
+          "commit": "839f024"
+        },
+        {
+          "description": "StatusBadge colors for delivery_complete/releasing/released/closed (previously all fell back to proposed's gray)",
+          "commit": "839f024"
+        },
+        {
+          "description": "cancelledProgress on APIInitiative/APIPhase (both dual-struct layers), and a red ProgressBar segment sized off it, wired through initiative tiles, the by-program aggregate bar, the By Status board, and phase bars",
+          "commit": "ad47edd"
+        },
+        {
+          "description": "visionstudio app restart -- stops whatever UI+API server is recorded as running (ui.pid, mirroring Dolt's server.pid) and starts fresh, leaving the database alone if already running",
+          "commit": "d0e0b5d"
+        },
+        {
+          "description": "Ent schema field on RoadmapItem (origin, default \"spec\", additive migration, backfills existing rows); pkg/rmi Origin constants and ValidOrigin",
+          "commit": "8141f5c"
+        },
+        {
+          "description": "--origin on rmi create/update, an ORIGIN column and filter on rmi list, and origin support on the rmi_create MCP tool so an agent can self-tag origin=implementation while it works",
+          "commit": "8141f5c"
+        },
+        {
+          "description": "release candidates --repo <repo-id> [--format json] classifies every non-terminal initiative with >=1 RMI in the repo: ready (fully done everywhere), partial (this repo done, other repos pending), not_ready, already_attached. Report-only, same discipline as sweep",
+          "commit": "df17977"
+        },
+        {
+          "description": "GetInitiativeDetail gains a Releases field; initiative get prints a Releases: repo@tag (date) section; ExecutionResponse (both dual-struct API layers, regenerated schema/Zod/TS) gains a releases array; InitiativeDetail.tsx shows a linked \"Released in:\" chip row",
+          "commit": "4619647"
         }
       ],
       "changed": [
         {
-          "description": "Default workflow by initiative type: maintenance/refactor/migration\u2192quick-fix, feature/compliance/default\u2192pbhq-lite (pbhq-standard retired; canonical upstream pbhq-lite requires all four docs)"
+          "description": "Default workflow by initiative type: maintenance/refactor/migration→quick-fix, feature/compliance/default→pbhq-lite (pbhq-standard retired; canonical upstream pbhq-lite requires all four docs)"
         },
         {
           "description": "AWS Working Backwards flows reordered to be PR-first (authentic Amazon practice): the human-authored Press Release is the founding artifact in both aws-one-way-door and aws-two-way-door; MRD/OpportunitySpec demoted to optional post-FAQ deepening; product/feature difference expressed as ceremony (6-pager required vs optional). Profiles gain iteration_trigger on the PR/FAQ, prfaq_review gates, a required decision_meeting gate for aws-one-way-door, an evidence-appendix section in press templates, and spike-backed feasibility prompts in FAQ templates (upstream)"
         },
         {
-          "description": "AWS Working Backwards profiles renamed by Amazon's actual selection criterion, decision reversibility: aws-product\u2192aws-one-way-door, aws-feature\u2192aws-two-way-door (workflow sync remaps existing initiatives); scale and door decoupled, with MRD and OpportunitySpec optional in both profiles (upstream)"
+          "description": "AWS Working Backwards profiles renamed by Amazon's actual selection criterion, decision reversibility: aws-product→aws-one-way-door, aws-feature→aws-two-way-door (workflow sync remaps existing initiatives); scale and door decoupled, with MRD and OpportunitySpec optional in both profiles (upstream)"
         },
         {
           "description": "Amazon Leadership Principles infused into the AWS door workflows: the full 16-principle set in both profiles' methodology metadata, LP guidance in press/FAQ/6-pager templates, and LP-grounded rubric categories (upstream)"
@@ -289,14 +219,18 @@
         },
         {
           "description": "InitiativeDetail and SpecViewer derive spec sets, progress denominators, tab order, and the workflow diagram from the assigned workflow instead of hardcoded PBHQ Lite"
+        },
+        {
+          "description": "Removed the unused JudgeRubric Ent entity, table, and Store API (Create/Get/ListJudgeRubrics); JudgeResult.rubric is now a plain rubric_id string field instead of a foreign-key edge to the retired table, fixing a latent dangling-FK on recorded judge results",
+          "commit": "0f2990e"
         }
       ],
       "fixed": [
         {
-          "description": "pbhq-lite profile's execution block silently failed to parse (workflow: vs execution: YAML key) \u2014 no workflow had ordering data at runtime (upstream)"
+          "description": "pbhq-lite profile's execution block silently failed to parse (workflow: vs execution: YAML key) — no workflow had ordering data at runtime (upstream)"
         },
         {
-          "description": "aws-one-way-door synthesis gaps vs the reference D2 diagram: missing ird\u2190trd rule, trd missing mrd source, tpd missing uxd source, narrative-6p sourced from faq instead of prd (upstream)"
+          "description": "aws-one-way-door synthesis gaps vs the reference D2 diagram: missing ird←trd rule, trd missing mrd source, tpd missing uxd source, narrative-6p sourced from faq instead of prd (upstream)"
         },
         {
           "description": "aws-two-way-door required a 6-pager narrative the reference feature flow doesn't include (now optional) (upstream)"
@@ -312,6 +246,14 @@
         {
           "description": "Migrated off the archived specification-workflow-spec module onto the merged visionspec v0.16.0 (pkg/profiles was superseded upstream by pkg/workflows; visionspec's own pkg/workflow relocated to pkg/execgraph to make room)",
           "commit": "b83c1bb"
+        },
+        {
+          "description": "ProgressBar showed blue (meaning \"still in progress\") for an initiative that was actually fully resolved -- completed + cancelled accounting for the whole bar with nothing left pending -- instead of green",
+          "commit": "11ac490"
+        },
+        {
+          "description": "spec judge show/record resolve the evaluation rubric live from the specification-workflow-spec catalog via the workflow loader (GetRubric), deriving the spec type from the filename (PRD.md -> prd) — the judge_rubrics DB table was never populated, so the layered pbhq-lite rubrics previously showed 'no rubric defined' for every workflow",
+          "commit": "a65cfe9"
         }
       ],
       "documentation": [
@@ -340,7 +282,7 @@
           "commit": "0af85f3"
         },
         {
-          "description": "Fixed stale schemago references to schemakit (the JSON Schema linter was renamed schemago \u2192 schemalint \u2192 schemakit)",
+          "description": "Fixed stale schemago references to schemakit (the JSON Schema linter was renamed schemago → schemalint → schemakit)",
           "commit": "54666dd"
         },
         {
@@ -350,6 +292,22 @@
         {
           "description": "README screenshot ordering",
           "commit": "b8792b0"
+        },
+        {
+          "description": "PRD/ROADMAP for INIT-VISIONSTUDIO-011 (Portfolio WIP Management); initiative sweep and the By Status view documented in the dashboard guide and tour; CLAUDE.md convention for closing an initiative on commit+push without waiting for a git tag",
+          "commit": "b8d59d2"
+        },
+        {
+          "description": "CLAUDE.md convention: RMI provenance -- scope discovered after the initial spec is normal and gets tracked (new RMI, tagged origin), not hidden; the discipline that keeps it from being scope creep is that every addition traces to a concrete finding, not speculation",
+          "commit": "8141f5c"
+        },
+        {
+          "description": "CLAUDE.md: when to use sweep (initiative-first) vs. candidates (repo-first); dashboard guide cross-reference alongside sweep",
+          "commit": "df17977"
+        },
+        {
+          "description": "CLAUDE.md gotcha: a new top-level apitypes struct needs registering in both pkg/apitypes/gen/main.go and web/scripts/generate-types.mjs's separate, non-auto-discovered schemaNames list, or generate:types succeeds while silently producing no TS export for it",
+          "commit": "4619647"
         }
       ],
       "tests": [
@@ -370,6 +328,10 @@
         {
           "description": "Routine dependency updates",
           "commit": "cd61075"
+        },
+        {
+          "description": "Bumped github.com/ProductBuildersHQ/visionspec to the tagged v0.17.0 (library-wide layered class/blocking/evaluation rubric taxonomy and AWS Working Backwards re-homing)",
+          "commit": "60f01c1"
         }
       ]
     },
@@ -378,7 +340,7 @@
       "date": "2026-08-10",
       "highlights": [
         {
-          "description": "The pivot: a new Go CLI + web dashboard (`visionstudio`) for cross-repository roadmap execution \u2014 Programs -> Initiatives -> Phases -> RMIs, backed by Dolt \u2014 alongside the existing spec-authoring system, superseding the Electron desktop app and cmd/daemon as the primary surface"
+          "description": "The pivot: a new Go CLI + web dashboard (`visionstudio`) for cross-repository roadmap execution — Programs -> Initiatives -> Phases -> RMIs, backed by Dolt — alongside the existing spec-authoring system, superseding the Electron desktop app and cmd/daemon as the primary surface"
         },
         {
           "description": "Renamed the binary and module entry point from `vistudio` to `visionstudio` (breaking)"
@@ -534,7 +496,7 @@
           "description": "Existing views (VisionSpec, AIDLC, V2MOM, Analytics, unified dashboard) migrated onto the extension system as builtin extensions, not special-cased"
         },
         {
-          "description": "Shared UI toolkit \u2014 eleven reusable components backing an AppContext-based refactor of the existing views"
+          "description": "Shared UI toolkit — eleven reusable components backing an AppContext-based refactor of the existing views"
         },
         {
           "description": "API Style Spec: a new daemon endpoint plus a full marketplace extension for linting API specifications"
@@ -602,10 +564,10 @@
           "description": "DevX usage dashboard: a new, not-project-scoped sidebar view rendering AI-assisted development activity (sessions, prompts, commits, tool usage, cost) sourced from the OmniDevX ecosystem"
         },
         {
-          "description": "Read-only, disclosure-scoped boundary \u2014 the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file"
+          "description": "Read-only, disclosure-scoped boundary — the daemon never queries the OmniDevX event store, only passes through an already-generated, already-decided-safe dashboard file"
         },
         {
-          "description": "visionspec upgraded to v0.14.0 \u2014 rubrics now use structured-evaluation's shared RubricSet everywhere, one type across the ecosystem"
+          "description": "visionspec upgraded to v0.14.0 — rubrics now use structured-evaluation's shared RubricSet everywhere, one type across the ecosystem"
         }
       ],
       "added": [
@@ -622,13 +584,13 @@
           "commit": "76c1896"
         },
         {
-          "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization \u2014 both person/machine-scoped views independent of the active tracked project",
+          "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization — both person/machine-scoped views independent of the active tracked project",
           "commit": "e71d32d"
         }
       ],
       "dependencies": [
         {
-          "description": "Upgrade `github.com/ProductBuildersHQ/visionspec` to v0.14.0 (was v0.13.0). Breaking change upstream: `pkg/rubrics` drops its VisionSpec-local `RubricSet`/`Category`/`CategoricalCriteria` types in favor of `structured-evaluation/rubric.RubricSet`, and legacy flat rubric YAML is no longer parsed. VisionStudio doesn't import `pkg/rubrics` directly and ships no custom rubric YAML, so this required no code changes \u2014 verified with go vet, golangci-lint, and a live daemon run against the profiles endpoint",
+          "description": "Upgrade `github.com/ProductBuildersHQ/visionspec` to v0.14.0 (was v0.13.0). Breaking change upstream: `pkg/rubrics` drops its VisionSpec-local `RubricSet`/`Category`/`CategoricalCriteria` types in favor of `structured-evaluation/rubric.RubricSet`, and legacy flat rubric YAML is no longer parsed. VisionStudio doesn't import `pkg/rubrics` directly and ships no custom rubric YAML, so this required no code changes — verified with go vet, golangci-lint, and a live daemon run against the profiles endpoint",
           "commit": "8414baf"
         },
         {

@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 )
 
 // JudgeResultCreate is the builder for creating a JudgeResult entity.
@@ -102,29 +101,24 @@ func (_c *JudgeResultCreate) SetNillableModel(v *string) *JudgeResultCreate {
 	return _c
 }
 
-// SetID sets the "id" field.
-func (_c *JudgeResultCreate) SetID(v string) *JudgeResultCreate {
-	_c.mutation.SetID(v)
+// SetRubricID sets the "rubric_id" field.
+func (_c *JudgeResultCreate) SetRubricID(v string) *JudgeResultCreate {
+	_c.mutation.SetRubricID(v)
 	return _c
 }
 
-// SetRubricID sets the "rubric" edge to the JudgeRubric entity by ID.
-func (_c *JudgeResultCreate) SetRubricID(id string) *JudgeResultCreate {
-	_c.mutation.SetRubricID(id)
-	return _c
-}
-
-// SetNillableRubricID sets the "rubric" edge to the JudgeRubric entity by ID if the given value is not nil.
-func (_c *JudgeResultCreate) SetNillableRubricID(id *string) *JudgeResultCreate {
-	if id != nil {
-		_c = _c.SetRubricID(*id)
+// SetNillableRubricID sets the "rubric_id" field if the given value is not nil.
+func (_c *JudgeResultCreate) SetNillableRubricID(v *string) *JudgeResultCreate {
+	if v != nil {
+		_c.SetRubricID(*v)
 	}
 	return _c
 }
 
-// SetRubric sets the "rubric" edge to the JudgeRubric entity.
-func (_c *JudgeResultCreate) SetRubric(v *JudgeRubric) *JudgeResultCreate {
-	return _c.SetRubricID(v.ID)
+// SetID sets the "id" field.
+func (_c *JudgeResultCreate) SetID(v string) *JudgeResultCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetInitiative sets the "initiative" edge to the Initiative entity.
@@ -207,6 +201,11 @@ func (_c *JudgeResultCreate) check() error {
 			return &ValidationError{Name: "model", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.model": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.RubricID(); ok {
+		if err := judgeresult.RubricIDValidator(v); err != nil {
+			return &ValidationError{Name: "rubric_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.rubric_id": %w`, err)}
+		}
+	}
 	if v, ok := _c.mutation.ID(); ok {
 		if err := judgeresult.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.id": %w`, err)}
@@ -278,22 +277,9 @@ func (_c *JudgeResultCreate) createSpec() (*JudgeResult, *sqlgraph.CreateSpec) {
 		_spec.SetField(judgeresult.FieldModel, field.TypeString, value)
 		_node.Model = value
 	}
-	if nodes := _c.mutation.RubricIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   judgeresult.RubricTable,
-			Columns: []string{judgeresult.RubricColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.judge_rubric_results = &nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
+	if value, ok := _c.mutation.RubricID(); ok {
+		_spec.SetField(judgeresult.FieldRubricID, field.TypeString, value)
+		_node.RubricID = value
 	}
 	if nodes := _c.mutation.InitiativeIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

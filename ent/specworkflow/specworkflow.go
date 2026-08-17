@@ -24,14 +24,10 @@ const (
 	FieldInitTypes = "init_types"
 	// EdgeInitiatives holds the string denoting the initiatives edge name in mutations.
 	EdgeInitiatives = "initiatives"
-	// EdgeRubrics holds the string denoting the rubrics edge name in mutations.
-	EdgeRubrics = "rubrics"
 	// EdgeSpecDocuments holds the string denoting the spec_documents edge name in mutations.
 	EdgeSpecDocuments = "spec_documents"
 	// InitiativeFieldID holds the string denoting the ID field of the Initiative.
 	InitiativeFieldID = "initiative_id"
-	// JudgeRubricFieldID holds the string denoting the ID field of the JudgeRubric.
-	JudgeRubricFieldID = "rubric_id"
 	// SpecDocumentFieldID holds the string denoting the ID field of the SpecDocument.
 	SpecDocumentFieldID = "id"
 	// Table holds the table name of the specworkflow in the database.
@@ -43,13 +39,6 @@ const (
 	InitiativesInverseTable = "initiatives"
 	// InitiativesColumn is the table column denoting the initiatives relation/edge.
 	InitiativesColumn = "spec_workflow_initiatives"
-	// RubricsTable is the table that holds the rubrics relation/edge.
-	RubricsTable = "judge_rubrics"
-	// RubricsInverseTable is the table name for the JudgeRubric entity.
-	// It exists in this package in order to avoid circular dependency with the "judgerubric" package.
-	RubricsInverseTable = "judge_rubrics"
-	// RubricsColumn is the table column denoting the rubrics relation/edge.
-	RubricsColumn = "spec_workflow_rubrics"
 	// SpecDocumentsTable is the table that holds the spec_documents relation/edge.
 	SpecDocumentsTable = "spec_documents"
 	// SpecDocumentsInverseTable is the table name for the SpecDocument entity.
@@ -118,20 +107,6 @@ func ByInitiatives(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByRubricsCount orders the results by rubrics count.
-func ByRubricsCount(opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newRubricsStep(), opts...)
-	}
-}
-
-// ByRubrics orders the results by rubrics terms.
-func ByRubrics(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRubricsStep(), append([]sql.OrderTerm{term}, terms...)...)
-	}
-}
-
 // BySpecDocumentsCount orders the results by spec_documents count.
 func BySpecDocumentsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -150,13 +125,6 @@ func newInitiativesStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(InitiativesInverseTable, InitiativeFieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, InitiativesTable, InitiativesColumn),
-	)
-}
-func newRubricsStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RubricsInverseTable, JudgeRubricFieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, RubricsTable, RubricsColumn),
 	)
 }
 func newSpecDocumentsStep() *sqlgraph.Step {

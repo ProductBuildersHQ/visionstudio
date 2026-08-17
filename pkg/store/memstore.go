@@ -25,7 +25,6 @@ type MemStore struct {
 	people              map[string]*Person
 	releases            map[string]*Release
 	workflows           map[string]*SpecWorkflow
-	judgeRubrics        map[string]*JudgeRubric
 	judgeResults        map[string]*JudgeResult
 	capabilityModels    map[string]*CapabilityModel
 	maturityAssessments map[string]*MaturityAssessment
@@ -51,7 +50,6 @@ func NewMemStore() *MemStore {
 		people:              make(map[string]*Person),
 		releases:            make(map[string]*Release),
 		workflows:           make(map[string]*SpecWorkflow),
-		judgeRubrics:        make(map[string]*JudgeRubric),
 		judgeResults:        make(map[string]*JudgeResult),
 		capabilityModels:    make(map[string]*CapabilityModel),
 		maturityAssessments: make(map[string]*MaturityAssessment),
@@ -597,38 +595,6 @@ func (m *MemStore) GetWorkflowForInitiative(_ context.Context, initiativeID stri
 		return nil, nil
 	}
 	return iw, nil
-}
-
-func (m *MemStore) CreateJudgeRubric(_ context.Context, rubric *JudgeRubric) error {
-	m.mu.Lock()
-	defer m.mu.Unlock()
-	if _, exists := m.judgeRubrics[rubric.ID]; exists {
-		return fmt.Errorf("judge rubric %s already exists", rubric.ID)
-	}
-	m.judgeRubrics[rubric.ID] = rubric
-	return nil
-}
-
-func (m *MemStore) GetJudgeRubric(_ context.Context, id string) (*JudgeRubric, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	rubric, ok := m.judgeRubrics[id]
-	if !ok {
-		return nil, fmt.Errorf("judge rubric %s not found", id)
-	}
-	return rubric, nil
-}
-
-func (m *MemStore) ListJudgeRubrics(_ context.Context, workflowID string) ([]*JudgeRubric, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-	var result []*JudgeRubric
-	for _, r := range m.judgeRubrics {
-		if workflowID == "" || r.WorkflowID == workflowID {
-			result = append(result, r)
-		}
-	}
-	return result, nil
 }
 
 func (m *MemStore) CreateJudgeResult(_ context.Context, result *JudgeResult) error {

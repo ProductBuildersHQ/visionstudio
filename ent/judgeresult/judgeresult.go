@@ -28,23 +28,14 @@ const (
 	FieldPass = "pass"
 	// FieldModel holds the string denoting the model field in the database.
 	FieldModel = "model"
-	// EdgeRubric holds the string denoting the rubric edge name in mutations.
-	EdgeRubric = "rubric"
+	// FieldRubricID holds the string denoting the rubric_id field in the database.
+	FieldRubricID = "rubric_id"
 	// EdgeInitiative holds the string denoting the initiative edge name in mutations.
 	EdgeInitiative = "initiative"
-	// JudgeRubricFieldID holds the string denoting the ID field of the JudgeRubric.
-	JudgeRubricFieldID = "rubric_id"
 	// InitiativeFieldID holds the string denoting the ID field of the Initiative.
 	InitiativeFieldID = "initiative_id"
 	// Table holds the table name of the judgeresult in the database.
 	Table = "judge_results"
-	// RubricTable is the table that holds the rubric relation/edge.
-	RubricTable = "judge_results"
-	// RubricInverseTable is the table name for the JudgeRubric entity.
-	// It exists in this package in order to avoid circular dependency with the "judgerubric" package.
-	RubricInverseTable = "judge_rubrics"
-	// RubricColumn is the table column denoting the rubric relation/edge.
-	RubricColumn = "judge_rubric_results"
 	// InitiativeTable is the table that holds the initiative relation/edge.
 	InitiativeTable = "judge_results"
 	// InitiativeInverseTable is the table name for the Initiative entity.
@@ -65,23 +56,13 @@ var Columns = []string{
 	FieldIntScore,
 	FieldPass,
 	FieldModel,
-}
-
-// ForeignKeys holds the SQL foreign-keys that are owned by the "judge_results"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"judge_rubric_results",
+	FieldRubricID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -99,6 +80,8 @@ var (
 	DefaultPass bool
 	// ModelValidator is a validator for the "model" field. It is called by the builders before save.
 	ModelValidator func(string) error
+	// RubricIDValidator is a validator for the "rubric_id" field. It is called by the builders before save.
+	RubricIDValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -146,11 +129,9 @@ func ByModel(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldModel, opts...).ToFunc()
 }
 
-// ByRubricField orders the results by rubric field.
-func ByRubricField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newRubricStep(), sql.OrderByField(field, opts...))
-	}
+// ByRubricID orders the results by the rubric_id field.
+func ByRubricID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRubricID, opts...).ToFunc()
 }
 
 // ByInitiativeField orders the results by initiative field.
@@ -158,13 +139,6 @@ func ByInitiativeField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newInitiativeStep(), sql.OrderByField(field, opts...))
 	}
-}
-func newRubricStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(RubricInverseTable, JudgeRubricFieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, RubricTable, RubricColumn),
-	)
 }
 func newInitiativeStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

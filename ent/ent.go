@@ -20,7 +20,6 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativeworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/person"
@@ -104,7 +103,6 @@ func checkColumn(t, c string) error {
 			initiativedependency.Table: initiativedependency.ValidColumn,
 			initiativeworkflow.Table:   initiativeworkflow.ValidColumn,
 			judgeresult.Table:          judgeresult.ValidColumn,
-			judgerubric.Table:          judgerubric.ValidColumn,
 			maturityassessment.Table:   maturityassessment.ValidColumn,
 			organization.Table:         organization.ValidColumn,
 			prismdocument.Table:        prismdocument.ValidColumn,

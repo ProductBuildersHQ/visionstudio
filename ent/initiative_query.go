@@ -745,7 +745,6 @@ func (_q *InitiativeQuery) loadJudgeResults(ctx context.Context, query *JudgeRes
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
 	if len(query.ctx.Fields) > 0 {
 		query.ctx.AppendFieldOnce(judgeresult.FieldInitiativeID)
 	}

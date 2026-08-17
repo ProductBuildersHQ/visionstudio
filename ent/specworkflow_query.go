@@ -13,7 +13,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
@@ -27,7 +26,6 @@ type SpecWorkflowQuery struct {
 	inters            []Interceptor
 	predicates        []predicate.SpecWorkflow
 	withInitiatives   *InitiativeQuery
-	withRubrics       *JudgeRubricQuery
 	withSpecDocuments *SpecDocumentQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -80,28 +78,6 @@ func (_q *SpecWorkflowQuery) QueryInitiatives() *InitiativeQuery {
 			sqlgraph.From(specworkflow.Table, specworkflow.FieldID, selector),
 			sqlgraph.To(initiative.Table, initiative.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, specworkflow.InitiativesTable, specworkflow.InitiativesColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryRubrics chains the current query on the "rubrics" edge.
-func (_q *SpecWorkflowQuery) QueryRubrics() *JudgeRubricQuery {
-	query := (&JudgeRubricClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(specworkflow.Table, specworkflow.FieldID, selector),
-			sqlgraph.To(judgerubric.Table, judgerubric.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, specworkflow.RubricsTable, specworkflow.RubricsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -324,7 +300,6 @@ func (_q *SpecWorkflowQuery) Clone() *SpecWorkflowQuery {
 		inters:            append([]Interceptor{}, _q.inters...),
 		predicates:        append([]predicate.SpecWorkflow{}, _q.predicates...),
 		withInitiatives:   _q.withInitiatives.Clone(),
-		withRubrics:       _q.withRubrics.Clone(),
 		withSpecDocuments: _q.withSpecDocuments.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
@@ -340,17 +315,6 @@ func (_q *SpecWorkflowQuery) WithInitiatives(opts ...func(*InitiativeQuery)) *Sp
 		opt(query)
 	}
 	_q.withInitiatives = query
-	return _q
-}
-
-// WithRubrics tells the query-builder to eager-load the nodes that are connected to
-// the "rubrics" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *SpecWorkflowQuery) WithRubrics(opts ...func(*JudgeRubricQuery)) *SpecWorkflowQuery {
-	query := (&JudgeRubricClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withRubrics = query
 	return _q
 }
 
@@ -443,9 +407,8 @@ func (_q *SpecWorkflowQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*SpecWorkflow{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [2]bool{
 			_q.withInitiatives != nil,
-			_q.withRubrics != nil,
 			_q.withSpecDocuments != nil,
 		}
 	)
@@ -471,13 +434,6 @@ func (_q *SpecWorkflowQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := _q.loadInitiatives(ctx, query, nodes,
 			func(n *SpecWorkflow) { n.Edges.Initiatives = []*Initiative{} },
 			func(n *SpecWorkflow, e *Initiative) { n.Edges.Initiatives = append(n.Edges.Initiatives, e) }); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withRubrics; query != nil {
-		if err := _q.loadRubrics(ctx, query, nodes,
-			func(n *SpecWorkflow) { n.Edges.Rubrics = []*JudgeRubric{} },
-			func(n *SpecWorkflow, e *JudgeRubric) { n.Edges.Rubrics = append(n.Edges.Rubrics, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -517,37 +473,6 @@ func (_q *SpecWorkflowQuery) loadInitiatives(ctx context.Context, query *Initiat
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected referenced foreign-key "spec_workflow_initiatives" returned %v for node %v`, *fk, n.ID)
-		}
-		assign(node, n)
-	}
-	return nil
-}
-func (_q *SpecWorkflowQuery) loadRubrics(ctx context.Context, query *JudgeRubricQuery, nodes []*SpecWorkflow, init func(*SpecWorkflow), assign func(*SpecWorkflow, *JudgeRubric)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[string]*SpecWorkflow)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
-		if init != nil {
-			init(nodes[i])
-		}
-	}
-	query.withFKs = true
-	query.Where(predicate.JudgeRubric(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(specworkflow.RubricsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		fk := n.spec_workflow_rubrics
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "spec_workflow_rubrics" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
-		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "spec_workflow_rubrics" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

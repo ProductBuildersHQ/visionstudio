@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/predicate"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
@@ -134,21 +133,6 @@ func (_u *SpecWorkflowUpdate) AddInitiatives(v ...*Initiative) *SpecWorkflowUpda
 	return _u.AddInitiativeIDs(ids...)
 }
 
-// AddRubricIDs adds the "rubrics" edge to the JudgeRubric entity by IDs.
-func (_u *SpecWorkflowUpdate) AddRubricIDs(ids ...string) *SpecWorkflowUpdate {
-	_u.mutation.AddRubricIDs(ids...)
-	return _u
-}
-
-// AddRubrics adds the "rubrics" edges to the JudgeRubric entity.
-func (_u *SpecWorkflowUpdate) AddRubrics(v ...*JudgeRubric) *SpecWorkflowUpdate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddRubricIDs(ids...)
-}
-
 // AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
 func (_u *SpecWorkflowUpdate) AddSpecDocumentIDs(ids ...string) *SpecWorkflowUpdate {
 	_u.mutation.AddSpecDocumentIDs(ids...)
@@ -188,27 +172,6 @@ func (_u *SpecWorkflowUpdate) RemoveInitiatives(v ...*Initiative) *SpecWorkflowU
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveInitiativeIDs(ids...)
-}
-
-// ClearRubrics clears all "rubrics" edges to the JudgeRubric entity.
-func (_u *SpecWorkflowUpdate) ClearRubrics() *SpecWorkflowUpdate {
-	_u.mutation.ClearRubrics()
-	return _u
-}
-
-// RemoveRubricIDs removes the "rubrics" edge to JudgeRubric entities by IDs.
-func (_u *SpecWorkflowUpdate) RemoveRubricIDs(ids ...string) *SpecWorkflowUpdate {
-	_u.mutation.RemoveRubricIDs(ids...)
-	return _u
-}
-
-// RemoveRubrics removes "rubrics" edges to JudgeRubric entities.
-func (_u *SpecWorkflowUpdate) RemoveRubrics(v ...*JudgeRubric) *SpecWorkflowUpdate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveRubricIDs(ids...)
 }
 
 // ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
@@ -361,51 +324,6 @@ func (_u *SpecWorkflowUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.RubricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedRubricsIDs(); len(nodes) > 0 && !_u.mutation.RubricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RubricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {
@@ -581,21 +499,6 @@ func (_u *SpecWorkflowUpdateOne) AddInitiatives(v ...*Initiative) *SpecWorkflowU
 	return _u.AddInitiativeIDs(ids...)
 }
 
-// AddRubricIDs adds the "rubrics" edge to the JudgeRubric entity by IDs.
-func (_u *SpecWorkflowUpdateOne) AddRubricIDs(ids ...string) *SpecWorkflowUpdateOne {
-	_u.mutation.AddRubricIDs(ids...)
-	return _u
-}
-
-// AddRubrics adds the "rubrics" edges to the JudgeRubric entity.
-func (_u *SpecWorkflowUpdateOne) AddRubrics(v ...*JudgeRubric) *SpecWorkflowUpdateOne {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.AddRubricIDs(ids...)
-}
-
 // AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
 func (_u *SpecWorkflowUpdateOne) AddSpecDocumentIDs(ids ...string) *SpecWorkflowUpdateOne {
 	_u.mutation.AddSpecDocumentIDs(ids...)
@@ -635,27 +538,6 @@ func (_u *SpecWorkflowUpdateOne) RemoveInitiatives(v ...*Initiative) *SpecWorkfl
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveInitiativeIDs(ids...)
-}
-
-// ClearRubrics clears all "rubrics" edges to the JudgeRubric entity.
-func (_u *SpecWorkflowUpdateOne) ClearRubrics() *SpecWorkflowUpdateOne {
-	_u.mutation.ClearRubrics()
-	return _u
-}
-
-// RemoveRubricIDs removes the "rubrics" edge to JudgeRubric entities by IDs.
-func (_u *SpecWorkflowUpdateOne) RemoveRubricIDs(ids ...string) *SpecWorkflowUpdateOne {
-	_u.mutation.RemoveRubricIDs(ids...)
-	return _u
-}
-
-// RemoveRubrics removes "rubrics" edges to JudgeRubric entities.
-func (_u *SpecWorkflowUpdateOne) RemoveRubrics(v ...*JudgeRubric) *SpecWorkflowUpdateOne {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _u.RemoveRubricIDs(ids...)
 }
 
 // ClearSpecDocuments clears all "spec_documents" edges to the SpecDocument entity.
@@ -838,51 +720,6 @@ func (_u *SpecWorkflowUpdateOne) sqlSave(ctx context.Context) (_node *SpecWorkfl
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Add = append(_spec.Edges.Add, edge)
-	}
-	if _u.mutation.RubricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RemovedRubricsIDs(); len(nodes) > 0 && !_u.mutation.RubricsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := _u.mutation.RubricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

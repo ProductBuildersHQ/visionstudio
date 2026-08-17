@@ -37,13 +37,11 @@ type SpecWorkflow struct {
 type SpecWorkflowEdges struct {
 	// Initiatives holds the value of the initiatives edge.
 	Initiatives []*Initiative `json:"initiatives,omitempty"`
-	// Rubrics holds the value of the rubrics edge.
-	Rubrics []*JudgeRubric `json:"rubrics,omitempty"`
 	// SpecDocuments holds the value of the spec_documents edge.
 	SpecDocuments []*SpecDocument `json:"spec_documents,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
 // InitiativesOrErr returns the Initiatives value or an error if the edge
@@ -55,19 +53,10 @@ func (e SpecWorkflowEdges) InitiativesOrErr() ([]*Initiative, error) {
 	return nil, &NotLoadedError{edge: "initiatives"}
 }
 
-// RubricsOrErr returns the Rubrics value or an error if the edge
-// was not loaded in eager-loading.
-func (e SpecWorkflowEdges) RubricsOrErr() ([]*JudgeRubric, error) {
-	if e.loadedTypes[1] {
-		return e.Rubrics, nil
-	}
-	return nil, &NotLoadedError{edge: "rubrics"}
-}
-
 // SpecDocumentsOrErr returns the SpecDocuments value or an error if the edge
 // was not loaded in eager-loading.
 func (e SpecWorkflowEdges) SpecDocumentsOrErr() ([]*SpecDocument, error) {
-	if e.loadedTypes[2] {
+	if e.loadedTypes[1] {
 		return e.SpecDocuments, nil
 	}
 	return nil, &NotLoadedError{edge: "spec_documents"}
@@ -155,11 +144,6 @@ func (_m *SpecWorkflow) Value(name string) (ent.Value, error) {
 // QueryInitiatives queries the "initiatives" edge of the SpecWorkflow entity.
 func (_m *SpecWorkflow) QueryInitiatives() *InitiativeQuery {
 	return NewSpecWorkflowClient(_m.config).QueryInitiatives(_m)
-}
-
-// QueryRubrics queries the "rubrics" edge of the SpecWorkflow entity.
-func (_m *SpecWorkflow) QueryRubrics() *JudgeRubricQuery {
-	return NewSpecWorkflowClient(_m.config).QueryRubrics(_m)
 }
 
 // QuerySpecDocuments queries the "spec_documents" edge of the SpecWorkflow entity.

@@ -30,9 +30,6 @@ type InitiativeWorkflow func(*sql.Selector)
 // JudgeResult is the predicate function for judgeresult builders.
 type JudgeResult func(*sql.Selector)
 
-// JudgeRubric is the predicate function for judgerubric builders.
-type JudgeRubric func(*sql.Selector)
-
 // MaturityAssessment is the predicate function for maturityassessment builders.
 type MaturityAssessment func(*sql.Selector)
 

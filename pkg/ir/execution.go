@@ -36,7 +36,6 @@ type (
 
 type (
 	SpecWorkflow = pbstore.SpecWorkflow
-	JudgeRubric  = pbstore.JudgeRubric
 	JudgeResult  = pbstore.JudgeResult
 )
 

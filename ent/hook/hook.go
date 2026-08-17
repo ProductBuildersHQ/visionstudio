@@ -105,18 +105,6 @@ func (f JudgeResultFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.JudgeResultMutation", m)
 }
 
-// The JudgeRubricFunc type is an adapter to allow the use of ordinary
-// function as JudgeRubric mutator.
-type JudgeRubricFunc func(context.Context, *ent.JudgeRubricMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f JudgeRubricFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.JudgeRubricMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.JudgeRubricMutation", m)
-}
-
 // The MaturityAssessmentFunc type is an adapter to allow the use of ordinary
 // function as MaturityAssessment mutator.
 type MaturityAssessmentFunc func(context.Context, *ent.MaturityAssessmentMutation) (ent.Value, error)

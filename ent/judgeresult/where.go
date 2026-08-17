@@ -100,6 +100,11 @@ func Model(v string) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldEQ(FieldModel, v))
 }
 
+// RubricID applies equality check predicate on the "rubric_id" field. It's identical to RubricIDEQ.
+func RubricID(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldRubricID, v))
+}
+
 // InitiativeIDEQ applies the EQ predicate on the "initiative_id" field.
 func InitiativeIDEQ(v string) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldEQ(FieldInitiativeID, v))
@@ -490,27 +495,79 @@ func ModelContainsFold(v string) predicate.JudgeResult {
 	return predicate.JudgeResult(sql.FieldContainsFold(FieldModel, v))
 }
 
-// HasRubric applies the HasEdge predicate on the "rubric" edge.
-func HasRubric() predicate.JudgeResult {
-	return predicate.JudgeResult(func(s *sql.Selector) {
-		step := sqlgraph.NewStep(
-			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, RubricTable, RubricColumn),
-		)
-		sqlgraph.HasNeighbors(s, step)
-	})
+// RubricIDEQ applies the EQ predicate on the "rubric_id" field.
+func RubricIDEQ(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEQ(FieldRubricID, v))
 }
 
-// HasRubricWith applies the HasEdge predicate on the "rubric" edge with a given conditions (other predicates).
-func HasRubricWith(preds ...predicate.JudgeRubric) predicate.JudgeResult {
-	return predicate.JudgeResult(func(s *sql.Selector) {
-		step := newRubricStep()
-		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
-			for _, p := range preds {
-				p(s)
-			}
-		})
-	})
+// RubricIDNEQ applies the NEQ predicate on the "rubric_id" field.
+func RubricIDNEQ(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNEQ(FieldRubricID, v))
+}
+
+// RubricIDIn applies the In predicate on the "rubric_id" field.
+func RubricIDIn(vs ...string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIn(FieldRubricID, vs...))
+}
+
+// RubricIDNotIn applies the NotIn predicate on the "rubric_id" field.
+func RubricIDNotIn(vs ...string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotIn(FieldRubricID, vs...))
+}
+
+// RubricIDGT applies the GT predicate on the "rubric_id" field.
+func RubricIDGT(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGT(FieldRubricID, v))
+}
+
+// RubricIDGTE applies the GTE predicate on the "rubric_id" field.
+func RubricIDGTE(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldGTE(FieldRubricID, v))
+}
+
+// RubricIDLT applies the LT predicate on the "rubric_id" field.
+func RubricIDLT(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLT(FieldRubricID, v))
+}
+
+// RubricIDLTE applies the LTE predicate on the "rubric_id" field.
+func RubricIDLTE(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldLTE(FieldRubricID, v))
+}
+
+// RubricIDContains applies the Contains predicate on the "rubric_id" field.
+func RubricIDContains(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldContains(FieldRubricID, v))
+}
+
+// RubricIDHasPrefix applies the HasPrefix predicate on the "rubric_id" field.
+func RubricIDHasPrefix(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldHasPrefix(FieldRubricID, v))
+}
+
+// RubricIDHasSuffix applies the HasSuffix predicate on the "rubric_id" field.
+func RubricIDHasSuffix(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldHasSuffix(FieldRubricID, v))
+}
+
+// RubricIDIsNil applies the IsNil predicate on the "rubric_id" field.
+func RubricIDIsNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldIsNull(FieldRubricID))
+}
+
+// RubricIDNotNil applies the NotNil predicate on the "rubric_id" field.
+func RubricIDNotNil() predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldNotNull(FieldRubricID))
+}
+
+// RubricIDEqualFold applies the EqualFold predicate on the "rubric_id" field.
+func RubricIDEqualFold(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldEqualFold(FieldRubricID, v))
+}
+
+// RubricIDContainsFold applies the ContainsFold predicate on the "rubric_id" field.
+func RubricIDContainsFold(v string) predicate.JudgeResult {
+	return predicate.JudgeResult(sql.FieldContainsFold(FieldRubricID, v))
 }
 
 // HasInitiative applies the HasEdge predicate on the "initiative" edge.

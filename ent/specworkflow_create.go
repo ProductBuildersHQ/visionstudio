@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specdocument"
 	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 )
@@ -79,21 +78,6 @@ func (_c *SpecWorkflowCreate) AddInitiatives(v ...*Initiative) *SpecWorkflowCrea
 		ids[i] = v[i].ID
 	}
 	return _c.AddInitiativeIDs(ids...)
-}
-
-// AddRubricIDs adds the "rubrics" edge to the JudgeRubric entity by IDs.
-func (_c *SpecWorkflowCreate) AddRubricIDs(ids ...string) *SpecWorkflowCreate {
-	_c.mutation.AddRubricIDs(ids...)
-	return _c
-}
-
-// AddRubrics adds the "rubrics" edges to the JudgeRubric entity.
-func (_c *SpecWorkflowCreate) AddRubrics(v ...*JudgeRubric) *SpecWorkflowCreate {
-	ids := make([]string, len(v))
-	for i := range v {
-		ids[i] = v[i].ID
-	}
-	return _c.AddRubricIDs(ids...)
 }
 
 // AddSpecDocumentIDs adds the "spec_documents" edge to the SpecDocument entity by IDs.
@@ -222,22 +206,6 @@ func (_c *SpecWorkflowCreate) createSpec() (*SpecWorkflow, *sqlgraph.CreateSpec)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(initiative.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := _c.mutation.RubricsIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
-			Inverse: false,
-			Table:   specworkflow.RubricsTable,
-			Columns: []string{specworkflow.RubricsColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(judgerubric.FieldID, field.TypeString),
 			},
 		}
 		for _, k := range nodes {

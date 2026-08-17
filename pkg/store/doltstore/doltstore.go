@@ -22,7 +22,6 @@ import (
 	initiativeEnt "github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
-	"github.com/ProductBuildersHQ/visionstudio/ent/judgerubric"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
@@ -30,7 +29,6 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/rmidependency"
 	"github.com/ProductBuildersHQ/visionstudio/ent/roadmapitem"
 	"github.com/ProductBuildersHQ/visionstudio/ent/schema"
-	"github.com/ProductBuildersHQ/visionstudio/ent/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
@@ -1344,70 +1342,6 @@ func (d *DoltStore) GetWorkflowForInitiative(ctx context.Context, initiativeID s
 }
 
 // ---------------------------------------------------------------------------
-// JudgeRubric CRUD
-// ---------------------------------------------------------------------------
-
-func (d *DoltStore) CreateJudgeRubric(ctx context.Context, rubric *store.JudgeRubric) error {
-	builder := d.client.JudgeRubric.Create().
-		SetID(rubric.ID).
-		SetSpecType(rubric.SpecType).
-		SetCriteria(rubric.Criteria).
-		SetPromptTemplate(rubric.PromptTemplate)
-	if rubric.WorkflowID != "" {
-		builder = builder.SetWorkflowID(rubric.WorkflowID)
-	}
-	_, err := builder.Save(ctx)
-	if err != nil {
-		return fmt.Errorf("create judge rubric: %w", err)
-	}
-	return nil
-}
-
-func (d *DoltStore) GetJudgeRubric(ctx context.Context, id string) (*store.JudgeRubric, error) {
-	row, err := d.client.JudgeRubric.Get(ctx, id)
-	if err != nil {
-		return nil, fmt.Errorf("get judge rubric %s: %w", id, err)
-	}
-	workflowID := ""
-	if wf, err := row.QueryWorkflow().Only(ctx); err == nil && wf != nil {
-		workflowID = wf.ID
-	}
-	return &store.JudgeRubric{
-		ID:             row.ID,
-		WorkflowID:     workflowID,
-		SpecType:       row.SpecType,
-		Criteria:       row.Criteria,
-		PromptTemplate: row.PromptTemplate,
-	}, nil
-}
-
-func (d *DoltStore) ListJudgeRubrics(ctx context.Context, workflowID string) ([]*store.JudgeRubric, error) {
-	q := d.client.JudgeRubric.Query()
-	if workflowID != "" {
-		q = q.Where(judgerubric.HasWorkflowWith(specworkflow.IDEQ(workflowID)))
-	}
-	rows, err := q.All(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("list judge rubrics: %w", err)
-	}
-	result := make([]*store.JudgeRubric, len(rows))
-	for i, r := range rows {
-		wfID := ""
-		if wf, err := r.QueryWorkflow().Only(ctx); err == nil && wf != nil {
-			wfID = wf.ID
-		}
-		result[i] = &store.JudgeRubric{
-			ID:             r.ID,
-			WorkflowID:     wfID,
-			SpecType:       r.SpecType,
-			Criteria:       r.Criteria,
-			PromptTemplate: r.PromptTemplate,
-		}
-	}
-	return result, nil
-}
-
-// ---------------------------------------------------------------------------
 // JudgeResult CRUD
 // ---------------------------------------------------------------------------
 
@@ -1452,11 +1386,6 @@ func (d *DoltStore) ListJudgeResults(ctx context.Context, initiativeID string) (
 	}
 	result := make([]*store.JudgeResult, len(rows))
 	for i, r := range rows {
-		rubricID := ""
-		if rb, err := r.QueryRubric().Only(ctx); err == nil && rb != nil {
-			rubricID = rb.ID
-		}
-
 		var report *rubric.Rubric
 		if r.Report != nil {
 			report = mapToRubric(r.Report)
@@ -1467,7 +1396,7 @@ func (d *DoltStore) ListJudgeResults(ctx context.Context, initiativeID string) (
 			InitiativeID: r.InitiativeID,
 			SpecPath:     r.SpecPath,
 			SpecType:     r.SpecType,
-			RubricID:     rubricID,
+			RubricID:     r.RubricID,
 			EvaluatedAt:  r.EvaluatedAt,
 			Report:       report,
 		}

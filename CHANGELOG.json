@@ -10,6 +10,27 @@
   "unreleased": {},
   "releases": [
     {
+      "version": "v0.10.0",
+      "date": "2026-08-16",
+      "highlights": [
+        {
+          "description": "visionstudio release candidates --repo <repo-id>: repo-first release readiness, complementing initiative sweep's initiative-first direction -- for a repo about to be released, find every touching initiative and whether it's ready/partial/not_ready/already_attached"
+        }
+      ],
+      "added": [
+        {
+          "description": "release candidates --repo <repo-id> [--format json] classifies every non-terminal initiative with >=1 RMI in the repo: ready (fully done everywhere), partial (this repo done, other repos pending), not_ready, already_attached. Report-only, same discipline as sweep",
+          "commit": "df17977"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "CLAUDE.md: when to use sweep (initiative-first) vs. candidates (repo-first); dashboard guide cross-reference alongside sweep",
+          "commit": "df17977"
+        }
+      ]
+    },
+    {
       "version": "v0.9.0",
       "date": "2026-08-16",
       "highlights": [

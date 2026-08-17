@@ -53,6 +53,7 @@ nav:
   - Getting Started:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
+      - Troubleshooting: getting-started/troubleshooting.md
   - Dashboard Guide:
       - Tour: dashboard/overview.md
       - Programs, Initiatives & RMIs: dashboard/initiatives.md

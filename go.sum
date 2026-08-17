@@ -629,8 +629,8 @@ github.com/googleapis/gax-go/v2 v2.23.0/go.mod h1:rBQKOVJCdb8IFEzg+FCwlt1LP/xMDG
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
 github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
-github.com/grokify/godolt v0.1.0 h1:vhqg/psyvM+q8bblePp6GDrgCHB6O2QqF2uegr9OD9w=
-github.com/grokify/godolt v0.1.0/go.mod h1:NX3DZszMrfksxOKY1fHz3BgJqPOgUmlU6FkX/nhhsZA=
+github.com/grokify/godolt v0.2.0 h1:m4W8vkhO1EkuxI8OQuQLydZDEUM0mP3p7Xjp5V6f6zk=
+github.com/grokify/godolt v0.2.0/go.mod h1:NX3DZszMrfksxOKY1fHz3BgJqPOgUmlU6FkX/nhhsZA=
 github.com/grokify/gogit v0.8.0 h1:7A4AplHJl+eVF1nREfI/4uvhjyJAD1enAstIYI5fK20=
 github.com/grokify/gogit v0.8.0/go.mod h1:J48tiJQXXCU3BIw2OhBdToLVCm9S8fcq8i48VuJ5lYc=
 github.com/grokify/gogithub v0.17.0 h1:FJy2QcLaJuypY15xE7vcwfIaISVPBaAScIJKfbcr440=

@@ -20,10 +20,10 @@ require (
 	github.com/grokify/prism-roadmap v0.18.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/modelcontextprotocol/go-sdk v1.7.0
-	github.com/plexusone/devfolio v0.3.0
+	github.com/plexusone/devfolio v0.4.0
 	github.com/plexusone/omnidevx-core v0.3.0
 	github.com/plexusone/structured-evaluation v0.14.0
-	github.com/plexusone/uiforge v0.4.0
+	github.com/plexusone/uiforge v0.5.0
 	github.com/spf13/cobra v1.10.2
 	gopkg.in/yaml.v3 v3.0.1
 )

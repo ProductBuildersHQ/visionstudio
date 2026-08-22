@@ -20,12 +20,13 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/specworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/synthesis"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/version"
 )
 
 // New creates an MCP server with all PRISM Control tools registered.
 func New(svc *service.Service) *mcp.Server {
 	s := mcp.NewServer(
-		&mcp.Implementation{Name: "visionstudio", Version: "0.1.0"},
+		&mcp.Implementation{Name: "visionstudio", Version: version.String()},
 		&mcp.ServerOptions{
 			Instructions: "PRISM Control — Product Delivery Control Plane. " +
 				"Browse initiatives, claim roadmap items, and update work status.",

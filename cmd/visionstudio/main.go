@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 
 	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/version"
 )
 
 // defaultPort is the single default port for the local Dolt SQL server. The
@@ -150,7 +151,7 @@ func versionCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print the version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Println("visionstudio v0.1.0-dev")
+			fmt.Println("visionstudio " + version.String())
 		},
 	}
 }

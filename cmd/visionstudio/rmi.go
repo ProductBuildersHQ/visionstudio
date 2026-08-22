@@ -174,6 +174,29 @@ func rmiCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new roadmap item",
+		Long: `Create a roadmap item (RMI) — the unit of trackable work, tied to one repository.
+
+ID convention: RMI-<REPOSLUG>-NNN (regex ^RMI-[A-Z0-9]+-\d{3}$), where REPOSLUG is
+the uppercased repository name with separators removed (repo 'prism-roadmap' →
+RMI-PRISMROADMAP-001). Numbers are per-repo: check 'rmi list --repo <repo-id>'
+for the next free one. Commits implementing an RMI carry the git trailer
+'Refs: <RMI-ID>' ('work claim' prints it).
+
+The --repo repository must already be registered ('registry list' / 'registry add').
+--initiative and --phase attach the RMI to its parents; an initiative's RMIs may
+span multiple repositories, each RMI naming its own --repo.
+
+--origin records how the scope was identified (for spec-completeness telemetry):
+  spec                in the initiative's original PRD/ROADMAP (default)
+  implementation      discovered while implementing another RMI
+  acceptance_testing  a human found the gap using the shipped result
+  discussion          proposed directly by a human in conversation`,
+		Example: `  visionstudio rmi create \
+    --id RMI-MYREPO-007 \
+    --repo github.com/myorg/myrepo \
+    --initiative INIT-MYPROJECT-001 --phase INIT-MYPROJECT-001/phase-2 \
+    --title "Add evidence entity" --type capability --priority high \
+    --acceptance "schema generated; tests pass" --origin implementation`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {
@@ -367,6 +390,19 @@ func rmiListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List roadmap items",
+		Long: `List roadmap items (RMIs).
+
+Scope the listing with --initiative or --repo. Use --grep <term> to search
+RMI IDs and titles (case-insensitive substring) — useful for finding which
+RMI describes a given change or feature. --grep works on its own, searching
+across every initiative and repository, or combines with --initiative/--repo
+to search within that scope. --origin narrows by how the scope was identified.
+
+Examples:
+  visionstudio rmi list --initiative INIT-MYPROJECT-001
+  visionstudio rmi list --repo github.com/myorg/myrepo --origin acceptance_testing
+  visionstudio rmi list --grep "grokifyql"          # which RMI covers this?
+  visionstudio rmi list --grep question --repo github.com/myorg/myrepo`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {
@@ -377,9 +413,12 @@ func rmiListCmd() *cobra.Command {
 			initiative, _ := cmd.Flags().GetString("initiative")
 			repo, _ := cmd.Flags().GetString("repo")
 			originFilter, _ := cmd.Flags().GetString("origin")
+			grep, _ := cmd.Flags().GetString("grep")
 
-			if initiative == "" && repo == "" {
-				return fmt.Errorf("either --initiative or --repo is required")
+			// --grep enables cross-initiative discovery, so it relaxes the
+			// usual requirement that a scope filter be given.
+			if initiative == "" && repo == "" && grep == "" {
+				return fmt.Errorf("either --initiative, --repo, or --grep is required")
 			}
 			if !rmidomain.ValidOrigin(originFilter) {
 				return fmt.Errorf("invalid --origin %q (want one of: %s)", originFilter, strings.Join(rmidomain.Origins, ", "))
@@ -393,13 +432,29 @@ func rmiListCmd() *cobra.Command {
 			}
 
 			var rmis []*store.RoadmapItem
-			if initiative != "" {
+			switch {
+			case initiative != "":
 				rmis, err = svc.ListRMIs(cmd.Context(), initiative)
-			} else {
+			case repo != "":
 				rmis, err = svc.ListRMIsByRepo(cmd.Context(), repo)
+			default:
+				// --grep only: search across every initiative and repo.
+				rmis, err = svc.ListAllRMIs(cmd.Context())
 			}
 			if err != nil {
 				return err
+			}
+
+			if grep != "" {
+				needle := strings.ToLower(grep)
+				matched := make([]*store.RoadmapItem, 0, len(rmis))
+				for _, r := range rmis {
+					if strings.Contains(strings.ToLower(r.ID), needle) ||
+						strings.Contains(strings.ToLower(r.Title), needle) {
+						matched = append(matched, r)
+					}
+				}
+				rmis = matched
 			}
 
 			if originFilter != "" {
@@ -457,6 +512,7 @@ func rmiListCmd() *cobra.Command {
 	cmd.Flags().String("initiative", "", "Filter by initiative ID")
 	cmd.Flags().String("repo", "", "Filter by repository ID")
 	cmd.Flags().String("origin", "", "Filter by origin: spec, implementation, acceptance_testing, discussion")
+	cmd.Flags().String("grep", "", "Search RMI IDs and titles (case-insensitive substring); works across all RMIs when no scope is given")
 	cmd.Flags().String("format", "text", "Output format: text or json")
 	return cmd
 }

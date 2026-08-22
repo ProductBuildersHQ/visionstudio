@@ -74,6 +74,13 @@ func (s *Service) ListRMIsByRepo(ctx context.Context, repoID string) ([]*store.R
 	return s.Store.ListRMIsByRepo(ctx, repoID)
 }
 
+// ListAllRMIs returns every RMI across all initiatives and repositories. Used
+// for cross-initiative discovery (e.g. keyword search to map a change to the
+// RMI that describes it).
+func (s *Service) ListAllRMIs(ctx context.Context) ([]*store.RoadmapItem, error) {
+	return s.Store.ListAllRMIs(ctx)
+}
+
 // UpdateRMIStatus changes an RMI's status, stamping CompletedAt when appropriate.
 func (s *Service) UpdateRMIStatus(ctx context.Context, id, status string) (*store.RoadmapItem, error) {
 	if !validRMIStatuses[status] {

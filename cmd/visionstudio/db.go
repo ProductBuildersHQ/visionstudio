@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/grokify/godolt"
 	"github.com/grokify/oscompat/process"
 	"github.com/spf13/cobra"
 
@@ -84,12 +84,7 @@ func removePIDFile() {
 // isProcessAlive is implemented in db_signal_unix.go and db_signal_windows.go
 
 func isPortListening(port int) bool {
-	conn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", port), time.Second)
-	if err != nil {
-		return false
-	}
-	conn.Close()
-	return true
+	return godolt.ServerReachable(fmt.Sprintf("127.0.0.1:%d", port))
 }
 
 func dbServeCmd() *cobra.Command {

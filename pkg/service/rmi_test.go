@@ -354,3 +354,23 @@ func TestRemovePhase(t *testing.T) {
 		t.Fatal("expected error for missing phase")
 	}
 }
+
+func TestListAllRMIs(t *testing.T) {
+	ctx := context.Background()
+	svc := newTestService()
+
+	if _, err := svc.CreateRMI(ctx, "RMI-A-001", "github.com/test/a", "INIT-A-001", "", "GrokifyQL policy foundation", "", "capability", "", true, 0, nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := svc.CreateRMI(ctx, "RMI-B-001", "github.com/test/b", "INIT-B-001", "", "Question workspace panel", "", "capability", "", true, 0, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	all, err := svc.ListAllRMIs(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(all) != 2 {
+		t.Fatalf("expected 2 RMIs across all initiatives, got %d", len(all))
+	}
+}

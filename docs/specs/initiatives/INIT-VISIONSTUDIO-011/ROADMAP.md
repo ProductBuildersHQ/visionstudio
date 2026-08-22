@@ -64,3 +64,9 @@ prompted it).
 **Theme:** Capture real operational failure modes hit this session before they're forgotten
 
 - [x] `RMI-VISIONSTUDIO-547` Add a Troubleshooting page (schema drift, stale binary, DB down) — found live: `/api/specs` failed with `Error 1105 "does not have column rubric_id"`, traced to the local Dolt database being several Ent schema generations behind code (another session's schema-changing commit landed via `git pull`, nobody ran a migration against this database afterward). Fixed with `db init --migrate` (additive-only, always safe). No troubleshooting doc existed; added `docs/getting-started/troubleshooting.md` covering three concrete failure modes hit this session — schema drift, a stale UI+API process after a rebuild (`app restart`), and the database not running — plus a `CLAUDE.md` pointer section
+
+## Phase 10 — Self-Reporting Version String
+
+**Theme:** `visionstudio version` and the MCP server's reported version had been hardcoded to `v0.1.0` since the earliest days of the project
+
+- [x] `RMI-VISIONSTUDIO-551` Report the real version from Go build info instead of a hardcoded string — found via a direct question ("did we update visionstudio CLI status"). New `pkg/version.String()` reads `runtime/debug.ReadBuildInfo()`, which `go build`/`go install` stamp automatically with the module pseudo-version, VCS revision, and a `+dirty` suffix on uncommitted changes — self-maintaining, never needs hand-bumping again. Falls back to `"dev"` under `go run`, which doesn't stamp VCS info. Wired into both `visionstudio version` and `mcpserver.New`'s `Implementation.Version` so one source feeds both

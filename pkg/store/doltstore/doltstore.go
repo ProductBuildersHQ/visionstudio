@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/grokify/godolt"
 	"github.com/plexusone/structured-evaluation/rubric"
 
 	"github.com/ProductBuildersHQ/visionstudio/ent"
@@ -36,19 +37,20 @@ import (
 type DoltStore struct {
 	client *ent.Client
 	db     *sql.DB
+	dolt   *godolt.Client
 }
 
 // New creates a DoltStore from a MySQL-compatible DSN.
 // It ensures parseTime=true is set so time.Time columns scan correctly.
 func New(dsn string) (*DoltStore, error) {
-	dsn = ensureParseTime(dsn)
+	dsn = godolt.EnsureParseTime(dsn)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open database: %w", err)
 	}
 	drv := entsql.OpenDB(dialect.MySQL, db)
 	client := ent.NewClient(ent.Driver(drv))
-	return &DoltStore{client: client, db: db}, nil
+	return &DoltStore{client: client, db: db, dolt: godolt.New(db)}, nil
 }
 
 // Close closes the underlying database connection.
@@ -82,16 +84,6 @@ func (d *DoltStore) DB() *sql.DB {
 	return d.db
 }
 
-func ensureParseTime(dsn string) string {
-	if strings.Contains(dsn, "parseTime") {
-		return dsn
-	}
-	if strings.Contains(dsn, "?") {
-		return dsn + "&parseTime=true"
-	}
-	return dsn + "?parseTime=true"
-}
-
 // Migrate runs Ent auto-migration against the Dolt database.
 func (d *DoltStore) Migrate(ctx context.Context) error {
 	return d.client.Schema.Create(ctx)
@@ -101,7 +93,7 @@ func (d *DoltStore) Migrate(ctx context.Context) error {
 // This is useful for explicit commits outside of UnitOfWork, or for
 // committing accumulated changes from multiple operations.
 func (d *DoltStore) Commit(ctx context.Context, message string) error {
-	if _, err := d.db.ExecContext(ctx, "CALL DOLT_ADD('.')"); err != nil {
+	if err := d.dolt.AddAll(ctx); err != nil {
 		return fmt.Errorf("dolt add: %w", err)
 	}
 	if _, err := d.db.ExecContext(ctx, "CALL DOLT_COMMIT('-m', ?, '--allow-empty')", message); err != nil {
@@ -115,12 +107,11 @@ func (d *DoltStore) Commit(ctx context.Context, message string) error {
 
 // HasUncommittedChanges returns true if there are uncommitted changes in the working set.
 func (d *DoltStore) HasUncommittedChanges(ctx context.Context) (bool, error) {
-	var count int
-	err := d.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM dolt_status").Scan(&count)
+	dirty, err := d.dolt.HasUncommittedChanges(ctx)
 	if err != nil {
 		return false, fmt.Errorf("check dolt status: %w", err)
 	}
-	return count > 0, nil
+	return dirty, nil
 }
 
 // CommitIfDirty commits only if there are uncommitted changes.

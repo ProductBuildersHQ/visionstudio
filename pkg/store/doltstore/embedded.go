@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/dolthub/driver"
+	"github.com/grokify/godolt"
 
 	"github.com/ProductBuildersHQ/visionstudio/ent"
 )
@@ -59,9 +60,7 @@ func NewEmbedded(dataDir string) (*DoltStore, error) {
 
 // ensureDatabase creates the database if it doesn't already exist.
 func ensureDatabase(db *sql.DB) error {
-	_, err := db.ExecContext(context.Background(),
-		fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`", defaultDBName))
-	if err != nil {
+	if err := godolt.CreateDatabase(context.Background(), db, defaultDBName); err != nil {
 		return fmt.Errorf("create database: %w", err)
 	}
 	return nil

@@ -196,7 +196,23 @@ func roadmapImportCmd() *cobra.Command {
 		Long: `Parse a ROADMAP.md file and create or update phases, RMIs, and dependencies.
 
 Existing entities are updated (title, phase, sequence); new ones are created.
-The initiative must already exist in the database.
+The initiative must already exist in the database ('initiative create' first).
+
+The parser recognizes exactly this structure (tables do NOT parse):
+
+  # <Title>
+  **Initiative:** ` + "`INIT-MYPROJECT-001`" + `
+  **Repository:** ` + "`github.com/myorg/myrepo`" + `
+
+  ## Phase 1 — <Phase Title>
+  **Theme:** <optional theme>
+
+  - [ ] ` + "`RMI-MYREPO-001`" + ` First item title
+    - Depends on: ` + "`RMI-MYREPO-000`" + `
+  - [x] ` + "`RMI-MYREPO-002`" + ` Completed item title
+
+RMI IDs must be backticked; '[x]' marks completed. 'roadmap generate' emits this
+exact format from database state, so generate → edit → import round-trips.
 
 Use --dry-run to preview changes without writing.`,
 		Args: cobra.ExactArgs(1),

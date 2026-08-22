@@ -112,6 +112,28 @@ func initiativeCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create a new initiative",
+		Long: `Create a new initiative (starts in status 'proposed').
+
+ID convention: INIT-<SLUG>-NNN — an uppercase project slug plus a zero-padded
+sequence number (e.g. INIT-PRISMROADMAP-001). The slug usually matches the home
+repository, but an initiative spanning several repos may use a project name.
+Check 'initiative list' first to pick the next free number for the slug.
+
+--workflow selects the spec-document set the initiative must produce
+('workflow list' shows all; 'pbhq-lite' requires PRD/TRD/PLAN/ROADMAP.md,
+'quick-fix' only ROADMAP.md). If omitted, falls back to defaults.workflow in
+~/.productbuildershq/visionstudio/config.json.
+
+--home-repo names the registered repository whose working tree will hold the
+spec documents (see 'spec init'). It is required before 'spec init' can run,
+and the repo must exist in 'registry list'. RMIs added later may target other
+repositories — the home repo only anchors the docs.`,
+		Example: `  visionstudio initiative create \
+    --id INIT-MYPROJECT-001 \
+    --title "Opportunity Assessment IR" \
+    --description "Evidence-backed prioritization IR and reports" \
+    --home-repo github.com/myorg/myrepo \
+    --type feature --workflow pbhq-lite --priority high`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {

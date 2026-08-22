@@ -155,6 +155,10 @@ Judge results use `structured-evaluation/rubric.Rubric` format directly. Eval fi
 
 ## Conventions
 
+### Using the CLI to track work (agents operating in any repo)
+
+The CLI's `--help` is the authoritative, self-contained manual for *using* visionstudio — an agent should learn the entity model, ID formats, prerequisites, and workflows from it rather than from this file or the source. `visionstudio --help` carries the entity model (Program → Initiative → Phase → RMI), ID conventions, and the canonical create sequence; the commands with load-bearing contracts (`registry add`, `initiative create`, `spec init`, `roadmap import`, `phase add`, `rmi create`, `work claim`) each document theirs in their own `--help`, including the exact ROADMAP.md format `roadmap import` parses. **When CLI behavior changes, update the corresponding `Long`/`Example` text in the same commit** — the help being complete enough to use the tool cold is a maintained property, not an accident (added after an agent had to excavate all of this from source).
+
 ### Spec workflows: visionspec is the single source of truth
 
 All default (non-user-custom) spec workflow definitions live in `github.com/ProductBuildersHQ/visionspec`'s embedded catalog (25 profiles: `pbhq-lite`, `quick-fix`, `aws-one-way-door`, `aws-two-way-door`, …) — `pkg/workflows`, merged in from the former standalone specification-workflow-spec repo in v0.16.0. VisionStudio only consumes them via `pkg/specworkflow`'s `Loader`; **never** define or fork a workflow locally — the old hardcoded `BuiltInWorkflows()` catalog was removed precisely because it silently diverged from upstream (same IDs, different required-doc sets). Key pieces:

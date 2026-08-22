@@ -44,6 +44,15 @@ func phaseAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Add a phase to an initiative",
+		Long: `Add a phase — a themed grouping of ~5 RMIs within an initiative.
+
+Phase IDs follow '<INIT-ID>/phase-N'. Phase status is always derived from its
+member RMIs (completed and cancelled both count as resolved), never set
+directly. 'roadmap import' creates phases from '## Phase N — Title' headings
+automatically; use this command when adding phases individually.`,
+		Example: `  visionstudio phase add --id INIT-MYPROJECT-001/phase-2 \
+    --initiative INIT-MYPROJECT-001 --sequence 2 \
+    --title "Persistence layer" --theme "omniroadmap integration"`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {

@@ -641,6 +641,15 @@ func registryAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Register a repository",
+		Long: `Register a repository in the catalog. The resulting repository ID is
+'github.com/<org>/<name>' — the value every --repo / --home-repo flag expects.
+
+Registration is a prerequisite: 'rmi create --repo', 'initiative create
+--home-repo', and 'spec init' (which writes into the repo's --path working
+tree) all require the repository to exist here first. Idempotent — re-running
+updates the existing entry.`,
+		Example: `  visionstudio registry add --org myorg --name myrepo \
+    --path ~/go/src/github.com/myorg/myrepo`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			org, _ := cmd.Flags().GetString("org")
 			name, _ := cmd.Flags().GetString("name")

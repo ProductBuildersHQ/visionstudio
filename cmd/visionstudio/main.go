@@ -32,7 +32,46 @@ func rootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "visionstudio",
 		Short: "VisionStudio — Product Delivery Control Plane",
-		Long:  "Coordinate cross-repository initiatives, roadmap items, assignments, and delivery evidence.",
+		Long: `Coordinate cross-repository initiatives, roadmap items, assignments, and delivery evidence.
+
+Entity model (parent → child):
+
+  Program     PROG-<SLUG>              optional grouping of initiatives
+  Initiative  INIT-<SLUG>-NNN          a body of work; has a home repo (where specs live),
+                                       a spec workflow, and a lifecycle:
+                                       proposed → planned → executing → delivery_complete
+                                       → releasing → released → closed
+  Phase       <INIT-ID>/phase-N        themed grouping of ~5 RMIs within an initiative
+  RMI         RMI-<REPOSLUG>-NNN       roadmap item: the unit of work, tied to ONE repository;
+                                       an initiative's RMIs may span multiple repositories
+
+Conventions:
+  - Repositories must be registered ('registry add') before RMIs reference them.
+    Repository IDs are 'github.com/<org>/<repo>'.
+  - Git commits reference work via the trailer 'Refs: RMI-<REPOSLUG>-NNN'
+    (RMI only, never the INIT ID; 'work claim' prints the exact line).
+  - Initiative spec documents live in the home repo at docs/specs/initiatives/<INIT-ID>/
+    ('spec init' scaffolds them; which files depends on the initiative's workflow).
+
+Typical sequence to log a new body of work:
+
+  visionstudio registry add --org myorg --name myrepo --path ~/src/myrepo   # once per repo
+  visionstudio initiative create --id INIT-MYPROJECT-001 --title "..." \
+      --home-repo github.com/myorg/myrepo --type feature --workflow pbhq-lite
+  visionstudio spec init INIT-MYPROJECT-001        # scaffold PRD/TRD/PLAN/ROADMAP.md
+  # ...fill in the specs, then either:
+  visionstudio roadmap import <path>/ROADMAP.md    # bulk-create phases + RMIs from the doc
+  # or create them individually:
+  visionstudio phase add --id INIT-MYPROJECT-001/phase-1 --initiative INIT-MYPROJECT-001 --title "..."
+  visionstudio rmi create --id RMI-MYREPO-001 --repo github.com/myorg/myrepo \
+      --initiative INIT-MYPROJECT-001 --phase INIT-MYPROJECT-001/phase-1 --title "..." --type capability
+
+Executing work: 'work ready' lists unblocked RMIs, 'work claim' leases one and prints the
+git trailer, 'work complete' marks it done. 'initiative sweep' finds initiatives whose RMIs
+are all resolved but whose status hasn't been advanced.
+
+Discovery: 'initiative list', 'rmi list', 'registry list', 'workflow list' show current state;
+most list commands accept '--format json'. Each subcommand's --help documents its contract.`,
 		// main() prints the returned error once. Silence cobra's own error and
 		// usage dumps so runtime failures (e.g. the DB being down) show a clean,
 		// actionable message instead of a duplicated error plus a usage tree.

@@ -29,7 +29,24 @@ func specInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init <initiative-id>",
 		Short: "Scaffold spec files for an initiative's workflow",
-		Args:  cobra.ExactArgs(1),
+		Long: `Scaffold the spec documents an initiative's workflow requires.
+
+Files are created in the initiative's HOME REPO working tree at
+  <home-repo local path>/docs/specs/initiatives/<INIT-ID>/
+using the registry's local path, so the initiative must have --home-repo set
+('initiative update <id> --home-repo <repo-id>') and that repo must be
+registered with a local path.
+
+Which files depends on the initiative's workflow ('workflow list' shows all):
+pbhq-lite (default for type 'feature') requires PRD.md, TRD.md, PLAN.md,
+ROADMAP.md; quick-fix (default for maintenance/refactor/migration) requires
+only ROADMAP.md. Existing files are never overwritten. The scaffolded paths
+are also recorded on the initiative record so other tools can find them.
+
+After filling in ROADMAP.md, run 'roadmap import' to create its phases and RMIs.`,
+		Example: `  visionstudio spec init INIT-MYPROJECT-001
+  visionstudio spec init INIT-MYPROJECT-001 --with-optional`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {

@@ -138,7 +138,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.24.0 // indirect
 	github.com/grokify/gogithub v0.17.0 // indirect
 	github.com/grokify/pidl v0.5.0 // indirect
-	github.com/grokify/prism-core v0.4.0 // indirect
+	github.com/grokify/prism-core v0.5.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect

@@ -14,7 +14,7 @@ require (
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/grokify/godolt v0.3.0
 	github.com/grokify/gogit v0.8.0
-	github.com/grokify/mogo v0.74.7
+	github.com/grokify/mogo v0.74.8
 	github.com/grokify/oscompat v0.5.0
 	github.com/grokify/prism-maturity v0.14.0
 	github.com/grokify/prism-roadmap v0.18.0

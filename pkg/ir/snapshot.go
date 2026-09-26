@@ -3,9 +3,9 @@ package ir
 import (
 	prismmaturity "github.com/grokify/prism-maturity"
 	"github.com/grokify/prism-roadmap/roadmap"
+	"github.com/plexusone/dashforge/dashboardir"
 	"github.com/plexusone/devfolio/contributor"
 	"github.com/plexusone/devfolio/output/devxdashboard"
-	"github.com/plexusone/uiforge/dashboardir"
 )
 
 // RepoSnapshot composes all domain IRs for one repository.

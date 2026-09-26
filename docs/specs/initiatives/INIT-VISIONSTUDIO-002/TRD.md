@@ -24,6 +24,14 @@
   question). Dolt databases are directories — natural isolation, per-tenant
   branch/merge/history/audit, and tenant deletion = database removal.
   Shared-table + tenant-column rejected.
+  - **SUPERSEDED for the cloud** by `visionstudio-cloud` architecture
+    ADR-002: with the shift to cloud-primary (Option B) and sync demoted,
+    the cloud store is **managed Postgres with pool + Row-Level Security**
+    (shared-table + `tenant_id`, the model rejected here *only because it
+    broke sync*, now viable and chosen for freemium many-dormant-tenant
+    scale). The `tenant_id` discriminator is added to the shared Ent schema
+    (approved additive change). Local `visionstudio` keeps Dolt. See ADR-002
+    and architecture ADR-001.
 
 ## T1a — Platform substrate: systemforge
 
@@ -151,6 +159,17 @@ A small Go service (not the SPA) over the tenant databases:
 the cloud version not being freely self-hostable. The line: *capture and
 record locally = open; aggregate, serve, and analyze in the cloud =
 private.*
+
+**Local frozen; cloud is a new shell over the shared library (decided).**
+The local `visionstudio` app stays a single-user reference — the cloud does
+NOT add auth/tenancy to it, nor fork its domain logic. `visionstudio-cloud`
+is a separate multi-tenant application that *imports* the shared library
+(`store.Store`, `pkg/service.Service`) and adds only the new shell
+(auth/tenancy/serving/frontend). "Rebuild for the cloud" = the new shell,
+not the domain logic. Any change to `visionstudio` local's code/runtime is
+an exception requiring joint approval (docs/spec edits excepted).
+Local↔cloud integration is deferred until the cloud runs standalone. See
+`visionstudio-cloud` architecture ADR-001.
 
 - **Public `visionstudio` (open core, drives adoption):** the local app —
   CLI, daemon, local panels in `web/`; entities/store/publicrail; release

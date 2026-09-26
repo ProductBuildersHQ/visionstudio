@@ -17,7 +17,7 @@ require (
 	github.com/grokify/mogo v0.74.8
 	github.com/grokify/oscompat v0.5.0
 	github.com/grokify/prism-maturity v0.14.0
-	github.com/grokify/prism-roadmap v0.20.0
+	github.com/grokify/prism-roadmap v0.21.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/plexusone/devfolio v0.4.0

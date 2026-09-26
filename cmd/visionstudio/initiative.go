@@ -41,6 +41,7 @@ func initiativeCmd() *cobra.Command {
 	}
 	cmd.AddCommand(
 		initiativeCreateCmd(),
+		initiativeNextIDCmd(),
 		initiativeListCmd(),
 		initiativeGetCmd(),
 		initiativeUpdateCmd(),
@@ -50,6 +51,44 @@ func initiativeCmd() *cobra.Command {
 		initiativeHideCmd(),
 		initiativeShowCmd(),
 	)
+	return cmd
+}
+
+// initiativeNextIDCmd prints the next free initiative ID for a slug without
+// creating anything.
+func initiativeNextIDCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "next-id",
+		Short: "Print the next free initiative ID for a slug",
+		Long: `Print the next free initiative ID for --slug (or --home-repo), computed as one
+greater than the highest existing number for that slug.`,
+		Example: `  visionstudio initiative next-id --slug MYPROJECT
+  visionstudio initiative next-id --home-repo github.com/myorg/myrepo`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			slug, _ := cmd.Flags().GetString("slug")
+			homeRepo, _ := cmd.Flags().GetString("home-repo")
+			if slug == "" {
+				slug = homeRepo
+			}
+			if slug == "" {
+				return fmt.Errorf("--slug (or --home-repo) is required")
+			}
+			id, err := svc.NextInitiativeID(cmd.Context(), slug)
+			if err != nil {
+				return err
+			}
+			cmd.Println(id)
+			return nil
+		},
+	}
+	cmd.Flags().String("slug", "", "Project slug (e.g. MYPROJECT)")
+	cmd.Flags().String("home-repo", "", "Repository ID to derive the slug from when --slug is omitted")
 	return cmd
 }
 
@@ -117,7 +156,8 @@ func initiativeCreateCmd() *cobra.Command {
 ID convention: INIT-<SLUG>-NNN — an uppercase project slug plus a zero-padded
 sequence number (e.g. INIT-PRISMROADMAP-001). The slug usually matches the home
 repository, but an initiative spanning several repos may use a project name.
-Check 'initiative list' first to pick the next free number for the slug.
+Omit --id to auto-assign the next free number for --slug (or --home-repo); run
+'initiative next-id --slug <slug>' to see it first.
 
 --workflow selects the spec-document set the initiative must produce
 ('workflow list' shows all; 'pbhq-lite' requires PRD/TRD/PLAN/ROADMAP.md,
@@ -142,6 +182,7 @@ repositories — the home repo only anchors the docs.`,
 			defer cleanup()
 
 			id, _ := cmd.Flags().GetString("id")
+			slug, _ := cmd.Flags().GetString("slug")
 			org, _ := cmd.Flags().GetString("org")
 			title, _ := cmd.Flags().GetString("title")
 			desc, _ := cmd.Flags().GetString("description")
@@ -153,8 +194,24 @@ repositories — the home repo only anchors the docs.`,
 			specFlags, _ := cmd.Flags().GetStringSlice("spec")
 			workflowID, _ := cmd.Flags().GetString("workflow")
 
-			if id == "" || title == "" {
-				return fmt.Errorf("--id and --title are required")
+			if title == "" {
+				return fmt.Errorf("--title is required")
+			}
+
+			// --id is optional: when omitted, allocate the next free number for
+			// the slug (explicit --slug, else derived from --home-repo).
+			if id == "" {
+				s := slug
+				if s == "" {
+					s = homeRepo
+				}
+				if s == "" {
+					return fmt.Errorf("provide --id, or --slug/--home-repo to auto-assign the next initiative ID")
+				}
+				id, err = svc.NextInitiativeID(cmd.Context(), s)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Workflow is required; fall back to config default if not specified
@@ -193,7 +250,8 @@ repositories — the home repo only anchors the docs.`,
 			return nil
 		},
 	}
-	cmd.Flags().String("id", "", "Initiative ID (e.g. INIT-MYPROJECT-001) (required)")
+	cmd.Flags().String("id", "", "Initiative ID (e.g. INIT-MYPROJECT-001); omit to auto-assign the next free number for --slug/--home-repo")
+	cmd.Flags().String("slug", "", "Project slug for auto-assigning --id (e.g. MYPROJECT); defaults to --home-repo when omitted")
 	cmd.Flags().String("org", "", "Organization (default: 'default')")
 	cmd.Flags().String("title", "", "Initiative title (required)")
 	cmd.Flags().String("description", "", "Description")

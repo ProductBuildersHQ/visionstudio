@@ -19,7 +19,7 @@ require (
 	github.com/grokify/prism-maturity v0.14.0
 	github.com/grokify/prism-roadmap v0.20.0
 	github.com/invopop/jsonschema v0.14.0
-	github.com/modelcontextprotocol/go-sdk v1.7.0
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/plexusone/devfolio v0.4.0
 	github.com/plexusone/omnidevx-core v0.3.0
 	github.com/plexusone/structured-evaluation v0.14.0

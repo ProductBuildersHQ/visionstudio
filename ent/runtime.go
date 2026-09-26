@@ -6,13 +6,17 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/ent/assignment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/capabilitymodel"
 	"github.com/ProductBuildersHQ/visionstudio/ent/deliveryevidence"
+	"github.com/ProductBuildersHQ/visionstudio/ent/devxperiodreport"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiative"
 	"github.com/ProductBuildersHQ/visionstudio/ent/initiativedependency"
+	"github.com/ProductBuildersHQ/visionstudio/ent/initiativeworkflow"
 	"github.com/ProductBuildersHQ/visionstudio/ent/judgeresult"
 	"github.com/ProductBuildersHQ/visionstudio/ent/maturityassessment"
 	"github.com/ProductBuildersHQ/visionstudio/ent/organization"
 	"github.com/ProductBuildersHQ/visionstudio/ent/person"
 	"github.com/ProductBuildersHQ/visionstudio/ent/phase"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismdocument"
+	"github.com/ProductBuildersHQ/visionstudio/ent/prismroadmap"
 	"github.com/ProductBuildersHQ/visionstudio/ent/program"
 	"github.com/ProductBuildersHQ/visionstudio/ent/release"
 	"github.com/ProductBuildersHQ/visionstudio/ent/repository"
@@ -28,8 +32,15 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	assignmentMixin := schema.Assignment{}.Mixin()
+	assignmentMixinFields0 := assignmentMixin[0].Fields()
+	_ = assignmentMixinFields0
 	assignmentFields := schema.Assignment{}.Fields()
 	_ = assignmentFields
+	// assignmentDescTenantID is the schema descriptor for tenant_id field.
+	assignmentDescTenantID := assignmentMixinFields0[0].Descriptor()
+	// assignment.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	assignment.TenantIDValidator = assignmentDescTenantID.Validators[0].(func(string) error)
 	// assignmentDescWorker is the schema descriptor for worker field.
 	assignmentDescWorker := assignmentFields[1].Descriptor()
 	// assignment.WorkerValidator is a validator for the "worker" field. It is called by the builders before save.
@@ -46,8 +57,15 @@ func init() {
 	assignmentDescID := assignmentFields[0].Descriptor()
 	// assignment.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	assignment.IDValidator = assignmentDescID.Validators[0].(func(string) error)
+	capabilitymodelMixin := schema.CapabilityModel{}.Mixin()
+	capabilitymodelMixinFields0 := capabilitymodelMixin[0].Fields()
+	_ = capabilitymodelMixinFields0
 	capabilitymodelFields := schema.CapabilityModel{}.Fields()
 	_ = capabilitymodelFields
+	// capabilitymodelDescTenantID is the schema descriptor for tenant_id field.
+	capabilitymodelDescTenantID := capabilitymodelMixinFields0[0].Descriptor()
+	// capabilitymodel.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	capabilitymodel.TenantIDValidator = capabilitymodelDescTenantID.Validators[0].(func(string) error)
 	// capabilitymodelDescName is the schema descriptor for name field.
 	capabilitymodelDescName := capabilitymodelFields[1].Descriptor()
 	// capabilitymodel.NameValidator is a validator for the "name" field. It is called by the builders before save.
@@ -60,8 +78,15 @@ func init() {
 	capabilitymodelDescID := capabilitymodelFields[0].Descriptor()
 	// capabilitymodel.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	capabilitymodel.IDValidator = capabilitymodelDescID.Validators[0].(func(string) error)
+	deliveryevidenceMixin := schema.DeliveryEvidence{}.Mixin()
+	deliveryevidenceMixinFields0 := deliveryevidenceMixin[0].Fields()
+	_ = deliveryevidenceMixinFields0
 	deliveryevidenceFields := schema.DeliveryEvidence{}.Fields()
 	_ = deliveryevidenceFields
+	// deliveryevidenceDescTenantID is the schema descriptor for tenant_id field.
+	deliveryevidenceDescTenantID := deliveryevidenceMixinFields0[0].Descriptor()
+	// deliveryevidence.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	deliveryevidence.TenantIDValidator = deliveryevidenceDescTenantID.Validators[0].(func(string) error)
 	// deliveryevidenceDescEvidenceType is the schema descriptor for evidence_type field.
 	deliveryevidenceDescEvidenceType := deliveryevidenceFields[1].Descriptor()
 	// deliveryevidence.EvidenceTypeValidator is a validator for the "evidence_type" field. It is called by the builders before save.
@@ -82,8 +107,24 @@ func init() {
 	deliveryevidenceDescID := deliveryevidenceFields[0].Descriptor()
 	// deliveryevidence.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	deliveryevidence.IDValidator = deliveryevidenceDescID.Validators[0].(func(string) error)
+	devxperiodreportMixin := schema.DevXPeriodReport{}.Mixin()
+	devxperiodreportMixinFields0 := devxperiodreportMixin[0].Fields()
+	_ = devxperiodreportMixinFields0
+	devxperiodreportFields := schema.DevXPeriodReport{}.Fields()
+	_ = devxperiodreportFields
+	// devxperiodreportDescTenantID is the schema descriptor for tenant_id field.
+	devxperiodreportDescTenantID := devxperiodreportMixinFields0[0].Descriptor()
+	// devxperiodreport.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	devxperiodreport.TenantIDValidator = devxperiodreportDescTenantID.Validators[0].(func(string) error)
+	initiativeMixin := schema.Initiative{}.Mixin()
+	initiativeMixinFields0 := initiativeMixin[0].Fields()
+	_ = initiativeMixinFields0
 	initiativeFields := schema.Initiative{}.Fields()
 	_ = initiativeFields
+	// initiativeDescTenantID is the schema descriptor for tenant_id field.
+	initiativeDescTenantID := initiativeMixinFields0[0].Descriptor()
+	// initiative.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	initiative.TenantIDValidator = initiativeDescTenantID.Validators[0].(func(string) error)
 	// initiativeDescOrganization is the schema descriptor for organization field.
 	initiativeDescOrganization := initiativeFields[1].Descriptor()
 	// initiative.OrganizationValidator is a validator for the "organization" field. It is called by the builders before save.
@@ -128,8 +169,15 @@ func init() {
 	initiativeDescID := initiativeFields[0].Descriptor()
 	// initiative.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	initiative.IDValidator = initiativeDescID.Validators[0].(func(string) error)
+	initiativedependencyMixin := schema.InitiativeDependency{}.Mixin()
+	initiativedependencyMixinFields0 := initiativedependencyMixin[0].Fields()
+	_ = initiativedependencyMixinFields0
 	initiativedependencyFields := schema.InitiativeDependency{}.Fields()
 	_ = initiativedependencyFields
+	// initiativedependencyDescTenantID is the schema descriptor for tenant_id field.
+	initiativedependencyDescTenantID := initiativedependencyMixinFields0[0].Descriptor()
+	// initiativedependency.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	initiativedependency.TenantIDValidator = initiativedependencyDescTenantID.Validators[0].(func(string) error)
 	// initiativedependencyDescSourceInitiativeID is the schema descriptor for source_initiative_id field.
 	initiativedependencyDescSourceInitiativeID := initiativedependencyFields[0].Descriptor()
 	// initiativedependency.SourceInitiativeIDValidator is a validator for the "source_initiative_id" field. It is called by the builders before save.
@@ -142,8 +190,24 @@ func init() {
 	initiativedependencyDescRelationship := initiativedependencyFields[2].Descriptor()
 	// initiativedependency.RelationshipValidator is a validator for the "relationship" field. It is called by the builders before save.
 	initiativedependency.RelationshipValidator = initiativedependencyDescRelationship.Validators[0].(func(string) error)
+	initiativeworkflowMixin := schema.InitiativeWorkflow{}.Mixin()
+	initiativeworkflowMixinFields0 := initiativeworkflowMixin[0].Fields()
+	_ = initiativeworkflowMixinFields0
+	initiativeworkflowFields := schema.InitiativeWorkflow{}.Fields()
+	_ = initiativeworkflowFields
+	// initiativeworkflowDescTenantID is the schema descriptor for tenant_id field.
+	initiativeworkflowDescTenantID := initiativeworkflowMixinFields0[0].Descriptor()
+	// initiativeworkflow.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	initiativeworkflow.TenantIDValidator = initiativeworkflowDescTenantID.Validators[0].(func(string) error)
+	judgeresultMixin := schema.JudgeResult{}.Mixin()
+	judgeresultMixinFields0 := judgeresultMixin[0].Fields()
+	_ = judgeresultMixinFields0
 	judgeresultFields := schema.JudgeResult{}.Fields()
 	_ = judgeresultFields
+	// judgeresultDescTenantID is the schema descriptor for tenant_id field.
+	judgeresultDescTenantID := judgeresultMixinFields0[0].Descriptor()
+	// judgeresult.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	judgeresult.TenantIDValidator = judgeresultDescTenantID.Validators[0].(func(string) error)
 	// judgeresultDescInitiativeID is the schema descriptor for initiative_id field.
 	judgeresultDescInitiativeID := judgeresultFields[1].Descriptor()
 	// judgeresult.InitiativeIDValidator is a validator for the "initiative_id" field. It is called by the builders before save.
@@ -172,8 +236,15 @@ func init() {
 	judgeresultDescID := judgeresultFields[0].Descriptor()
 	// judgeresult.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	judgeresult.IDValidator = judgeresultDescID.Validators[0].(func(string) error)
+	maturityassessmentMixin := schema.MaturityAssessment{}.Mixin()
+	maturityassessmentMixinFields0 := maturityassessmentMixin[0].Fields()
+	_ = maturityassessmentMixinFields0
 	maturityassessmentFields := schema.MaturityAssessment{}.Fields()
 	_ = maturityassessmentFields
+	// maturityassessmentDescTenantID is the schema descriptor for tenant_id field.
+	maturityassessmentDescTenantID := maturityassessmentMixinFields0[0].Descriptor()
+	// maturityassessment.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	maturityassessment.TenantIDValidator = maturityassessmentDescTenantID.Validators[0].(func(string) error)
 	// maturityassessmentDescInitiativeID is the schema descriptor for initiative_id field.
 	maturityassessmentDescInitiativeID := maturityassessmentFields[1].Descriptor()
 	// maturityassessment.InitiativeIDValidator is a validator for the "initiative_id" field. It is called by the builders before save.
@@ -194,8 +265,15 @@ func init() {
 	maturityassessmentDescID := maturityassessmentFields[0].Descriptor()
 	// maturityassessment.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	maturityassessment.IDValidator = maturityassessmentDescID.Validators[0].(func(string) error)
+	organizationMixin := schema.Organization{}.Mixin()
+	organizationMixinFields0 := organizationMixin[0].Fields()
+	_ = organizationMixinFields0
 	organizationFields := schema.Organization{}.Fields()
 	_ = organizationFields
+	// organizationDescTenantID is the schema descriptor for tenant_id field.
+	organizationDescTenantID := organizationMixinFields0[0].Descriptor()
+	// organization.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	organization.TenantIDValidator = organizationDescTenantID.Validators[0].(func(string) error)
 	// organizationDescLogin is the schema descriptor for login field.
 	organizationDescLogin := organizationFields[1].Descriptor()
 	// organization.LoginValidator is a validator for the "login" field. It is called by the builders before save.
@@ -222,8 +300,33 @@ func init() {
 	organizationDescID := organizationFields[0].Descriptor()
 	// organization.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	organization.IDValidator = organizationDescID.Validators[0].(func(string) error)
+	prismdocumentMixin := schema.PRISMDocument{}.Mixin()
+	prismdocumentMixinFields0 := prismdocumentMixin[0].Fields()
+	_ = prismdocumentMixinFields0
+	prismdocumentFields := schema.PRISMDocument{}.Fields()
+	_ = prismdocumentFields
+	// prismdocumentDescTenantID is the schema descriptor for tenant_id field.
+	prismdocumentDescTenantID := prismdocumentMixinFields0[0].Descriptor()
+	// prismdocument.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	prismdocument.TenantIDValidator = prismdocumentDescTenantID.Validators[0].(func(string) error)
+	prismroadmapMixin := schema.PRISMRoadmap{}.Mixin()
+	prismroadmapMixinFields0 := prismroadmapMixin[0].Fields()
+	_ = prismroadmapMixinFields0
+	prismroadmapFields := schema.PRISMRoadmap{}.Fields()
+	_ = prismroadmapFields
+	// prismroadmapDescTenantID is the schema descriptor for tenant_id field.
+	prismroadmapDescTenantID := prismroadmapMixinFields0[0].Descriptor()
+	// prismroadmap.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	prismroadmap.TenantIDValidator = prismroadmapDescTenantID.Validators[0].(func(string) error)
+	personMixin := schema.Person{}.Mixin()
+	personMixinFields0 := personMixin[0].Fields()
+	_ = personMixinFields0
 	personFields := schema.Person{}.Fields()
 	_ = personFields
+	// personDescTenantID is the schema descriptor for tenant_id field.
+	personDescTenantID := personMixinFields0[0].Descriptor()
+	// person.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	person.TenantIDValidator = personDescTenantID.Validators[0].(func(string) error)
 	// personDescGithubLogin is the schema descriptor for github_login field.
 	personDescGithubLogin := personFields[1].Descriptor()
 	// person.GithubLoginValidator is a validator for the "github_login" field. It is called by the builders before save.
@@ -236,8 +339,15 @@ func init() {
 	personDescID := personFields[0].Descriptor()
 	// person.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	person.IDValidator = personDescID.Validators[0].(func(string) error)
+	phaseMixin := schema.Phase{}.Mixin()
+	phaseMixinFields0 := phaseMixin[0].Fields()
+	_ = phaseMixinFields0
 	phaseFields := schema.Phase{}.Fields()
 	_ = phaseFields
+	// phaseDescTenantID is the schema descriptor for tenant_id field.
+	phaseDescTenantID := phaseMixinFields0[0].Descriptor()
+	// phase.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	phase.TenantIDValidator = phaseDescTenantID.Validators[0].(func(string) error)
 	// phaseDescTitle is the schema descriptor for title field.
 	phaseDescTitle := phaseFields[2].Descriptor()
 	// phase.TitleValidator is a validator for the "title" field. It is called by the builders before save.
@@ -250,8 +360,15 @@ func init() {
 	phaseDescID := phaseFields[0].Descriptor()
 	// phase.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	phase.IDValidator = phaseDescID.Validators[0].(func(string) error)
+	programMixin := schema.Program{}.Mixin()
+	programMixinFields0 := programMixin[0].Fields()
+	_ = programMixinFields0
 	programFields := schema.Program{}.Fields()
 	_ = programFields
+	// programDescTenantID is the schema descriptor for tenant_id field.
+	programDescTenantID := programMixinFields0[0].Descriptor()
+	// program.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	program.TenantIDValidator = programDescTenantID.Validators[0].(func(string) error)
 	// programDescName is the schema descriptor for name field.
 	programDescName := programFields[1].Descriptor()
 	// program.NameValidator is a validator for the "name" field. It is called by the builders before save.
@@ -268,8 +385,15 @@ func init() {
 	programDescID := programFields[0].Descriptor()
 	// program.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	program.IDValidator = programDescID.Validators[0].(func(string) error)
+	rmidependencyMixin := schema.RMIDependency{}.Mixin()
+	rmidependencyMixinFields0 := rmidependencyMixin[0].Fields()
+	_ = rmidependencyMixinFields0
 	rmidependencyFields := schema.RMIDependency{}.Fields()
 	_ = rmidependencyFields
+	// rmidependencyDescTenantID is the schema descriptor for tenant_id field.
+	rmidependencyDescTenantID := rmidependencyMixinFields0[0].Descriptor()
+	// rmidependency.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	rmidependency.TenantIDValidator = rmidependencyDescTenantID.Validators[0].(func(string) error)
 	// rmidependencyDescSourceRmiID is the schema descriptor for source_rmi_id field.
 	rmidependencyDescSourceRmiID := rmidependencyFields[0].Descriptor()
 	// rmidependency.SourceRmiIDValidator is a validator for the "source_rmi_id" field. It is called by the builders before save.
@@ -282,8 +406,15 @@ func init() {
 	rmidependencyDescRelationship := rmidependencyFields[2].Descriptor()
 	// rmidependency.RelationshipValidator is a validator for the "relationship" field. It is called by the builders before save.
 	rmidependency.RelationshipValidator = rmidependencyDescRelationship.Validators[0].(func(string) error)
+	releaseMixin := schema.Release{}.Mixin()
+	releaseMixinFields0 := releaseMixin[0].Fields()
+	_ = releaseMixinFields0
 	releaseFields := schema.Release{}.Fields()
 	_ = releaseFields
+	// releaseDescTenantID is the schema descriptor for tenant_id field.
+	releaseDescTenantID := releaseMixinFields0[0].Descriptor()
+	// release.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	release.TenantIDValidator = releaseDescTenantID.Validators[0].(func(string) error)
 	// releaseDescTag is the schema descriptor for tag field.
 	releaseDescTag := releaseFields[1].Descriptor()
 	// release.TagValidator is a validator for the "tag" field. It is called by the builders before save.
@@ -308,8 +439,15 @@ func init() {
 	releaseDescID := releaseFields[0].Descriptor()
 	// release.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	release.IDValidator = releaseDescID.Validators[0].(func(string) error)
+	repositoryMixin := schema.Repository{}.Mixin()
+	repositoryMixinFields0 := repositoryMixin[0].Fields()
+	_ = repositoryMixinFields0
 	repositoryFields := schema.Repository{}.Fields()
 	_ = repositoryFields
+	// repositoryDescTenantID is the schema descriptor for tenant_id field.
+	repositoryDescTenantID := repositoryMixinFields0[0].Descriptor()
+	// repository.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	repository.TenantIDValidator = repositoryDescTenantID.Validators[0].(func(string) error)
 	// repositoryDescOrganization is the schema descriptor for organization field.
 	repositoryDescOrganization := repositoryFields[1].Descriptor()
 	// repository.OrganizationValidator is a validator for the "organization" field. It is called by the builders before save.
@@ -362,8 +500,15 @@ func init() {
 	repositoryDescID := repositoryFields[0].Descriptor()
 	// repository.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	repository.IDValidator = repositoryDescID.Validators[0].(func(string) error)
+	repositorydependencyMixin := schema.RepositoryDependency{}.Mixin()
+	repositorydependencyMixinFields0 := repositorydependencyMixin[0].Fields()
+	_ = repositorydependencyMixinFields0
 	repositorydependencyFields := schema.RepositoryDependency{}.Fields()
 	_ = repositorydependencyFields
+	// repositorydependencyDescTenantID is the schema descriptor for tenant_id field.
+	repositorydependencyDescTenantID := repositorydependencyMixinFields0[0].Descriptor()
+	// repositorydependency.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	repositorydependency.TenantIDValidator = repositorydependencyDescTenantID.Validators[0].(func(string) error)
 	// repositorydependencyDescSourceRepositoryID is the schema descriptor for source_repository_id field.
 	repositorydependencyDescSourceRepositoryID := repositorydependencyFields[0].Descriptor()
 	// repositorydependency.SourceRepositoryIDValidator is a validator for the "source_repository_id" field. It is called by the builders before save.
@@ -376,8 +521,15 @@ func init() {
 	repositorydependencyDescDependencyType := repositorydependencyFields[2].Descriptor()
 	// repositorydependency.DependencyTypeValidator is a validator for the "dependency_type" field. It is called by the builders before save.
 	repositorydependency.DependencyTypeValidator = repositorydependencyDescDependencyType.Validators[0].(func(string) error)
+	roadmapitemMixin := schema.RoadmapItem{}.Mixin()
+	roadmapitemMixinFields0 := roadmapitemMixin[0].Fields()
+	_ = roadmapitemMixinFields0
 	roadmapitemFields := schema.RoadmapItem{}.Fields()
 	_ = roadmapitemFields
+	// roadmapitemDescTenantID is the schema descriptor for tenant_id field.
+	roadmapitemDescTenantID := roadmapitemMixinFields0[0].Descriptor()
+	// roadmapitem.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	roadmapitem.TenantIDValidator = roadmapitemDescTenantID.Validators[0].(func(string) error)
 	// roadmapitemDescTitle is the schema descriptor for title field.
 	roadmapitemDescTitle := roadmapitemFields[1].Descriptor()
 	// roadmapitem.TitleValidator is a validator for the "title" field. It is called by the builders before save.
@@ -408,14 +560,28 @@ func init() {
 	roadmapitemDescID := roadmapitemFields[0].Descriptor()
 	// roadmapitem.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	roadmapitem.IDValidator = roadmapitemDescID.Validators[0].(func(string) error)
+	specdocumentMixin := schema.SpecDocument{}.Mixin()
+	specdocumentMixinFields0 := specdocumentMixin[0].Fields()
+	_ = specdocumentMixinFields0
 	specdocumentFields := schema.SpecDocument{}.Fields()
 	_ = specdocumentFields
+	// specdocumentDescTenantID is the schema descriptor for tenant_id field.
+	specdocumentDescTenantID := specdocumentMixinFields0[0].Descriptor()
+	// specdocument.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	specdocument.TenantIDValidator = specdocumentDescTenantID.Validators[0].(func(string) error)
 	// specdocumentDescStatus is the schema descriptor for status field.
 	specdocumentDescStatus := specdocumentFields[8].Descriptor()
 	// specdocument.DefaultStatus holds the default value on creation for the status field.
 	specdocument.DefaultStatus = specdocumentDescStatus.Default.(string)
+	specworkflowMixin := schema.SpecWorkflow{}.Mixin()
+	specworkflowMixinFields0 := specworkflowMixin[0].Fields()
+	_ = specworkflowMixinFields0
 	specworkflowFields := schema.SpecWorkflow{}.Fields()
 	_ = specworkflowFields
+	// specworkflowDescTenantID is the schema descriptor for tenant_id field.
+	specworkflowDescTenantID := specworkflowMixinFields0[0].Descriptor()
+	// specworkflow.TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	specworkflow.TenantIDValidator = specworkflowDescTenantID.Validators[0].(func(string) error)
 	// specworkflowDescName is the schema descriptor for name field.
 	specworkflowDescName := specworkflowFields[1].Descriptor()
 	// specworkflow.NameValidator is a validator for the "name" field. It is called by the builders before save.

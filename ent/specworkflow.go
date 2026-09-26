@@ -17,6 +17,8 @@ type SpecWorkflow struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -69,7 +71,7 @@ func (*SpecWorkflow) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case specworkflow.FieldSpecsRequired, specworkflow.FieldSpecsOptional, specworkflow.FieldInitTypes:
 			values[i] = new([]byte)
-		case specworkflow.FieldID, specworkflow.FieldName, specworkflow.FieldDescription:
+		case specworkflow.FieldID, specworkflow.FieldTenantID, specworkflow.FieldName, specworkflow.FieldDescription:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -91,6 +93,12 @@ func (_m *SpecWorkflow) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case specworkflow.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case specworkflow.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -174,6 +182,9 @@ func (_m *SpecWorkflow) String() string {
 	var builder strings.Builder
 	builder.WriteString("SpecWorkflow(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")

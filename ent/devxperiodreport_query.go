@@ -262,12 +262,12 @@ func (_q *DevXPeriodReportQuery) Clone() *DevXPeriodReportQuery {
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.DevXPeriodReport.Query().
-//		GroupBy(devxperiodreport.FieldOrganization).
+//		GroupBy(devxperiodreport.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *DevXPeriodReportQuery) GroupBy(field string, fields ...string) *DevXPeriodReportGroupBy {
@@ -285,11 +285,11 @@ func (_q *DevXPeriodReportQuery) GroupBy(field string, fields ...string) *DevXPe
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.DevXPeriodReport.Query().
-//		Select(devxperiodreport.FieldOrganization).
+//		Select(devxperiodreport.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *DevXPeriodReportQuery) Select(fields ...string) *DevXPeriodReportSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

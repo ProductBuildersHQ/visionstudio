@@ -262,12 +262,12 @@ func (_q *PRISMRoadmapQuery) Clone() *PRISMRoadmapQuery {
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.PRISMRoadmap.Query().
-//		GroupBy(prismroadmap.FieldOrganization).
+//		GroupBy(prismroadmap.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PRISMRoadmapQuery) GroupBy(field string, fields ...string) *PRISMRoadmapGroupBy {
@@ -285,11 +285,11 @@ func (_q *PRISMRoadmapQuery) GroupBy(field string, fields ...string) *PRISMRoadm
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.PRISMRoadmap.Query().
-//		Select(prismroadmap.FieldOrganization).
+//		Select(prismroadmap.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *PRISMRoadmapQuery) Select(fields ...string) *PRISMRoadmapSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

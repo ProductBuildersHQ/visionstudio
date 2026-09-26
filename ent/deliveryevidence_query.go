@@ -299,12 +299,12 @@ func (_q *DeliveryEvidenceQuery) WithRoadmapItem(opts ...func(*RoadmapItemQuery)
 // Example:
 //
 //	var v []struct {
-//		EvidenceType string `json:"evidence_type,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.DeliveryEvidence.Query().
-//		GroupBy(deliveryevidence.FieldEvidenceType).
+//		GroupBy(deliveryevidence.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *DeliveryEvidenceQuery) GroupBy(field string, fields ...string) *DeliveryEvidenceGroupBy {
@@ -322,11 +322,11 @@ func (_q *DeliveryEvidenceQuery) GroupBy(field string, fields ...string) *Delive
 // Example:
 //
 //	var v []struct {
-//		EvidenceType string `json:"evidence_type,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.DeliveryEvidence.Query().
-//		Select(deliveryevidence.FieldEvidenceType).
+//		Select(deliveryevidence.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *DeliveryEvidenceQuery) Select(fields ...string) *DeliveryEvidenceSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

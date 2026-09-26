@@ -27,6 +27,26 @@ func (_u *RepositoryDependencyUpdate) Where(ps ...predicate.RepositoryDependency
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *RepositoryDependencyUpdate) SetTenantID(v string) *RepositoryDependencyUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RepositoryDependencyUpdate) SetNillableTenantID(v *string) *RepositoryDependencyUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RepositoryDependencyUpdate) ClearTenantID() *RepositoryDependencyUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetSourceRepositoryID sets the "source_repository_id" field.
 func (_u *RepositoryDependencyUpdate) SetSourceRepositoryID(v string) *RepositoryDependencyUpdate {
 	_u.mutation.SetSourceRepositoryID(v)
@@ -103,6 +123,11 @@ func (_u *RepositoryDependencyUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RepositoryDependencyUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := repositorydependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RepositoryDependency.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.SourceRepositoryID(); ok {
 		if err := repositorydependency.SourceRepositoryIDValidator(v); err != nil {
 			return &ValidationError{Name: "source_repository_id", err: fmt.Errorf(`ent: validator failed for field "RepositoryDependency.source_repository_id": %w`, err)}
@@ -133,6 +158,12 @@ func (_u *RepositoryDependencyUpdate) sqlSave(ctx context.Context) (_node int, e
 			}
 		}
 	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(repositorydependency.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(repositorydependency.FieldTenantID, field.TypeString)
+	}
 	if value, ok := _u.mutation.SourceRepositoryID(); ok {
 		_spec.SetField(repositorydependency.FieldSourceRepositoryID, field.TypeString, value)
 	}
@@ -160,6 +191,26 @@ type RepositoryDependencyUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *RepositoryDependencyMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *RepositoryDependencyUpdateOne) SetTenantID(v string) *RepositoryDependencyUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RepositoryDependencyUpdateOne) SetNillableTenantID(v *string) *RepositoryDependencyUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RepositoryDependencyUpdateOne) ClearTenantID() *RepositoryDependencyUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetSourceRepositoryID sets the "source_repository_id" field.
@@ -251,6 +302,11 @@ func (_u *RepositoryDependencyUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RepositoryDependencyUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := repositorydependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RepositoryDependency.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.SourceRepositoryID(); ok {
 		if err := repositorydependency.SourceRepositoryIDValidator(v); err != nil {
 			return &ValidationError{Name: "source_repository_id", err: fmt.Errorf(`ent: validator failed for field "RepositoryDependency.source_repository_id": %w`, err)}
@@ -297,6 +353,12 @@ func (_u *RepositoryDependencyUpdateOne) sqlSave(ctx context.Context) (_node *Re
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(repositorydependency.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(repositorydependency.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SourceRepositoryID(); ok {
 		_spec.SetField(repositorydependency.FieldSourceRepositoryID, field.TypeString, value)

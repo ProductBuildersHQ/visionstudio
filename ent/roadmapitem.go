@@ -21,6 +21,8 @@ type RoadmapItem struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Description holds the value of the "description" field.
@@ -144,7 +146,7 @@ func (*RoadmapItem) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case roadmapitem.FieldSequenceNumber:
 			values[i] = new(sql.NullInt64)
-		case roadmapitem.FieldID, roadmapitem.FieldTitle, roadmapitem.FieldDescription, roadmapitem.FieldItemType, roadmapitem.FieldStatus, roadmapitem.FieldPriority, roadmapitem.FieldOrigin:
+		case roadmapitem.FieldID, roadmapitem.FieldTenantID, roadmapitem.FieldTitle, roadmapitem.FieldDescription, roadmapitem.FieldItemType, roadmapitem.FieldStatus, roadmapitem.FieldPriority, roadmapitem.FieldOrigin:
 			values[i] = new(sql.NullString)
 		case roadmapitem.FieldCreatedAt, roadmapitem.FieldCompletedAt, roadmapitem.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -174,6 +176,12 @@ func (_m *RoadmapItem) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case roadmapitem.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case roadmapitem.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -337,6 +345,9 @@ func (_m *RoadmapItem) String() string {
 	var builder strings.Builder
 	builder.WriteString("RoadmapItem(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(_m.Title)
 	builder.WriteString(", ")

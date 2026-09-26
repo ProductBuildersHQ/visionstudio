@@ -370,12 +370,12 @@ func (_q *SpecDocumentQuery) WithWorkflow(opts ...func(*SpecWorkflowQuery)) *Spe
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.SpecDocument.Query().
-//		GroupBy(specdocument.FieldOrganization).
+//		GroupBy(specdocument.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *SpecDocumentQuery) GroupBy(field string, fields ...string) *SpecDocumentGroupBy {
@@ -393,11 +393,11 @@ func (_q *SpecDocumentQuery) GroupBy(field string, fields ...string) *SpecDocume
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.SpecDocument.Query().
-//		Select(specdocument.FieldOrganization).
+//		Select(specdocument.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *SpecDocumentQuery) Select(fields ...string) *SpecDocumentSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -30,6 +30,26 @@ func (_u *SpecWorkflowUpdate) Where(ps ...predicate.SpecWorkflow) *SpecWorkflowU
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *SpecWorkflowUpdate) SetTenantID(v string) *SpecWorkflowUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *SpecWorkflowUpdate) SetNillableTenantID(v *string) *SpecWorkflowUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *SpecWorkflowUpdate) ClearTenantID() *SpecWorkflowUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetName sets the "name" field.
 func (_u *SpecWorkflowUpdate) SetName(v string) *SpecWorkflowUpdate {
 	_u.mutation.SetName(v)
@@ -224,6 +244,11 @@ func (_u *SpecWorkflowUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *SpecWorkflowUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := specworkflow.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "SpecWorkflow.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := specworkflow.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "SpecWorkflow.name": %w`, err)}
@@ -243,6 +268,12 @@ func (_u *SpecWorkflowUpdate) sqlSave(ctx context.Context) (_node int, err error
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(specworkflow.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(specworkflow.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(specworkflow.FieldName, field.TypeString, value)
@@ -394,6 +425,26 @@ type SpecWorkflowUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SpecWorkflowMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *SpecWorkflowUpdateOne) SetTenantID(v string) *SpecWorkflowUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *SpecWorkflowUpdateOne) SetNillableTenantID(v *string) *SpecWorkflowUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *SpecWorkflowUpdateOne) ClearTenantID() *SpecWorkflowUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetName sets the "name" field.
@@ -603,6 +654,11 @@ func (_u *SpecWorkflowUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *SpecWorkflowUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := specworkflow.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "SpecWorkflow.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := specworkflow.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "SpecWorkflow.name": %w`, err)}
@@ -639,6 +695,12 @@ func (_u *SpecWorkflowUpdateOne) sqlSave(ctx context.Context) (_node *SpecWorkfl
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(specworkflow.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(specworkflow.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(specworkflow.FieldName, field.TypeString, value)

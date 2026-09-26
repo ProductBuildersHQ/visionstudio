@@ -29,6 +29,26 @@ func (_u *PRISMRoadmapUpdate) Where(ps ...predicate.PRISMRoadmap) *PRISMRoadmapU
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *PRISMRoadmapUpdate) SetTenantID(v string) *PRISMRoadmapUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PRISMRoadmapUpdate) SetNillableTenantID(v *string) *PRISMRoadmapUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PRISMRoadmapUpdate) ClearTenantID() *PRISMRoadmapUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetOrganization sets the "organization" field.
 func (_u *PRISMRoadmapUpdate) SetOrganization(v string) *PRISMRoadmapUpdate {
 	_u.mutation.SetOrganization(v)
@@ -161,7 +181,20 @@ func (_u *PRISMRoadmapUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PRISMRoadmapUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := prismroadmap.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "PRISMRoadmap.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *PRISMRoadmapUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(prismroadmap.Table, prismroadmap.Columns, sqlgraph.NewFieldSpec(prismroadmap.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -169,6 +202,12 @@ func (_u *PRISMRoadmapUpdate) sqlSave(ctx context.Context) (_node int, err error
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(prismroadmap.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(prismroadmap.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(prismroadmap.FieldOrganization, field.TypeString, value)
@@ -220,6 +259,26 @@ type PRISMRoadmapUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PRISMRoadmapMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *PRISMRoadmapUpdateOne) SetTenantID(v string) *PRISMRoadmapUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PRISMRoadmapUpdateOne) SetNillableTenantID(v *string) *PRISMRoadmapUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PRISMRoadmapUpdateOne) ClearTenantID() *PRISMRoadmapUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetOrganization sets the "organization" field.
@@ -367,7 +426,20 @@ func (_u *PRISMRoadmapUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PRISMRoadmapUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := prismroadmap.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "PRISMRoadmap.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *PRISMRoadmapUpdateOne) sqlSave(ctx context.Context) (_node *PRISMRoadmap, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(prismroadmap.Table, prismroadmap.Columns, sqlgraph.NewFieldSpec(prismroadmap.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -392,6 +464,12 @@ func (_u *PRISMRoadmapUpdateOne) sqlSave(ctx context.Context) (_node *PRISMRoadm
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(prismroadmap.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(prismroadmap.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(prismroadmap.FieldOrganization, field.TypeString, value)

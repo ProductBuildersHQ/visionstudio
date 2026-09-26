@@ -16,6 +16,8 @@ type RepositoryDependency struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// SourceRepositoryID holds the value of the "source_repository_id" field.
 	SourceRepositoryID string `json:"source_repository_id,omitempty"`
 	// TargetRepositoryID holds the value of the "target_repository_id" field.
@@ -32,7 +34,7 @@ func (*RepositoryDependency) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case repositorydependency.FieldID:
 			values[i] = new(sql.NullInt64)
-		case repositorydependency.FieldSourceRepositoryID, repositorydependency.FieldTargetRepositoryID, repositorydependency.FieldDependencyType:
+		case repositorydependency.FieldTenantID, repositorydependency.FieldSourceRepositoryID, repositorydependency.FieldTargetRepositoryID, repositorydependency.FieldDependencyType:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -55,6 +57,12 @@ func (_m *RepositoryDependency) assignValues(columns []string, values []any) err
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case repositorydependency.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
+			}
 		case repositorydependency.FieldSourceRepositoryID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source_repository_id", values[i])
@@ -109,6 +117,9 @@ func (_m *RepositoryDependency) String() string {
 	var builder strings.Builder
 	builder.WriteString("RepositoryDependency(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("source_repository_id=")
 	builder.WriteString(_m.SourceRepositoryID)
 	builder.WriteString(", ")

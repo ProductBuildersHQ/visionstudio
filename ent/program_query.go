@@ -299,12 +299,12 @@ func (_q *ProgramQuery) WithInitiatives(opts ...func(*InitiativeQuery)) *Program
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Program.Query().
-//		GroupBy(program.FieldName).
+//		GroupBy(program.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ProgramQuery) GroupBy(field string, fields ...string) *ProgramGroupBy {
@@ -322,11 +322,11 @@ func (_q *ProgramQuery) GroupBy(field string, fields ...string) *ProgramGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Program.Query().
-//		Select(program.FieldName).
+//		Select(program.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ProgramQuery) Select(fields ...string) *ProgramSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -19,6 +19,20 @@ type InitiativeDependencyCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *InitiativeDependencyCreate) SetTenantID(v string) *InitiativeDependencyCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *InitiativeDependencyCreate) SetNillableTenantID(v *string) *InitiativeDependencyCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetSourceInitiativeID sets the "source_initiative_id" field.
 func (_c *InitiativeDependencyCreate) SetSourceInitiativeID(v string) *InitiativeDependencyCreate {
 	_c.mutation.SetSourceInitiativeID(v)
@@ -71,6 +85,11 @@ func (_c *InitiativeDependencyCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *InitiativeDependencyCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := initiativedependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeDependency.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.SourceInitiativeID(); !ok {
 		return &ValidationError{Name: "source_initiative_id", err: errors.New(`ent: missing required field "InitiativeDependency.source_initiative_id"`)}
 	}
@@ -121,6 +140,10 @@ func (_c *InitiativeDependencyCreate) createSpec() (*InitiativeDependency, *sqlg
 		_node = &InitiativeDependency{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(initiativedependency.Table, sqlgraph.NewFieldSpec(initiativedependency.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(initiativedependency.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SourceInitiativeID(); ok {
 		_spec.SetField(initiativedependency.FieldSourceInitiativeID, field.TypeString, value)
 		_node.SourceInitiativeID = value

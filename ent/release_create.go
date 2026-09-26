@@ -23,6 +23,20 @@ type ReleaseCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *ReleaseCreate) SetTenantID(v string) *ReleaseCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *ReleaseCreate) SetNillableTenantID(v *string) *ReleaseCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetTag sets the "tag" field.
 func (_c *ReleaseCreate) SetTag(v string) *ReleaseCreate {
 	_c.mutation.SetTag(v)
@@ -170,6 +184,11 @@ func (_c *ReleaseCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *ReleaseCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := release.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Release.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Tag(); !ok {
 		return &ValidationError{Name: "tag", err: errors.New(`ent: missing required field "Release.tag"`)}
 	}
@@ -252,6 +271,10 @@ func (_c *ReleaseCreate) createSpec() (*Release, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(release.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Tag(); ok {
 		_spec.SetField(release.FieldTag, field.TypeString, value)

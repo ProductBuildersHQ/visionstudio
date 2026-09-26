@@ -63,6 +63,11 @@ func IDContainsFold(id string) predicate.Phase {
 	return predicate.Phase(sql.FieldContainsFold(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldEQ(FieldTenantID, v))
+}
+
 // SequenceNumber applies equality check predicate on the "sequence_number" field. It's identical to SequenceNumberEQ.
 func SequenceNumber(v int) predicate.Phase {
 	return predicate.Phase(sql.FieldEQ(FieldSequenceNumber, v))
@@ -76,6 +81,81 @@ func Title(v string) predicate.Phase {
 // Theme applies equality check predicate on the "theme" field. It's identical to ThemeEQ.
 func Theme(v string) predicate.Phase {
 	return predicate.Phase(sql.FieldEQ(FieldTheme, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.Phase {
+	return predicate.Phase(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.Phase {
+	return predicate.Phase(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.Phase {
+	return predicate.Phase(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.Phase {
+	return predicate.Phase(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.Phase {
+	return predicate.Phase(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // SequenceNumberEQ applies the EQ predicate on the "sequence_number" field.

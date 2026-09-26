@@ -262,12 +262,12 @@ func (_q *PRISMDocumentQuery) Clone() *PRISMDocumentQuery {
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.PRISMDocument.Query().
-//		GroupBy(prismdocument.FieldOrganization).
+//		GroupBy(prismdocument.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PRISMDocumentQuery) GroupBy(field string, fields ...string) *PRISMDocumentGroupBy {
@@ -285,11 +285,11 @@ func (_q *PRISMDocumentQuery) GroupBy(field string, fields ...string) *PRISMDocu
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.PRISMDocument.Query().
-//		Select(prismdocument.FieldOrganization).
+//		Select(prismdocument.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *PRISMDocumentQuery) Select(fields ...string) *PRISMDocumentSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -31,6 +31,26 @@ func (_u *SpecDocumentUpdate) Where(ps ...predicate.SpecDocument) *SpecDocumentU
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *SpecDocumentUpdate) SetTenantID(v string) *SpecDocumentUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *SpecDocumentUpdate) SetNillableTenantID(v *string) *SpecDocumentUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *SpecDocumentUpdate) ClearTenantID() *SpecDocumentUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetOrganization sets the "organization" field.
 func (_u *SpecDocumentUpdate) SetOrganization(v string) *SpecDocumentUpdate {
 	_u.mutation.SetOrganization(v)
@@ -343,6 +363,11 @@ func (_u *SpecDocumentUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *SpecDocumentUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := specdocument.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "SpecDocument.tenant_id": %w`, err)}
+		}
+	}
 	if _u.mutation.RepositoryCleared() && len(_u.mutation.RepositoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "SpecDocument.repository"`)
 	}
@@ -360,6 +385,12 @@ func (_u *SpecDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(specdocument.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(specdocument.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(specdocument.FieldOrganization, field.TypeString, value)
@@ -517,6 +548,26 @@ type SpecDocumentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *SpecDocumentMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *SpecDocumentUpdateOne) SetTenantID(v string) *SpecDocumentUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *SpecDocumentUpdateOne) SetNillableTenantID(v *string) *SpecDocumentUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *SpecDocumentUpdateOne) ClearTenantID() *SpecDocumentUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetOrganization sets the "organization" field.
@@ -844,6 +895,11 @@ func (_u *SpecDocumentUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *SpecDocumentUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := specdocument.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "SpecDocument.tenant_id": %w`, err)}
+		}
+	}
 	if _u.mutation.RepositoryCleared() && len(_u.mutation.RepositoryIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "SpecDocument.repository"`)
 	}
@@ -878,6 +934,12 @@ func (_u *SpecDocumentUpdateOne) sqlSave(ctx context.Context) (_node *SpecDocume
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(specdocument.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(specdocument.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(specdocument.FieldOrganization, field.TypeString, value)

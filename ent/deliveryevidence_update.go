@@ -29,6 +29,26 @@ func (_u *DeliveryEvidenceUpdate) Where(ps ...predicate.DeliveryEvidence) *Deliv
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *DeliveryEvidenceUpdate) SetTenantID(v string) *DeliveryEvidenceUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *DeliveryEvidenceUpdate) SetNillableTenantID(v *string) *DeliveryEvidenceUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *DeliveryEvidenceUpdate) ClearTenantID() *DeliveryEvidenceUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetEvidenceType sets the "evidence_type" field.
 func (_u *DeliveryEvidenceUpdate) SetEvidenceType(v string) *DeliveryEvidenceUpdate {
 	_u.mutation.SetEvidenceType(v)
@@ -182,6 +202,11 @@ func (_u *DeliveryEvidenceUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DeliveryEvidenceUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := deliveryevidence.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "DeliveryEvidence.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.EvidenceType(); ok {
 		if err := deliveryevidence.EvidenceTypeValidator(v); err != nil {
 			return &ValidationError{Name: "evidence_type", err: fmt.Errorf(`ent: validator failed for field "DeliveryEvidence.evidence_type": %w`, err)}
@@ -219,6 +244,12 @@ func (_u *DeliveryEvidenceUpdate) sqlSave(ctx context.Context) (_node int, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(deliveryevidence.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(deliveryevidence.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.EvidenceType(); ok {
 		_spec.SetField(deliveryevidence.FieldEvidenceType, field.TypeString, value)
@@ -294,6 +325,26 @@ type DeliveryEvidenceUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *DeliveryEvidenceMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *DeliveryEvidenceUpdateOne) SetTenantID(v string) *DeliveryEvidenceUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *DeliveryEvidenceUpdateOne) SetNillableTenantID(v *string) *DeliveryEvidenceUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *DeliveryEvidenceUpdateOne) ClearTenantID() *DeliveryEvidenceUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetEvidenceType sets the "evidence_type" field.
@@ -462,6 +513,11 @@ func (_u *DeliveryEvidenceUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *DeliveryEvidenceUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := deliveryevidence.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "DeliveryEvidence.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.EvidenceType(); ok {
 		if err := deliveryevidence.EvidenceTypeValidator(v); err != nil {
 			return &ValidationError{Name: "evidence_type", err: fmt.Errorf(`ent: validator failed for field "DeliveryEvidence.evidence_type": %w`, err)}
@@ -516,6 +572,12 @@ func (_u *DeliveryEvidenceUpdateOne) sqlSave(ctx context.Context) (_node *Delive
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(deliveryevidence.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(deliveryevidence.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.EvidenceType(); ok {
 		_spec.SetField(deliveryevidence.FieldEvidenceType, field.TypeString, value)

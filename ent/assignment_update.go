@@ -29,6 +29,26 @@ func (_u *AssignmentUpdate) Where(ps ...predicate.Assignment) *AssignmentUpdate 
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *AssignmentUpdate) SetTenantID(v string) *AssignmentUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *AssignmentUpdate) SetNillableTenantID(v *string) *AssignmentUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *AssignmentUpdate) ClearTenantID() *AssignmentUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetWorker sets the "worker" field.
 func (_u *AssignmentUpdate) SetWorker(v string) *AssignmentUpdate {
 	_u.mutation.SetWorker(v)
@@ -202,6 +222,11 @@ func (_u *AssignmentUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *AssignmentUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := assignment.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Assignment.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Worker(); ok {
 		if err := assignment.WorkerValidator(v); err != nil {
 			return &ValidationError{Name: "worker", err: fmt.Errorf(`ent: validator failed for field "Assignment.worker": %w`, err)}
@@ -234,6 +259,12 @@ func (_u *AssignmentUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(assignment.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(assignment.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Worker(); ok {
 		_spec.SetField(assignment.FieldWorker, field.TypeString, value)
@@ -315,6 +346,26 @@ type AssignmentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *AssignmentMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *AssignmentUpdateOne) SetTenantID(v string) *AssignmentUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *AssignmentUpdateOne) SetNillableTenantID(v *string) *AssignmentUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *AssignmentUpdateOne) ClearTenantID() *AssignmentUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetWorker sets the "worker" field.
@@ -503,6 +554,11 @@ func (_u *AssignmentUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *AssignmentUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := assignment.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Assignment.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Worker(); ok {
 		if err := assignment.WorkerValidator(v); err != nil {
 			return &ValidationError{Name: "worker", err: fmt.Errorf(`ent: validator failed for field "Assignment.worker": %w`, err)}
@@ -552,6 +608,12 @@ func (_u *AssignmentUpdateOne) sqlSave(ctx context.Context) (_node *Assignment, 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(assignment.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(assignment.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Worker(); ok {
 		_spec.SetField(assignment.FieldWorker, field.TypeString, value)

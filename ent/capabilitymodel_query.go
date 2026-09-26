@@ -299,12 +299,12 @@ func (_q *CapabilityModelQuery) WithAssessments(opts ...func(*MaturityAssessment
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.CapabilityModel.Query().
-//		GroupBy(capabilitymodel.FieldName).
+//		GroupBy(capabilitymodel.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *CapabilityModelQuery) GroupBy(field string, fields ...string) *CapabilityModelGroupBy {
@@ -322,11 +322,11 @@ func (_q *CapabilityModelQuery) GroupBy(field string, fields ...string) *Capabil
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.CapabilityModel.Query().
-//		Select(capabilitymodel.FieldName).
+//		Select(capabilitymodel.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *CapabilityModelQuery) Select(fields ...string) *CapabilityModelSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

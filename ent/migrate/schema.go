@@ -11,6 +11,7 @@ var (
 	// AssignmentsColumns holds the columns for the "assignments" table.
 	AssignmentsColumns = []*schema.Column{
 		{Name: "assignment_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "worker", Type: field.TypeString, Size: 128},
 		{Name: "status", Type: field.TypeString, Size: 32},
 		{Name: "lease_expires_at", Type: field.TypeTime},
@@ -29,15 +30,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "assignments_roadmap_items_assignments",
-				Columns:    []*schema.Column{AssignmentsColumns[9]},
+				Columns:    []*schema.Column{AssignmentsColumns[10]},
 				RefColumns: []*schema.Column{RoadmapItemsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "assignment_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{AssignmentsColumns[1]},
 			},
 		},
 	}
 	// CapabilityModelsColumns holds the columns for the "capability_models" table.
 	CapabilityModelsColumns = []*schema.Column{
 		{Name: "model_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "name", Type: field.TypeString, Size: 128},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "dimensions", Type: field.TypeJSON, Nullable: true},
@@ -48,10 +57,18 @@ var (
 		Name:       "capability_models",
 		Columns:    CapabilityModelsColumns,
 		PrimaryKey: []*schema.Column{CapabilityModelsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "capabilitymodel_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{CapabilityModelsColumns[1]},
+			},
+		},
 	}
 	// DeliveryEvidencesColumns holds the columns for the "delivery_evidences" table.
 	DeliveryEvidencesColumns = []*schema.Column{
 		{Name: "evidence_id", Type: field.TypeString, Size: 128},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "evidence_type", Type: field.TypeString, Size: 32},
 		{Name: "reference", Type: field.TypeString, Size: 512},
 		{Name: "commit_type", Type: field.TypeString, Nullable: true, Size: 32},
@@ -68,15 +85,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "delivery_evidences_roadmap_items_evidence",
-				Columns:    []*schema.Column{DeliveryEvidencesColumns[7]},
+				Columns:    []*schema.Column{DeliveryEvidencesColumns[8]},
 				RefColumns: []*schema.Column{RoadmapItemsColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "deliveryevidence_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{DeliveryEvidencesColumns[1]},
 			},
 		},
 	}
 	// DevXperiodReportsColumns holds the columns for the "dev_xperiod_reports" table.
 	DevXperiodReportsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Nullable: true},
 		{Name: "repository_id", Type: field.TypeString, Nullable: true},
 		{Name: "person_id", Type: field.TypeString},
@@ -94,10 +119,18 @@ var (
 		Name:       "dev_xperiod_reports",
 		Columns:    DevXperiodReportsColumns,
 		PrimaryKey: []*schema.Column{DevXperiodReportsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "devxperiodreport_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{DevXperiodReportsColumns[1]},
+			},
+		},
 	}
 	// InitiativesColumns holds the columns for the "initiatives" table.
 	InitiativesColumns = []*schema.Column{
 		{Name: "initiative_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Size: 128},
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
@@ -127,21 +160,29 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "initiatives_programs_initiatives",
-				Columns:    []*schema.Column{InitiativesColumns[19]},
+				Columns:    []*schema.Column{InitiativesColumns[20]},
 				RefColumns: []*schema.Column{ProgramsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "initiatives_spec_workflows_initiatives",
-				Columns:    []*schema.Column{InitiativesColumns[20]},
+				Columns:    []*schema.Column{InitiativesColumns[21]},
 				RefColumns: []*schema.Column{SpecWorkflowsColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "initiative_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{InitiativesColumns[1]},
 			},
 		},
 	}
 	// InitiativeDependenciesColumns holds the columns for the "initiative_dependencies" table.
 	InitiativeDependenciesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "source_initiative_id", Type: field.TypeString, Size: 64},
 		{Name: "target_initiative_id", Type: field.TypeString, Size: 64},
 		{Name: "relationship", Type: field.TypeString, Size: 32},
@@ -153,15 +194,21 @@ var (
 		PrimaryKey: []*schema.Column{InitiativeDependenciesColumns[0]},
 		Indexes: []*schema.Index{
 			{
+				Name:    "initiativedependency_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{InitiativeDependenciesColumns[1]},
+			},
+			{
 				Name:    "initiativedependency_source_initiative_id_target_initiative_id_relationship",
 				Unique:  true,
-				Columns: []*schema.Column{InitiativeDependenciesColumns[1], InitiativeDependenciesColumns[2], InitiativeDependenciesColumns[3]},
+				Columns: []*schema.Column{InitiativeDependenciesColumns[2], InitiativeDependenciesColumns[3], InitiativeDependenciesColumns[4]},
 			},
 		},
 	}
 	// InitiativeWorkflowsColumns holds the columns for the "initiative_workflows" table.
 	InitiativeWorkflowsColumns = []*schema.Column{
 		{Name: "initiative_id", Type: field.TypeString},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "workflow_id", Type: field.TypeString},
 		{Name: "selected_at", Type: field.TypeTime},
 	}
@@ -170,10 +217,18 @@ var (
 		Name:       "initiative_workflows",
 		Columns:    InitiativeWorkflowsColumns,
 		PrimaryKey: []*schema.Column{InitiativeWorkflowsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "initiativeworkflow_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{InitiativeWorkflowsColumns[1]},
+			},
+		},
 	}
 	// JudgeResultsColumns holds the columns for the "judge_results" table.
 	JudgeResultsColumns = []*schema.Column{
 		{Name: "result_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "spec_path", Type: field.TypeString, Size: 512},
 		{Name: "spec_type", Type: field.TypeString, Nullable: true, Size: 32},
 		{Name: "evaluated_at", Type: field.TypeTime},
@@ -192,15 +247,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "judge_results_initiatives_judge_results",
-				Columns:    []*schema.Column{JudgeResultsColumns[9]},
+				Columns:    []*schema.Column{JudgeResultsColumns[10]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "judgeresult_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{JudgeResultsColumns[1]},
 			},
 		},
 	}
 	// MaturityAssessmentsColumns holds the columns for the "maturity_assessments" table.
 	MaturityAssessmentsColumns = []*schema.Column{
 		{Name: "assessment_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "initiative_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Nullable: true, Size: 128},
 		{Name: "scores", Type: field.TypeJSON, Nullable: true},
@@ -219,15 +282,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "maturity_assessments_capability_models_assessments",
-				Columns:    []*schema.Column{MaturityAssessmentsColumns[9]},
+				Columns:    []*schema.Column{MaturityAssessmentsColumns[10]},
 				RefColumns: []*schema.Column{CapabilityModelsColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "maturityassessment_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{MaturityAssessmentsColumns[1]},
 			},
 		},
 	}
 	// OrganizationsColumns holds the columns for the "organizations" table.
 	OrganizationsColumns = []*schema.Column{
 		{Name: "org_entity_id", Type: field.TypeString, Size: 128},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "login", Type: field.TypeString, Size: 128},
 		{Name: "kind", Type: field.TypeString, Size: 32, Default: "organization"},
 		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 256},
@@ -241,10 +312,18 @@ var (
 		Name:       "organizations",
 		Columns:    OrganizationsColumns,
 		PrimaryKey: []*schema.Column{OrganizationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "organization_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{OrganizationsColumns[1]},
+			},
+		},
 	}
 	// PrismDocumentsColumns holds the columns for the "prism_documents" table.
 	PrismDocumentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Nullable: true},
 		{Name: "repository_id", Type: field.TypeString, Nullable: true},
 		{Name: "name", Type: field.TypeString},
@@ -264,6 +343,13 @@ var (
 		Name:       "prism_documents",
 		Columns:    PrismDocumentsColumns,
 		PrimaryKey: []*schema.Column{PrismDocumentsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "prismdocument_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{PrismDocumentsColumns[1]},
+			},
+		},
 	}
 	// PrismGoalsColumns holds the columns for the "prism_goals" table.
 	PrismGoalsColumns = []*schema.Column{
@@ -284,6 +370,7 @@ var (
 	// PrismRoadmapsColumns holds the columns for the "prism_roadmaps" table.
 	PrismRoadmapsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Nullable: true},
 		{Name: "repository_id", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString, Nullable: true},
@@ -296,10 +383,18 @@ var (
 		Name:       "prism_roadmaps",
 		Columns:    PrismRoadmapsColumns,
 		PrimaryKey: []*schema.Column{PrismRoadmapsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "prismroadmap_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{PrismRoadmapsColumns[1]},
+			},
+		},
 	}
 	// PersonsColumns holds the columns for the "persons" table.
 	PersonsColumns = []*schema.Column{
 		{Name: "person_id", Type: field.TypeString, Size: 128},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "github_login", Type: field.TypeString, Size: 128},
 		{Name: "display_name", Type: field.TypeString, Nullable: true, Size: 256},
 		{Name: "email_identities", Type: field.TypeJSON, Nullable: true},
@@ -311,10 +406,18 @@ var (
 		Name:       "persons",
 		Columns:    PersonsColumns,
 		PrimaryKey: []*schema.Column{PersonsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "person_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{PersonsColumns[1]},
+			},
+		},
 	}
 	// PhasesColumns holds the columns for the "phases" table.
 	PhasesColumns = []*schema.Column{
 		{Name: "phase_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "sequence_number", Type: field.TypeInt},
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "theme", Type: field.TypeString, Nullable: true, Size: 255},
@@ -328,15 +431,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "phases_initiatives_phases",
-				Columns:    []*schema.Column{PhasesColumns[4]},
+				Columns:    []*schema.Column{PhasesColumns[5]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "phase_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{PhasesColumns[1]},
 			},
 		},
 	}
 	// ProgramsColumns holds the columns for the "programs" table.
 	ProgramsColumns = []*schema.Column{
 		{Name: "program_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "name", Type: field.TypeString, Size: 128},
 		{Name: "organization", Type: field.TypeString, Size: 128},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
@@ -349,10 +460,18 @@ var (
 		Name:       "programs",
 		Columns:    ProgramsColumns,
 		PrimaryKey: []*schema.Column{ProgramsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "program_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ProgramsColumns[1]},
+			},
+		},
 	}
 	// RmiDependenciesColumns holds the columns for the "rmi_dependencies" table.
 	RmiDependenciesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "source_rmi_id", Type: field.TypeString, Size: 64},
 		{Name: "target_rmi_id", Type: field.TypeString, Size: 64},
 		{Name: "relationship", Type: field.TypeString, Size: 32},
@@ -364,15 +483,21 @@ var (
 		PrimaryKey: []*schema.Column{RmiDependenciesColumns[0]},
 		Indexes: []*schema.Index{
 			{
+				Name:    "rmidependency_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RmiDependenciesColumns[1]},
+			},
+			{
 				Name:    "rmidependency_source_rmi_id_target_rmi_id_relationship",
 				Unique:  true,
-				Columns: []*schema.Column{RmiDependenciesColumns[1], RmiDependenciesColumns[2], RmiDependenciesColumns[3]},
+				Columns: []*schema.Column{RmiDependenciesColumns[2], RmiDependenciesColumns[3], RmiDependenciesColumns[4]},
 			},
 		},
 	}
 	// ReleasesColumns holds the columns for the "releases" table.
 	ReleasesColumns = []*schema.Column{
 		{Name: "release_id", Type: field.TypeString, Size: 256},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "tag", Type: field.TypeString, Size: 128},
 		{Name: "released_at", Type: field.TypeTime},
 		{Name: "url", Type: field.TypeString, Nullable: true, Size: 512},
@@ -390,15 +515,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "releases_repositories_releases",
-				Columns:    []*schema.Column{ReleasesColumns[8]},
+				Columns:    []*schema.Column{ReleasesColumns[9]},
 				RefColumns: []*schema.Column{RepositoriesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "release_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{ReleasesColumns[1]},
 			},
 		},
 	}
 	// RepositoriesColumns holds the columns for the "repositories" table.
 	RepositoriesColumns = []*schema.Column{
 		{Name: "repository_id", Type: field.TypeString, Size: 128},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Size: 128},
 		{Name: "repository_name", Type: field.TypeString, Size: 128},
 		{Name: "default_branch", Type: field.TypeString, Size: 128, Default: "main"},
@@ -419,15 +552,23 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "repositories_organizations_repositories",
-				Columns:    []*schema.Column{RepositoriesColumns[11]},
+				Columns:    []*schema.Column{RepositoriesColumns[12]},
 				RefColumns: []*schema.Column{OrganizationsColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "repository_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RepositoriesColumns[1]},
 			},
 		},
 	}
 	// RepositoryDependenciesColumns holds the columns for the "repository_dependencies" table.
 	RepositoryDependenciesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "source_repository_id", Type: field.TypeString, Size: 128},
 		{Name: "target_repository_id", Type: field.TypeString, Size: 128},
 		{Name: "dependency_type", Type: field.TypeString, Size: 32},
@@ -439,15 +580,21 @@ var (
 		PrimaryKey: []*schema.Column{RepositoryDependenciesColumns[0]},
 		Indexes: []*schema.Index{
 			{
+				Name:    "repositorydependency_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RepositoryDependenciesColumns[1]},
+			},
+			{
 				Name:    "repositorydependency_source_repository_id_target_repository_id_dependency_type",
 				Unique:  true,
-				Columns: []*schema.Column{RepositoryDependenciesColumns[1], RepositoryDependenciesColumns[2], RepositoryDependenciesColumns[3]},
+				Columns: []*schema.Column{RepositoryDependenciesColumns[2], RepositoryDependenciesColumns[3], RepositoryDependenciesColumns[4]},
 			},
 		},
 	}
 	// RoadmapItemsColumns holds the columns for the "roadmap_items" table.
 	RoadmapItemsColumns = []*schema.Column{
 		{Name: "rmi_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "item_type", Type: field.TypeString, Size: 32},
@@ -472,27 +619,35 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "roadmap_items_initiatives_roadmap_items",
-				Columns:    []*schema.Column{RoadmapItemsColumns[13]},
+				Columns:    []*schema.Column{RoadmapItemsColumns[14]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "roadmap_items_phases_roadmap_items",
-				Columns:    []*schema.Column{RoadmapItemsColumns[14]},
+				Columns:    []*schema.Column{RoadmapItemsColumns[15]},
 				RefColumns: []*schema.Column{PhasesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "roadmap_items_repositories_roadmap_items",
-				Columns:    []*schema.Column{RoadmapItemsColumns[15]},
+				Columns:    []*schema.Column{RoadmapItemsColumns[16]},
 				RefColumns: []*schema.Column{RepositoriesColumns[0]},
 				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "roadmapitem_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{RoadmapItemsColumns[1]},
 			},
 		},
 	}
 	// SpecDocumentsColumns holds the columns for the "spec_documents" table.
 	SpecDocumentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "organization", Type: field.TypeString, Nullable: true},
 		{Name: "spec_type", Type: field.TypeString},
 		{Name: "file_path", Type: field.TypeString},
@@ -516,27 +671,35 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "spec_documents_initiatives_spec_documents",
-				Columns:    []*schema.Column{SpecDocumentsColumns[12]},
+				Columns:    []*schema.Column{SpecDocumentsColumns[13]},
 				RefColumns: []*schema.Column{InitiativesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "spec_documents_repositories_spec_documents",
-				Columns:    []*schema.Column{SpecDocumentsColumns[13]},
+				Columns:    []*schema.Column{SpecDocumentsColumns[14]},
 				RefColumns: []*schema.Column{RepositoriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "spec_documents_spec_workflows_spec_documents",
-				Columns:    []*schema.Column{SpecDocumentsColumns[14]},
+				Columns:    []*schema.Column{SpecDocumentsColumns[15]},
 				RefColumns: []*schema.Column{SpecWorkflowsColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "specdocument_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{SpecDocumentsColumns[1]},
 			},
 		},
 	}
 	// SpecWorkflowsColumns holds the columns for the "spec_workflows" table.
 	SpecWorkflowsColumns = []*schema.Column{
 		{Name: "workflow_id", Type: field.TypeString, Size: 64},
+		{Name: "tenant_id", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "name", Type: field.TypeString, Size: 128},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "specs_required", Type: field.TypeJSON, Nullable: true},
@@ -548,6 +711,13 @@ var (
 		Name:       "spec_workflows",
 		Columns:    SpecWorkflowsColumns,
 		PrimaryKey: []*schema.Column{SpecWorkflowsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "specworkflow_tenant_id",
+				Unique:  false,
+				Columns: []*schema.Column{SpecWorkflowsColumns[1]},
+			},
+		},
 	}
 	// PersonOrganizationsColumns holds the columns for the "person_organizations" table.
 	PersonOrganizationsColumns = []*schema.Column{

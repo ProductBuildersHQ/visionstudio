@@ -29,6 +29,26 @@ func (_u *ProgramUpdate) Where(ps ...predicate.Program) *ProgramUpdate {
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *ProgramUpdate) SetTenantID(v string) *ProgramUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *ProgramUpdate) SetNillableTenantID(v *string) *ProgramUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *ProgramUpdate) ClearTenantID() *ProgramUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetName sets the "name" field.
 func (_u *ProgramUpdate) SetName(v string) *ProgramUpdate {
 	_u.mutation.SetName(v)
@@ -189,6 +209,11 @@ func (_u *ProgramUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ProgramUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := program.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Program.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := program.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Program.name": %w`, err)}
@@ -213,6 +238,12 @@ func (_u *ProgramUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(program.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(program.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(program.FieldName, field.TypeString, value)
@@ -298,6 +329,26 @@ type ProgramUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ProgramMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *ProgramUpdateOne) SetTenantID(v string) *ProgramUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *ProgramUpdateOne) SetNillableTenantID(v *string) *ProgramUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *ProgramUpdateOne) ClearTenantID() *ProgramUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetName sets the "name" field.
@@ -473,6 +524,11 @@ func (_u *ProgramUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *ProgramUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := program.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Program.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := program.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Program.name": %w`, err)}
@@ -514,6 +570,12 @@ func (_u *ProgramUpdateOne) sqlSave(ctx context.Context) (_node *Program, err er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(program.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(program.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(program.FieldName, field.TypeString, value)

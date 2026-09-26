@@ -21,6 +21,20 @@ type CapabilityModelCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *CapabilityModelCreate) SetTenantID(v string) *CapabilityModelCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *CapabilityModelCreate) SetNillableTenantID(v *string) *CapabilityModelCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetName sets the "name" field.
 func (_c *CapabilityModelCreate) SetName(v string) *CapabilityModelCreate {
 	_c.mutation.SetName(v)
@@ -125,6 +139,11 @@ func (_c *CapabilityModelCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *CapabilityModelCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := capabilitymodel.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "CapabilityModel.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "CapabilityModel.name"`)}
 	}
@@ -175,6 +194,10 @@ func (_c *CapabilityModelCreate) createSpec() (*CapabilityModel, *sqlgraph.Creat
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(capabilitymodel.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(capabilitymodel.FieldName, field.TypeString, value)

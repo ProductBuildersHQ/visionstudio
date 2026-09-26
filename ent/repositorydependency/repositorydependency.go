@@ -11,6 +11,8 @@ const (
 	Label = "repository_dependency"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldSourceRepositoryID holds the string denoting the source_repository_id field in the database.
 	FieldSourceRepositoryID = "source_repository_id"
 	// FieldTargetRepositoryID holds the string denoting the target_repository_id field in the database.
@@ -24,6 +26,7 @@ const (
 // Columns holds all SQL columns for repositorydependency fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldSourceRepositoryID,
 	FieldTargetRepositoryID,
 	FieldDependencyType,
@@ -40,6 +43,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// SourceRepositoryIDValidator is a validator for the "source_repository_id" field. It is called by the builders before save.
 	SourceRepositoryIDValidator func(string) error
 	// TargetRepositoryIDValidator is a validator for the "target_repository_id" field. It is called by the builders before save.
@@ -54,6 +59,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // BySourceRepositoryID orders the results by the source_repository_id field.

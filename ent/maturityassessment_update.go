@@ -30,6 +30,26 @@ func (_u *MaturityAssessmentUpdate) Where(ps ...predicate.MaturityAssessment) *M
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *MaturityAssessmentUpdate) SetTenantID(v string) *MaturityAssessmentUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *MaturityAssessmentUpdate) SetNillableTenantID(v *string) *MaturityAssessmentUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *MaturityAssessmentUpdate) ClearTenantID() *MaturityAssessmentUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetInitiativeID sets the "initiative_id" field.
 func (_u *MaturityAssessmentUpdate) SetInitiativeID(v string) *MaturityAssessmentUpdate {
 	_u.mutation.SetInitiativeID(v)
@@ -242,6 +262,11 @@ func (_u *MaturityAssessmentUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *MaturityAssessmentUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := maturityassessment.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "MaturityAssessment.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.InitiativeID(); ok {
 		if err := maturityassessment.InitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "initiative_id", err: fmt.Errorf(`ent: validator failed for field "MaturityAssessment.initiative_id": %w`, err)}
@@ -276,6 +301,12 @@ func (_u *MaturityAssessmentUpdate) sqlSave(ctx context.Context) (_node int, err
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(maturityassessment.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(maturityassessment.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.InitiativeID(); ok {
 		_spec.SetField(maturityassessment.FieldInitiativeID, field.TypeString, value)
@@ -372,6 +403,26 @@ type MaturityAssessmentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *MaturityAssessmentMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *MaturityAssessmentUpdateOne) SetTenantID(v string) *MaturityAssessmentUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *MaturityAssessmentUpdateOne) SetNillableTenantID(v *string) *MaturityAssessmentUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *MaturityAssessmentUpdateOne) ClearTenantID() *MaturityAssessmentUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetInitiativeID sets the "initiative_id" field.
@@ -599,6 +650,11 @@ func (_u *MaturityAssessmentUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *MaturityAssessmentUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := maturityassessment.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "MaturityAssessment.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.InitiativeID(); ok {
 		if err := maturityassessment.InitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "initiative_id", err: fmt.Errorf(`ent: validator failed for field "MaturityAssessment.initiative_id": %w`, err)}
@@ -650,6 +706,12 @@ func (_u *MaturityAssessmentUpdateOne) sqlSave(ctx context.Context) (_node *Matu
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(maturityassessment.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(maturityassessment.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.InitiativeID(); ok {
 		_spec.SetField(maturityassessment.FieldInitiativeID, field.TypeString, value)

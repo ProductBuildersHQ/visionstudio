@@ -13,6 +13,12 @@ type JudgeResult struct {
 	ent.Schema
 }
 
+// Mixin adds the optional tenant_id discriminator for cloud pool + RLS
+// tenancy; inert for the single-tenant local app. See TenantMixin.
+func (JudgeResult) Mixin() []ent.Mixin {
+	return []ent.Mixin{TenantMixin{}}
+}
+
 func (JudgeResult) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("result_id").MaxLen(64),

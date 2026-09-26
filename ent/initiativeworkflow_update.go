@@ -28,6 +28,26 @@ func (_u *InitiativeWorkflowUpdate) Where(ps ...predicate.InitiativeWorkflow) *I
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *InitiativeWorkflowUpdate) SetTenantID(v string) *InitiativeWorkflowUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *InitiativeWorkflowUpdate) SetNillableTenantID(v *string) *InitiativeWorkflowUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *InitiativeWorkflowUpdate) ClearTenantID() *InitiativeWorkflowUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetWorkflowID sets the "workflow_id" field.
 func (_u *InitiativeWorkflowUpdate) SetWorkflowID(v string) *InitiativeWorkflowUpdate {
 	_u.mutation.SetWorkflowID(v)
@@ -88,7 +108,20 @@ func (_u *InitiativeWorkflowUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *InitiativeWorkflowUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := initiativeworkflow.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeWorkflow.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *InitiativeWorkflowUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(initiativeworkflow.Table, initiativeworkflow.Columns, sqlgraph.NewFieldSpec(initiativeworkflow.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -96,6 +129,12 @@ func (_u *InitiativeWorkflowUpdate) sqlSave(ctx context.Context) (_node int, err
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(initiativeworkflow.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(initiativeworkflow.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.WorkflowID(); ok {
 		_spec.SetField(initiativeworkflow.FieldWorkflowID, field.TypeString, value)
@@ -121,6 +160,26 @@ type InitiativeWorkflowUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *InitiativeWorkflowMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *InitiativeWorkflowUpdateOne) SetTenantID(v string) *InitiativeWorkflowUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *InitiativeWorkflowUpdateOne) SetNillableTenantID(v *string) *InitiativeWorkflowUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *InitiativeWorkflowUpdateOne) ClearTenantID() *InitiativeWorkflowUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetWorkflowID sets the "workflow_id" field.
@@ -196,7 +255,20 @@ func (_u *InitiativeWorkflowUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *InitiativeWorkflowUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := initiativeworkflow.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeWorkflow.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *InitiativeWorkflowUpdateOne) sqlSave(ctx context.Context) (_node *InitiativeWorkflow, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(initiativeworkflow.Table, initiativeworkflow.Columns, sqlgraph.NewFieldSpec(initiativeworkflow.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -221,6 +293,12 @@ func (_u *InitiativeWorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Init
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(initiativeworkflow.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(initiativeworkflow.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.WorkflowID(); ok {
 		_spec.SetField(initiativeworkflow.FieldWorkflowID, field.TypeString, value)

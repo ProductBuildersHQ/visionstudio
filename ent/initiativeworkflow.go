@@ -17,6 +17,8 @@ type InitiativeWorkflow struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// WorkflowID holds the value of the "workflow_id" field.
 	WorkflowID string `json:"workflow_id,omitempty"`
 	// SelectedAt holds the value of the "selected_at" field.
@@ -29,7 +31,7 @@ func (*InitiativeWorkflow) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case initiativeworkflow.FieldID, initiativeworkflow.FieldWorkflowID:
+		case initiativeworkflow.FieldID, initiativeworkflow.FieldTenantID, initiativeworkflow.FieldWorkflowID:
 			values[i] = new(sql.NullString)
 		case initiativeworkflow.FieldSelectedAt:
 			values[i] = new(sql.NullTime)
@@ -53,6 +55,12 @@ func (_m *InitiativeWorkflow) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case initiativeworkflow.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case initiativeworkflow.FieldWorkflowID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -102,6 +110,9 @@ func (_m *InitiativeWorkflow) String() string {
 	var builder strings.Builder
 	builder.WriteString("InitiativeWorkflow(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("workflow_id=")
 	builder.WriteString(_m.WorkflowID)
 	builder.WriteString(", ")

@@ -407,12 +407,12 @@ func (_q *RepositoryQuery) WithOrg(opts ...func(*OrganizationQuery)) *Repository
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Repository.Query().
-//		GroupBy(repository.FieldOrganization).
+//		GroupBy(repository.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *RepositoryQuery) GroupBy(field string, fields ...string) *RepositoryGroupBy {
@@ -430,11 +430,11 @@ func (_q *RepositoryQuery) GroupBy(field string, fields ...string) *RepositoryGr
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Repository.Query().
-//		Select(repository.FieldOrganization).
+//		Select(repository.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *RepositoryQuery) Select(fields ...string) *RepositorySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

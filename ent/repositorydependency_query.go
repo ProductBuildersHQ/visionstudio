@@ -262,12 +262,12 @@ func (_q *RepositoryDependencyQuery) Clone() *RepositoryDependencyQuery {
 // Example:
 //
 //	var v []struct {
-//		SourceRepositoryID string `json:"source_repository_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.RepositoryDependency.Query().
-//		GroupBy(repositorydependency.FieldSourceRepositoryID).
+//		GroupBy(repositorydependency.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *RepositoryDependencyQuery) GroupBy(field string, fields ...string) *RepositoryDependencyGroupBy {
@@ -285,11 +285,11 @@ func (_q *RepositoryDependencyQuery) GroupBy(field string, fields ...string) *Re
 // Example:
 //
 //	var v []struct {
-//		SourceRepositoryID string `json:"source_repository_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.RepositoryDependency.Query().
-//		Select(repositorydependency.FieldSourceRepositoryID).
+//		Select(repositorydependency.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *RepositoryDependencyQuery) Select(fields ...string) *RepositoryDependencySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

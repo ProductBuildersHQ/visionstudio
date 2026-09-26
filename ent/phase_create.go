@@ -21,6 +21,20 @@ type PhaseCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *PhaseCreate) SetTenantID(v string) *PhaseCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *PhaseCreate) SetNillableTenantID(v *string) *PhaseCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetSequenceNumber sets the "sequence_number" field.
 func (_c *PhaseCreate) SetSequenceNumber(v int) *PhaseCreate {
 	_c.mutation.SetSequenceNumber(v)
@@ -113,6 +127,11 @@ func (_c *PhaseCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PhaseCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := phase.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Phase.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.SequenceNumber(); !ok {
 		return &ValidationError{Name: "sequence_number", err: errors.New(`ent: missing required field "Phase.sequence_number"`)}
 	}
@@ -171,6 +190,10 @@ func (_c *PhaseCreate) createSpec() (*Phase, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(phase.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.SequenceNumber(); ok {
 		_spec.SetField(phase.FieldSequenceNumber, field.TypeInt, value)

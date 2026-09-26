@@ -12,6 +12,8 @@ const (
 	Label = "person"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "person_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldGithubLogin holds the string denoting the github_login field in the database.
 	FieldGithubLogin = "github_login"
 	// FieldDisplayName holds the string denoting the display_name field in the database.
@@ -38,6 +40,7 @@ const (
 // Columns holds all SQL columns for person fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldGithubLogin,
 	FieldDisplayName,
 	FieldEmailIdentities,
@@ -62,6 +65,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// GithubLoginValidator is a validator for the "github_login" field. It is called by the builders before save.
 	GithubLoginValidator func(string) error
 	// DisplayNameValidator is a validator for the "display_name" field. It is called by the builders before save.
@@ -76,6 +81,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByGithubLogin orders the results by the github_login field.

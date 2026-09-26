@@ -52,6 +52,11 @@ func IDLTE(id int) predicate.RepositoryDependency {
 	return predicate.RepositoryDependency(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldEQ(FieldTenantID, v))
+}
+
 // SourceRepositoryID applies equality check predicate on the "source_repository_id" field. It's identical to SourceRepositoryIDEQ.
 func SourceRepositoryID(v string) predicate.RepositoryDependency {
 	return predicate.RepositoryDependency(sql.FieldEQ(FieldSourceRepositoryID, v))
@@ -65,6 +70,81 @@ func TargetRepositoryID(v string) predicate.RepositoryDependency {
 // DependencyType applies equality check predicate on the "dependency_type" field. It's identical to DependencyTypeEQ.
 func DependencyType(v string) predicate.RepositoryDependency {
 	return predicate.RepositoryDependency(sql.FieldEQ(FieldDependencyType, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.RepositoryDependency {
+	return predicate.RepositoryDependency(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // SourceRepositoryIDEQ applies the EQ predicate on the "source_repository_id" field.

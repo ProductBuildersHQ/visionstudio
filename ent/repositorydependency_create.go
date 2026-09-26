@@ -19,6 +19,20 @@ type RepositoryDependencyCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RepositoryDependencyCreate) SetTenantID(v string) *RepositoryDependencyCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *RepositoryDependencyCreate) SetNillableTenantID(v *string) *RepositoryDependencyCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetSourceRepositoryID sets the "source_repository_id" field.
 func (_c *RepositoryDependencyCreate) SetSourceRepositoryID(v string) *RepositoryDependencyCreate {
 	_c.mutation.SetSourceRepositoryID(v)
@@ -71,6 +85,11 @@ func (_c *RepositoryDependencyCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *RepositoryDependencyCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := repositorydependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RepositoryDependency.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.SourceRepositoryID(); !ok {
 		return &ValidationError{Name: "source_repository_id", err: errors.New(`ent: missing required field "RepositoryDependency.source_repository_id"`)}
 	}
@@ -121,6 +140,10 @@ func (_c *RepositoryDependencyCreate) createSpec() (*RepositoryDependency, *sqlg
 		_node = &RepositoryDependency{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(repositorydependency.Table, sqlgraph.NewFieldSpec(repositorydependency.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(repositorydependency.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SourceRepositoryID(); ok {
 		_spec.SetField(repositorydependency.FieldSourceRepositoryID, field.TypeString, value)
 		_node.SourceRepositoryID = value

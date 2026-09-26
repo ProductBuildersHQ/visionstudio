@@ -52,6 +52,11 @@ func IDLTE(id int) predicate.RMIDependency {
 	return predicate.RMIDependency(sql.FieldLTE(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldEQ(FieldTenantID, v))
+}
+
 // SourceRmiID applies equality check predicate on the "source_rmi_id" field. It's identical to SourceRmiIDEQ.
 func SourceRmiID(v string) predicate.RMIDependency {
 	return predicate.RMIDependency(sql.FieldEQ(FieldSourceRmiID, v))
@@ -65,6 +70,81 @@ func TargetRmiID(v string) predicate.RMIDependency {
 // Relationship applies equality check predicate on the "relationship" field. It's identical to RelationshipEQ.
 func Relationship(v string) predicate.RMIDependency {
 	return predicate.RMIDependency(sql.FieldEQ(FieldRelationship, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.RMIDependency {
+	return predicate.RMIDependency(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // SourceRmiIDEQ applies the EQ predicate on the "source_rmi_id" field.

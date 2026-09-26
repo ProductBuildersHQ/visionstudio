@@ -262,12 +262,12 @@ func (_q *InitiativeDependencyQuery) Clone() *InitiativeDependencyQuery {
 // Example:
 //
 //	var v []struct {
-//		SourceInitiativeID string `json:"source_initiative_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.InitiativeDependency.Query().
-//		GroupBy(initiativedependency.FieldSourceInitiativeID).
+//		GroupBy(initiativedependency.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *InitiativeDependencyQuery) GroupBy(field string, fields ...string) *InitiativeDependencyGroupBy {
@@ -285,11 +285,11 @@ func (_q *InitiativeDependencyQuery) GroupBy(field string, fields ...string) *In
 // Example:
 //
 //	var v []struct {
-//		SourceInitiativeID string `json:"source_initiative_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.InitiativeDependency.Query().
-//		Select(initiativedependency.FieldSourceInitiativeID).
+//		Select(initiativedependency.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *InitiativeDependencyQuery) Select(fields ...string) *InitiativeDependencySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

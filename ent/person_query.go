@@ -299,12 +299,12 @@ func (_q *PersonQuery) WithOrganizations(opts ...func(*OrganizationQuery)) *Pers
 // Example:
 //
 //	var v []struct {
-//		GithubLogin string `json:"github_login,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Person.Query().
-//		GroupBy(person.FieldGithubLogin).
+//		GroupBy(person.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PersonQuery) GroupBy(field string, fields ...string) *PersonGroupBy {
@@ -322,11 +322,11 @@ func (_q *PersonQuery) GroupBy(field string, fields ...string) *PersonGroupBy {
 // Example:
 //
 //	var v []struct {
-//		GithubLogin string `json:"github_login,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Person.Query().
-//		Select(person.FieldGithubLogin).
+//		Select(person.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *PersonQuery) Select(fields ...string) *PersonSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

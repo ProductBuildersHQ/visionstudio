@@ -11,6 +11,8 @@ const (
 	Label = "initiative_workflow"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "initiative_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldWorkflowID holds the string denoting the workflow_id field in the database.
 	FieldWorkflowID = "workflow_id"
 	// FieldSelectedAt holds the string denoting the selected_at field in the database.
@@ -22,6 +24,7 @@ const (
 // Columns holds all SQL columns for initiativeworkflow fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldWorkflowID,
 	FieldSelectedAt,
 }
@@ -36,12 +39,22 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
+)
+
 // OrderOption defines the ordering options for the InitiativeWorkflow queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByWorkflowID orders the results by the workflow_id field.

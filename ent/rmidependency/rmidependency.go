@@ -11,6 +11,8 @@ const (
 	Label = "rmi_dependency"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldSourceRmiID holds the string denoting the source_rmi_id field in the database.
 	FieldSourceRmiID = "source_rmi_id"
 	// FieldTargetRmiID holds the string denoting the target_rmi_id field in the database.
@@ -24,6 +26,7 @@ const (
 // Columns holds all SQL columns for rmidependency fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldSourceRmiID,
 	FieldTargetRmiID,
 	FieldRelationship,
@@ -40,6 +43,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// SourceRmiIDValidator is a validator for the "source_rmi_id" field. It is called by the builders before save.
 	SourceRmiIDValidator func(string) error
 	// TargetRmiIDValidator is a validator for the "target_rmi_id" field. It is called by the builders before save.
@@ -54,6 +59,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // BySourceRmiID orders the results by the source_rmi_id field.

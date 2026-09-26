@@ -16,6 +16,8 @@ type InitiativeDependency struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// SourceInitiativeID holds the value of the "source_initiative_id" field.
 	SourceInitiativeID string `json:"source_initiative_id,omitempty"`
 	// TargetInitiativeID holds the value of the "target_initiative_id" field.
@@ -32,7 +34,7 @@ func (*InitiativeDependency) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case initiativedependency.FieldID:
 			values[i] = new(sql.NullInt64)
-		case initiativedependency.FieldSourceInitiativeID, initiativedependency.FieldTargetInitiativeID, initiativedependency.FieldRelationship:
+		case initiativedependency.FieldTenantID, initiativedependency.FieldSourceInitiativeID, initiativedependency.FieldTargetInitiativeID, initiativedependency.FieldRelationship:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -55,6 +57,12 @@ func (_m *InitiativeDependency) assignValues(columns []string, values []any) err
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case initiativedependency.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
+			}
 		case initiativedependency.FieldSourceInitiativeID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source_initiative_id", values[i])
@@ -109,6 +117,9 @@ func (_m *InitiativeDependency) String() string {
 	var builder strings.Builder
 	builder.WriteString("InitiativeDependency(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("source_initiative_id=")
 	builder.WriteString(_m.SourceInitiativeID)
 	builder.WriteString(", ")

@@ -18,6 +18,8 @@ type Release struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Tag holds the value of the "tag" field.
 	Tag string `json:"tag,omitempty"`
 	// ReleasedAt holds the value of the "released_at" field.
@@ -87,7 +89,7 @@ func (*Release) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case release.FieldID, release.FieldTag, release.FieldURL, release.FieldNotesRef, release.FieldBody, release.FieldRepositoryID:
+		case release.FieldID, release.FieldTenantID, release.FieldTag, release.FieldURL, release.FieldNotesRef, release.FieldBody, release.FieldRepositoryID:
 			values[i] = new(sql.NullString)
 		case release.FieldReleasedAt, release.FieldCreatedAt, release.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -111,6 +113,12 @@ func (_m *Release) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case release.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case release.FieldTag:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -211,6 +219,9 @@ func (_m *Release) String() string {
 	var builder strings.Builder
 	builder.WriteString("Release(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("tag=")
 	builder.WriteString(_m.Tag)
 	builder.WriteString(", ")

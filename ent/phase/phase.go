@@ -12,6 +12,8 @@ const (
 	Label = "phase"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "phase_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldSequenceNumber holds the string denoting the sequence_number field in the database.
 	FieldSequenceNumber = "sequence_number"
 	// FieldTitle holds the string denoting the title field in the database.
@@ -47,6 +49,7 @@ const (
 // Columns holds all SQL columns for phase fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldSequenceNumber,
 	FieldTitle,
 	FieldTheme,
@@ -74,6 +77,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// ThemeValidator is a validator for the "theme" field. It is called by the builders before save.
@@ -88,6 +93,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // BySequenceNumber orders the results by the sequence_number field.

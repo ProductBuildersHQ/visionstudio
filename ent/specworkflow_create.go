@@ -21,6 +21,20 @@ type SpecWorkflowCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *SpecWorkflowCreate) SetTenantID(v string) *SpecWorkflowCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *SpecWorkflowCreate) SetNillableTenantID(v *string) *SpecWorkflowCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetName sets the "name" field.
 func (_c *SpecWorkflowCreate) SetName(v string) *SpecWorkflowCreate {
 	_c.mutation.SetName(v)
@@ -129,6 +143,11 @@ func (_c *SpecWorkflowCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *SpecWorkflowCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := specworkflow.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "SpecWorkflow.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "SpecWorkflow.name"`)}
 	}
@@ -176,6 +195,10 @@ func (_c *SpecWorkflowCreate) createSpec() (*SpecWorkflow, *sqlgraph.CreateSpec)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(specworkflow.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(specworkflow.FieldName, field.TypeString, value)

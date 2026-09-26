@@ -12,6 +12,12 @@ type SpecDocument struct {
 	ent.Schema
 }
 
+// Mixin adds the optional tenant_id discriminator for cloud pool + RLS
+// tenancy; inert for the single-tenant local app. See TenantMixin.
+func (SpecDocument) Mixin() []ent.Mixin {
+	return []ent.Mixin{TenantMixin{}}
+}
+
 func (SpecDocument) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id"),

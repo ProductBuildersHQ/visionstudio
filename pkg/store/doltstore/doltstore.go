@@ -15,6 +15,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/grokify/godolt"
+	_ "github.com/lib/pq" // postgres driver for the cloud (dialect.Postgres); local uses mysql/Dolt
 	"github.com/plexusone/structured-evaluation/rubric"
 
 	"github.com/ProductBuildersHQ/visionstudio/ent"
@@ -33,14 +34,18 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
-// DoltStore wraps an Ent client connected to a Dolt MySQL server.
+// DoltStore wraps an Ent client. Despite the historical name it is the
+// project's single Ent-backed store.Store implementation: local runs it over
+// Dolt/MySQL with Dolt versioning (New); the cloud runs it over Postgres with
+// no Dolt versioning (NewPostgres / NewPostgresFromConn). The Dolt-specific
+// commit paths are active only when dolt != nil.
 type DoltStore struct {
 	client *ent.Client
-	db     *sql.DB
-	dolt   *godolt.Client
+	db     *sql.DB        // pooled handle; nil for connection-scoped stores
+	dolt   *godolt.Client // nil for non-Dolt (Postgres) stores
 }
 
-// New creates a DoltStore from a MySQL-compatible DSN.
+// New creates a DoltStore from a MySQL-compatible DSN (local Dolt).
 // It ensures parseTime=true is set so time.Time columns scan correctly.
 func New(dsn string) (*DoltStore, error) {
 	dsn = godolt.EnsureParseTime(dsn)
@@ -51,6 +56,36 @@ func New(dsn string) (*DoltStore, error) {
 	drv := entsql.OpenDB(dialect.MySQL, db)
 	client := ent.NewClient(ent.Driver(drv))
 	return &DoltStore{client: client, db: db, dolt: godolt.New(db)}, nil
+}
+
+// NewPostgres creates a pooled store backed by Ent over Postgres, for the
+// cloud pool + RLS deployment (visionstudio-cloud architecture ADR-002). It
+// performs no Dolt versioning — units of work commit the Ent transaction
+// only. Additive: local's New (Dolt/MySQL) path and behavior are unchanged.
+//
+// Use this handle for migration and admin. Per-request tenant-scoped serving
+// uses NewPostgresFromConn so RLS sees the request's tenant.
+func NewPostgres(dsn string) (*DoltStore, error) {
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("open database: %w", err)
+	}
+	drv := entsql.OpenDB(dialect.Postgres, db)
+	client := ent.NewClient(ent.Driver(drv))
+	return &DoltStore{client: client, db: db, dolt: nil}, nil
+}
+
+// NewPostgresFromConn builds a store over a single, caller-owned Postgres
+// connection. The caller is responsible for the connection's lifecycle and
+// for setting any per-request session state (e.g. the RLS tenant GUC) on it
+// before use. This is how the cloud scopes each request to a tenant: acquire a
+// conn, SET the tenant, serve through this store, release the conn. No Dolt
+// versioning. db is nil on the returned store (db-level helpers are not for
+// connection-scoped use).
+func NewPostgresFromConn(conn *sql.Conn) *DoltStore {
+	drv := entsql.NewDriver(dialect.Postgres, entsql.Conn{ExecQuerier: conn})
+	client := ent.NewClient(ent.Driver(drv))
+	return &DoltStore{client: client, db: nil, dolt: nil}
 }
 
 // Close closes the underlying database connection.
@@ -93,6 +128,11 @@ func (d *DoltStore) Migrate(ctx context.Context) error {
 // This is useful for explicit commits outside of UnitOfWork, or for
 // committing accumulated changes from multiple operations.
 func (d *DoltStore) Commit(ctx context.Context, message string) error {
+	if d.dolt == nil {
+		// Non-Dolt (Postgres) store: Ent writes are already durable; there is
+		// no working set to snapshot.
+		return nil
+	}
 	if err := d.dolt.AddAll(ctx); err != nil {
 		return fmt.Errorf("dolt add: %w", err)
 	}
@@ -107,6 +147,9 @@ func (d *DoltStore) Commit(ctx context.Context, message string) error {
 
 // HasUncommittedChanges returns true if there are uncommitted changes in the working set.
 func (d *DoltStore) HasUncommittedChanges(ctx context.Context) (bool, error) {
+	if d.dolt == nil {
+		return false, nil // Postgres has no Dolt working set
+	}
 	dirty, err := d.dolt.HasUncommittedChanges(ctx)
 	if err != nil {
 		return false, fmt.Errorf("check dolt status: %w", err)
@@ -160,6 +203,11 @@ func (u *DoltUnitOfWork) Execute(ctx context.Context, fn func(ctx context.Contex
 		return fmt.Errorf("commit transaction: %w", err)
 	}
 
+	if u.store.dolt == nil {
+		// Non-Dolt (Postgres) store: the Ent transaction commit above is the
+		// durable write; there is no Dolt snapshot step.
+		return nil
+	}
 	if _, err := u.store.db.ExecContext(ctx, "CALL DOLT_ADD('.')"); err != nil {
 		return fmt.Errorf("dolt add: %w", err)
 	}

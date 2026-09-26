@@ -336,12 +336,12 @@ func (_q *PhaseQuery) WithRoadmapItems(opts ...func(*RoadmapItemQuery)) *PhaseQu
 // Example:
 //
 //	var v []struct {
-//		SequenceNumber int `json:"sequence_number,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Phase.Query().
-//		GroupBy(phase.FieldSequenceNumber).
+//		GroupBy(phase.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *PhaseQuery) GroupBy(field string, fields ...string) *PhaseGroupBy {
@@ -359,11 +359,11 @@ func (_q *PhaseQuery) GroupBy(field string, fields ...string) *PhaseGroupBy {
 // Example:
 //
 //	var v []struct {
-//		SequenceNumber int `json:"sequence_number,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Phase.Query().
-//		Select(phase.FieldSequenceNumber).
+//		Select(phase.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *PhaseQuery) Select(fields ...string) *PhaseSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

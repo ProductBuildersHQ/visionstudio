@@ -64,6 +64,11 @@ func IDContainsFold(id string) predicate.InitiativeWorkflow {
 	return predicate.InitiativeWorkflow(sql.FieldContainsFold(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldEQ(FieldTenantID, v))
+}
+
 // WorkflowID applies equality check predicate on the "workflow_id" field. It's identical to WorkflowIDEQ.
 func WorkflowID(v string) predicate.InitiativeWorkflow {
 	return predicate.InitiativeWorkflow(sql.FieldEQ(FieldWorkflowID, v))
@@ -72,6 +77,81 @@ func WorkflowID(v string) predicate.InitiativeWorkflow {
 // SelectedAt applies equality check predicate on the "selected_at" field. It's identical to SelectedAtEQ.
 func SelectedAt(v time.Time) predicate.InitiativeWorkflow {
 	return predicate.InitiativeWorkflow(sql.FieldEQ(FieldSelectedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.InitiativeWorkflow {
+	return predicate.InitiativeWorkflow(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // WorkflowIDEQ applies the EQ predicate on the "workflow_id" field.

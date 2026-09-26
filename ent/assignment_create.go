@@ -21,6 +21,20 @@ type AssignmentCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *AssignmentCreate) SetTenantID(v string) *AssignmentCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *AssignmentCreate) SetNillableTenantID(v *string) *AssignmentCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetWorker sets the "worker" field.
 func (_c *AssignmentCreate) SetWorker(v string) *AssignmentCreate {
 	_c.mutation.SetWorker(v)
@@ -136,6 +150,11 @@ func (_c *AssignmentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *AssignmentCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := assignment.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Assignment.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Worker(); !ok {
 		return &ValidationError{Name: "worker", err: errors.New(`ent: missing required field "Assignment.worker"`)}
 	}
@@ -208,6 +227,10 @@ func (_c *AssignmentCreate) createSpec() (*Assignment, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(assignment.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Worker(); ok {
 		_spec.SetField(assignment.FieldWorker, field.TypeString, value)

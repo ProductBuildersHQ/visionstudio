@@ -30,6 +30,26 @@ func (_u *PersonUpdate) Where(ps ...predicate.Person) *PersonUpdate {
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *PersonUpdate) SetTenantID(v string) *PersonUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PersonUpdate) SetNillableTenantID(v *string) *PersonUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PersonUpdate) ClearTenantID() *PersonUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetGithubLogin sets the "github_login" field.
 func (_u *PersonUpdate) SetGithubLogin(v string) *PersonUpdate {
 	_u.mutation.SetGithubLogin(v)
@@ -180,6 +200,11 @@ func (_u *PersonUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PersonUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := person.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Person.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.GithubLogin(); ok {
 		if err := person.GithubLoginValidator(v); err != nil {
 			return &ValidationError{Name: "github_login", err: fmt.Errorf(`ent: validator failed for field "Person.github_login": %w`, err)}
@@ -204,6 +229,12 @@ func (_u *PersonUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(person.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(person.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.GithubLogin(); ok {
 		_spec.SetField(person.FieldGithubLogin, field.TypeString, value)
@@ -294,6 +325,26 @@ type PersonUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PersonMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *PersonUpdateOne) SetTenantID(v string) *PersonUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PersonUpdateOne) SetNillableTenantID(v *string) *PersonUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PersonUpdateOne) ClearTenantID() *PersonUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetGithubLogin sets the "github_login" field.
@@ -459,6 +510,11 @@ func (_u *PersonUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PersonUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := person.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Person.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.GithubLogin(); ok {
 		if err := person.GithubLoginValidator(v); err != nil {
 			return &ValidationError{Name: "github_login", err: fmt.Errorf(`ent: validator failed for field "Person.github_login": %w`, err)}
@@ -500,6 +556,12 @@ func (_u *PersonUpdateOne) sqlSave(ctx context.Context) (_node *Person, err erro
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(person.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(person.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.GithubLogin(); ok {
 		_spec.SetField(person.FieldGithubLogin, field.TypeString, value)

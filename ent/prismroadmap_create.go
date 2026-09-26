@@ -20,6 +20,20 @@ type PRISMRoadmapCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *PRISMRoadmapCreate) SetTenantID(v string) *PRISMRoadmapCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *PRISMRoadmapCreate) SetNillableTenantID(v *string) *PRISMRoadmapCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetOrganization sets the "organization" field.
 func (_c *PRISMRoadmapCreate) SetOrganization(v string) *PRISMRoadmapCreate {
 	_c.mutation.SetOrganization(v)
@@ -112,6 +126,11 @@ func (_c *PRISMRoadmapCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PRISMRoadmapCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := prismroadmap.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "PRISMRoadmap.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.RepositoryID(); !ok {
 		return &ValidationError{Name: "repository_id", err: errors.New(`ent: missing required field "PRISMRoadmap.repository_id"`)}
 	}
@@ -155,6 +174,10 @@ func (_c *PRISMRoadmapCreate) createSpec() (*PRISMRoadmap, *sqlgraph.CreateSpec)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(prismroadmap.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Organization(); ok {
 		_spec.SetField(prismroadmap.FieldOrganization, field.TypeString, value)

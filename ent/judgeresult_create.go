@@ -21,6 +21,20 @@ type JudgeResultCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *JudgeResultCreate) SetTenantID(v string) *JudgeResultCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *JudgeResultCreate) SetNillableTenantID(v *string) *JudgeResultCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetInitiativeID sets the "initiative_id" field.
 func (_c *JudgeResultCreate) SetInitiativeID(v string) *JudgeResultCreate {
 	_c.mutation.SetInitiativeID(v)
@@ -169,6 +183,11 @@ func (_c *JudgeResultCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *JudgeResultCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := judgeresult.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.InitiativeID(); !ok {
 		return &ValidationError{Name: "initiative_id", err: errors.New(`ent: missing required field "JudgeResult.initiative_id"`)}
 	}
@@ -248,6 +267,10 @@ func (_c *JudgeResultCreate) createSpec() (*JudgeResult, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(judgeresult.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)

@@ -28,6 +28,26 @@ func (_u *DevXPeriodReportUpdate) Where(ps ...predicate.DevXPeriodReport) *DevXP
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *DevXPeriodReportUpdate) SetTenantID(v string) *DevXPeriodReportUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *DevXPeriodReportUpdate) SetNillableTenantID(v *string) *DevXPeriodReportUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *DevXPeriodReportUpdate) ClearTenantID() *DevXPeriodReportUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetOrganization sets the "organization" field.
 func (_u *DevXPeriodReportUpdate) SetOrganization(v string) *DevXPeriodReportUpdate {
 	_u.mutation.SetOrganization(v)
@@ -235,7 +255,20 @@ func (_u *DevXPeriodReportUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *DevXPeriodReportUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := devxperiodreport.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "DevXPeriodReport.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *DevXPeriodReportUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(devxperiodreport.Table, devxperiodreport.Columns, sqlgraph.NewFieldSpec(devxperiodreport.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -243,6 +276,12 @@ func (_u *DevXPeriodReportUpdate) sqlSave(ctx context.Context) (_node int, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(devxperiodreport.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(devxperiodreport.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(devxperiodreport.FieldOrganization, field.TypeString, value)
@@ -313,6 +352,26 @@ type DevXPeriodReportUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *DevXPeriodReportMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *DevXPeriodReportUpdateOne) SetTenantID(v string) *DevXPeriodReportUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *DevXPeriodReportUpdateOne) SetNillableTenantID(v *string) *DevXPeriodReportUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *DevXPeriodReportUpdateOne) ClearTenantID() *DevXPeriodReportUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetOrganization sets the "organization" field.
@@ -535,7 +594,20 @@ func (_u *DevXPeriodReportUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *DevXPeriodReportUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := devxperiodreport.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "DevXPeriodReport.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *DevXPeriodReportUpdateOne) sqlSave(ctx context.Context) (_node *DevXPeriodReport, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(devxperiodreport.Table, devxperiodreport.Columns, sqlgraph.NewFieldSpec(devxperiodreport.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -560,6 +632,12 @@ func (_u *DevXPeriodReportUpdateOne) sqlSave(ctx context.Context) (_node *DevXPe
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(devxperiodreport.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(devxperiodreport.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(devxperiodreport.FieldOrganization, field.TypeString, value)

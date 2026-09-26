@@ -17,6 +17,8 @@ type Repository struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Organization holds the value of the "organization" field.
 	Organization string `json:"organization,omitempty"`
 	// RepositoryName holds the value of the "repository_name" field.
@@ -103,7 +105,7 @@ func (*Repository) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case repository.FieldID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID, repository.FieldVisibility, repository.FieldSupersededBy:
+		case repository.FieldID, repository.FieldTenantID, repository.FieldOrganization, repository.FieldRepositoryName, repository.FieldDefaultBranch, repository.FieldLocalPath, repository.FieldGoModule, repository.FieldDomain, repository.FieldStatus, repository.FieldIngestHighWater, repository.FieldOrganizationID, repository.FieldVisibility, repository.FieldSupersededBy:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -125,6 +127,12 @@ func (_m *Repository) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case repository.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case repository.FieldOrganization:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -248,6 +256,9 @@ func (_m *Repository) String() string {
 	var builder strings.Builder
 	builder.WriteString("Repository(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("organization=")
 	builder.WriteString(_m.Organization)
 	builder.WriteString(", ")

@@ -262,12 +262,12 @@ func (_q *RMIDependencyQuery) Clone() *RMIDependencyQuery {
 // Example:
 //
 //	var v []struct {
-//		SourceRmiID string `json:"source_rmi_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.RMIDependency.Query().
-//		GroupBy(rmidependency.FieldSourceRmiID).
+//		GroupBy(rmidependency.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *RMIDependencyQuery) GroupBy(field string, fields ...string) *RMIDependencyGroupBy {
@@ -285,11 +285,11 @@ func (_q *RMIDependencyQuery) GroupBy(field string, fields ...string) *RMIDepend
 // Example:
 //
 //	var v []struct {
-//		SourceRmiID string `json:"source_rmi_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.RMIDependency.Query().
-//		Select(rmidependency.FieldSourceRmiID).
+//		Select(rmidependency.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *RMIDependencyQuery) Select(fields ...string) *RMIDependencySelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

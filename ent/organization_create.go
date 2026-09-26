@@ -22,6 +22,20 @@ type OrganizationCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *OrganizationCreate) SetTenantID(v string) *OrganizationCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *OrganizationCreate) SetNillableTenantID(v *string) *OrganizationCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetLogin sets the "login" field.
 func (_c *OrganizationCreate) SetLogin(v string) *OrganizationCreate {
 	_c.mutation.SetLogin(v)
@@ -175,6 +189,11 @@ func (_c *OrganizationCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *OrganizationCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := organization.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Organization.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Login(); !ok {
 		return &ValidationError{Name: "login", err: errors.New(`ent: missing required field "Organization.login"`)}
 	}
@@ -251,6 +270,10 @@ func (_c *OrganizationCreate) createSpec() (*Organization, *sqlgraph.CreateSpec)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(organization.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Login(); ok {
 		_spec.SetField(organization.FieldLogin, field.TypeString, value)

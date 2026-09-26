@@ -23,6 +23,20 @@ type SpecDocumentCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *SpecDocumentCreate) SetTenantID(v string) *SpecDocumentCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *SpecDocumentCreate) SetNillableTenantID(v *string) *SpecDocumentCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetOrganization sets the "organization" field.
 func (_c *SpecDocumentCreate) SetOrganization(v string) *SpecDocumentCreate {
 	_c.mutation.SetOrganization(v)
@@ -235,6 +249,11 @@ func (_c *SpecDocumentCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *SpecDocumentCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := specdocument.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "SpecDocument.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.RepositoryID(); !ok {
 		return &ValidationError{Name: "repository_id", err: errors.New(`ent: missing required field "SpecDocument.repository_id"`)}
 	}
@@ -293,6 +312,10 @@ func (_c *SpecDocumentCreate) createSpec() (*SpecDocument, *sqlgraph.CreateSpec)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(specdocument.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Organization(); ok {
 		_spec.SetField(specdocument.FieldOrganization, field.TypeString, value)

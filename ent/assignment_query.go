@@ -299,12 +299,12 @@ func (_q *AssignmentQuery) WithRoadmapItem(opts ...func(*RoadmapItemQuery)) *Ass
 // Example:
 //
 //	var v []struct {
-//		Worker string `json:"worker,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Assignment.Query().
-//		GroupBy(assignment.FieldWorker).
+//		GroupBy(assignment.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *AssignmentQuery) GroupBy(field string, fields ...string) *AssignmentGroupBy {
@@ -322,11 +322,11 @@ func (_q *AssignmentQuery) GroupBy(field string, fields ...string) *AssignmentGr
 // Example:
 //
 //	var v []struct {
-//		Worker string `json:"worker,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Assignment.Query().
-//		Select(assignment.FieldWorker).
+//		Select(assignment.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *AssignmentQuery) Select(fields ...string) *AssignmentSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -12,6 +12,8 @@ const (
 	Label = "release"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "release_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldTag holds the string denoting the tag field in the database.
 	FieldTag = "tag"
 	// FieldReleasedAt holds the string denoting the released_at field in the database.
@@ -64,6 +66,7 @@ const (
 // Columns holds all SQL columns for release fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldTag,
 	FieldReleasedAt,
 	FieldURL,
@@ -94,6 +97,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// TagValidator is a validator for the "tag" field. It is called by the builders before save.
 	TagValidator func(string) error
 	// URLValidator is a validator for the "url" field. It is called by the builders before save.
@@ -114,6 +119,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByTag orders the results by the tag field.

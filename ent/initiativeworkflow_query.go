@@ -262,12 +262,12 @@ func (_q *InitiativeWorkflowQuery) Clone() *InitiativeWorkflowQuery {
 // Example:
 //
 //	var v []struct {
-//		WorkflowID string `json:"workflow_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.InitiativeWorkflow.Query().
-//		GroupBy(initiativeworkflow.FieldWorkflowID).
+//		GroupBy(initiativeworkflow.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *InitiativeWorkflowQuery) GroupBy(field string, fields ...string) *InitiativeWorkflowGroupBy {
@@ -285,11 +285,11 @@ func (_q *InitiativeWorkflowQuery) GroupBy(field string, fields ...string) *Init
 // Example:
 //
 //	var v []struct {
-//		WorkflowID string `json:"workflow_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.InitiativeWorkflow.Query().
-//		Select(initiativeworkflow.FieldWorkflowID).
+//		Select(initiativeworkflow.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *InitiativeWorkflowQuery) Select(fields ...string) *InitiativeWorkflowSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

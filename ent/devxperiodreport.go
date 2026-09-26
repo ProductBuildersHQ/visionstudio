@@ -18,6 +18,8 @@ type DevXPeriodReport struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Organization holds the value of the "organization" field.
 	Organization string `json:"organization,omitempty"`
 	// RepositoryID holds the value of the "repository_id" field.
@@ -52,7 +54,7 @@ func (*DevXPeriodReport) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case devxperiodreport.FieldCoverageScore:
 			values[i] = new(sql.NullFloat64)
-		case devxperiodreport.FieldID, devxperiodreport.FieldOrganization, devxperiodreport.FieldRepositoryID, devxperiodreport.FieldPersonID, devxperiodreport.FieldPeriodType, devxperiodreport.FieldPeriodLabel:
+		case devxperiodreport.FieldID, devxperiodreport.FieldTenantID, devxperiodreport.FieldOrganization, devxperiodreport.FieldRepositoryID, devxperiodreport.FieldPersonID, devxperiodreport.FieldPeriodType, devxperiodreport.FieldPeriodLabel:
 			values[i] = new(sql.NullString)
 		case devxperiodreport.FieldPeriodStart, devxperiodreport.FieldPeriodEnd, devxperiodreport.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -76,6 +78,12 @@ func (_m *DevXPeriodReport) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case devxperiodreport.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case devxperiodreport.FieldOrganization:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -183,6 +191,9 @@ func (_m *DevXPeriodReport) String() string {
 	var builder strings.Builder
 	builder.WriteString("DevXPeriodReport(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("organization=")
 	builder.WriteString(_m.Organization)
 	builder.WriteString(", ")

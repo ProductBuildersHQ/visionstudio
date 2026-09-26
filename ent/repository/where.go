@@ -63,6 +63,11 @@ func IDContainsFold(id string) predicate.Repository {
 	return predicate.Repository(sql.FieldContainsFold(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEQ(FieldTenantID, v))
+}
+
 // Organization applies equality check predicate on the "organization" field. It's identical to OrganizationEQ.
 func Organization(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldEQ(FieldOrganization, v))
@@ -116,6 +121,81 @@ func Visibility(v string) predicate.Repository {
 // SupersededBy applies equality check predicate on the "superseded_by" field. It's identical to SupersededByEQ.
 func SupersededBy(v string) predicate.Repository {
 	return predicate.Repository(sql.FieldEQ(FieldSupersededBy, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.Repository {
+	return predicate.Repository(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.Repository {
+	return predicate.Repository(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.Repository {
+	return predicate.Repository(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.Repository {
+	return predicate.Repository(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.Repository {
+	return predicate.Repository(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // OrganizationEQ applies the EQ predicate on the "organization" field.

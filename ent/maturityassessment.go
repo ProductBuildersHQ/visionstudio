@@ -20,6 +20,8 @@ type MaturityAssessment struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// InitiativeID holds the value of the "initiative_id" field.
 	InitiativeID string `json:"initiative_id,omitempty"`
 	// Organization holds the value of the "organization" field.
@@ -72,7 +74,7 @@ func (*MaturityAssessment) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case maturityassessment.FieldOverallScore:
 			values[i] = new(sql.NullFloat64)
-		case maturityassessment.FieldID, maturityassessment.FieldInitiativeID, maturityassessment.FieldOrganization, maturityassessment.FieldSummary, maturityassessment.FieldAssessedBy, maturityassessment.FieldModel:
+		case maturityassessment.FieldID, maturityassessment.FieldTenantID, maturityassessment.FieldInitiativeID, maturityassessment.FieldOrganization, maturityassessment.FieldSummary, maturityassessment.FieldAssessedBy, maturityassessment.FieldModel:
 			values[i] = new(sql.NullString)
 		case maturityassessment.FieldAssessedAt:
 			values[i] = new(sql.NullTime)
@@ -98,6 +100,12 @@ func (_m *MaturityAssessment) assignValues(columns []string, values []any) error
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case maturityassessment.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case maturityassessment.FieldInitiativeID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -198,6 +206,9 @@ func (_m *MaturityAssessment) String() string {
 	var builder strings.Builder
 	builder.WriteString("MaturityAssessment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("initiative_id=")
 	builder.WriteString(_m.InitiativeID)
 	builder.WriteString(", ")

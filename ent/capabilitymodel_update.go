@@ -30,6 +30,26 @@ func (_u *CapabilityModelUpdate) Where(ps ...predicate.CapabilityModel) *Capabil
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *CapabilityModelUpdate) SetTenantID(v string) *CapabilityModelUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *CapabilityModelUpdate) SetNillableTenantID(v *string) *CapabilityModelUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *CapabilityModelUpdate) ClearTenantID() *CapabilityModelUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetName sets the "name" field.
 func (_u *CapabilityModelUpdate) SetName(v string) *CapabilityModelUpdate {
 	_u.mutation.SetName(v)
@@ -173,6 +193,11 @@ func (_u *CapabilityModelUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *CapabilityModelUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := capabilitymodel.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "CapabilityModel.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := capabilitymodel.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "CapabilityModel.name": %w`, err)}
@@ -192,6 +217,12 @@ func (_u *CapabilityModelUpdate) sqlSave(ctx context.Context) (_node int, err er
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(capabilitymodel.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(capabilitymodel.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(capabilitymodel.FieldName, field.TypeString, value)
@@ -282,6 +313,26 @@ type CapabilityModelUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *CapabilityModelMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *CapabilityModelUpdateOne) SetTenantID(v string) *CapabilityModelUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *CapabilityModelUpdateOne) SetNillableTenantID(v *string) *CapabilityModelUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *CapabilityModelUpdateOne) ClearTenantID() *CapabilityModelUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetName sets the "name" field.
@@ -440,6 +491,11 @@ func (_u *CapabilityModelUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *CapabilityModelUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := capabilitymodel.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "CapabilityModel.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Name(); ok {
 		if err := capabilitymodel.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "CapabilityModel.name": %w`, err)}
@@ -476,6 +532,12 @@ func (_u *CapabilityModelUpdateOne) sqlSave(ctx context.Context) (_node *Capabil
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(capabilitymodel.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(capabilitymodel.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(capabilitymodel.FieldName, field.TypeString, value)

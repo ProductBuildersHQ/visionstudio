@@ -298,12 +298,12 @@ func (_q *JudgeResultQuery) WithInitiative(opts ...func(*InitiativeQuery)) *Judg
 // Example:
 //
 //	var v []struct {
-//		InitiativeID string `json:"initiative_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.JudgeResult.Query().
-//		GroupBy(judgeresult.FieldInitiativeID).
+//		GroupBy(judgeresult.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *JudgeResultQuery) GroupBy(field string, fields ...string) *JudgeResultGroupBy {
@@ -321,11 +321,11 @@ func (_q *JudgeResultQuery) GroupBy(field string, fields ...string) *JudgeResult
 // Example:
 //
 //	var v []struct {
-//		InitiativeID string `json:"initiative_id,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.JudgeResult.Query().
-//		Select(judgeresult.FieldInitiativeID).
+//		Select(judgeresult.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *JudgeResultQuery) Select(fields ...string) *JudgeResultSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

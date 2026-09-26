@@ -18,6 +18,8 @@ type CapabilityModel struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Description holds the value of the "description" field.
@@ -59,7 +61,7 @@ func (*CapabilityModel) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case capabilitymodel.FieldMaxLevel:
 			values[i] = new(sql.NullInt64)
-		case capabilitymodel.FieldID, capabilitymodel.FieldName, capabilitymodel.FieldDescription:
+		case capabilitymodel.FieldID, capabilitymodel.FieldTenantID, capabilitymodel.FieldName, capabilitymodel.FieldDescription:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -81,6 +83,12 @@ func (_m *CapabilityModel) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case capabilitymodel.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case capabilitymodel.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -149,6 +157,9 @@ func (_m *CapabilityModel) String() string {
 	var builder strings.Builder
 	builder.WriteString("CapabilityModel(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(_m.Name)
 	builder.WriteString(", ")

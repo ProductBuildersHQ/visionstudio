@@ -22,6 +22,20 @@ type MaturityAssessmentCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *MaturityAssessmentCreate) SetTenantID(v string) *MaturityAssessmentCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *MaturityAssessmentCreate) SetNillableTenantID(v *string) *MaturityAssessmentCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetInitiativeID sets the "initiative_id" field.
 func (_c *MaturityAssessmentCreate) SetInitiativeID(v string) *MaturityAssessmentCreate {
 	_c.mutation.SetInitiativeID(v)
@@ -177,6 +191,11 @@ func (_c *MaturityAssessmentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *MaturityAssessmentCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := maturityassessment.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "MaturityAssessment.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _c.mutation.InitiativeID(); ok {
 		if err := maturityassessment.InitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "initiative_id", err: fmt.Errorf(`ent: validator failed for field "MaturityAssessment.initiative_id": %w`, err)}
@@ -239,6 +258,10 @@ func (_c *MaturityAssessmentCreate) createSpec() (*MaturityAssessment, *sqlgraph
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(maturityassessment.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.InitiativeID(); ok {
 		_spec.SetField(maturityassessment.FieldInitiativeID, field.TypeString, value)

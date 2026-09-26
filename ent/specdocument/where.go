@@ -65,6 +65,11 @@ func IDContainsFold(id string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldContainsFold(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldTenantID, v))
+}
+
 // Organization applies equality check predicate on the "organization" field. It's identical to OrganizationEQ.
 func Organization(v string) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldEQ(FieldOrganization, v))
@@ -133,6 +138,81 @@ func CreatedAt(v time.Time) predicate.SpecDocument {
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.SpecDocument {
 	return predicate.SpecDocument(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.SpecDocument {
+	return predicate.SpecDocument(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // OrganizationEQ applies the EQ predicate on the "organization" field.

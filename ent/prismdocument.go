@@ -18,6 +18,8 @@ type PRISMDocument struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Organization holds the value of the "organization" field.
 	Organization string `json:"organization,omitempty"`
 	// RepositoryID holds the value of the "repository_id" field.
@@ -54,7 +56,7 @@ func (*PRISMDocument) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case prismdocument.FieldDomains, prismdocument.FieldLayers, prismdocument.FieldMetrics, prismdocument.FieldMaturity, prismdocument.FieldSliState, prismdocument.FieldMaturityState:
 			values[i] = new([]byte)
-		case prismdocument.FieldID, prismdocument.FieldOrganization, prismdocument.FieldRepositoryID, prismdocument.FieldName, prismdocument.FieldDescription, prismdocument.FieldVersion:
+		case prismdocument.FieldID, prismdocument.FieldTenantID, prismdocument.FieldOrganization, prismdocument.FieldRepositoryID, prismdocument.FieldName, prismdocument.FieldDescription, prismdocument.FieldVersion:
 			values[i] = new(sql.NullString)
 		case prismdocument.FieldCreatedAt, prismdocument.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -78,6 +80,12 @@ func (_m *PRISMDocument) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case prismdocument.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case prismdocument.FieldOrganization:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -205,6 +213,9 @@ func (_m *PRISMDocument) String() string {
 	var builder strings.Builder
 	builder.WriteString("PRISMDocument(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("organization=")
 	builder.WriteString(_m.Organization)
 	builder.WriteString(", ")

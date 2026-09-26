@@ -17,6 +17,8 @@ type Phase struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// SequenceNumber holds the value of the "sequence_number" field.
 	SequenceNumber int `json:"sequence_number,omitempty"`
 	// Title holds the value of the "title" field.
@@ -68,7 +70,7 @@ func (*Phase) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case phase.FieldSequenceNumber:
 			values[i] = new(sql.NullInt64)
-		case phase.FieldID, phase.FieldTitle, phase.FieldTheme:
+		case phase.FieldID, phase.FieldTenantID, phase.FieldTitle, phase.FieldTheme:
 			values[i] = new(sql.NullString)
 		case phase.ForeignKeys[0]: // initiative_phases
 			values[i] = new(sql.NullString)
@@ -92,6 +94,12 @@ func (_m *Phase) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case phase.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case phase.FieldSequenceNumber:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -164,6 +172,9 @@ func (_m *Phase) String() string {
 	var builder strings.Builder
 	builder.WriteString("Phase(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("sequence_number=")
 	builder.WriteString(fmt.Sprintf("%v", _m.SequenceNumber))
 	builder.WriteString(", ")

@@ -21,6 +21,20 @@ type PersonCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *PersonCreate) SetTenantID(v string) *PersonCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *PersonCreate) SetNillableTenantID(v *string) *PersonCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetGithubLogin sets the "github_login" field.
 func (_c *PersonCreate) SetGithubLogin(v string) *PersonCreate {
 	_c.mutation.SetGithubLogin(v)
@@ -114,6 +128,11 @@ func (_c *PersonCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PersonCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := person.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Person.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.GithubLogin(); !ok {
 		return &ValidationError{Name: "github_login", err: errors.New(`ent: missing required field "Person.github_login"`)}
 	}
@@ -172,6 +191,10 @@ func (_c *PersonCreate) createSpec() (*Person, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(person.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.GithubLogin(); ok {
 		_spec.SetField(person.FieldGithubLogin, field.TypeString, value)

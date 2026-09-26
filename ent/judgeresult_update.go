@@ -29,6 +29,26 @@ func (_u *JudgeResultUpdate) Where(ps ...predicate.JudgeResult) *JudgeResultUpda
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *JudgeResultUpdate) SetTenantID(v string) *JudgeResultUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *JudgeResultUpdate) SetNillableTenantID(v *string) *JudgeResultUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *JudgeResultUpdate) ClearTenantID() *JudgeResultUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetInitiativeID sets the "initiative_id" field.
 func (_u *JudgeResultUpdate) SetInitiativeID(v string) *JudgeResultUpdate {
 	_u.mutation.SetInitiativeID(v)
@@ -229,6 +249,11 @@ func (_u *JudgeResultUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *JudgeResultUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := judgeresult.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.InitiativeID(); ok {
 		if err := judgeresult.InitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "initiative_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.initiative_id": %w`, err)}
@@ -271,6 +296,12 @@ func (_u *JudgeResultUpdate) sqlSave(ctx context.Context) (_node int, err error)
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(judgeresult.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(judgeresult.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)
@@ -361,6 +392,26 @@ type JudgeResultUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *JudgeResultMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *JudgeResultUpdateOne) SetTenantID(v string) *JudgeResultUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *JudgeResultUpdateOne) SetNillableTenantID(v *string) *JudgeResultUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *JudgeResultUpdateOne) ClearTenantID() *JudgeResultUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetInitiativeID sets the "initiative_id" field.
@@ -576,6 +627,11 @@ func (_u *JudgeResultUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *JudgeResultUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := judgeresult.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.InitiativeID(); ok {
 		if err := judgeresult.InitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "initiative_id", err: fmt.Errorf(`ent: validator failed for field "JudgeResult.initiative_id": %w`, err)}
@@ -635,6 +691,12 @@ func (_u *JudgeResultUpdateOne) sqlSave(ctx context.Context) (_node *JudgeResult
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(judgeresult.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(judgeresult.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SpecPath(); ok {
 		_spec.SetField(judgeresult.FieldSpecPath, field.TypeString, value)

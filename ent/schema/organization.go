@@ -13,6 +13,12 @@ type Organization struct {
 	ent.Schema
 }
 
+// Mixin adds the optional tenant_id discriminator for cloud pool + RLS
+// tenancy; inert for the single-tenant local app. See TenantMixin.
+func (Organization) Mixin() []ent.Mixin {
+	return []ent.Mixin{TenantMixin{}}
+}
+
 // Fields of the Organization.
 func (Organization) Fields() []ent.Field {
 	return []ent.Field{

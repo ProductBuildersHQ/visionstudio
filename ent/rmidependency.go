@@ -16,6 +16,8 @@ type RMIDependency struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// SourceRmiID holds the value of the "source_rmi_id" field.
 	SourceRmiID string `json:"source_rmi_id,omitempty"`
 	// TargetRmiID holds the value of the "target_rmi_id" field.
@@ -32,7 +34,7 @@ func (*RMIDependency) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case rmidependency.FieldID:
 			values[i] = new(sql.NullInt64)
-		case rmidependency.FieldSourceRmiID, rmidependency.FieldTargetRmiID, rmidependency.FieldRelationship:
+		case rmidependency.FieldTenantID, rmidependency.FieldSourceRmiID, rmidependency.FieldTargetRmiID, rmidependency.FieldRelationship:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -55,6 +57,12 @@ func (_m *RMIDependency) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
+		case rmidependency.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
+			}
 		case rmidependency.FieldSourceRmiID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field source_rmi_id", values[i])
@@ -109,6 +117,9 @@ func (_m *RMIDependency) String() string {
 	var builder strings.Builder
 	builder.WriteString("RMIDependency(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("source_rmi_id=")
 	builder.WriteString(_m.SourceRmiID)
 	builder.WriteString(", ")

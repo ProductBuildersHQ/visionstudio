@@ -516,12 +516,12 @@ func (_q *InitiativeQuery) WithReleases(opts ...func(*ReleaseQuery)) *Initiative
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Initiative.Query().
-//		GroupBy(initiative.FieldOrganization).
+//		GroupBy(initiative.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *InitiativeQuery) GroupBy(field string, fields ...string) *InitiativeGroupBy {
@@ -539,11 +539,11 @@ func (_q *InitiativeQuery) GroupBy(field string, fields ...string) *InitiativeGr
 // Example:
 //
 //	var v []struct {
-//		Organization string `json:"organization,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Initiative.Query().
-//		Select(initiative.FieldOrganization).
+//		Select(initiative.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *InitiativeQuery) Select(fields ...string) *InitiativeSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

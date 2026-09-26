@@ -27,6 +27,26 @@ func (_u *RMIDependencyUpdate) Where(ps ...predicate.RMIDependency) *RMIDependen
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *RMIDependencyUpdate) SetTenantID(v string) *RMIDependencyUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RMIDependencyUpdate) SetNillableTenantID(v *string) *RMIDependencyUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RMIDependencyUpdate) ClearTenantID() *RMIDependencyUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetSourceRmiID sets the "source_rmi_id" field.
 func (_u *RMIDependencyUpdate) SetSourceRmiID(v string) *RMIDependencyUpdate {
 	_u.mutation.SetSourceRmiID(v)
@@ -103,6 +123,11 @@ func (_u *RMIDependencyUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RMIDependencyUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := rmidependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RMIDependency.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.SourceRmiID(); ok {
 		if err := rmidependency.SourceRmiIDValidator(v); err != nil {
 			return &ValidationError{Name: "source_rmi_id", err: fmt.Errorf(`ent: validator failed for field "RMIDependency.source_rmi_id": %w`, err)}
@@ -133,6 +158,12 @@ func (_u *RMIDependencyUpdate) sqlSave(ctx context.Context) (_node int, err erro
 			}
 		}
 	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(rmidependency.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(rmidependency.FieldTenantID, field.TypeString)
+	}
 	if value, ok := _u.mutation.SourceRmiID(); ok {
 		_spec.SetField(rmidependency.FieldSourceRmiID, field.TypeString, value)
 	}
@@ -160,6 +191,26 @@ type RMIDependencyUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *RMIDependencyMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *RMIDependencyUpdateOne) SetTenantID(v string) *RMIDependencyUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RMIDependencyUpdateOne) SetNillableTenantID(v *string) *RMIDependencyUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RMIDependencyUpdateOne) ClearTenantID() *RMIDependencyUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetSourceRmiID sets the "source_rmi_id" field.
@@ -251,6 +302,11 @@ func (_u *RMIDependencyUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RMIDependencyUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := rmidependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RMIDependency.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.SourceRmiID(); ok {
 		if err := rmidependency.SourceRmiIDValidator(v); err != nil {
 			return &ValidationError{Name: "source_rmi_id", err: fmt.Errorf(`ent: validator failed for field "RMIDependency.source_rmi_id": %w`, err)}
@@ -297,6 +353,12 @@ func (_u *RMIDependencyUpdateOne) sqlSave(ctx context.Context) (_node *RMIDepend
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(rmidependency.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(rmidependency.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SourceRmiID(); ok {
 		_spec.SetField(rmidependency.FieldSourceRmiID, field.TypeString, value)

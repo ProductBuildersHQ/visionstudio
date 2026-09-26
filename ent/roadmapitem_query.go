@@ -480,12 +480,12 @@ func (_q *RoadmapItemQuery) WithReleases(opts ...func(*ReleaseQuery)) *RoadmapIt
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.RoadmapItem.Query().
-//		GroupBy(roadmapitem.FieldTitle).
+//		GroupBy(roadmapitem.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *RoadmapItemQuery) GroupBy(field string, fields ...string) *RoadmapItemGroupBy {
@@ -503,11 +503,11 @@ func (_q *RoadmapItemQuery) GroupBy(field string, fields ...string) *RoadmapItem
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.RoadmapItem.Query().
-//		Select(roadmapitem.FieldTitle).
+//		Select(roadmapitem.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *RoadmapItemQuery) Select(fields ...string) *RoadmapItemSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

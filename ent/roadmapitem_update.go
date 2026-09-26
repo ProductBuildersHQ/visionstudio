@@ -35,6 +35,26 @@ func (_u *RoadmapItemUpdate) Where(ps ...predicate.RoadmapItem) *RoadmapItemUpda
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *RoadmapItemUpdate) SetTenantID(v string) *RoadmapItemUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RoadmapItemUpdate) SetNillableTenantID(v *string) *RoadmapItemUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RoadmapItemUpdate) ClearTenantID() *RoadmapItemUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetTitle sets the "title" field.
 func (_u *RoadmapItemUpdate) SetTitle(v string) *RoadmapItemUpdate {
 	_u.mutation.SetTitle(v)
@@ -447,6 +467,11 @@ func (_u *RoadmapItemUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RoadmapItemUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := roadmapitem.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Title(); ok {
 		if err := roadmapitem.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.title": %w`, err)}
@@ -489,6 +514,12 @@ func (_u *RoadmapItemUpdate) sqlSave(ctx context.Context) (_node int, err error)
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(roadmapitem.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(roadmapitem.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(roadmapitem.FieldTitle, field.TypeString, value)
@@ -789,6 +820,26 @@ type RoadmapItemUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *RoadmapItemMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *RoadmapItemUpdateOne) SetTenantID(v string) *RoadmapItemUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RoadmapItemUpdateOne) SetNillableTenantID(v *string) *RoadmapItemUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RoadmapItemUpdateOne) ClearTenantID() *RoadmapItemUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetTitle sets the "title" field.
@@ -1216,6 +1267,11 @@ func (_u *RoadmapItemUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RoadmapItemUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := roadmapitem.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Title(); ok {
 		if err := roadmapitem.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.title": %w`, err)}
@@ -1275,6 +1331,12 @@ func (_u *RoadmapItemUpdateOne) sqlSave(ctx context.Context) (_node *RoadmapItem
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(roadmapitem.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(roadmapitem.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Title(); ok {
 		_spec.SetField(roadmapitem.FieldTitle, field.TypeString, value)

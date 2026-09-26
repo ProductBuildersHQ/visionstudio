@@ -19,6 +19,20 @@ type RMIDependencyCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RMIDependencyCreate) SetTenantID(v string) *RMIDependencyCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *RMIDependencyCreate) SetNillableTenantID(v *string) *RMIDependencyCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetSourceRmiID sets the "source_rmi_id" field.
 func (_c *RMIDependencyCreate) SetSourceRmiID(v string) *RMIDependencyCreate {
 	_c.mutation.SetSourceRmiID(v)
@@ -71,6 +85,11 @@ func (_c *RMIDependencyCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *RMIDependencyCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := rmidependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RMIDependency.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.SourceRmiID(); !ok {
 		return &ValidationError{Name: "source_rmi_id", err: errors.New(`ent: missing required field "RMIDependency.source_rmi_id"`)}
 	}
@@ -121,6 +140,10 @@ func (_c *RMIDependencyCreate) createSpec() (*RMIDependency, *sqlgraph.CreateSpe
 		_node = &RMIDependency{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(rmidependency.Table, sqlgraph.NewFieldSpec(rmidependency.FieldID, field.TypeInt))
 	)
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(rmidependency.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
+	}
 	if value, ok := _c.mutation.SourceRmiID(); ok {
 		_spec.SetField(rmidependency.FieldSourceRmiID, field.TypeString, value)
 		_node.SourceRmiID = value

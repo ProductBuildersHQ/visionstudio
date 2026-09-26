@@ -29,6 +29,26 @@ func (_u *PhaseUpdate) Where(ps ...predicate.Phase) *PhaseUpdate {
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *PhaseUpdate) SetTenantID(v string) *PhaseUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PhaseUpdate) SetNillableTenantID(v *string) *PhaseUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PhaseUpdate) ClearTenantID() *PhaseUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetSequenceNumber sets the "sequence_number" field.
 func (_u *PhaseUpdate) SetSequenceNumber(v int) *PhaseUpdate {
 	_u.mutation.ResetSequenceNumber()
@@ -171,6 +191,11 @@ func (_u *PhaseUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PhaseUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := phase.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Phase.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Title(); ok {
 		if err := phase.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Phase.title": %w`, err)}
@@ -198,6 +223,12 @@ func (_u *PhaseUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(phase.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(phase.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SequenceNumber(); ok {
 		_spec.SetField(phase.FieldSequenceNumber, field.TypeInt, value)
@@ -306,6 +337,26 @@ type PhaseUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PhaseMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *PhaseUpdateOne) SetTenantID(v string) *PhaseUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PhaseUpdateOne) SetNillableTenantID(v *string) *PhaseUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PhaseUpdateOne) ClearTenantID() *PhaseUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetSequenceNumber sets the "sequence_number" field.
@@ -463,6 +514,11 @@ func (_u *PhaseUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *PhaseUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := phase.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Phase.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Title(); ok {
 		if err := phase.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Phase.title": %w`, err)}
@@ -507,6 +563,12 @@ func (_u *PhaseUpdateOne) sqlSave(ctx context.Context) (_node *Phase, err error)
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(phase.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(phase.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SequenceNumber(); ok {
 		_spec.SetField(phase.FieldSequenceNumber, field.TypeInt, value)

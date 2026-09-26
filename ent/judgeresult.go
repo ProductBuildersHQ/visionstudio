@@ -19,6 +19,8 @@ type JudgeResult struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// InitiativeID holds the value of the "initiative_id" field.
 	InitiativeID string `json:"initiative_id,omitempty"`
 	// SpecPath holds the value of the "spec_path" field.
@@ -74,7 +76,7 @@ func (*JudgeResult) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case judgeresult.FieldIntScore:
 			values[i] = new(sql.NullInt64)
-		case judgeresult.FieldID, judgeresult.FieldInitiativeID, judgeresult.FieldSpecPath, judgeresult.FieldSpecType, judgeresult.FieldModel, judgeresult.FieldRubricID:
+		case judgeresult.FieldID, judgeresult.FieldTenantID, judgeresult.FieldInitiativeID, judgeresult.FieldSpecPath, judgeresult.FieldSpecType, judgeresult.FieldModel, judgeresult.FieldRubricID:
 			values[i] = new(sql.NullString)
 		case judgeresult.FieldEvaluatedAt:
 			values[i] = new(sql.NullTime)
@@ -98,6 +100,12 @@ func (_m *JudgeResult) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case judgeresult.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case judgeresult.FieldInitiativeID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -196,6 +204,9 @@ func (_m *JudgeResult) String() string {
 	var builder strings.Builder
 	builder.WriteString("JudgeResult(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("initiative_id=")
 	builder.WriteString(_m.InitiativeID)
 	builder.WriteString(", ")

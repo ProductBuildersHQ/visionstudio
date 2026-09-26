@@ -27,6 +27,26 @@ func (_u *InitiativeDependencyUpdate) Where(ps ...predicate.InitiativeDependency
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *InitiativeDependencyUpdate) SetTenantID(v string) *InitiativeDependencyUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *InitiativeDependencyUpdate) SetNillableTenantID(v *string) *InitiativeDependencyUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *InitiativeDependencyUpdate) ClearTenantID() *InitiativeDependencyUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetSourceInitiativeID sets the "source_initiative_id" field.
 func (_u *InitiativeDependencyUpdate) SetSourceInitiativeID(v string) *InitiativeDependencyUpdate {
 	_u.mutation.SetSourceInitiativeID(v)
@@ -103,6 +123,11 @@ func (_u *InitiativeDependencyUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *InitiativeDependencyUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := initiativedependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeDependency.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.SourceInitiativeID(); ok {
 		if err := initiativedependency.SourceInitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "source_initiative_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeDependency.source_initiative_id": %w`, err)}
@@ -133,6 +158,12 @@ func (_u *InitiativeDependencyUpdate) sqlSave(ctx context.Context) (_node int, e
 			}
 		}
 	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(initiativedependency.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(initiativedependency.FieldTenantID, field.TypeString)
+	}
 	if value, ok := _u.mutation.SourceInitiativeID(); ok {
 		_spec.SetField(initiativedependency.FieldSourceInitiativeID, field.TypeString, value)
 	}
@@ -160,6 +191,26 @@ type InitiativeDependencyUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *InitiativeDependencyMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *InitiativeDependencyUpdateOne) SetTenantID(v string) *InitiativeDependencyUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *InitiativeDependencyUpdateOne) SetNillableTenantID(v *string) *InitiativeDependencyUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *InitiativeDependencyUpdateOne) ClearTenantID() *InitiativeDependencyUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetSourceInitiativeID sets the "source_initiative_id" field.
@@ -251,6 +302,11 @@ func (_u *InitiativeDependencyUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *InitiativeDependencyUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := initiativedependency.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeDependency.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.SourceInitiativeID(); ok {
 		if err := initiativedependency.SourceInitiativeIDValidator(v); err != nil {
 			return &ValidationError{Name: "source_initiative_id", err: fmt.Errorf(`ent: validator failed for field "InitiativeDependency.source_initiative_id": %w`, err)}
@@ -297,6 +353,12 @@ func (_u *InitiativeDependencyUpdateOne) sqlSave(ctx context.Context) (_node *In
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(initiativedependency.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(initiativedependency.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.SourceInitiativeID(); ok {
 		_spec.SetField(initiativedependency.FieldSourceInitiativeID, field.TypeString, value)

@@ -18,6 +18,8 @@ type DeliveryEvidence struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// EvidenceType holds the value of the "evidence_type" field.
 	EvidenceType string `json:"evidence_type,omitempty"`
 	// Reference holds the value of the "reference" field.
@@ -62,7 +64,7 @@ func (*DeliveryEvidence) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case deliveryevidence.FieldID, deliveryevidence.FieldEvidenceType, deliveryevidence.FieldReference, deliveryevidence.FieldCommitType, deliveryevidence.FieldCommitScope:
+		case deliveryevidence.FieldID, deliveryevidence.FieldTenantID, deliveryevidence.FieldEvidenceType, deliveryevidence.FieldReference, deliveryevidence.FieldCommitType, deliveryevidence.FieldCommitScope:
 			values[i] = new(sql.NullString)
 		case deliveryevidence.FieldOccurredAt, deliveryevidence.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -88,6 +90,12 @@ func (_m *DeliveryEvidence) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case deliveryevidence.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case deliveryevidence.FieldEvidenceType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -174,6 +182,9 @@ func (_m *DeliveryEvidence) String() string {
 	var builder strings.Builder
 	builder.WriteString("DeliveryEvidence(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("evidence_type=")
 	builder.WriteString(_m.EvidenceType)
 	builder.WriteString(", ")

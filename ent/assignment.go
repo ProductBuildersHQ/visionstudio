@@ -19,6 +19,8 @@ type Assignment struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Worker holds the value of the "worker" field.
 	Worker string `json:"worker,omitempty"`
 	// Status holds the value of the "status" field.
@@ -69,7 +71,7 @@ func (*Assignment) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case assignment.FieldHandoff:
 			values[i] = new([]byte)
-		case assignment.FieldID, assignment.FieldWorker, assignment.FieldStatus, assignment.FieldWorkspace:
+		case assignment.FieldID, assignment.FieldTenantID, assignment.FieldWorker, assignment.FieldStatus, assignment.FieldWorkspace:
 			values[i] = new(sql.NullString)
 		case assignment.FieldLeaseExpiresAt, assignment.FieldCreatedAt, assignment.FieldCompletedAt, assignment.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -95,6 +97,12 @@ func (_m *Assignment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case assignment.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case assignment.FieldWorker:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -195,6 +203,9 @@ func (_m *Assignment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Assignment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("worker=")
 	builder.WriteString(_m.Worker)
 	builder.WriteString(", ")

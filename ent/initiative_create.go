@@ -27,6 +27,20 @@ type InitiativeCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *InitiativeCreate) SetTenantID(v string) *InitiativeCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *InitiativeCreate) SetNillableTenantID(v *string) *InitiativeCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetOrganization sets the "organization" field.
 func (_c *InitiativeCreate) SetOrganization(v string) *InitiativeCreate {
 	_c.mutation.SetOrganization(v)
@@ -401,6 +415,11 @@ func (_c *InitiativeCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *InitiativeCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := initiative.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Initiative.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Organization(); !ok {
 		return &ValidationError{Name: "organization", err: errors.New(`ent: missing required field "Initiative.organization"`)}
 	}
@@ -504,6 +523,10 @@ func (_c *InitiativeCreate) createSpec() (*Initiative, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(initiative.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Organization(); ok {
 		_spec.SetField(initiative.FieldOrganization, field.TypeString, value)

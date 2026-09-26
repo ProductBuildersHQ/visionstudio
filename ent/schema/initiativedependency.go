@@ -12,6 +12,12 @@ type InitiativeDependency struct {
 	ent.Schema
 }
 
+// Mixin adds the optional tenant_id discriminator for cloud pool + RLS
+// tenancy; inert for the single-tenant local app. See TenantMixin.
+func (InitiativeDependency) Mixin() []ent.Mixin {
+	return []ent.Mixin{TenantMixin{}}
+}
+
 func (InitiativeDependency) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("source_initiative_id").MaxLen(64),

@@ -29,6 +29,26 @@ func (_u *PRISMDocumentUpdate) Where(ps ...predicate.PRISMDocument) *PRISMDocume
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *PRISMDocumentUpdate) SetTenantID(v string) *PRISMDocumentUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PRISMDocumentUpdate) SetNillableTenantID(v *string) *PRISMDocumentUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PRISMDocumentUpdate) ClearTenantID() *PRISMDocumentUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetOrganization sets the "organization" field.
 func (_u *PRISMDocumentUpdate) SetOrganization(v string) *PRISMDocumentUpdate {
 	_u.mutation.SetOrganization(v)
@@ -273,7 +293,20 @@ func (_u *PRISMDocumentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PRISMDocumentUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := prismdocument.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "PRISMDocument.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *PRISMDocumentUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(prismdocument.Table, prismdocument.Columns, sqlgraph.NewFieldSpec(prismdocument.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -281,6 +314,12 @@ func (_u *PRISMDocumentUpdate) sqlSave(ctx context.Context) (_node int, err erro
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(prismdocument.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(prismdocument.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(prismdocument.FieldOrganization, field.TypeString, value)
@@ -384,6 +423,26 @@ type PRISMDocumentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PRISMDocumentMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *PRISMDocumentUpdateOne) SetTenantID(v string) *PRISMDocumentUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *PRISMDocumentUpdateOne) SetNillableTenantID(v *string) *PRISMDocumentUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *PRISMDocumentUpdateOne) ClearTenantID() *PRISMDocumentUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetOrganization sets the "organization" field.
@@ -643,7 +702,20 @@ func (_u *PRISMDocumentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *PRISMDocumentUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := prismdocument.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "PRISMDocument.tenant_id": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *PRISMDocumentUpdateOne) sqlSave(ctx context.Context) (_node *PRISMDocument, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(prismdocument.Table, prismdocument.Columns, sqlgraph.NewFieldSpec(prismdocument.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -668,6 +740,12 @@ func (_u *PRISMDocumentUpdateOne) sqlSave(ctx context.Context) (_node *PRISMDocu
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(prismdocument.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(prismdocument.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(prismdocument.FieldOrganization, field.TypeString, value)

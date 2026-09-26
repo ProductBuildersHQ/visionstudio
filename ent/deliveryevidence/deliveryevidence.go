@@ -12,6 +12,8 @@ const (
 	Label = "delivery_evidence"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "evidence_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldEvidenceType holds the string denoting the evidence_type field in the database.
 	FieldEvidenceType = "evidence_type"
 	// FieldReference holds the string denoting the reference field in the database.
@@ -42,6 +44,7 @@ const (
 // Columns holds all SQL columns for deliveryevidence fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldEvidenceType,
 	FieldReference,
 	FieldCommitType,
@@ -72,6 +75,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// EvidenceTypeValidator is a validator for the "evidence_type" field. It is called by the builders before save.
 	EvidenceTypeValidator func(string) error
 	// ReferenceValidator is a validator for the "reference" field. It is called by the builders before save.
@@ -90,6 +95,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByEvidenceType orders the results by the evidence_type field.

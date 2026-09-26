@@ -31,6 +31,26 @@ func (_u *RepositoryUpdate) Where(ps ...predicate.Repository) *RepositoryUpdate 
 	return _u
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_u *RepositoryUpdate) SetTenantID(v string) *RepositoryUpdate {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RepositoryUpdate) SetNillableTenantID(v *string) *RepositoryUpdate {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RepositoryUpdate) ClearTenantID() *RepositoryUpdate {
+	_u.mutation.ClearTenantID()
+	return _u
+}
+
 // SetOrganization sets the "organization" field.
 func (_u *RepositoryUpdate) SetOrganization(v string) *RepositoryUpdate {
 	_u.mutation.SetOrganization(v)
@@ -388,6 +408,11 @@ func (_u *RepositoryUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RepositoryUpdate) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := repository.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Repository.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Organization(); ok {
 		if err := repository.OrganizationValidator(v); err != nil {
 			return &ValidationError{Name: "organization", err: fmt.Errorf(`ent: validator failed for field "Repository.organization": %w`, err)}
@@ -457,6 +482,12 @@ func (_u *RepositoryUpdate) sqlSave(ctx context.Context) (_node int, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(repository.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(repository.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(repository.FieldOrganization, field.TypeString, value)
@@ -685,6 +716,26 @@ type RepositoryUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *RepositoryMutation
+}
+
+// SetTenantID sets the "tenant_id" field.
+func (_u *RepositoryUpdateOne) SetTenantID(v string) *RepositoryUpdateOne {
+	_u.mutation.SetTenantID(v)
+	return _u
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_u *RepositoryUpdateOne) SetNillableTenantID(v *string) *RepositoryUpdateOne {
+	if v != nil {
+		_u.SetTenantID(*v)
+	}
+	return _u
+}
+
+// ClearTenantID clears the value of the "tenant_id" field.
+func (_u *RepositoryUpdateOne) ClearTenantID() *RepositoryUpdateOne {
+	_u.mutation.ClearTenantID()
+	return _u
 }
 
 // SetOrganization sets the "organization" field.
@@ -1057,6 +1108,11 @@ func (_u *RepositoryUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_u *RepositoryUpdateOne) check() error {
+	if v, ok := _u.mutation.TenantID(); ok {
+		if err := repository.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "Repository.tenant_id": %w`, err)}
+		}
+	}
 	if v, ok := _u.mutation.Organization(); ok {
 		if err := repository.OrganizationValidator(v); err != nil {
 			return &ValidationError{Name: "organization", err: fmt.Errorf(`ent: validator failed for field "Repository.organization": %w`, err)}
@@ -1143,6 +1199,12 @@ func (_u *RepositoryUpdateOne) sqlSave(ctx context.Context) (_node *Repository, 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := _u.mutation.TenantID(); ok {
+		_spec.SetField(repository.FieldTenantID, field.TypeString, value)
+	}
+	if _u.mutation.TenantIDCleared() {
+		_spec.ClearField(repository.FieldTenantID, field.TypeString)
 	}
 	if value, ok := _u.mutation.Organization(); ok {
 		_spec.SetField(repository.FieldOrganization, field.TypeString, value)

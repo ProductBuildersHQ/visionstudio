@@ -12,6 +12,8 @@ const (
 	Label = "organization"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "org_entity_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldLogin holds the string denoting the login field in the database.
 	FieldLogin = "login"
 	// FieldKind holds the string denoting the kind field in the database.
@@ -53,6 +55,7 @@ const (
 // Columns holds all SQL columns for organization fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldLogin,
 	FieldKind,
 	FieldDisplayName,
@@ -79,6 +82,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// LoginValidator is a validator for the "login" field. It is called by the builders before save.
 	LoginValidator func(string) error
 	// DefaultKind holds the default value on creation for the "kind" field.
@@ -101,6 +106,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByLogin orders the results by the login field.

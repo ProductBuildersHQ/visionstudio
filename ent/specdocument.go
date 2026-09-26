@@ -20,6 +20,8 @@ type SpecDocument struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Organization holds the value of the "organization" field.
 	Organization string `json:"organization,omitempty"`
 	// RepositoryID holds the value of the "repository_id" field.
@@ -107,7 +109,7 @@ func (*SpecDocument) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case specdocument.FieldEvalScore:
 			values[i] = new(sql.NullInt64)
-		case specdocument.FieldID, specdocument.FieldOrganization, specdocument.FieldRepositoryID, specdocument.FieldInitiativeID, specdocument.FieldWorkflowID, specdocument.FieldSpecType, specdocument.FieldFilePath, specdocument.FieldTitle, specdocument.FieldStatus, specdocument.FieldContentHash, specdocument.FieldEvalVerdict:
+		case specdocument.FieldID, specdocument.FieldTenantID, specdocument.FieldOrganization, specdocument.FieldRepositoryID, specdocument.FieldInitiativeID, specdocument.FieldWorkflowID, specdocument.FieldSpecType, specdocument.FieldFilePath, specdocument.FieldTitle, specdocument.FieldStatus, specdocument.FieldContentHash, specdocument.FieldEvalVerdict:
 			values[i] = new(sql.NullString)
 		case specdocument.FieldSyncedAt, specdocument.FieldCreatedAt, specdocument.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -131,6 +133,12 @@ func (_m *SpecDocument) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case specdocument.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case specdocument.FieldOrganization:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -268,6 +276,9 @@ func (_m *SpecDocument) String() string {
 	var builder strings.Builder
 	builder.WriteString("SpecDocument(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("organization=")
 	builder.WriteString(_m.Organization)
 	builder.WriteString(", ")

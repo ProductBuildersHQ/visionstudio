@@ -19,6 +19,12 @@ type Release struct {
 	ent.Schema
 }
 
+// Mixin adds the optional tenant_id discriminator for cloud pool + RLS
+// tenancy; inert for the single-tenant local app. See TenantMixin.
+func (Release) Mixin() []ent.Mixin {
+	return []ent.Mixin{TenantMixin{}}
+}
+
 // Fields of the Release.
 func (Release) Fields() []ent.Field {
 	return []ent.Field{

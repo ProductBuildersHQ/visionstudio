@@ -12,6 +12,8 @@ const (
 	Label = "spec_document"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldOrganization holds the string denoting the organization field in the database.
 	FieldOrganization = "organization"
 	// FieldRepositoryID holds the string denoting the repository_id field in the database.
@@ -80,6 +82,7 @@ const (
 // Columns holds all SQL columns for specdocument fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldOrganization,
 	FieldRepositoryID,
 	FieldInitiativeID,
@@ -107,6 +110,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// DefaultStatus holds the default value on creation for the "status" field.
 	DefaultStatus string
 )
@@ -117,6 +122,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByOrganization orders the results by the organization field.

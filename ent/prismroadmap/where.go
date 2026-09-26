@@ -64,6 +64,11 @@ func IDContainsFold(id string) predicate.PRISMRoadmap {
 	return predicate.PRISMRoadmap(sql.FieldContainsFold(FieldID, id))
 }
 
+// TenantID applies equality check predicate on the "tenant_id" field. It's identical to TenantIDEQ.
+func TenantID(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldEQ(FieldTenantID, v))
+}
+
 // Organization applies equality check predicate on the "organization" field. It's identical to OrganizationEQ.
 func Organization(v string) predicate.PRISMRoadmap {
 	return predicate.PRISMRoadmap(sql.FieldEQ(FieldOrganization, v))
@@ -87,6 +92,81 @@ func CreatedAt(v time.Time) predicate.PRISMRoadmap {
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.PRISMRoadmap {
 	return predicate.PRISMRoadmap(sql.FieldEQ(FieldUpdatedAt, v))
+}
+
+// TenantIDEQ applies the EQ predicate on the "tenant_id" field.
+func TenantIDEQ(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldEQ(FieldTenantID, v))
+}
+
+// TenantIDNEQ applies the NEQ predicate on the "tenant_id" field.
+func TenantIDNEQ(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldNEQ(FieldTenantID, v))
+}
+
+// TenantIDIn applies the In predicate on the "tenant_id" field.
+func TenantIDIn(vs ...string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldIn(FieldTenantID, vs...))
+}
+
+// TenantIDNotIn applies the NotIn predicate on the "tenant_id" field.
+func TenantIDNotIn(vs ...string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldNotIn(FieldTenantID, vs...))
+}
+
+// TenantIDGT applies the GT predicate on the "tenant_id" field.
+func TenantIDGT(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldGT(FieldTenantID, v))
+}
+
+// TenantIDGTE applies the GTE predicate on the "tenant_id" field.
+func TenantIDGTE(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldGTE(FieldTenantID, v))
+}
+
+// TenantIDLT applies the LT predicate on the "tenant_id" field.
+func TenantIDLT(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldLT(FieldTenantID, v))
+}
+
+// TenantIDLTE applies the LTE predicate on the "tenant_id" field.
+func TenantIDLTE(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldLTE(FieldTenantID, v))
+}
+
+// TenantIDContains applies the Contains predicate on the "tenant_id" field.
+func TenantIDContains(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldContains(FieldTenantID, v))
+}
+
+// TenantIDHasPrefix applies the HasPrefix predicate on the "tenant_id" field.
+func TenantIDHasPrefix(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldHasPrefix(FieldTenantID, v))
+}
+
+// TenantIDHasSuffix applies the HasSuffix predicate on the "tenant_id" field.
+func TenantIDHasSuffix(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldHasSuffix(FieldTenantID, v))
+}
+
+// TenantIDIsNil applies the IsNil predicate on the "tenant_id" field.
+func TenantIDIsNil() predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldIsNull(FieldTenantID))
+}
+
+// TenantIDNotNil applies the NotNil predicate on the "tenant_id" field.
+func TenantIDNotNil() predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldNotNull(FieldTenantID))
+}
+
+// TenantIDEqualFold applies the EqualFold predicate on the "tenant_id" field.
+func TenantIDEqualFold(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldEqualFold(FieldTenantID, v))
+}
+
+// TenantIDContainsFold applies the ContainsFold predicate on the "tenant_id" field.
+func TenantIDContainsFold(v string) predicate.PRISMRoadmap {
+	return predicate.PRISMRoadmap(sql.FieldContainsFold(FieldTenantID, v))
 }
 
 // OrganizationEQ applies the EQ predicate on the "organization" field.

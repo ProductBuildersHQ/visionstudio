@@ -371,12 +371,12 @@ func (_q *ReleaseQuery) WithRoadmapItems(opts ...func(*RoadmapItemQuery)) *Relea
 // Example:
 //
 //	var v []struct {
-//		Tag string `json:"tag,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Release.Query().
-//		GroupBy(release.FieldTag).
+//		GroupBy(release.FieldTenantID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *ReleaseQuery) GroupBy(field string, fields ...string) *ReleaseGroupBy {
@@ -394,11 +394,11 @@ func (_q *ReleaseQuery) GroupBy(field string, fields ...string) *ReleaseGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Tag string `json:"tag,omitempty"`
+//		TenantID string `json:"tenant_id,omitempty"`
 //	}
 //
 //	client.Release.Query().
-//		Select(release.FieldTag).
+//		Select(release.FieldTenantID).
 //		Scan(ctx, &v)
 func (_q *ReleaseQuery) Select(fields ...string) *ReleaseSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

@@ -12,6 +12,8 @@ const (
 	Label = "assignment"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "assignment_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldWorker holds the string denoting the worker field in the database.
 	FieldWorker = "worker"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -46,6 +48,7 @@ const (
 // Columns holds all SQL columns for assignment fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldWorker,
 	FieldStatus,
 	FieldLeaseExpiresAt,
@@ -78,6 +81,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// WorkerValidator is a validator for the "worker" field. It is called by the builders before save.
 	WorkerValidator func(string) error
 	// StatusValidator is a validator for the "status" field. It is called by the builders before save.
@@ -94,6 +99,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByWorker orders the results by the worker field.

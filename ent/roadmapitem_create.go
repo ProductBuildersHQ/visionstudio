@@ -26,6 +26,20 @@ type RoadmapItemCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *RoadmapItemCreate) SetTenantID(v string) *RoadmapItemCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *RoadmapItemCreate) SetNillableTenantID(v *string) *RoadmapItemCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetTitle sets the "title" field.
 func (_c *RoadmapItemCreate) SetTitle(v string) *RoadmapItemCreate {
 	_c.mutation.SetTitle(v)
@@ -293,6 +307,11 @@ func (_c *RoadmapItemCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *RoadmapItemCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := roadmapitem.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "RoadmapItem.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "RoadmapItem.title"`)}
 	}
@@ -381,6 +400,10 @@ func (_c *RoadmapItemCreate) createSpec() (*RoadmapItem, *sqlgraph.CreateSpec) {
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(roadmapitem.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(roadmapitem.FieldTitle, field.TypeString, value)

@@ -13,6 +13,12 @@ type CapabilityModel struct {
 	ent.Schema
 }
 
+// Mixin adds the optional tenant_id discriminator for cloud pool + RLS
+// tenancy; inert for the single-tenant local app. See TenantMixin.
+func (CapabilityModel) Mixin() []ent.Mixin {
+	return []ent.Mixin{TenantMixin{}}
+}
+
 func (CapabilityModel) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("model_id").MaxLen(64),

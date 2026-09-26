@@ -12,6 +12,8 @@ const (
 	Label = "judge_result"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "result_id"
+	// FieldTenantID holds the string denoting the tenant_id field in the database.
+	FieldTenantID = "tenant_id"
 	// FieldInitiativeID holds the string denoting the initiative_id field in the database.
 	FieldInitiativeID = "initiative_id"
 	// FieldSpecPath holds the string denoting the spec_path field in the database.
@@ -48,6 +50,7 @@ const (
 // Columns holds all SQL columns for judgeresult fields.
 var Columns = []string{
 	FieldID,
+	FieldTenantID,
 	FieldInitiativeID,
 	FieldSpecPath,
 	FieldSpecType,
@@ -70,6 +73,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// TenantIDValidator is a validator for the "tenant_id" field. It is called by the builders before save.
+	TenantIDValidator func(string) error
 	// InitiativeIDValidator is a validator for the "initiative_id" field. It is called by the builders before save.
 	InitiativeIDValidator func(string) error
 	// SpecPathValidator is a validator for the "spec_path" field. It is called by the builders before save.
@@ -92,6 +97,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByTenantID orders the results by the tenant_id field.
+func ByTenantID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTenantID, opts...).ToFunc()
 }
 
 // ByInitiativeID orders the results by the initiative_id field.

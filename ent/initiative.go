@@ -20,6 +20,8 @@ type Initiative struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
+	// TenantID holds the value of the "tenant_id" field.
+	TenantID string `json:"tenant_id,omitempty"`
 	// Organization holds the value of the "organization" field.
 	Organization string `json:"organization,omitempty"`
 	// Title holds the value of the "title" field.
@@ -161,7 +163,7 @@ func (*Initiative) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case initiative.FieldHidden:
 			values[i] = new(sql.NullBool)
-		case initiative.FieldID, initiative.FieldOrganization, initiative.FieldTitle, initiative.FieldDescription, initiative.FieldStatus, initiative.FieldInitType, initiative.FieldPriority, initiative.FieldHomeRepo, initiative.FieldWorkspace, initiative.FieldVisibility:
+		case initiative.FieldID, initiative.FieldTenantID, initiative.FieldOrganization, initiative.FieldTitle, initiative.FieldDescription, initiative.FieldStatus, initiative.FieldInitType, initiative.FieldPriority, initiative.FieldHomeRepo, initiative.FieldWorkspace, initiative.FieldVisibility:
 			values[i] = new(sql.NullString)
 		case initiative.FieldCreatedAt, initiative.FieldPlannedAt, initiative.FieldExecutingAt, initiative.FieldDeliveryCompleteAt, initiative.FieldReleasedAt, initiative.FieldClosedAt, initiative.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -189,6 +191,12 @@ func (_m *Initiative) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
+			}
+		case initiative.FieldTenantID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tenant_id", values[i])
+			} else if value.Valid {
+				_m.TenantID = value.String
 			}
 		case initiative.FieldOrganization:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -390,6 +398,9 @@ func (_m *Initiative) String() string {
 	var builder strings.Builder
 	builder.WriteString("Initiative(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
+	builder.WriteString("tenant_id=")
+	builder.WriteString(_m.TenantID)
+	builder.WriteString(", ")
 	builder.WriteString("organization=")
 	builder.WriteString(_m.Organization)
 	builder.WriteString(", ")

@@ -21,6 +21,20 @@ type DeliveryEvidenceCreate struct {
 	hooks    []Hook
 }
 
+// SetTenantID sets the "tenant_id" field.
+func (_c *DeliveryEvidenceCreate) SetTenantID(v string) *DeliveryEvidenceCreate {
+	_c.mutation.SetTenantID(v)
+	return _c
+}
+
+// SetNillableTenantID sets the "tenant_id" field if the given value is not nil.
+func (_c *DeliveryEvidenceCreate) SetNillableTenantID(v *string) *DeliveryEvidenceCreate {
+	if v != nil {
+		_c.SetTenantID(*v)
+	}
+	return _c
+}
+
 // SetEvidenceType sets the "evidence_type" field.
 func (_c *DeliveryEvidenceCreate) SetEvidenceType(v string) *DeliveryEvidenceCreate {
 	_c.mutation.SetEvidenceType(v)
@@ -132,6 +146,11 @@ func (_c *DeliveryEvidenceCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *DeliveryEvidenceCreate) check() error {
+	if v, ok := _c.mutation.TenantID(); ok {
+		if err := deliveryevidence.TenantIDValidator(v); err != nil {
+			return &ValidationError{Name: "tenant_id", err: fmt.Errorf(`ent: validator failed for field "DeliveryEvidence.tenant_id": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.EvidenceType(); !ok {
 		return &ValidationError{Name: "evidence_type", err: errors.New(`ent: missing required field "DeliveryEvidence.evidence_type"`)}
 	}
@@ -203,6 +222,10 @@ func (_c *DeliveryEvidenceCreate) createSpec() (*DeliveryEvidence, *sqlgraph.Cre
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := _c.mutation.TenantID(); ok {
+		_spec.SetField(deliveryevidence.FieldTenantID, field.TypeString, value)
+		_node.TenantID = value
 	}
 	if value, ok := _c.mutation.EvidenceType(); ok {
 		_spec.SetField(deliveryevidence.FieldEvidenceType, field.TypeString, value)

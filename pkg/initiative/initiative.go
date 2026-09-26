@@ -4,7 +4,10 @@ package initiative
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -38,6 +41,46 @@ var Types = []string{TypeFeature, TypeMaintenance, TypeMigration, TypeCompliance
 // The empty string is valid and means the default (feature).
 func ValidType(t string) bool {
 	return t == "" || slices.Contains(Types, t)
+}
+
+// idParsePattern captures the slug and sequence number of an initiative ID for
+// allocation. It accepts three-or-more digits so it keeps working past 999.
+var idParsePattern = regexp.MustCompile(`^INIT-([A-Z0-9]+)-(\d{3,})$`)
+
+// ParseID splits an initiative ID into its slug and sequence number. ok is
+// false if id is not a well-formed initiative ID.
+func ParseID(id string) (slug string, num int, ok bool) {
+	m := idParsePattern.FindStringSubmatch(id)
+	if m == nil {
+		return "", 0, false
+	}
+	n, err := strconv.Atoi(m[2])
+	if err != nil {
+		return "", 0, false
+	}
+	return m[1], n, true
+}
+
+// FormatID builds an initiative ID from a slug and sequence number,
+// zero-padding the number to three digits.
+func FormatID(slug string, num int) string {
+	return fmt.Sprintf("INIT-%s-%03d", slug, num)
+}
+
+// NormalizeSlug uppercases s and strips every non-alphanumeric character,
+// matching the slug form used in initiative and RMI IDs. If s looks like a
+// repository ID (contains '/'), only its final path segment is used.
+func NormalizeSlug(s string) string {
+	if i := strings.LastIndex(s, "/"); i >= 0 {
+		s = s[i+1:]
+	}
+	var b strings.Builder
+	for _, r := range strings.ToUpper(s) {
+		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 var forwardTransitions = map[string][]string{

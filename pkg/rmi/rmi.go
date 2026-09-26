@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
+	"strconv"
+	"strings"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
@@ -56,6 +58,47 @@ var rmiIDPattern = regexp.MustCompile(`^RMI-[A-Z0-9]+-\d{3}$`)
 // ValidID reports whether id matches the RMI-<REPOSLUG>-<NNN> format.
 func ValidID(id string) bool {
 	return rmiIDPattern.MatchString(id)
+}
+
+// idParsePattern captures the slug and sequence number of an RMI ID for
+// allocation. It accepts three-or-more digits so it keeps working past 999.
+var idParsePattern = regexp.MustCompile(`^RMI-([A-Z0-9]+)-(\d{3,})$`)
+
+// ParseID splits an RMI ID into its repo slug and sequence number. ok is false
+// if id is not a well-formed RMI ID.
+func ParseID(id string) (slug string, num int, ok bool) {
+	m := idParsePattern.FindStringSubmatch(id)
+	if m == nil {
+		return "", 0, false
+	}
+	n, err := strconv.Atoi(m[2])
+	if err != nil {
+		return "", 0, false
+	}
+	return m[1], n, true
+}
+
+// FormatID builds an RMI ID from a repo slug and sequence number, zero-padding
+// the number to three digits.
+func FormatID(slug string, num int) string {
+	return fmt.Sprintf("RMI-%s-%03d", slug, num)
+}
+
+// SlugFromRepoID derives the RMI repo slug from a repository ID: the final
+// path segment, uppercased, with every non-alphanumeric character removed
+// (repo 'github.com/org/prism-roadmap' → 'PRISMROADMAP').
+func SlugFromRepoID(repoID string) string {
+	seg := repoID
+	if i := strings.LastIndex(seg, "/"); i >= 0 {
+		seg = seg[i+1:]
+	}
+	var b strings.Builder
+	for _, r := range strings.ToUpper(seg) {
+		if (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 // DependencyGraph holds directed edges between RMIs for analysis.

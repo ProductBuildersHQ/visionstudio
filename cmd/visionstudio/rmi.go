@@ -22,6 +22,7 @@ func rmiCmd() *cobra.Command {
 	}
 	cmd.AddCommand(
 		rmiCreateCmd(),
+		rmiNextIDCmd(),
 		rmiGetCmd(),
 		rmiListCmd(),
 		rmiUpdateCmd(),
@@ -30,6 +31,58 @@ func rmiCmd() *cobra.Command {
 		rmiDepCmd(),
 		rmiBulkUpdateCmd(),
 	)
+	return cmd
+}
+
+// rmiNextIDCmd prints the next free RMI ID(s) for a repository without
+// creating anything — useful for filling in a ROADMAP.md with correct IDs and
+// dependency references before 'roadmap import'.
+func rmiNextIDCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "next-id",
+		Short: "Print the next free RMI ID(s) for a repository",
+		Long: `Print the next free RMI ID for --repo, computed as one greater than the
+highest existing number for that repo's slug across all initiatives.
+
+Use --count to print several consecutive IDs — handy when authoring a ROADMAP.md
+that adds a block of RMIs with dependency cross-references before importing it.`,
+		Example: `  visionstudio rmi next-id --repo github.com/myorg/myrepo
+  visionstudio rmi next-id --repo github.com/myorg/myrepo --count 5`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			repo, _ := cmd.Flags().GetString("repo")
+			count, _ := cmd.Flags().GetInt("count")
+			if repo == "" {
+				return fmt.Errorf("--repo is required")
+			}
+			if count < 1 {
+				count = 1
+			}
+			repo, err = resolveRepoID(cmd.Context(), svc, repo)
+			if err != nil {
+				return err
+			}
+			id, err := svc.NextRMIID(cmd.Context(), repo)
+			if err != nil {
+				return err
+			}
+			slug, n, ok := rmidomain.ParseID(id)
+			if !ok {
+				return fmt.Errorf("allocator returned malformed RMI ID %q", id)
+			}
+			for i := 0; i < count; i++ {
+				cmd.Println(rmidomain.FormatID(slug, n+i))
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("repo", "", "Repository ID (e.g. github.com/org/repo) (required)")
+	cmd.Flags().Int("count", 1, "Number of consecutive IDs to print")
 	return cmd
 }
 
@@ -178,9 +231,10 @@ func rmiCreateCmd() *cobra.Command {
 
 ID convention: RMI-<REPOSLUG>-NNN (regex ^RMI-[A-Z0-9]+-\d{3}$), where REPOSLUG is
 the uppercased repository name with separators removed (repo 'prism-roadmap' →
-RMI-PRISMROADMAP-001). Numbers are per-repo: check 'rmi list --repo <repo-id>'
-for the next free one. Commits implementing an RMI carry the git trailer
-'Refs: <RMI-ID>' ('work claim' prints it).
+RMI-PRISMROADMAP-001). Numbers are per-repo. Omit --id to auto-assign the next
+free number for --repo (or run 'rmi next-id --repo <repo-id>' to see it first).
+Commits implementing an RMI carry the git trailer 'Refs: <RMI-ID>'
+('work claim' prints it).
 
 The --repo repository must already be registered ('registry list' / 'registry add').
 --initiative and --phase attach the RMI to its parents; an initiative's RMIs may
@@ -217,8 +271,8 @@ span multiple repositories, each RMI naming its own --repo.
 			acceptanceRaw, _ := cmd.Flags().GetString("acceptance")
 			origin, _ := cmd.Flags().GetString("origin")
 
-			if id == "" || repo == "" || title == "" || itemType == "" {
-				return fmt.Errorf("--id, --repo, --title, and --type are required")
+			if repo == "" || title == "" || itemType == "" {
+				return fmt.Errorf("--repo, --title, and --type are required")
 			}
 			if !rmidomain.ValidOrigin(origin) {
 				return fmt.Errorf("invalid --origin %q (want one of: %s)", origin, strings.Join(rmidomain.Origins, ", "))
@@ -227,6 +281,15 @@ span multiple repositories, each RMI naming its own --repo.
 			repo, err = resolveRepoID(cmd.Context(), svc, repo)
 			if err != nil {
 				return err
+			}
+
+			// --id is optional: when omitted, allocate the next free number for
+			// the repository's slug.
+			if id == "" {
+				id, err = svc.NextRMIID(cmd.Context(), repo)
+				if err != nil {
+					return err
+				}
 			}
 
 			var acceptance []string
@@ -269,7 +332,7 @@ span multiple repositories, each RMI naming its own --repo.
 			return nil
 		},
 	}
-	cmd.Flags().String("id", "", "RMI ID (e.g. RMI-MYREPO-001) (required)")
+	cmd.Flags().String("id", "", "RMI ID (e.g. RMI-MYREPO-001); omit to auto-assign the next free number for --repo")
 	cmd.Flags().String("repo", "", "Repository ID (e.g. github.com/org/repo) (required)")
 	cmd.Flags().String("initiative", "", "Parent initiative ID")
 	cmd.Flags().String("phase", "", "Parent phase ID")

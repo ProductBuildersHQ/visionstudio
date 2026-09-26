@@ -35,8 +35,8 @@
 
 ## T1a — Platform substrate: systemforge
 
-The cloud app is built on `grokify/systemforge` (Go) and
-`grokify/systemforge-web` (React) — the ecosystem's SaaS platform module,
+The cloud app is built on `plexusone/systemforge` (Go) and
+`plexusone/systemforge-web` (React) — the ecosystem's SaaS platform module,
 built to derisk and accelerate web-app buildouts. What it supplies vs.
 what stays custom:
 

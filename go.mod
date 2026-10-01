@@ -6,7 +6,7 @@ require (
 	entgo.io/ent v0.14.6
 	github.com/ProductBuildersHQ/prism-build v0.2.0
 	github.com/ProductBuildersHQ/scale v0.2.0
-	github.com/ProductBuildersHQ/visionspec v0.17.0
+	github.com/ProductBuildersHQ/visionspec v0.18.0
 	github.com/dolthub/driver v1.88.1
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/go-chi/chi/v5 v5.3.2

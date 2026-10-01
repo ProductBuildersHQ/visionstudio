@@ -13,7 +13,7 @@ require (
 	github.com/go-chi/cors v1.2.2
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/grokify/godolt v0.3.0
-	github.com/grokify/gogit v0.11.0
+	github.com/grokify/gogit v0.13.1
 	github.com/grokify/mogo v0.74.9
 	github.com/grokify/oscompat v0.5.0
 	github.com/grokify/prism-maturity v0.14.0
@@ -22,7 +22,7 @@ require (
 	github.com/lib/pq v1.12.3
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/plexusone/dashforge v0.7.0
-	github.com/plexusone/devfolio v0.4.0
+	github.com/plexusone/devfolio v0.5.0
 	github.com/plexusone/omnidevx-core v0.3.0
 	github.com/plexusone/structured-evaluation v0.14.0
 	github.com/spf13/cobra v1.10.2
@@ -145,7 +145,7 @@ require (
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl/v2 v2.25.0 // indirect
-	github.com/huandu/xstrings v1.6.1 // indirect
+	github.com/huandu/xstrings v1.6.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/juju/gnuflag v1.0.0 // indirect
 	github.com/kch42/buzhash v0.0.0-20160816060738-9bdec3dec7c6 // indirect
@@ -165,7 +165,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/profile v1.7.0 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240917153116-6f2963f01587 // indirect
-	github.com/plexusone/uiforge v0.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/procfs v0.22.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

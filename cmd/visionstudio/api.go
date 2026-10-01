@@ -16,6 +16,7 @@ import (
 	"github.com/ProductBuildersHQ/scale/catalog"
 	scalereport "github.com/ProductBuildersHQ/scale/report"
 	"github.com/grokify/gogit/scanner"
+	"github.com/grokify/mogo/os/osutil"
 	"github.com/plexusone/structured-evaluation/rubric"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/apitypes"
@@ -1331,9 +1332,7 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 		repo, err := svc.Store.GetRepository(ctx, init.HomeRepo)
 		if err == nil && repo.LocalPath != "" {
 			root := filepath.Clean(filepath.Join(repo.LocalPath, "docs", "specs", "initiatives"))
-			candidate := filepath.Clean(filepath.Join(root, initiativeID))
-			// Reject if the cleaned path escaped root (e.g. via a ".." component).
-			if candidate == root || strings.HasPrefix(candidate, root+string(os.PathSeparator)) {
+			if candidate, joinErr := osutil.JoinSecure(root, initiativeID); joinErr == nil {
 				specDir = candidate
 			}
 		}
@@ -1344,11 +1343,8 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 		cwd, err := os.Getwd()
 		if err == nil {
 			root := filepath.Clean(filepath.Join(cwd, "docs", "specs", "initiatives"))
-			candidate := filepath.Clean(filepath.Join(root, initiativeID))
-			rel, relErr := filepath.Rel(root, candidate)
-			// Reject if candidate is outside root (absolute or starts with "..").
-			if relErr == nil && !filepath.IsAbs(rel) && rel != ".." && !strings.HasPrefix(rel, ".."+string(os.PathSeparator)) {
-				if _, statErr := os.Stat(candidate); statErr == nil {
+			if candidate, joinErr := osutil.JoinSecure(root, initiativeID); joinErr == nil {
+				if _, statErr := os.Stat(candidate); statErr == nil { //nolint:gosec // G703: candidate validated by osutil.JoinSecure against root above
 					specDir = candidate
 				}
 			}
@@ -1413,25 +1409,18 @@ func buildSpecFilesResponse(ctx context.Context, svc *service.Service, initiativ
 // 2. VisionSpec structure: source/*.md + eval/*.json
 //
 // specDir was already confirmed by buildSpecFilesResponse to be contained
-// within its intended root. Every path joined below is re-checked with an
-// inline filepath.Clean + strings.HasPrefix containment check immediately
-// before use as well, since entry names ultimately trace back to
-// initiativeID.
+// within its intended root. Every path joined below is re-checked with
+// osutil.JoinSecure immediately before use as well, since entry names
+// ultimately trace back to initiativeID.
 func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 	var files []SpecFile
 
 	// Check for VisionSpec structure (source/ subdirectory)
-	sourceDir := filepath.Clean(filepath.Join(specDir, "source"))
-	evalDir := filepath.Clean(filepath.Join(specDir, "eval"))
-	cleanSpecDir := filepath.Clean(specDir)
-	absSpecDir, err := filepath.Abs(cleanSpecDir)
-	if err != nil {
-		return nil, err
-	}
-	sourceDirOK := sourceDir == cleanSpecDir || strings.HasPrefix(sourceDir, cleanSpecDir+string(os.PathSeparator))
+	sourceDir, sourceDirErr := osutil.JoinSecure(specDir, "source")
+	evalDir, evalDirErr := osutil.JoinSecure(specDir, "eval")
 
-	if sourceDirOK {
-		if _, err := os.Stat(sourceDir); err == nil {
+	if sourceDirErr == nil {
+		if _, err := os.Stat(sourceDir); err == nil { //nolint:gosec // G703: sourceDir validated by osutil.JoinSecure against specDir above
 			// VisionSpec structure: read from source/ and eval/
 			entries, err := os.ReadDir(sourceDir)
 			if err != nil {
@@ -1443,11 +1432,11 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 					continue
 				}
 
-				specPath := filepath.Clean(filepath.Join(sourceDir, entry.Name()))
-				if specPath != sourceDir && !strings.HasPrefix(specPath, sourceDir+string(os.PathSeparator)) {
+				specPath, joinErr := osutil.JoinSecure(sourceDir, entry.Name())
+				if joinErr != nil {
 					continue
 				}
-				content, err := os.ReadFile(specPath)
+				content, err := os.ReadFile(specPath) //nolint:gosec // G703: specPath validated by osutil.JoinSecure against sourceDir above
 				if err != nil {
 					continue
 				}
@@ -1469,11 +1458,12 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 				}
 
 				// Check for corresponding eval JSON
-				evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
-				evalPath := filepath.Clean(filepath.Join(evalDir, evalName))
-				if evalPath == evalDir || strings.HasPrefix(evalPath, evalDir+string(os.PathSeparator)) {
-					if evalContent, err := os.ReadFile(evalPath); err == nil {
-						sf.EvalJSON = string(evalContent)
+				if evalDirErr == nil {
+					evalName := strings.TrimSuffix(entry.Name(), ".md") + ".json"
+					if evalPath, joinErr := osutil.JoinSecure(evalDir, evalName); joinErr == nil {
+						if evalContent, err := os.ReadFile(evalPath); err == nil { //nolint:gosec // G703: evalPath validated by osutil.JoinSecure against evalDir above
+							sf.EvalJSON = string(evalContent)
+						}
 					}
 				}
 
@@ -1490,23 +1480,18 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 		return nil, err
 	}
 
-	evaluationsDir := filepath.Clean(filepath.Join(specDir, "evaluations"))
+	evaluationsDir, evaluationsDirErr := osutil.JoinSecure(specDir, "evaluations")
 
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".md") {
 			continue
 		}
 
-		specPath := filepath.Clean(filepath.Join(specDir, entry.Name()))
-		absSpecPath, err := filepath.Abs(specPath)
-		if err != nil {
+		specPath, joinErr := osutil.JoinSecure(specDir, entry.Name())
+		if joinErr != nil {
 			continue
 		}
-		relSpecPath, err := filepath.Rel(absSpecDir, absSpecPath)
-		if err != nil || relSpecPath == ".." || strings.HasPrefix(relSpecPath, ".."+string(os.PathSeparator)) || filepath.IsAbs(relSpecPath) {
-			continue
-		}
-		content, err := os.ReadFile(absSpecPath)
+		content, err := os.ReadFile(specPath) //nolint:gosec // G703: specPath validated by osutil.JoinSecure against specDir above
 		if err != nil {
 			continue
 		}
@@ -1526,11 +1511,12 @@ func readSpecFiles(specDir, initiativeID string) ([]SpecFile, error) {
 		}
 
 		// Check for corresponding eval JSON in evaluations/ directory
-		evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
-		evalPath := filepath.Clean(filepath.Join(evaluationsDir, evalName))
-		if evalPath == evaluationsDir || strings.HasPrefix(evalPath, evaluationsDir+string(os.PathSeparator)) {
-			if evalContent, err := os.ReadFile(evalPath); err == nil {
-				sf.EvalJSON = string(evalContent)
+		if evaluationsDirErr == nil {
+			evalName := strings.ToLower(strings.TrimSuffix(entry.Name(), ".md")) + ".eval.json"
+			if evalPath, joinErr := osutil.JoinSecure(evaluationsDir, evalName); joinErr == nil {
+				if evalContent, err := os.ReadFile(evalPath); err == nil { //nolint:gosec // G703: evalPath validated by osutil.JoinSecure against evaluationsDir above
+					sf.EvalJSON = string(evalContent)
+				}
 			}
 		}
 

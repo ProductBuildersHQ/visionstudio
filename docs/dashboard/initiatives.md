@@ -123,6 +123,26 @@ visionstudio rmi list --repo <repo>
 
 `--repo` flags (here and on `rmi create`/`rmi update`) accept a short repository name or `org/name`, not just the full `github.com/org/name` ID. Add `--format json` to `initiative list`, `rmi list`, `rmi get`, and `registry list` for scriptable output.
 
+Search across every initiative and repository with `rmi list --grep <term>` — a case-insensitive substring match over RMI IDs and titles, for finding which RMI describes a given change. It works on its own or combined with `--initiative`/`--repo`.
+
+### Auto-assigned IDs
+
+RMI and initiative IDs are numbered per repo/project slug across *all* initiatives, so picking the next one by hand is error-prone. Omit `--id` and the next free number is assigned automatically:
+
+```bash
+visionstudio rmi create --repo <repo> --title "…" --type capability
+visionstudio initiative create --slug <SLUG> --title "…" --workflow <id>
+```
+
+Or print the next free ID(s) without creating anything — useful for filling in a `ROADMAP.md` with correct IDs and cross-references before `roadmap import`:
+
+```bash
+visionstudio rmi next-id --repo <repo> [--count N]
+visionstudio initiative next-id --slug <SLUG>
+```
+
+Allocation is the highest existing number for that slug plus one, and never reuses gaps, so an ID stays stable once assigned even if the item is later deleted. Explicit `--id` still works for reproducing existing roadmaps.
+
 Roadmap items and phases are populated by syncing `ROADMAP.md` into the database — see [Quick Start](../getting-started/quickstart.md#working-with-initiatives-from-the-cli).
 
 ### RMI origin

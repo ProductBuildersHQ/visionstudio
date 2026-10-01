@@ -8,32 +8,32 @@ VisionStudio has two architectures today:
 ## Primary Architecture: visionstudio CLI + Web Dashboard
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    visionstudio binary                       │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │        web/ — React + Vite SPA (go:embed all:dist)       ││
-│  │  • Programs → Initiatives → Phases → RMIs                ││
-│  │  • Repositories, Performance (token spend)                ││
-│  │  • Spec viewer + LLM-as-a-Judge evaluations                ││
-│  │  • Maturity assessments                                    ││
-│  └──────────────────────┬──────────────────────────────────┘│
-│                          │ HTTP (same port, cmd/visionstudio/serve.go)
-│  ┌──────────────────────▼──────────────────────────────────┐│
-│  │           cmd/visionstudio — cobra CLI + JSON API         ││
-│  │  Commands:                                                 ││
-│  │  • app/ui/db — lifecycle (one-command startup, standalone)││
-│  │  • initiative/phase/rmi/program/registry/roadmap/spec/    ││
-│  │    maturity/work/release — data management                ││
-│  │  • ingest/export/validate/report — evidence & consistency ││
-│  │  • mcp — stdio server for agent sessions                   ││
-│  │  Handlers: cmd/visionstudio/api.go (JSON API, store→API    ││
-│  │  converters)                                                ││
-│  └──────────────────────┬──────────────────────────────────┘│
-└─────────────────────────┼───────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────┐
+│                    visionstudio binary                            │
+│  ┌─────────────────────────────────────────────────────────────┐  │
+│  │        web/ — React + Vite SPA (go:embed all:dist)          │  │
+│  │  • Programs → Initiatives → Phases → RMIs                   │  │
+│  │  • Repositories, Performance (token spend)                  │  │
+│  │  • Spec viewer + LLM-as-a-Judge evaluations                 │  │
+│  │  • Maturity assessments                                     │  │
+│  └──────────────────────┬──────────────────────────────────────┘  │
+│                         │ HTTP (same port, cmd/visionstudio/serve.go)
+│  ┌──────────────────────▼──────────────────────────────────────┐  │
+│  │           cmd/visionstudio — cobra CLI + JSON API           │  │
+│  │  Commands:                                                  │  │
+│  │  • app/ui/db — lifecycle (one-command startup, standalone)  │  │
+│  │  • initiative/phase/rmi/program/registry/roadmap/spec/      │  │
+│  │    maturity/work/release — data management                  │  │
+│  │  • ingest/export/validate/report — evidence & consistency   │  │
+│  │  • mcp — stdio server for agent sessions                    │  │
+│  │  Handlers: cmd/visionstudio/api.go (JSON API, store→API     │  │
+│  │  converters)                                                │  │
+│  └──────────────────────┬──────────────────────────────────────┘  │
+└─────────────────────────┼─────────────────────────────────────────┘
                           │ pkg/store (Ent)
-┌─────────────────────────▼───────────────────────────────────┐
-│                 Dolt (MySQL-compatible, Git-like)             │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────▼─────────────────────────────────────────┐
+│                 Dolt (MySQL-compatible, Git-like)                 │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 ### Data Storage: Dolt (via Ent)
@@ -77,52 +77,52 @@ Conversion happens in API handlers (`cmd/visionstudio/api.go`). Go types are the
 ### Components
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Electron Desktop App                      │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │              React/TypeScript Frontend                   ││
-│  │                                                          ││
-│  │  Layout:                                                 ││
-│  │  • Sidebar (projects, methodology, navigation)          ││
-│  │  • Main content area (views)                             ││
-│  │                                                          ││
-│  │  Views:                                                  ││
-│  │  • Workflow diagram + spec editor                        ││
-│  │  • AIDLC workflow + document generation                  ││
-│  │  • V2MOM cascade editor                                  ││
-│  │  • Capability stack view                                 ││
-│  │  • Roadmap timeline                                      ││
-│  │  • Maturity model dashboard                              ││
-│  │  • Organization settings                                 ││
-│  │  • DevX usage dashboard (not project-scoped)             ││
-│  │                                                          ││
-│  │  Services:                                               ││
-│  │  • API client (all backend communication)                ││
-│  │                                                          ││
-│  └──────────────────────┬──────────────────────────────────┘│
-└─────────────────────────┼───────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                    Electron Desktop App                        │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │              React/TypeScript Frontend                   │  │
+│  │                                                          │  │
+│  │  Layout:                                                 │  │
+│  │  • Sidebar (projects, methodology, navigation)           │  │
+│  │  • Main content area (views)                             │  │
+│  │                                                          │  │
+│  │  Views:                                                  │  │
+│  │  • Workflow diagram + spec editor                        │  │
+│  │  • AIDLC workflow + document generation                  │  │
+│  │  • V2MOM cascade editor                                  │  │
+│  │  • Capability stack view                                 │  │
+│  │  • Roadmap timeline                                      │  │
+│  │  • Maturity model dashboard                              │  │
+│  │  • Organization settings                                 │  │
+│  │  • DevX usage dashboard (not project-scoped)             │  │
+│  │                                                          │  │
+│  │  Services:                                               │  │
+│  │  • API client (all backend communication)                │  │
+│  │                                                          │  │
+│  └──────────────────────┬───────────────────────────────────┘  │
+└─────────────────────────┼──────────────────────────────────────┘
                           │ HTTP REST
-┌─────────────────────────▼───────────────────────────────────┐
-│                      Go Daemon                               │
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │  Handlers:                                               ││
-│  │  • main.go - Core routes (projects, specs, maturity)     ││
-│  │  • aidlc.go - AIDLC workflow                             ││
-│  │  • v2mom.go - V2MOM cascade                              ││
-│  │  • capability.go - Capability stack                      ││
-│  │  • roadmap.go - Roadmap management                       ││
-│  │  • organization.go - Organization/teams                  ││
-│  │  • methodologies.go - Methodology selection              ││
-│  │  • samples.go - Sample projects                          ││
-│  │  • devx.go - DevX dashboard passthrough                  ││
-│  └──────────────────────┬──────────────────────────────────┘│
-│  ┌──────────────────────▼──────────────────────────────────┐│
-│  │  Integrations:                                           ││
-│  │  • VisionSpec v0.14.0 (profiles, AIDLC, evaluation)      ││
-│  │  • structured-evaluation (LLM-as-Judge)                  ││
-│  │  • Filesystem (JSON/Markdown storage)                    ││
-│  └─────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────▼──────────────────────────────────────┐
+│                      Go Daemon                                 │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Handlers:                                               │  │
+│  │  • main.go - Core routes (projects, specs, maturity)     │  │
+│  │  • aidlc.go - AIDLC workflow                             │  │
+│  │  • v2mom.go - V2MOM cascade                              │  │
+│  │  • capability.go - Capability stack                      │  │
+│  │  • roadmap.go - Roadmap management                       │  │
+│  │  • organization.go - Organization/teams                  │  │
+│  │  • methodologies.go - Methodology selection              │  │
+│  │  • samples.go - Sample projects                          │  │
+│  │  • devx.go - DevX dashboard passthrough                  │  │
+│  └──────────────────────┬───────────────────────────────────┘  │
+│  ┌──────────────────────▼───────────────────────────────────┐  │
+│  │  Integrations:                                           │  │
+│  │  • VisionSpec v0.14.0 (profiles, AIDLC, evaluation)      │  │
+│  │  • structured-evaluation (LLM-as-Judge)                  │  │
+│  │  • Filesystem (JSON/Markdown storage)                    │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ### Data Storage: Filesystem

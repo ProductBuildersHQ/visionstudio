@@ -393,6 +393,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1550,6 +1578,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../releases/v0.6.0/" class="md-nav__link">
         
   
@@ -1821,6 +1877,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#phase-8-cancelled-rmis-count-as-resolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 8 — Cancelled RMIs Count as Resolved
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-9-troubleshooting-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 9 — Troubleshooting Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-10-self-reporting-version-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 10 — Self-Reporting Version String
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1885,6 +1974,21 @@ prompted it).</p>
 <p><strong>Theme:</strong> Surface which repo@tag releases an initiative shipped in, wherever you'd naturally look for it</p>
 <ul>
 <li>[x] <code>RMI-VISIONSTUDIO-545</code> Show attached releases on <code>initiative get</code> and the Initiative Detail dashboard page — the <code>Release</code> entity already recorded repo-scoped tags with an initiative M2M edge, correctly handling multi-repo initiatives (one tag per repo), but neither the CLI nor the dashboard surfaced it. <code>GetInitiativeDetail</code> gains a <code>Releases</code> field; <code>initiative get</code> prints a <code>Releases:</code> section; <code>ExecutionResponse</code> (both dual-struct API layers) gains a <code>releases</code> array; <code>InitiativeDetail.tsx</code> shows a "Released in:" chip row per <code>repo@tag</code>, linked to the release URL when recorded. Proposed directly by the user, after confirming the underlying data already handled the multi-repo case correctly (<code>INIT-AGENTPROTOCOLS-001</code>'s 3 repo tags) — the gap was visibility, not recording</li>
+</ul>
+<h2 id="phase-8-cancelled-rmis-count-as-resolved">Phase 8 — Cancelled RMIs Count as Resolved<a class="headerlink" href="#phase-8-cancelled-rmis-count-as-resolved" title="Permanent link">&para;</a></h2>
+<p><strong>Theme:</strong> A cancelled RMI leaves nothing pending, the same as completed — every done-check in the codebase should agree</p>
+<ul>
+<li>[x] <code>RMI-VISIONSTUDIO-546</code> Treat cancelled RMIs as resolved in <code>DerivePhaseStatus</code>, <code>sweep</code>, and <code>release candidates</code> — found via <code>INIT-PRISMCONTROL-003</code> (13 completed + 8 cancelled RMIs, 0 pending, fully resolved) still showing two phases <code>in_progress</code> and one <code>planned</code>, with neither <code>sweep</code> nor <code>candidates</code> flagging it as a close candidate. <code>DerivePhaseStatus</code> only counted literal <code>completed</code> toward required-work-done, so a phase with a cancelled required RMI never reached the completed-vs-partial branch. Fixed by tracking required-resolved (completed OR cancelled) separately, matching <code>ProgressBar</code>'s existing green-vs-blue treatment; <code>sweep</code>/<code>candidates</code> had the identical gap in their <code>ready</code>/<code>partial</code> verdicts, fixed the same way, and both now surface the cancelled count alongside the resolved count so the distinction stays visible. Found through direct use of the tools this initiative shipped, on a real case — acceptance testing in the fullest sense</li>
+</ul>
+<h2 id="phase-9-troubleshooting-documentation">Phase 9 — Troubleshooting Documentation<a class="headerlink" href="#phase-9-troubleshooting-documentation" title="Permanent link">&para;</a></h2>
+<p><strong>Theme:</strong> Capture real operational failure modes hit this session before they're forgotten</p>
+<ul>
+<li>[x] <code>RMI-VISIONSTUDIO-547</code> Add a Troubleshooting page (schema drift, stale binary, DB down) — found live: <code>/api/specs</code> failed with <code>Error 1105 "does not have column rubric_id"</code>, traced to the local Dolt database being several Ent schema generations behind code (another session's schema-changing commit landed via <code>git pull</code>, nobody ran a migration against this database afterward). Fixed with <code>db init --migrate</code> (additive-only, always safe). No troubleshooting doc existed; added <code>docs/getting-started/troubleshooting.md</code> covering three concrete failure modes hit this session — schema drift, a stale UI+API process after a rebuild (<code>app restart</code>), and the database not running — plus a <code>CLAUDE.md</code> pointer section</li>
+</ul>
+<h2 id="phase-10-self-reporting-version-string">Phase 10 — Self-Reporting Version String<a class="headerlink" href="#phase-10-self-reporting-version-string" title="Permanent link">&para;</a></h2>
+<p><strong>Theme:</strong> <code>visionstudio version</code> and the MCP server's reported version had been hardcoded to <code>v0.1.0</code> since the earliest days of the project</p>
+<ul>
+<li>[x] <code>RMI-VISIONSTUDIO-551</code> Report the real version from Go build info instead of a hardcoded string — found via a direct question ("did we update visionstudio CLI status"). New <code>pkg/version.String()</code> reads <code>runtime/debug.ReadBuildInfo()</code>, which <code>go build</code>/<code>go install</code> stamp automatically with the module pseudo-version, VCS revision, and a <code>+dirty</code> suffix on uncommitted changes — self-maintaining, never needs hand-bumping again. Falls back to <code>"dev"</code> under <code>go run</code>, which doesn't stamp VCS info. Wired into both <code>visionstudio version</code> and <code>mcpserver.New</code>'s <code>Implementation.Version</code> so one source feeds both</li>
 </ul>
 
 

@@ -393,6 +393,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1550,6 +1578,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../../releases/v0.6.0/" class="md-nav__link">
         
   
@@ -1887,10 +1943,18 @@
   question). Dolt databases are directories — natural isolation, per-tenant
   branch/merge/history/audit, and tenant deletion = database removal.
   Shared-table + tenant-column rejected.</li>
+<li><strong>SUPERSEDED for the cloud</strong> by <code>visionstudio-cloud</code> architecture
+    ADR-002: with the shift to cloud-primary (Option B) and sync demoted,
+    the cloud store is <strong>managed Postgres with pool + Row-Level Security</strong>
+    (shared-table + <code>tenant_id</code>, the model rejected here <em>only because it
+    broke sync</em>, now viable and chosen for freemium many-dormant-tenant
+    scale). The <code>tenant_id</code> discriminator is added to the shared Ent schema
+    (approved additive change). Local <code>visionstudio</code> keeps Dolt. See ADR-002
+    and architecture ADR-001.</li>
 </ul>
 <h2 id="t1a-platform-substrate-systemforge">T1a — Platform substrate: systemforge<a class="headerlink" href="#t1a-platform-substrate-systemforge" title="Permanent link">&para;</a></h2>
-<p>The cloud app is built on <code>grokify/systemforge</code> (Go) and
-<code>grokify/systemforge-web</code> (React) — the ecosystem's SaaS platform module,
+<p>The cloud app is built on <code>plexusone/systemforge</code> (Go) and
+<code>plexusone/systemforge-web</code> (React) — the ecosystem's SaaS platform module,
 built to derisk and accelerate web-app buildouts. What it supplies vs.
 what stays custom:</p>
 <p><strong>From systemforge (integrate, don't build):</strong></p>
@@ -2002,6 +2066,16 @@ exec calls.</p>
 the cloud version not being freely self-hostable. The line: <em>capture and
 record locally = open; aggregate, serve, and analyze in the cloud =
 private.</em></p>
+<p><strong>Local frozen; cloud is a new shell over the shared library (decided).</strong>
+The local <code>visionstudio</code> app stays a single-user reference — the cloud does
+NOT add auth/tenancy to it, nor fork its domain logic. <code>visionstudio-cloud</code>
+is a separate multi-tenant application that <em>imports</em> the shared library
+(<code>store.Store</code>, <code>pkg/service.Service</code>) and adds only the new shell
+(auth/tenancy/serving/frontend). "Rebuild for the cloud" = the new shell,
+not the domain logic. Any change to <code>visionstudio</code> local's code/runtime is
+an exception requiring joint approval (docs/spec edits excepted).
+Local↔cloud integration is deferred until the cloud runs standalone. See
+<code>visionstudio-cloud</code> architecture ADR-001.</p>
 <ul>
 <li><strong>Public <code>visionstudio</code> (open core, drives adoption):</strong> the local app —
   CLI, daemon, local panels in <code>web/</code>; entities/store/publicrail; release

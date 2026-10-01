@@ -397,6 +397,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1696,6 +1724,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.6.0/" class="md-nav__link">
         
   
@@ -2007,7 +2063,7 @@
 
 <h1 id="spec-viewer-and-evaluation">Spec Viewer and Evaluation<a class="headerlink" href="#spec-viewer-and-evaluation" title="Permanent link">&para;</a></h1>
 <h2 id="spec-workflows">Spec Workflows<a class="headerlink" href="#spec-workflows" title="Permanent link">&para;</a></h2>
-<p>Each initiative has a <strong>spec workflow</strong> that defines which documents it needs. All default workflows are defined in <a href="https://github.com/ProductBuildersHQ/specification-workflow-spec"><code>specification-workflow-spec</code></a> — the single source of truth — and include PBHQ Lite (PRD → TRD → PLAN → ROADMAP), Quick Fix (ROADMAP only), AWS Working Backwards Product and Feature (PR/FAQ-driven), and ~20 others.</p>
+<p>Each initiative has a <strong>spec workflow</strong> that defines which documents it needs. All default workflows are defined in <a href="https://github.com/ProductBuildersHQ/visionspec"><code>visionspec</code></a>'s embedded catalog — the single source of truth — and include PBHQ Lite (PRD → TRD → PLAN → ROADMAP), Quick Fix (ROADMAP only), AWS One-Way Door and Two-Way Door (PR/FAQ-driven), and ~20 others.</p>
 <ul>
 <li><strong>Selecting:</strong> <code>visionstudio initiative create --workflow &lt;id&gt;</code> (required; falls back to <code>defaults.workflow</code> in config). Browse the catalog with <code>visionstudio workflow list</code> / <code>workflow get &lt;id&gt;</code>.</li>
 <li><strong>Switching after creation:</strong> <code>visionstudio initiative update &lt;id&gt; --workflow &lt;new-id&gt;</code>. The initiative page, spec expectations, and evaluation rubrics all follow the new workflow. Switching is CLI-only; the dashboard shows the current workflow read-only as a chip next to the initiative status.</li>

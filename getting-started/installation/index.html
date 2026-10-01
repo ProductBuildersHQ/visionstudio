@@ -538,6 +538,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1695,6 +1723,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.6.0/" class="md-nav__link">
         
   
@@ -2028,7 +2084,7 @@
 <h2 id="initialize-the-database">Initialize the Database<a class="headerlink" href="#initialize-the-database" title="Permanent link">&para;</a></h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./bin/visionstudio<span class="w"> </span>db<span class="w"> </span>init<span class="w"> </span>--migrate
 </code></pre></div>
-<p>This bootstraps a Dolt database at <code>~/.productbuildershq/visionstudio</code> (override with <code>--data-dir</code>, or point at an existing MySQL-compatible server with <code>--dsn</code>).</p>
+<p>This bootstraps a Dolt database at <code>~/.productbuildershq/visionstudio</code> (override with <code>--data-dir</code>, or point at an existing MySQL-compatible server with <code>--dsn</code>). Re-running this command is always safe — it's additive-only, so it's also the fix if you ever see a <code>does not have column</code> error after pulling new code (see <a href="../troubleshooting/">Troubleshooting</a>).</p>
 <h2 id="verify-installation">Verify Installation<a class="headerlink" href="#verify-installation" title="Permanent link">&para;</a></h2>
 <p>Start everything with one command — this starts the database (if it isn't already running) and serves the web UI + API, opening your browser:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>./bin/visionstudio<span class="w"> </span>app<span class="w"> </span>start

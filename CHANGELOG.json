@@ -10,6 +10,92 @@
   "unreleased": {},
   "releases": [
     {
+      "version": "v0.7.0",
+      "date": "2026-10-01",
+      "highlights": [
+        {
+          "description": "Cloud multi-tenancy groundwork — an optional, inert-for-local tenant_id mixin on every shared entity, plus a Postgres-backed store (NewPostgres/NewPostgresFromConn) so the same Ent-backed store.Store runs over managed Postgres with pool + Row-Level Security for a cloud, and over Dolt/MySQL locally; local stays a single implicit tenant with no behavior change"
+        },
+        {
+          "description": "Auto-assigned RMI/initiative IDs — rmi create and initiative create allocate the next free ID for a repo/project slug when --id is omitted, and new rmi next-id / initiative next-id commands print the next ID(s) without creating anything, so a ROADMAP.md can be filled with correct IDs and cross-references before import"
+        },
+        {
+          "description": "RMI keyword search — rmi list --grep searches RMI IDs and titles (case-insensitive) across every initiative and repository"
+        },
+        {
+          "description": "Cloud-to-local pull — fetch and fast-forward-merge a cloud tenant's branch into the local database, with fast-forward-only safety on both push and pull"
+        }
+      ],
+      "added": [
+        {
+          "description": "Optional, indexed tenant_id mixin on the shared Ent entities (inert for local; isolation enforced by Postgres RLS on the cloud side, not Ent privacy)",
+          "commit": "6ca16b7"
+        },
+        {
+          "description": "Postgres-backed store: NewPostgres and NewPostgresFromConn on DoltStore, so the same store.Store runs over managed Postgres (pool + RLS) as well as Dolt/MySQL",
+          "commit": "6ca16b7"
+        },
+        {
+          "description": "Auto-assigned IDs: optional --id on rmi create and initiative create (next free number for the slug), plus rmi next-id and initiative next-id commands",
+          "commit": "2845eb9"
+        },
+        {
+          "description": "rmi list --grep for keyword search across RMI IDs and titles",
+          "commit": "655427c"
+        },
+        {
+          "description": "Cloud-to-local pull with fast-forward-only merge, complementing the existing push",
+          "commit": "6b1e832"
+        }
+      ],
+      "changed": [
+        {
+          "description": "pkg/ir imports the renamed upstream module path; it remains an indirect dependency pulled in transitively",
+          "commit": "cdc74a3"
+        },
+        {
+          "description": "The store consumes godolt lifecycle helpers instead of hand-rolled SQL",
+          "commit": "1aaf0f3"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "version reported a hard-coded v0.1.0 instead of the real build version",
+          "commit": "8e78f55"
+        },
+        {
+          "description": "Cancelled RMIs are treated as resolved (like completed) when deriving phase/initiative status, so an all-cancelled remainder no longer reads as in progress",
+          "commit": "8fb78c6"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "New Troubleshooting page (schema drift, stale binary, database down)",
+          "commit": "a4763f4"
+        },
+        {
+          "description": "Agent-ready --help across load-bearing commands",
+          "commit": "3f4fd43"
+        },
+        {
+          "description": "Architecture and dashboard docs updated for the two-tier visionspec stack",
+          "commit": "30058d3"
+        }
+      ],
+      "tests": [
+        {
+          "description": "Pull and non-fast-forward rejection coverage for sync",
+          "commit": "0c6459c"
+        }
+      ],
+      "build": [
+        {
+          "description": "Bumped godolt to v0.2.0 and applied routine dependency updates",
+          "commit": "9681463"
+        }
+      ]
+    },
+    {
       "version": "v0.6.0",
       "date": "2026-08-17",
       "highlights": [

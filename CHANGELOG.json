@@ -29,69 +29,69 @@
       "added": [
         {
           "description": "Optional, indexed tenant_id mixin on the shared Ent entities (inert for local; isolation enforced by Postgres RLS on the cloud side, not Ent privacy)",
-          "commit": "6ca16b7"
+          "commit": "02ebe26"
         },
         {
           "description": "Postgres-backed store: NewPostgres and NewPostgresFromConn on DoltStore, so the same store.Store runs over managed Postgres (pool + RLS) as well as Dolt/MySQL",
-          "commit": "6ca16b7"
+          "commit": "02ebe26"
         },
         {
           "description": "Auto-assigned IDs: optional --id on rmi create and initiative create (next free number for the slug), plus rmi next-id and initiative next-id commands",
-          "commit": "2845eb9"
+          "commit": "ec0cf4f"
         },
         {
           "description": "rmi list --grep for keyword search across RMI IDs and titles",
-          "commit": "655427c"
+          "commit": "f850e9a"
         },
         {
           "description": "Cloud-to-local pull with fast-forward-only merge, complementing the existing push",
-          "commit": "6b1e832"
+          "commit": "0364e5c"
         }
       ],
       "changed": [
         {
           "description": "pkg/ir imports the renamed upstream module path; it remains an indirect dependency pulled in transitively",
-          "commit": "cdc74a3"
+          "commit": "67f0601"
         },
         {
           "description": "The store consumes godolt lifecycle helpers instead of hand-rolled SQL",
-          "commit": "1aaf0f3"
+          "commit": "3f7139d"
         }
       ],
       "fixed": [
         {
           "description": "version reported a hard-coded v0.1.0 instead of the real build version",
-          "commit": "8e78f55"
+          "commit": "523c611"
         },
         {
           "description": "Cancelled RMIs are treated as resolved (like completed) when deriving phase/initiative status, so an all-cancelled remainder no longer reads as in progress",
-          "commit": "8fb78c6"
+          "commit": "030c48a"
         }
       ],
       "documentation": [
         {
           "description": "New Troubleshooting page (schema drift, stale binary, database down)",
-          "commit": "a4763f4"
+          "commit": "50bfafd"
         },
         {
           "description": "Agent-ready --help across load-bearing commands",
-          "commit": "3f4fd43"
+          "commit": "4c4c270"
         },
         {
           "description": "Architecture and dashboard docs updated for the two-tier visionspec stack",
-          "commit": "30058d3"
+          "commit": "83f191a"
         }
       ],
       "tests": [
         {
           "description": "Pull and non-fast-forward rejection coverage for sync",
-          "commit": "0c6459c"
+          "commit": "53b8a7d"
         }
       ],
       "build": [
         {
           "description": "Bumped godolt to v0.2.0 and applied routine dependency updates",
-          "commit": "9681463"
+          "commit": "b8bd066"
         }
       ]
     },
@@ -145,146 +145,146 @@
       "added": [
         {
           "description": "Organization and Person entities with idempotent org backfill from repository organization strings, person upsert with org affiliations, registry org/person CLI commands, and a DeleteSpecWorkflow store method",
-          "commit": "a6b3cc1"
+          "commit": "f1a4298"
         },
         {
           "description": "Repository.visibility (public|private|unknown) ingested from GitHub via gh; registry visibility refresh command and a VIS column in registry list",
-          "commit": "de22d65"
+          "commit": "dc4e4a7"
         },
         {
           "description": "publicrail package — the single implementation of the export predicate for all external projections (static export, cloud serving), gated on explicit repo/initiative visibility flags",
-          "commit": "1454863"
+          "commit": "b2d2826"
         },
         {
           "description": "registry per-org, private-focus, and practitioner query slices for portfolio views",
-          "commit": "e0142a9"
+          "commit": "17f6920"
         },
         {
           "description": "specification-workflow-spec consumed as the single source of truth for spec workflows: SyncFromCatalog upserts the DB index, remaps retired IDs, deletes unreferenced rows (workflow seed deprecated as an alias); GetSynthesisGuidance falls back to prompt_context",
-          "commit": "44efa2d"
+          "commit": "e5a4d80"
         },
         {
           "description": "quick-fix workflow profile upstream in specification-workflow-spec (extends pbhq-lite; ROADMAP-only required)"
         },
         {
           "description": "workflowId and file roles (required/optional/extra) in the execution + spec-file API responses, workflow detail (sequence/phases) in /api/specs, POST /api/initiatives (first API mutation endpoint, validates ID/title/workflow, 409 on duplicates), and GET /api/workflows/{id}/specs/{type} serving the embedded template + rubric",
-          "commit": "e359671"
+          "commit": "dc45822"
         },
         {
           "description": "initiative update --workflow <id> to switch an initiative's spec workflow after creation, keeping the synthesis/eval workflow-selection record in step; workflow list/get/sync read from the catalog; create-time workflow validation; workflow column in initiative list/get",
-          "commit": "ab6fd15"
+          "commit": "d18fd14"
         },
         {
           "description": "Workflow-driven Initiative UI: spec set/progress/tab order/diagram derived from the assigned workflow instead of hardcoded PBHQ-Lite; New Initiative creation modal with catalog workflow dropdown, per-workflow required-docs preview, and type-driven defaults; a read-only workflow chip and a template + LLM-as-a-Judge rubric viewer on the Definition tab; Extra badges on non-workflow files",
-          "commit": "a960f8d"
+          "commit": "1377075"
         },
         {
           "description": "Release Ent entity (version, changelog, commit hash, release notes) with edges to Initiative, RoadmapItem, and Repository",
-          "commit": "c5740f1"
+          "commit": "8b90746"
         },
         {
           "description": "Backwards initiative lifecycle transitions: reopening to an earlier pipeline stage clears every later-stage timestamp (e.g. reopening to executing clears DeliveryCompleteAt)",
-          "commit": "fb9ef2c"
+          "commit": "e10a98a"
         },
         {
           "description": "release CLI — plan/record/list/show/attach/detach/delete over the Release entity; a changelog gate that checks/scaffolds CHANGELOG.json entries at record time; release unshipped surfaces initiatives claiming delivery with no release attached (a 14-day forcing function); release backfill-match reviews AI-assisted matches between historical commits/tags and initiatives for confirmation",
-          "commit": "c03e25d"
+          "commit": "9ef5431"
         },
         {
           "description": "CHANGELOG.json/git-tag ingest with a trailer-coverage report, backfilling Release records and associating them with initiatives via commit trailer chains",
-          "commit": "55fb2c9"
+          "commit": "05b7308"
         },
         {
           "description": "GitHub Releases API as a release source, closing the gap between local git tags and real GitHub Release history (ingest github-releases, ingest releases)",
-          "commit": "5d3242d"
+          "commit": "5519050"
         },
         {
           "description": "visionstudio cloud — client-side config recording which VisionStudio Cloud tenant a local install is assigned to",
-          "commit": "be02043"
+          "commit": "3f3d809"
         },
         {
           "description": "visionstudio sync — whole-database push to a VisionStudio Cloud tenant over godolt (dogfood-only)",
-          "commit": "0a83537"
+          "commit": "b2b4473"
         },
         {
           "description": "Repository.SupersededBy field and a store-level DeleteRepository, the groundwork for registry archive/remove",
-          "commit": "22a10e8"
+          "commit": "cca41ba"
         },
         {
           "description": "Short repository name resolution (bare name, org/name, or full ID) in registry and rmi commands, with a did-you-mean suggestion on no/ambiguous match",
-          "commit": "1dfc943"
+          "commit": "17709e6"
         },
         {
           "description": "registry update <repo-id> to repoint/edit an existing entry's path/org/branch/name",
-          "commit": "6836606"
+          "commit": "5b4d076"
         },
         {
           "description": "registry archive <repo-id> — status change preserving the record, with --superseded-by pointing at a replacement repository",
-          "commit": "519efdd"
+          "commit": "0948d14"
         },
         {
           "description": "registry remove <repo-id> — hard delete for true mistakes, refusing while RMIs/releases/spec documents still reference the repository",
-          "commit": "84c3950"
+          "commit": "8f025ba"
         },
         {
           "description": "registry add conflict/duplicate detection — warns on a --path that's missing or not a git working tree, and on a path or git remote collision with an existing entry",
-          "commit": "b3352ee"
+          "commit": "f80ad1f"
         },
         {
           "description": "rmi bulk-update --repo --set-repo — reassign every RMI on a repository in one call, with a --dry-run preview",
-          "commit": "4c66520"
+          "commit": "ec8943c"
         },
         {
           "description": "registry doctor — flags a missing directory, a non-git working tree, or a git remote origin URL that no longer matches the registered ID, across every non-archived repository",
-          "commit": "867c503"
+          "commit": "7052829"
         },
         {
           "description": "registry archive --superseded-by --reassign-rmis — folds RMI reassignment and the archive status change into one auditable operation",
-          "commit": "4b0baa1"
+          "commit": "8562875"
         },
         {
           "description": "--format json on rmi list/get, initiative list/get, and registry list/get",
-          "commit": "601fa99"
+          "commit": "aeda24b"
         },
         {
           "description": "initiative list --repo/--status/--program filters",
-          "commit": "5277b11"
+          "commit": "9f60bae"
         },
         {
           "description": "visionstudio initiative sweep [--format json] — lists non-terminal initiatives with every RMI completed; reports per-repo git state (clean/dirty, ahead/behind cached upstream, missing, unregistered) using the same best-effort, no-network-fetch posture as registry doctor. Report-only",
-          "commit": "ef9945a"
+          "commit": "9165dd2"
         },
         {
           "description": "Dashboard /status route and Sidebar entry: initiatives grouped by lifecycle status, reusing the existing /api/execution response",
-          "commit": "839f024"
+          "commit": "2feea33"
         },
         {
           "description": "StatusBadge colors for delivery_complete/releasing/released/closed (previously all fell back to proposed's gray)",
-          "commit": "839f024"
+          "commit": "2feea33"
         },
         {
           "description": "cancelledProgress on APIInitiative/APIPhase (both dual-struct layers), and a red ProgressBar segment sized off it, wired through initiative tiles, the by-program aggregate bar, the By Status board, and phase bars",
-          "commit": "ad47edd"
+          "commit": "a317228"
         },
         {
           "description": "visionstudio app restart -- stops whatever UI+API server is recorded as running (ui.pid, mirroring Dolt's server.pid) and starts fresh, leaving the database alone if already running",
-          "commit": "d0e0b5d"
+          "commit": "6f344db"
         },
         {
           "description": "Ent schema field on RoadmapItem (origin, default \"spec\", additive migration, backfills existing rows); pkg/rmi Origin constants and ValidOrigin",
-          "commit": "8141f5c"
+          "commit": "fa408c1"
         },
         {
           "description": "--origin on rmi create/update, an ORIGIN column and filter on rmi list, and origin support on the rmi_create MCP tool so an agent can self-tag origin=implementation while it works",
-          "commit": "8141f5c"
+          "commit": "fa408c1"
         },
         {
           "description": "release candidates --repo <repo-id> [--format json] classifies every non-terminal initiative with >=1 RMI in the repo: ready (fully done everywhere), partial (this repo done, other repos pending), not_ready, already_attached. Report-only, same discipline as sweep",
-          "commit": "df17977"
+          "commit": "21c4319"
         },
         {
           "description": "GetInitiativeDetail gains a Releases field; initiative get prints a Releases: repo@tag (date) section; ExecutionResponse (both dual-struct API layers, regenerated schema/Zod/TS) gains a releases array; InitiativeDetail.tsx shows a linked \"Released in:\" chip row",
-          "commit": "4619647"
+          "commit": "2a53803"
         }
       ],
       "changed": [
@@ -308,7 +308,7 @@
         },
         {
           "description": "Removed the unused JudgeRubric Ent entity, table, and Store API (Create/Get/ListJudgeRubrics); JudgeResult.rubric is now a plain rubric_id string field instead of a foreign-key edge to the retired table, fixing a latent dangling-FK on recorded judge results",
-          "commit": "0f2990e"
+          "commit": "d6954e1"
         }
       ],
       "fixed": [
@@ -323,101 +323,101 @@
         },
         {
           "description": "New Initiative creation callback wasn't wired into App, so workflows never reached InitiativesOverview/ProgramView and creation didn't reload or navigate",
-          "commit": "92483e3"
+          "commit": "e8c054d"
         },
         {
           "description": "visionstudio db init's server-mode data-dir fallback assigned the literal \"~/.productbuildershq/visionstudio\" string without expanding it, creating a literal \"~\" folder under the working directory instead of writing to the home directory",
-          "commit": "7c03df9"
+          "commit": "350cb19"
         },
         {
           "description": "Migrated off the archived specification-workflow-spec module onto the merged visionspec v0.16.0 (pkg/profiles was superseded upstream by pkg/workflows; visionspec's own pkg/workflow relocated to pkg/execgraph to make room)",
-          "commit": "b83c1bb"
+          "commit": "f723615"
         },
         {
           "description": "ProgressBar showed blue (meaning \"still in progress\") for an initiative that was actually fully resolved -- completed + cancelled accounting for the whole bar with nothing left pending -- instead of green",
-          "commit": "11ac490"
+          "commit": "e4a4450"
         },
         {
           "description": "spec judge show/record resolve the evaluation rubric live from the specification-workflow-spec catalog via the workflow loader (GetRubric), deriving the spec type from the filename (PRD.md -> prd) — the judge_rubrics DB table was never populated, so the layered pbhq-lite rubrics previously showed 'no rubric defined' for every workflow",
-          "commit": "a65cfe9"
+          "commit": "b3167aa"
         }
       ],
       "documentation": [
         {
           "description": "Spec Workflows section in the dashboard guide (selection, switching, required/optional/extra semantics), quickstart workflow commands, and a CLAUDE.md single-source-of-truth convention",
-          "commit": "5050a10"
+          "commit": "40afcbd"
         },
         {
           "description": "ADR recording the decision to keep Program/Initiative/Phase/RMI as native vocabulary rather than adopting Jira/Aha terms",
-          "commit": "c5e5d4b"
+          "commit": "4a7bb4a"
         },
         {
           "description": "PRD/TRD/PLAN/ROADMAP spec sets for INIT-VISIONSTUDIO-005 (workflow single source of truth), -009 (AWS Working Backwards + web creation), and -010 (Registry & RMI Lifecycle CLI)",
-          "commit": "b8768f1"
+          "commit": "5b407d2"
         },
         {
           "description": "PRD/TRD/PLAN/ROADMAP spec set for INIT-VISIONSTUDIO-006 (release tracking, changelog gate, unshipped queue, backfill matching)",
-          "commit": "c1bb40a"
+          "commit": "ead5acd"
         },
         {
           "description": "PRD/TRD/PLAN/ROADMAP spec set for INIT-VISIONSTUDIO-007 (org/person backfill, repository visibility, export safety rail, portfolio slices)",
-          "commit": "1d9563a"
+          "commit": "c9f0315"
         },
         {
           "description": "Full spec set (PRD/TRD/PLAN/ROADMAP/UXD/TPD/FAQ/PRESS/NARRATIVE-6P) plus evaluations and a pitch/demo deck for INIT-VISIONSTUDIO-002 (VisionStudio Cloud)",
-          "commit": "0af85f3"
+          "commit": "fc84b51"
         },
         {
           "description": "Fixed stale schemago references to schemakit (the JSON Schema linter was renamed schemago → schemalint → schemakit)",
-          "commit": "54666dd"
+          "commit": "3eccbbe"
         },
         {
           "description": "registry lifecycle and bulk-reassignment CLI commands documented in the Repositories and Programs/Initiatives/RMIs dashboard guides",
-          "commit": "5fd14be"
+          "commit": "c4bea59"
         },
         {
           "description": "README screenshot ordering",
-          "commit": "b8792b0"
+          "commit": "7fb6a89"
         },
         {
           "description": "PRD/ROADMAP for INIT-VISIONSTUDIO-011 (Portfolio WIP Management); initiative sweep and the By Status view documented in the dashboard guide and tour; CLAUDE.md convention for closing an initiative on commit+push without waiting for a git tag",
-          "commit": "b8d59d2"
+          "commit": "5e2fc4c"
         },
         {
           "description": "CLAUDE.md convention: RMI provenance -- scope discovered after the initial spec is normal and gets tracked (new RMI, tagged origin), not hidden; the discipline that keeps it from being scope creep is that every addition traces to a concrete finding, not speculation",
-          "commit": "8141f5c"
+          "commit": "fa408c1"
         },
         {
           "description": "CLAUDE.md: when to use sweep (initiative-first) vs. candidates (repo-first); dashboard guide cross-reference alongside sweep",
-          "commit": "df17977"
+          "commit": "21c4319"
         },
         {
           "description": "CLAUDE.md gotcha: a new top-level apitypes struct needs registering in both pkg/apitypes/gen/main.go and web/scripts/generate-types.mjs's separate, non-auto-discovered schemaNames list, or generate:types succeeds while silently producing no TS export for it",
-          "commit": "4619647"
+          "commit": "2a53803"
         }
       ],
       "tests": [
         {
           "description": "Backwards-reopen and forward-skip-rejection coverage for the initiative lifecycle state machine",
-          "commit": "14d84f1"
+          "commit": "e7beaff"
         }
       ],
       "build": [
         {
           "description": "Pinned specification-workflow-spec v0.3.0 (AWS one-way/two-way door workflows, Leadership Principle grounding) and the transitive structured-evaluation v0.14.0",
-          "commit": "c456dbb"
+          "commit": "569524c"
         },
         {
           "description": "Routine dependency updates",
-          "commit": "1985dd0"
+          "commit": "d39493b"
         },
         {
           "description": "Routine dependency updates",
-          "commit": "cd61075"
+          "commit": "db15498"
         },
         {
           "description": "Bumped github.com/ProductBuildersHQ/visionspec to the tagged v0.17.0 (library-wide layered class/blocking/evaluation rubric taxonomy and AWS Working Backwards re-homing)",
-          "commit": "60f01c1"
+          "commit": "b47c31e"
         }
       ]
     },
@@ -447,127 +447,127 @@
       "added": [
         {
           "description": "pkg/ir: execution type aliases and JSON Schema generation scaffolding the whole roadmap-execution data model",
-          "commit": "d810887"
+          "commit": "a59dfca"
         },
         {
           "description": "Ent/store/service layers migrated in from prism-build, backed by Dolt (MySQL-compatible, Git-like versioned database)",
-          "commit": "2ac41fc"
+          "commit": "9b410c4"
         },
         {
           "description": "webapi JSON API and a visionstudio CLI for database orchestration",
-          "commit": "3a717e2"
+          "commit": "7ab11a0"
         },
         {
           "description": "web/: Vite + React SPA scaffold with a shared UI toolkit and chart primitives",
-          "commit": "c68659e"
+          "commit": "a068187"
         },
         {
           "description": "Execution, Spend, Maturity, Specs, and composed four-quadrant InitiativeView panels",
-          "commit": "343e72a"
+          "commit": "13ec5e0"
         },
         {
           "description": "End-to-end spec workflow system: workflow selection at initiative creation, judge-result ingestion from disk, agent eval definitions",
-          "commit": "4f33b9e"
+          "commit": "e6599f9"
         },
         {
           "description": "Spec-files feature: browse and view an initiative's spec documents from the dashboard",
-          "commit": "470ebab"
+          "commit": "35ded76"
         },
         {
           "description": "pkg/apitypes Go-first type pipeline (Go structs -> JSON Schema -> Zod -> TypeScript) plus Repositories and Performance dashboard panels",
-          "commit": "3f24ed4"
+          "commit": "1eb2407"
         },
         {
           "description": "`visionstudio app start/status/stop`, `visionstudio ui`, and `visionstudio db` lifecycle commands for one-command startup; embedded web SPA via go:embed",
-          "commit": "53d9318"
+          "commit": "9c29cb2"
         },
         {
           "description": "DB-down diagnostics that explain how to fix a connection failure (start the database, run migrations) instead of surfacing a raw driver error",
-          "commit": "5751d49"
+          "commit": "cf6908a"
         },
         {
           "description": "`visionstudio initiative hide/show <id>`, mirroring the existing `program hide/show`, with cascading visibility filtering across every dashboard surface that lists initiatives",
-          "commit": "9f4ddee"
+          "commit": "059ad40"
         },
         {
           "description": "Six new dashboard user-guide pages (Tour, Programs/Initiatives/RMIs, Repositories, Specs & Evaluation, Maturity, Performance), verified against the actual routed components rather than guessed",
-          "commit": "604f543"
+          "commit": "4e072f7"
         }
       ],
       "changed": [
         {
           "description": "Renamed the binary and command from `vistudio` to `visionstudio`",
-          "commit": "c1f1bf8"
+          "commit": "49b07f0"
         },
         {
           "description": "JudgeResult now stores the full structured-evaluation report (Ent schema change)",
-          "commit": "e624512"
+          "commit": "0b4a6ec"
         },
         {
           "description": "README, CLAUDE.md, and getting-started docs rewritten to lead with the visionstudio CLI/dashboard; the Electron desktop app and cmd/daemon explicitly marked legacy and not under active development",
-          "commit": "0f42586"
+          "commit": "95c3409"
         }
       ],
       "fixed": [
         {
           "description": "spec-files endpoint accepted an unvalidated initiative ID straight into a filesystem path; added allowlist validation plus an explicit containment check at each sink",
-          "commit": "e2cd35a"
+          "commit": "477a5fe"
         },
         {
           "description": "12 separate CodeQL go/path-injection alerts across cmd/daemon (capability, v2mom, spec, maturity, sample, devx handlers) closed using ValidatePathComponent/JoinSecure from the upstreamed mogo library; two of the affected handlers had no prior validation at all",
-          "commit": "52c06f1"
+          "commit": "437077b"
         },
         {
           "description": "Spec file writes used 0644 permissions (world/group readable); tightened to 0600",
-          "commit": "5048e18"
+          "commit": "f035b11"
         },
         {
           "description": "Initiative workflow diagram's average-score badge used a stale 0-10 scale threshold while the individual score boxes next to it correctly used the real 1-5 scale",
-          "commit": "220bb60"
+          "commit": "70be677"
         },
         {
           "description": "Maturity's Capability Models view didn't fetch execution data, so its initiative filter chips, radar chart, dimension averages, and assessments table all showed hidden-initiative data regardless of hidden status",
-          "commit": "5ac5075"
+          "commit": "75db444"
         },
         {
           "description": "Phase ordering, empty specType guard, legacy 0-100 score clamping, 3/5 scored as conditional not pass, Windows path/signal compatibility, embedded-Dolt default root, clickable header nav-home",
-          "commit": "776aa9d"
+          "commit": "bf07cdc"
         }
       ],
       "security": [
         {
           "description": "Upstreamed ValidatePathComponent (allowlist regex) and JoinSecure (filepath.Rel/filepath.IsAbs containment check) to github.com/grokify/mogo's os/osutil, rather than a repo-local package -- verified against a live CodeQL scan that this specific idiom is what the go/path-injection query recognizes as a sanitizer, unlike a strings.HasPrefix check wrapped in a helper function",
-          "commit": "05ca077"
+          "commit": "11a5532"
         }
       ],
       "dependencies": [
         {
           "description": "Bump github.com/grokify/mogo to v0.74.7 for the new osutil path-safety helpers",
-          "commit": "05ca077"
+          "commit": "11a5532"
         },
         {
           "description": "Add github.com/ProductBuildersHQ/scale and github.com/grokify/oscompat",
-          "commit": "ff472c3"
+          "commit": "40ffbb7"
         },
         {
           "description": "Add react-router-dom for the dashboard's client-side routing",
-          "commit": "a0b71f0"
+          "commit": "20ff817"
         }
       ],
       "documentation": [
         {
           "description": "New architecture documentation: primary visionstudio+Dolt architecture section, ecosystem page, expanded CLAUDE.md with the type-pipeline dual-struct gotcha, the Program/Initiative Hidden convention, and the mogo path-safety convention",
-          "commit": "c1a5237"
+          "commit": "2ead0bc"
         },
         {
           "description": "Screenshots of the actual web dashboard (home, program, initiative definition/execution, performance) added to README",
-          "commit": "7b42750"
+          "commit": "a65cc4c"
         }
       ],
       "tests": [
         {
           "description": "CreateInitiative signature updates for the now-required workflow_id; isValidInitiativeID and withinDir/JoinSecure path-safety tests; TestUpdateInitiativeHidden round-trip test",
-          "commit": "06ddc49"
+          "commit": "591936e"
         }
       ]
     },
@@ -594,51 +594,51 @@
       "added": [
         {
           "description": "`GET /api/devx/periods` to list available period reports and `GET /api/devx/reports/{periodType}/{label}` to serve a specific one, with periodType/label validation against path traversal",
-          "commit": "53a0c49"
+          "commit": "1f88b00"
         },
         {
           "description": "`api.getDevXPeriods()` and `api.getDevXPeriodDashboard()`, plus `DevXPeriodEntry` type and stack/value/name encode fields on chart marks",
-          "commit": "2374823"
+          "commit": "f7ba761"
         },
         {
           "description": "Period selector dropdown (weekly/monthly/quarterly) and `PieChart`/`BarChart` renderers, with `ChartWidget` now dispatching by mark geometry",
-          "commit": "2450e1b"
+          "commit": "d976485"
         },
         {
           "description": "Shared toolkit component library: DimensionBar, EmptyState, ErrorState, IssueCard, LoadingState, QualityBadge, ScoreBadge, SeverityBadge, StatusBadge, SummaryCard, ViewHeader",
-          "commit": "6262362"
+          "commit": "9bed374"
         },
         {
           "description": "Extension system: ExtensionManifest type, extension registry (builtin + marketplace), AppContext for global state, ExtensionManagerView for browsing/installing, marketplace directory structure",
-          "commit": "ff25b30"
+          "commit": "746effb"
         },
         {
           "description": "API Style Spec daemon endpoint for API style specification linting and validation",
-          "commit": "536e359"
+          "commit": "ab1a307"
         }
       ],
       "changed": [
         {
           "description": "Desktop components (AIDLC, capability-stack, editor, eval, layout, maturity-model, organization, project, roadmap, v2mom views) migrated to the shared toolkit and AppContext, removing redundant type definitions",
-          "commit": "2de6149"
+          "commit": "bc1a898"
         }
       ],
       "tests": [
         {
           "description": "`validPeriodType` and `validPeriodLabel` path-traversal-prevention tests",
-          "commit": "77c973a"
+          "commit": "1df7e12"
         }
       ],
       "dependencies": [
         {
           "description": "Upgrade `github.com/plexusone/structured-evaluation` to v0.11.0 (was v0.10.0)",
-          "commit": "ced460b"
+          "commit": "fd418dd"
         }
       ],
       "documentation": [
         {
           "description": "Architecture overview updated to reflect the extension system; roadmap updated with extension-system milestones",
-          "commit": "699ec14"
+          "commit": "fc27d7d"
         }
       ]
     },
@@ -659,29 +659,29 @@
       "added": [
         {
           "description": "`GET /api/devx/dashboard`: passthrough handler serving `~/.plexusone/omnidevx/dashboard.json` as-is, with a 404 pointing at the generating command when the file doesn't exist yet",
-          "commit": "7dfcf94"
+          "commit": "ca3dfad"
         },
         {
           "description": "`DevXDashboardView` + a dependency-free renderer for the subset of dashforge's `dashboardir.Dashboard` schema devfolio's exporter emits: metric tiles, line charts with hover tooltips, and tables",
-          "commit": "76c1896"
+          "commit": "3146e30"
         },
         {
           "description": "`api.getDevXDashboard()`, surfacing the daemon's not-found error message (with the generating command) rather than a generic HTTP status",
-          "commit": "76c1896"
+          "commit": "3146e30"
         },
         {
           "description": "DevX sidebar section (\"Usage Dashboard\") alongside Organization — both person/machine-scoped views independent of the active tracked project",
-          "commit": "e71d32d"
+          "commit": "6d868aa"
         }
       ],
       "dependencies": [
         {
           "description": "Upgrade `github.com/ProductBuildersHQ/visionspec` to v0.14.0 (was v0.13.0). Breaking change upstream: `pkg/rubrics` drops its VisionSpec-local `RubricSet`/`Category`/`CategoricalCriteria` types in favor of `structured-evaluation/rubric.RubricSet`, and legacy flat rubric YAML is no longer parsed. VisionStudio doesn't import `pkg/rubrics` directly and ships no custom rubric YAML, so this required no code changes — verified with go vet, golangci-lint, and a live daemon run against the profiles endpoint",
-          "commit": "8414baf"
+          "commit": "4ada05f"
         },
         {
           "description": "Transitively bumps `github.com/plexusone/structured-evaluation` to v0.10.0 (was v0.9.0) and adds `github.com/grokify/prism-roadmap` v0.16.0, which visionspec profiles now consume canonical canvas templates and rubrics from",
-          "commit": "8414baf"
+          "commit": "4ada05f"
         }
       ],
       "documentation": [
@@ -722,151 +722,151 @@
       "added": [
         {
           "description": "AIDLC workflow API handlers with phases, transitions, sync, and generation",
-          "commit": "b754bf3"
+          "commit": "73ce33f"
         },
         {
           "description": "V2MOM cascade API handlers for organization, team, and project V2MOMs",
-          "commit": "c8ecdd5"
+          "commit": "e6d0159"
         },
         {
           "description": "Capability stack API handlers with CRUD operations",
-          "commit": "5cef34f"
+          "commit": "ecb0524"
         },
         {
           "description": "Roadmap API handlers for initiative management",
-          "commit": "30d3752"
+          "commit": "9fcc3eb"
         },
         {
           "description": "Organization API handlers with team management",
-          "commit": "585a0c2"
+          "commit": "f242b41"
         },
         {
           "description": "Methodology selection API handlers for requirements and implementation",
-          "commit": "1a8c915"
+          "commit": "efdeaee"
         },
         {
           "description": "Sample projects API handlers with import capability",
-          "commit": "c0c0831"
+          "commit": "5cfde79"
         },
         {
           "description": "Wire up all new API routes in main router",
-          "commit": "9ded3bc"
+          "commit": "8f9c1a9"
         },
         {
           "description": "API types for AIDLC, V2MOM, roadmap, capability, maturity, and methodology",
-          "commit": "d602e0a"
+          "commit": "b99c409"
         },
         {
           "description": "Organization config and project methodology fields",
-          "commit": "d9154d2"
+          "commit": "202c484"
         },
         {
           "description": "AIDLC workflow UI components with workflow, document, and sync views",
-          "commit": "2306b21"
+          "commit": "492e78f"
         },
         {
           "description": "V2MOM cascade UI components with cascade and individual views",
-          "commit": "6e53622"
+          "commit": "dd3e709"
         },
         {
           "description": "Capability stack view component",
-          "commit": "6bb6863"
+          "commit": "62a985b"
         },
         {
           "description": "Organization view component with team hierarchy",
-          "commit": "3bdd264"
+          "commit": "22633be"
         },
         {
           "description": "Roadmap view component with timeline visualization",
-          "commit": "785af7a"
+          "commit": "57dd510"
         },
         {
           "description": "Maturity model view component with assessments",
-          "commit": "a3d49b9"
+          "commit": "8f15bdc"
         },
         {
           "description": "Sample picker component with Grafana and Simple examples",
-          "commit": "2f64cd5"
+          "commit": "ad1e84d"
         },
         {
           "description": "Evaluation display component with dimension scores",
-          "commit": "a96fbfa"
+          "commit": "be4dedb"
         },
         {
           "description": "Methodology selector modal for requirements and implementation",
-          "commit": "f50fd3d"
+          "commit": "d0c568f"
         },
         {
           "description": "Export new components from component index",
-          "commit": "fd52b6a"
+          "commit": "4cc7703"
         },
         {
           "description": "Methodology menu and enhanced sidebar navigation",
-          "commit": "f132672"
+          "commit": "061fecc"
         },
         {
           "description": "Spec editor enhancements with AIDLC integration",
-          "commit": "25a6141"
+          "commit": "9d84bf7"
         },
         {
           "description": "Wire up new views in App.tsx routing",
-          "commit": "09b67b6"
+          "commit": "3514136"
         },
         {
           "description": "TypeScript types for all new features",
-          "commit": "bc351eb"
+          "commit": "83df2a8"
         },
         {
           "description": "API service methods for all new feature endpoints",
-          "commit": "c084992"
+          "commit": "6aa086c"
         }
       ],
       "fixed": [
         {
           "description": "Resolve golangci-lint issues (errcheck, gosec, unparam, dupl)",
-          "commit": "0635c08"
+          "commit": "cce1ba2"
         }
       ],
       "documentation": [
         {
           "description": "Add user guide pages for AIDLC, V2MOM, capabilities, roadmap, maturity, methodology, samples, organization",
-          "commit": "5b34ffa"
+          "commit": "9dbb032"
         },
         {
           "description": "Update architecture documentation with 60+ API endpoints",
-          "commit": "1217ece"
+          "commit": "f52f5b1"
         },
         {
           "description": "Update README and homepage for v0.13.0 features",
-          "commit": "3cdc892"
+          "commit": "d0509f6"
         },
         {
           "description": "Update mkdocs navigation for new guides",
-          "commit": "4e01e3c"
+          "commit": "6afca42"
         },
         {
           "description": "Add AIDLC API guide and feature specs",
-          "commit": "ca62c5c"
+          "commit": "aa4e43b"
         }
       ],
       "dependencies": [
         {
           "description": "Upgrade visionspec from v0.12.0 to v0.13.0 with AIDLC support",
-          "commit": "69f0383"
+          "commit": "40247d0"
         },
         {
           "description": "Bump github.com/go-chi/chi/v5 from 5.3.0 to 5.3.1",
-          "commit": "049b1ce"
+          "commit": "9f2ac44"
         }
       ],
       "maintenance": [
         {
           "description": "Add daemon binary to gitignore",
-          "commit": "61aeaea"
+          "commit": "5268fe4"
         },
         {
           "description": "Update go.mod dependencies",
-          "commit": "34e89c7"
+          "commit": "a3a76ab"
         }
       ]
     },
@@ -890,181 +890,179 @@
       "added": [
         {
           "description": "Go daemon with REST API for spec CRUD operations",
-          "commit": "dbe7ab3"
+          "commit": "9c10620"
         },
         {
           "description": "Electron desktop shell with native window controls",
-          "commit": "c68dadf"
+          "commit": "f56446b"
         },
         {
           "description": "React frontend with spec editor UI",
-          "commit": "2fca5ad"
+          "commit": "8518eab"
         },
         {
           "description": "Workflow status API endpoint",
-          "commit": "4e31b15"
+          "commit": "5ab5b66"
         },
         {
           "description": "Terminal infrastructure with PTY support",
-          "commit": "b1731bc"
+          "commit": "d1f08d7"
         },
         {
           "description": "Terminal UI with workflow integration",
-          "commit": "431f36a"
+          "commit": "8af4af0"
         },
         {
           "description": "Content Security Policy headers",
-          "commit": "ff6393c"
+          "commit": "dcaccd4"
         },
         {
           "description": "Project Info modal with metadata display",
-          "commit": "a90d9e2"
+          "commit": "5c90038"
         },
         {
           "description": "Project configuration management with persistence",
-          "commit": "702a3c5"
+          "commit": "ceb669c"
         },
         {
           "description": "Project and workflow API types",
-          "commit": "4c9e9a3"
+          "commit": "ca2a3e3"
         },
         {
           "description": "Project management and spec operations in daemon",
-          "commit": "57826f8"
+          "commit": "8be2431"
         },
         {
           "description": "Directory picker via Electron dialog",
-          "commit": "99f3ae0"
+          "commit": "66e55b4"
         },
         {
           "description": "Project management UI with add/remove support",
-          "commit": "bf36014"
+          "commit": "b66e501"
         },
         {
           "description": "Rendered HTML view with eval panel",
-          "commit": "0e65779"
+          "commit": "ca696dc"
         },
         {
           "description": "Proper markdown rendering with table support",
-          "commit": "e7738aa"
+          "commit": "4388fab"
         },
         {
           "description": "Reconciliation row with Execution Spec in workflow",
-          "commit": "9aba7d9"
+          "commit": "c1b4704"
         },
         {
           "description": "Consolidated All Findings view for evaluations",
-          "commit": "8786210"
+          "commit": "e73f3d4"
         },
         {
           "description": "ProductBuildersHQ VisionStudio branding in sidebar",
-          "commit": "6000ae8"
+          "commit": "2b2a5cc"
         }
       ],
       "fixed": [
         {
           "description": "Use generic example-project in mock data",
-          "commit": "d12f88c"
+          "commit": "df74433"
         },
         {
           "description": "ReadHeaderTimeout to prevent Slowloris attack",
-          "commit": "5ac90a7"
+          "commit": "ae646d6"
         },
         {
           "description": "Top padding for macOS traffic lights",
-          "commit": "721b21a"
+          "commit": "ff3cbe5"
         },
         {
           "description": "Terminal spawn and initialization issues",
-          "commit": "6707be9"
+          "commit": "84e5d8a"
         },
         {
           "description": "React Strict Mode IPC listener cleanup timing",
-          "commit": "7896f80"
+          "commit": "132e192"
         },
         {
           "description": "Absolute project paths for terminal cwd",
-          "commit": "24ff033"
+          "commit": "d0b4da3"
         },
         {
           "description": "Workflow diagram vertical spacing",
-          "commit": "935d4c8"
+          "commit": "3340134"
         },
         {
           "description": "Missing spec types in specMeta map",
-          "commit": "343c5fa"
+          "commit": "12c53b7"
         },
         {
           "description": "Standardize spec name to Execution Spec",
-          "commit": "72ae892"
+          "commit": "42a4f4a"
         },
         {
           "description": "Markdown rendering with proper lists, spacing, tables",
-          "commit": "12b6011"
+          "commit": "5ef9e43"
         },
         {
           "description": "Sidebar header padding and connection indicator",
-          "commit": "e802364"
+          "commit": "17adabd"
         },
         {
           "description": "Use warning triangle for disconnected state",
-          "commit": "a1a1438"
+          "commit": "6c20573"
         },
         {
           "description": "Branding font size and top padding",
-          "commit": "db965d1"
+          "commit": "5cd9829"
         }
       ],
       "changed": [
         {
           "description": "Rename project to VisionStudio",
-          "commit": "9c0aa59"
+          "commit": "f33a9f6"
         }
       ],
       "documentation": [
         {
           "description": "README and MkDocs documentation",
-          "commit": "a9f7f20"
+          "commit": "0846ec6"
         },
         {
           "description": "VisionApp specification (invention)",
-          "commit": "e680ee3"
+          "commit": "a59cafa"
         },
         {
           "description": "IDE terminal feature specifications",
-          "commit": "3a071be"
+          "commit": "d39bbb3"
         },
         {
           "description": "README screenshots",
-          "commit": "23e6d4c"
+          "commit": "7708144"
         }
       ],
       "dependencies": [
         {
           "description": "Update visionspec to v0.12.0 with true AWS Working Backwards order and IRD support",
-          "commit": "426661f"
+          "commit": "ae363f9"
         }
       ],
       "maintenance": [
         {
           "description": "Add gitignore",
-          "commit": "1b7a087"
+          "commit": "176e91a"
         },
         {
-          "description": "Archive Wails v3 implementation",
-          "commit": "b1f679d"
+          "description": "Archive Wails v3 implementation"
         },
         {
           "description": "Add shared workflow files",
-          "commit": "f14e5f6"
+          "commit": "d977bd8"
         },
         {
-          "description": "Remove archived Wails code",
-          "commit": "114d00a"
+          "description": "Remove archived Wails code"
         },
         {
           "description": "Remove debug logging from PTY manager",
-          "commit": "da09c6d"
+          "commit": "f6de3df"
         }
       ]
     }

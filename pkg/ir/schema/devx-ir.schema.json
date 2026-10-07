@@ -283,7 +283,10 @@
                 },
                 "models": {
                   "additionalProperties": {
-                    "type": "number"
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "type": "object"
                   },
                   "type": "object"
                 }
@@ -305,7 +308,10 @@
                 },
                 "models": {
                   "additionalProperties": {
-                    "type": "number"
+                    "additionalProperties": {
+                      "type": "number"
+                    },
+                    "type": "object"
                   },
                   "type": "object"
                 }
@@ -541,6 +547,12 @@
               },
               "dataSourceId": {
                 "type": "string"
+              },
+              "questionId": {
+                "type": "string"
+              },
+              "visualization": {
+                "type": "object"
               },
               "transform": {
                 "items": {

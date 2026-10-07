@@ -82,8 +82,12 @@ func NewPostgres(dsn string) (*DoltStore, error) {
 // conn, SET the tenant, serve through this store, release the conn. No Dolt
 // versioning. db is nil on the returned store (db-level helpers are not for
 // connection-scoped use).
+//
+// Transactions (which Ent opens for every update) begin on conn itself via
+// (*sql.Conn).BeginTx, so they see the same session state. Close on the
+// returned store does not close conn.
 func NewPostgresFromConn(conn *sql.Conn) *DoltStore {
-	drv := entsql.NewDriver(dialect.Postgres, entsql.Conn{ExecQuerier: conn})
+	drv := newConnDriver(dialect.Postgres, conn)
 	client := ent.NewClient(ent.Driver(drv))
 	return &DoltStore{client: client, db: nil, dolt: nil}
 }

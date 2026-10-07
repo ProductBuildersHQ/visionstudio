@@ -176,8 +176,6 @@ github.com/HdrHistogram/hdrhistogram-go v1.3.0 h1:NBGs5RJ6Q7lDFhszi5AHovwDrSzJAF
 github.com/HdrHistogram/hdrhistogram-go v1.3.0/go.mod h1:CiIeGiHSd06zjX+FypuEJ5EQ07KKtxZ+8J6hszwVQig=
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
-github.com/ProductBuildersHQ/prism-build v0.2.0 h1:/BCbb7F3UHVjT2gOWwg6DqpWB2FMWFw4BaVdAvCGb3g=
-github.com/ProductBuildersHQ/prism-build v0.2.0/go.mod h1:kl42lQGsxe8J7xJQgd9Npnoa2ksxUhwKBL7VtRVO964=
 github.com/ProductBuildersHQ/scale v0.2.0 h1:NeNLOHq1sNcaHO1jZCpVhAOVEnuwO7qf2Wef7SLhBkg=
 github.com/ProductBuildersHQ/scale v0.2.0/go.mod h1:1UDtB3LdIUP3x5UqUQavHMUbH8NMIPFC2NFmQBbj5aw=
 github.com/ProductBuildersHQ/visionspec v0.18.0 h1:ms/TRCYdPmC0bmO54bJU5LzTdDXP5svnad7S0hchwNc=

@@ -4,7 +4,6 @@
 package ir
 
 import (
-	pbstore "github.com/ProductBuildersHQ/prism-build/pkg/store"
 	vsstore "github.com/ProductBuildersHQ/visionstudio/pkg/store"
 	prismmaturity "github.com/grokify/prism-maturity"
 	"github.com/grokify/prism-roadmap/goals"
@@ -14,39 +13,39 @@ import (
 	"github.com/plexusone/devfolio/output/devxdashboard"
 )
 
-// Execution domain types — aliases to prism-build/pkg/store.
+// Execution domain types — aliases to this module's pkg/store.
 // These represent the core execution tracking entities.
 
 type (
-	Program              = pbstore.Program
-	Initiative           = pbstore.Initiative
-	Phase                = pbstore.Phase
-	RoadmapItem          = pbstore.RoadmapItem
-	Assignment           = pbstore.Assignment
-	DeliveryEvidence     = pbstore.DeliveryEvidence
-	Repository           = pbstore.Repository
-	ContextSpec          = pbstore.ContextSpec
-	Handoff              = pbstore.Handoff
-	RMIDependency        = pbstore.RMIDependency
-	InitiativeDependency = pbstore.InitiativeDependency
-	RepositoryDependency = pbstore.RepositoryDependency
+	Program              = vsstore.Program
+	Initiative           = vsstore.Initiative
+	Phase                = vsstore.Phase
+	RoadmapItem          = vsstore.RoadmapItem
+	Assignment           = vsstore.Assignment
+	DeliveryEvidence     = vsstore.DeliveryEvidence
+	Repository           = vsstore.Repository
+	ContextSpec          = vsstore.ContextSpec
+	Handoff              = vsstore.Handoff
+	RMIDependency        = vsstore.RMIDependency
+	InitiativeDependency = vsstore.InitiativeDependency
+	RepositoryDependency = vsstore.RepositoryDependency
 )
 
 // Spec workflow and judging types.
 
 type (
-	SpecWorkflow = pbstore.SpecWorkflow
-	JudgeResult  = pbstore.JudgeResult
+	SpecWorkflow = vsstore.SpecWorkflow
+	JudgeResult  = vsstore.JudgeResult
 )
 
-// Maturity model types from prism-build (Dolt-backed).
+// Maturity model types from this module's pkg/store (Dolt-backed).
 
 type (
-	CapabilityModel    = pbstore.CapabilityModel
-	MaturityAssessment = pbstore.MaturityAssessment
-	Dimension          = pbstore.Dimension
-	Level              = pbstore.Level
-	DimensionScore     = pbstore.DimensionScore
+	CapabilityModel    = vsstore.CapabilityModel
+	MaturityAssessment = vsstore.MaturityAssessment
+	Dimension          = vsstore.Dimension
+	Level              = vsstore.Level
+	DimensionScore     = vsstore.DimensionScore
 )
 
 // PRISM maturity framework types from prism-maturity (JSON IR).

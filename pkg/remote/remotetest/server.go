@@ -1,23 +1,52 @@
 // Package remotetest provides an in-process fake of the VisionStudio Cloud
-// tenant CRUD API for testing code that uses pkg/remote. It mirrors the
-// cloud API's contract — routes under /t/{tenant}/api/v1, bearer/X-API-Key
-// authentication, tenant membership (401 vs 403), 404 on missing entities,
-// 400 on rejected writes, strict request decoding — and serves requests
-// through the real pkg/service over an in-memory store, as the cloud does
-// over a tenant database.
+// tenant API for testing code that uses pkg/remote. It mirrors the cloud
+// API's documented contract — routes under /t/{tenant}/api/v1 plus
+// GET /api/v1/me, bearer/X-API-Key authentication, tenant membership (401 vs
+// 403), the {"error", "code"} error body with 400/404/409 classification,
+// strict request decoding, [] for empty lists, the {"assignment": null} and
+// {"workflow": null} wrappers, and the server-enforced lease rules — and
+// serves requests through the real pkg/service over an in-memory store, as
+// the cloud does over a tenant database.
 package remotetest
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"sync"
 
+	"github.com/ProductBuildersHQ/visionstudio/pkg/pcerr"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
+
+// Principal identity the fake reports from its "me" endpoints.
+const (
+	PrincipalID    = "test-principal"
+	PrincipalEmail = "dev@example.com"
+	AuthMethod     = "api_key"
+)
+
+// Error codes in the "code" field of an error response (the cloud's).
+const (
+	CodeUnauthenticated = "UNAUTHENTICATED"
+	CodeForbidden       = "FORBIDDEN"
+	CodeInvalid         = "INVALID"
+	CodeInvalidRef      = "INVALID_REFERENCE"
+	CodeNotFound        = "NOT_FOUND"
+	CodeConflict        = "CONFLICT"
+	CodeLeaseConflict   = "LEASE_CONFLICT"
+	CodeInternal        = "INTERNAL"
+)
+
+// maxRequestBytes caps a request body, like the cloud.
+const maxRequestBytes = 8 << 20
 
 // Server is a running fake cloud API.
 type Server struct {
@@ -28,40 +57,106 @@ type Server struct {
 
 	mu       sync.Mutex
 	token    string
-	tenants  map[string]bool
+	tenants  []string
+	members  map[string]bool
 	requests []Request
+
+	// leaseMu serializes assignment writes, standing in for the cloud's
+	// per-tenant, per-RMI advisory lock.
+	leaseMu sync.Mutex
 }
 
 // Request records what the fake received (for header assertions).
 type Request struct {
 	Method string
 	Path   string
-	Query  string
-	Header http.Header
+	// RawPath is the path as sent, with any percent-escapes intact.
+	RawPath string
+	Query   string
+	Header  http.Header
 }
 
 // NewServer starts a fake whose only valid credential is token and whose
-// principal is a member of tenants. Close it when done.
+// principal is a member (owner) of tenants. Close it when done.
 func NewServer(token string, tenants ...string) *Server {
 	s := &Server{
 		Service: service.New(store.NewMemStore()),
 		token:   token,
-		tenants: map[string]bool{},
+		tenants: append([]string(nil), tenants...),
+		members: map[string]bool{},
 	}
 	for _, t := range tenants {
-		s.tenants[t] = true
+		s.members[t] = true
 	}
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /t/{tenant}/api/v1/initiatives", s.listInitiatives)
-	mux.HandleFunc("POST /t/{tenant}/api/v1/initiatives", s.createInitiative)
-	mux.HandleFunc("GET /t/{tenant}/api/v1/initiatives/{id}", s.getInitiative)
-	mux.HandleFunc("GET /t/{tenant}/api/v1/rmis", s.listRMIs)
-	mux.HandleFunc("POST /t/{tenant}/api/v1/rmis", s.createRMI)
-	mux.HandleFunc("GET /t/{tenant}/api/v1/rmis/{id}", s.getRMI)
-	mux.HandleFunc("GET /t/{tenant}/api/v1/programs", s.listPrograms)
-	mux.HandleFunc("GET /t/{tenant}/api/v1/phases", s.listPhases)
+	s.routes(mux)
 	s.Server = httptest.NewServer(s.record(mux))
 	return s
+}
+
+func (s *Server) routes(mux *http.ServeMux) {
+	const t = "/t/{tenant}/api/v1"
+
+	mux.HandleFunc("GET /api/v1/me", s.getMe)
+	mux.HandleFunc("GET "+t+"/me", s.getTenantMe)
+
+	mux.HandleFunc("GET "+t+"/programs", s.listPrograms)
+	mux.HandleFunc("POST "+t+"/programs", s.createProgram)
+	mux.HandleFunc("GET "+t+"/programs/{id}", s.getProgram)
+	mux.HandleFunc("PUT "+t+"/programs/{id}", s.updateProgram)
+	mux.HandleFunc("PATCH "+t+"/programs/{id}", s.updateProgram)
+
+	mux.HandleFunc("GET "+t+"/initiatives", s.listInitiatives)
+	mux.HandleFunc("POST "+t+"/initiatives", s.createInitiative)
+	mux.HandleFunc("GET "+t+"/initiatives/{id}", s.getInitiative)
+	mux.HandleFunc("PUT "+t+"/initiatives/{id}", s.updateInitiative)
+	mux.HandleFunc("PATCH "+t+"/initiatives/{id}", s.updateInitiative)
+	mux.HandleFunc("POST "+t+"/initiatives/{id}/transition", s.transitionInitiative)
+	mux.HandleFunc("GET "+t+"/initiatives/{id}/workflow", s.getInitiativeWorkflow)
+	mux.HandleFunc("PUT "+t+"/initiatives/{id}/workflow", s.selectInitiativeWorkflow)
+	mux.HandleFunc("GET "+t+"/initiatives/{id}/judge-results", s.listJudgeResults)
+
+	mux.HandleFunc("GET "+t+"/phases", s.listPhases)
+	mux.HandleFunc("POST "+t+"/phases", s.createPhase)
+	mux.HandleFunc("DELETE "+t+"/phases/{id...}", s.deletePhase)
+
+	mux.HandleFunc("GET "+t+"/rmis", s.listRMIs)
+	mux.HandleFunc("POST "+t+"/rmis", s.createRMI)
+	mux.HandleFunc("GET "+t+"/rmis/{id}", s.getRMI)
+	mux.HandleFunc("PUT "+t+"/rmis/{id}", s.updateRMI)
+	mux.HandleFunc("PATCH "+t+"/rmis/{id}", s.updateRMI)
+	mux.HandleFunc("POST "+t+"/rmis/{id}/status", s.updateRMIStatus)
+	mux.HandleFunc("POST "+t+"/rmis/{id}/move", s.moveRMI)
+	mux.HandleFunc("GET "+t+"/rmis/{id}/dependencies", s.listRMIDependencies)
+	mux.HandleFunc("GET "+t+"/rmis/{id}/active-assignment", s.getActiveAssignment)
+
+	mux.HandleFunc("GET "+t+"/dependencies", s.listDependencies)
+	mux.HandleFunc("POST "+t+"/dependencies", s.createDependency)
+
+	mux.HandleFunc("GET "+t+"/assignments", s.listAssignments)
+	mux.HandleFunc("POST "+t+"/assignments", s.createAssignment)
+	mux.HandleFunc("GET "+t+"/assignments/{id}", s.getAssignment)
+	mux.HandleFunc("PUT "+t+"/assignments/{id}", s.updateAssignment)
+
+	mux.HandleFunc("GET "+t+"/evidence", s.listEvidence)
+	mux.HandleFunc("POST "+t+"/evidence", s.createEvidence)
+
+	mux.HandleFunc("GET "+t+"/releases", s.listReleases)
+	mux.HandleFunc("GET "+t+"/releases/{id...}", s.getRelease)
+
+	mux.HandleFunc("GET "+t+"/repositories", s.listRepositories)
+	mux.HandleFunc("GET "+t+"/repositories/{id...}", s.getRepository)
+
+	mux.HandleFunc("GET "+t+"/workflows", s.listWorkflows)
+	mux.HandleFunc("GET "+t+"/workflows/{id}", s.getWorkflow)
+
+	mux.HandleFunc("GET "+t+"/spec-documents", s.listSpecDocuments)
+	mux.HandleFunc("POST "+t+"/spec-documents", s.createSpecDocument)
+	mux.HandleFunc("GET "+t+"/spec-documents/{id...}", s.getSpecDocument)
+	mux.HandleFunc("PUT "+t+"/spec-documents/{id...}", s.replaceSpecDocument)
+	mux.HandleFunc("DELETE "+t+"/spec-documents/{id...}", s.deleteSpecDocument)
+
+	mux.HandleFunc("POST "+t+"/judge-results", s.createJudgeResult)
 }
 
 // Requests returns a copy of every request received so far.
@@ -74,7 +169,10 @@ func (s *Server) Requests() []Request {
 func (s *Server) record(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		s.mu.Lock()
-		s.requests = append(s.requests, Request{Method: r.Method, Path: r.URL.Path, Query: r.URL.RawQuery, Header: r.Header.Clone()})
+		s.requests = append(s.requests, Request{
+			Method: r.Method, Path: r.URL.Path, RawPath: r.URL.EscapedPath(),
+			Query: r.URL.RawQuery, Header: r.Header.Clone(),
+		})
 		s.mu.Unlock()
 		next.ServeHTTP(w, r)
 	})
@@ -88,22 +186,45 @@ func (s *Server) credential(r *http.Request) string {
 	return strings.TrimSpace(r.Header.Get("X-API-Key"))
 }
 
-// withService mirrors the cloud API's authorize → resolve → delegate flow.
-func (s *Server) withService(w http.ResponseWriter, r *http.Request, fn func(ctx context.Context, svc *service.Service) (any, int, error)) {
-	if tok := s.credential(r); tok == "" || tok != s.token {
-		writeError(w, http.StatusUnauthorized, "authentication required")
-		return
+func (s *Server) authenticated(r *http.Request) bool {
+	tok := s.credential(r)
+	return tok != "" && tok == s.token
+}
+
+// authorize mirrors the cloud's 401 (credential) then 403 (membership).
+func (s *Server) authorize(w http.ResponseWriter, r *http.Request) bool {
+	if !s.authenticated(r) {
+		writeError(w, http.StatusUnauthorized, CodeUnauthenticated, "authentication required")
+		return false
 	}
-	if !s.tenants[r.PathValue("tenant")] {
-		writeError(w, http.StatusForbidden, "not a member of this tenant")
+	if !s.members[r.PathValue("tenant")] {
+		writeError(w, http.StatusForbidden, CodeForbidden, "not a member of this tenant")
+		return false
+	}
+	return true
+}
+
+// serviceFunc is a handler body: it returns the response body and success
+// status (0 → 200), or an error classify maps to a status and code.
+type serviceFunc func(ctx context.Context, svc *service.Service) (any, int, error)
+
+// withService mirrors the cloud API's authorize → delegate → encode flow.
+func (s *Server) withService(w http.ResponseWriter, r *http.Request, fn serviceFunc) {
+	if !s.authorize(w, r) {
 		return
 	}
 	body, status, err := fn(r.Context(), s.Service)
 	if err != nil {
-		if status == 0 {
-			status = http.StatusBadRequest
+		st, code := classify(err)
+		msg := err.Error()
+		if st >= http.StatusInternalServerError {
+			msg = "internal error"
 		}
-		writeError(w, status, err.Error())
+		writeError(w, st, code, msg)
+		return
+	}
+	if status == http.StatusNoContent {
+		w.WriteHeader(status)
 		return
 	}
 	if status == 0 {
@@ -112,160 +233,188 @@ func (s *Server) withService(w http.ResponseWriter, r *http.Request, fn func(ctx
 	writeJSON(w, status, body)
 }
 
-func (s *Server) listInitiatives(w http.ResponseWriter, r *http.Request) {
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		inits, err := svc.ListInitiatives(ctx)
-		if err != nil {
-			return nil, 0, err
-		}
-		if inits == nil {
-			inits = []*store.Initiative{}
-		}
-		return map[string]any{"initiatives": inits}, http.StatusOK, nil
-	})
+// --- identity ---
+
+type mePrincipal struct {
+	ID         string `json:"id"`
+	Email      string `json:"email,omitempty"`
+	AuthMethod string `json:"auth_method,omitempty"`
 }
 
-func (s *Server) getInitiative(w http.ResponseWriter, r *http.Request) {
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		in, err := svc.GetInitiative(ctx, r.PathValue("id"))
-		if err != nil {
-			return nil, http.StatusNotFound, err
-		}
-		return in, http.StatusOK, nil
-	})
+type membership struct {
+	Tenant string `json:"tenant"`
+	Name   string `json:"name,omitempty"`
+	Role   string `json:"role,omitempty"`
 }
 
-func (s *Server) createInitiative(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID           string `json:"id"`
-		Organization string `json:"organization"`
-		Title        string `json:"title"`
-		Description  string `json:"description,omitempty"`
-		Priority     string `json:"priority,omitempty"`
-		InitType     string `json:"init_type,omitempty"`
-		WorkflowID   string `json:"workflow_id,omitempty"`
-	}
-	if !decodeJSON(w, r, &req) {
+func principal() mePrincipal {
+	return mePrincipal{ID: PrincipalID, Email: PrincipalEmail, AuthMethod: AuthMethod}
+}
+
+// getMe serves GET /api/v1/me: principal and every membership.
+func (s *Server) getMe(w http.ResponseWriter, r *http.Request) {
+	if !s.authenticated(r) {
+		writeError(w, http.StatusUnauthorized, CodeUnauthenticated, "authentication required")
 		return
 	}
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		in, err := svc.CreateInitiative(ctx, req.ID, req.Organization, req.Title, req.Description, req.Priority, req.InitType, req.WorkflowID)
-		if err != nil {
-			return nil, http.StatusBadRequest, err
-		}
-		return in, http.StatusCreated, nil
-	})
-}
-
-func (s *Server) listRMIs(w http.ResponseWriter, r *http.Request) {
-	initiativeID := r.URL.Query().Get("initiative")
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		var (
-			rmis []*store.RoadmapItem
-			err  error
-		)
-		if initiativeID != "" {
-			rmis, err = svc.ListRMIs(ctx, initiativeID)
-		} else {
-			rmis, err = svc.ListAllRMIs(ctx)
-		}
-		if err != nil {
-			return nil, 0, err
-		}
-		if rmis == nil {
-			rmis = []*store.RoadmapItem{}
-		}
-		return map[string]any{"rmis": rmis}, http.StatusOK, nil
-	})
-}
-
-func (s *Server) getRMI(w http.ResponseWriter, r *http.Request) {
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		rmi, err := svc.GetRMI(ctx, r.PathValue("id"))
-		if err != nil {
-			return nil, http.StatusNotFound, err
-		}
-		return rmi, http.StatusOK, nil
-	})
-}
-
-func (s *Server) createRMI(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		ID                 string   `json:"id"`
-		RepositoryID       string   `json:"repository_id"`
-		InitiativeID       string   `json:"initiative_id,omitempty"`
-		PhaseID            string   `json:"phase_id,omitempty"`
-		Title              string   `json:"title"`
-		Description        string   `json:"description,omitempty"`
-		ItemType           string   `json:"item_type"`
-		Priority           string   `json:"priority,omitempty"`
-		Required           bool     `json:"required"`
-		SequenceNumber     int      `json:"sequence_number,omitempty"`
-		AcceptanceCriteria []string `json:"acceptance_criteria,omitempty"`
+	ms := make([]membership, 0, len(s.tenants))
+	for _, t := range s.tenants {
+		ms = append(ms, membership{Tenant: t, Name: t, Role: "owner"})
 	}
-	if !decodeJSON(w, r, &req) {
+	writeJSON(w, http.StatusOK, map[string]any{"principal": principal(), "memberships": ms})
+}
+
+// getTenantMe serves GET /t/{tenant}/api/v1/me.
+func (s *Server) getTenantMe(w http.ResponseWriter, r *http.Request) {
+	if !s.authorize(w, r) {
 		return
 	}
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		rmi, err := svc.CreateRMI(ctx, req.ID, req.RepositoryID, req.InitiativeID, req.PhaseID, req.Title, req.Description, req.ItemType, req.Priority, req.Required, req.SequenceNumber, req.AcceptanceCriteria)
-		if err != nil {
-			return nil, http.StatusBadRequest, err
-		}
-		return rmi, http.StatusCreated, nil
-	})
+	writeJSON(w, http.StatusOK, map[string]any{"principal": principal(), "tenant": r.PathValue("tenant"), "role": "owner"})
 }
 
-func (s *Server) listPrograms(w http.ResponseWriter, r *http.Request) {
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		progs, err := svc.ListPrograms(ctx)
-		if err != nil {
-			return nil, 0, err
-		}
-		if progs == nil {
-			progs = []*store.Program{}
-		}
-		return map[string]any{"programs": progs}, http.StatusOK, nil
-	})
+// --- errors ---
+
+// apiError is an error a handler raises with an explicit status and code.
+type apiError struct {
+	status int
+	code   string
+	msg    string
 }
 
-func (s *Server) listPhases(w http.ResponseWriter, r *http.Request) {
-	initiativeID := r.URL.Query().Get("initiative")
-	s.withService(w, r, func(ctx context.Context, svc *service.Service) (any, int, error) {
-		var phases []*store.Phase
-		if initiativeID != "" {
-			ph, err := svc.ListPhases(ctx, initiativeID)
-			if err != nil {
-				return nil, 0, err
-			}
-			phases = ph
-		} else {
-			inits, err := svc.ListInitiatives(ctx)
-			if err != nil {
-				return nil, 0, err
-			}
-			for _, in := range inits {
-				ph, err := svc.ListPhases(ctx, in.ID)
-				if err != nil {
-					return nil, 0, err
-				}
-				phases = append(phases, ph...)
-			}
-		}
-		if phases == nil {
-			phases = []*store.Phase{}
-		}
-		return map[string]any{"phases": phases}, http.StatusOK, nil
-	})
+func (e *apiError) Error() string { return e.msg }
+
+func badRequest(msg string) error {
+	return &apiError{status: http.StatusBadRequest, code: CodeInvalid, msg: msg}
 }
 
+func conflict(code, msg string) error {
+	return &apiError{status: http.StatusConflict, code: code, msg: msg}
+}
+
+func errMissing(field string) error { return badRequest(field + " is required") }
+
+// classify maps an error to a status and code the way the cloud does for
+// its in-memory store: explicit apiErrors, pcerr categories, then the
+// store's "not found" / "already exists" message forms; anything else the
+// service rejected is a 400.
+func classify(err error) (int, string) {
+	var ae *apiError
+	if errors.As(err, &ae) {
+		return ae.status, ae.code
+	}
+	var pe *pcerr.Error
+	if errors.As(err, &pe) {
+		switch {
+		case pcerr.IsNotFound(err):
+			return http.StatusNotFound, pe.Code
+		case pcerr.IsInput(err):
+			return http.StatusBadRequest, pe.Code
+		case pcerr.IsInternal(err):
+			return http.StatusInternalServerError, pe.Code
+		default:
+			return http.StatusConflict, pe.Code
+		}
+	}
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return http.StatusInternalServerError, CodeInternal
+	}
+	msg := strings.ToLower(err.Error())
+	switch {
+	case strings.Contains(msg, "not found"):
+		return http.StatusNotFound, CodeNotFound
+	case strings.Contains(msg, "already exists"), strings.Contains(msg, "duplicate"):
+		return http.StatusConflict, CodeConflict
+	}
+	return http.StatusBadRequest, CodeInvalid
+}
+
+// asReference re-labels a not-found error from a create or move as a 400:
+// the missing entity is one the body references, not the URL's.
+func asReference(err error) error {
+	if err == nil {
+		return nil
+	}
+	if status, _ := classify(err); status == http.StatusNotFound {
+		return &apiError{status: http.StatusBadRequest, code: CodeInvalidRef, msg: err.Error()}
+	}
+	return err
+}
+
+// --- encoding ---
+
+// decodeJSON strictly decodes the request body (unknown fields and
+// trailing data are rejected) and writes a 400 on failure.
 func decodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
-	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
-	if err := dec.Decode(dst); err != nil {
-		writeError(w, http.StatusBadRequest, "invalid request body: "+err.Error())
+	data, ok := readBody(w, r)
+	if !ok {
+		return false
+	}
+	if err := decodeInto(data, dst); err != nil {
+		writeError(w, http.StatusBadRequest, CodeInvalid, err.Error())
 		return false
 	}
 	return true
+}
+
+func readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool) {
+	data, err := io.ReadAll(http.MaxBytesReader(w, r.Body, maxRequestBytes))
+	if err != nil {
+		writeError(w, http.StatusBadRequest, CodeInvalid, "invalid request body: "+err.Error())
+		return nil, false
+	}
+	return data, true
+}
+
+func decodeInto(data []byte, dst any) error {
+	dec := json.NewDecoder(bytes.NewReader(data))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(dst); err != nil {
+		return badRequest("invalid request body: " + err.Error())
+	}
+	if dec.More() {
+		return badRequest("invalid request body: unexpected data after the JSON value")
+	}
+	return nil
+}
+
+// buildUpdate returns the entity a PUT (replace) or PATCH (merge onto the
+// stored entity) asks to store; a body id must equal the URL's.
+func buildUpdate[T any](ctx context.Context, method string, data []byte, pathID string,
+	load func(ctx context.Context, id string) (*T, error), idOf func(*T) *string,
+) (*T, error) {
+	out := new(T)
+	if method == http.MethodPatch {
+		cur, err := load(ctx, pathID)
+		if err != nil {
+			return nil, err
+		}
+		raw, err := json.Marshal(cur)
+		if err != nil {
+			return nil, fmt.Errorf("copy stored entity: %w", err)
+		}
+		if err := json.Unmarshal(raw, out); err != nil {
+			return nil, fmt.Errorf("copy stored entity: %w", err)
+		}
+	}
+	if err := decodeInto(data, out); err != nil {
+		return nil, err
+	}
+	id := idOf(out)
+	switch {
+	case *id == "":
+		*id = pathID
+	case *id != pathID:
+		return nil, badRequest(fmt.Sprintf("body id %q does not match URL id %q", *id, pathID))
+	}
+	return out, nil
+}
+
+// nonNil makes empty lists encode as [] rather than null.
+func nonNil[T any](v []T) []T {
+	if v == nil {
+		return []T{}
+	}
+	return v
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -275,6 +424,6 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-func writeError(w http.ResponseWriter, status int, msg string) {
-	writeJSON(w, status, map[string]string{"error": msg})
+func writeError(w http.ResponseWriter, status int, code, msg string) {
+	writeJSON(w, status, map[string]string{"error": msg, "code": code})
 }

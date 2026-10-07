@@ -46,6 +46,12 @@
               "program_id": {
                 "type": "string"
               },
+              "hidden": {
+                "type": "boolean"
+              },
+              "visibility": {
+                "type": "string"
+              },
               "specs": {
                 "additionalProperties": {
                   "type": "string"
@@ -156,6 +162,9 @@
               },
               "required": {
                 "type": "boolean"
+              },
+              "origin": {
+                "type": "string"
               },
               "sequence_number": {
                 "type": "integer"
@@ -2747,7 +2756,10 @@
                     },
                     "models": {
                       "additionalProperties": {
-                        "type": "number"
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "type": "object"
                       },
                       "type": "object"
                     }
@@ -2769,7 +2781,10 @@
                     },
                     "models": {
                       "additionalProperties": {
-                        "type": "number"
+                        "additionalProperties": {
+                          "type": "number"
+                        },
+                        "type": "object"
                       },
                       "type": "object"
                     }
@@ -3005,6 +3020,12 @@
                   },
                   "dataSourceId": {
                     "type": "string"
+                  },
+                  "questionId": {
+                    "type": "string"
+                  },
+                  "visualization": {
+                    "type": "object"
                   },
                   "transform": {
                     "items": {

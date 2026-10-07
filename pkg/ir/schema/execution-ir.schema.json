@@ -38,6 +38,12 @@
           "program_id": {
             "type": "string"
           },
+          "hidden": {
+            "type": "boolean"
+          },
+          "visibility": {
+            "type": "string"
+          },
           "specs": {
             "additionalProperties": {
               "type": "string"
@@ -148,6 +154,9 @@
           },
           "required": {
             "type": "boolean"
+          },
+          "origin": {
+            "type": "string"
           },
           "sequence_number": {
             "type": "integer"

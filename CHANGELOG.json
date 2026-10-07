@@ -7,7 +7,21 @@
   "maintainers": [
     "ProductBuildersHQ"
   ],
-  "unreleased": {},
+  "unreleased": {
+    "changed": [
+      {"description": "Execution IR types alias this module's own `pkg/store` instead of the `prism-build` module, which is no longer a dependency; `prism-build` was folded into visionstudio and archived", "commit": "e95aced"},
+      {"description": "The execution and repo-snapshot IR schemas gain the optional `hidden`, `visibility`, and `origin` properties, which the local store types have and the `prism-build` types lacked", "commit": "a0d7893"}
+    ],
+    "fixed": [
+      {"description": "Regenerated the devx IR schema, which had fallen behind its Go types (adds `visualization` and `questionId`, describes per-model maps as objects)", "commit": "2dca272"}
+    ],
+    "documentation": [
+      {"description": "Folded in the `prism-build` specifications under `docs/specs/prism-build`, and the plan for INIT-PRISMCONTROL-003 into its initiative directory", "commit": "00812c3"}
+    ],
+    "dependencies": [
+      {"description": "Bumped `github.com/grokify/gogithub` from v0.17.0 to v0.18.0", "commit": "ba5d231"}
+    ]
+  },
   "releases": [
     {
       "version": "v0.7.0",

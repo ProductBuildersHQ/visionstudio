@@ -54,6 +54,8 @@ nav:
       - Installation: getting-started/installation.md
       - Quick Start: getting-started/quickstart.md
       - Troubleshooting: getting-started/troubleshooting.md
+  - CLI & Agents:
+      - Remote Mode & MCP (Cloud): guide/remote-mode.md
   - Dashboard Guide:
       - Tour: dashboard/overview.md
       - Programs, Initiatives & RMIs: dashboard/initiatives.md

@@ -17,9 +17,9 @@ import (
 func cloudCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cloud",
-		Short: "Connect the local app to VisionStudio Cloud (tenant assignment, sync)",
+		Short: "Connect the local app to VisionStudio Cloud (login, tenant assignment, sync)",
 	}
-	cmd.AddCommand(cloudTenantCmd(), cloudRemoteCmd())
+	cmd.AddCommand(cloudLoginCmd(), cloudLogoutCmd(), cloudStatusCmd(), cloudTenantCmd(), cloudRemoteCmd())
 	return cmd
 }
 

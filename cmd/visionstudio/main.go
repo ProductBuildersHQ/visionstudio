@@ -82,6 +82,7 @@ most list commands accept '--format json'. Each subcommand's --help documents it
 
 	cmd.PersistentFlags().String("dsn", "", "MySQL-compatible DSN for Dolt server mode (default: $VISIONSTUDIO_DSN or "+defaultDSN+")")
 	cmd.PersistentFlags().String("data-dir", "", "Data directory for embedded Dolt (default: $VISIONSTUDIO_DATA or "+defaultDataDir+")")
+	addRemoteFlags(cmd)
 
 	cmd.AddCommand(
 		versionCmd(),

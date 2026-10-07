@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/ProductBuildersHQ/visionstudio/pkg/remote"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/reposcan"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/service"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -866,6 +868,11 @@ func resolveRepoID(ctx context.Context, svc *service.Service, ref string) (strin
 	}
 	if strings.HasPrefix(ref, "github.com/") {
 		if _, err := svc.GetRepository(ctx, ref); err != nil {
+			if errors.Is(err, remote.ErrNotSupported) {
+				// Remote mode: the registry is not reachable, which is
+				// not the same as the repository being absent.
+				return "", fmt.Errorf("resolve repository %q: %w", ref, err)
+			}
 			return "", fmt.Errorf("repository %q not found in registry", ref)
 		}
 		return ref, nil
@@ -959,6 +966,21 @@ func gitRemoteURL(path string) string {
 }
 
 func connectService(cmd *cobra.Command) (*service.Service, func(), error) {
+	// Remote mode is additive: only an explicit --remote/$VISIONSTUDIO_REMOTE_URL
+	// takes this branch; local resolution below is unchanged.
+	if rs, ok, err := resolveRemote(cmd, ""); err != nil {
+		return nil, nil, err
+	} else if ok {
+		if cmd.Flags().Changed("dsn") || cmd.Flags().Changed("data-dir") {
+			return nil, nil, fmt.Errorf("--remote cannot be combined with --dsn or --data-dir")
+		}
+		st, err := newRemoteStore(rs)
+		if err != nil {
+			return nil, nil, fmt.Errorf("connect (remote): %w", err)
+		}
+		return service.New(st), func() {}, nil
+	}
+
 	dataDir := getDataDir(cmd)
 	if dataDir != "" {
 		ds, err := connectEmbedded(dataDir)

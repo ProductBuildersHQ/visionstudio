@@ -262,6 +262,10 @@ func TestErrorMapping(t *testing.T) {
 	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusNotFound || !strings.Contains(apiErr.Message, "not found") {
 		t.Fatalf("APIError = %+v", apiErr)
 	}
+	before := len(fake.Requests())
+	if _, err := rs.GetRMI(ctx, ""); !errors.Is(err, remote.ErrNotFound) || len(fake.Requests()) != before {
+		t.Fatalf("empty RMI ID err = %v (requests sent: %d)", err, len(fake.Requests())-before)
+	}
 	if _, err := rs.GetRMI(ctx, "RMI-NOPE-001"); !errors.Is(err, remote.ErrNotFound) {
 		t.Fatalf("missing RMI err = %v, want ErrNotFound", err)
 	}

@@ -103,8 +103,17 @@ func initiativeExtraFields(in *store.Initiative) []string {
 	return f
 }
 
+// emptyID reports a lookup with no ID without a round trip (an empty path
+// segment would otherwise hit the list route or a bare 404).
+func emptyID(path, kind string) error {
+	return &APIError{Method: http.MethodGet, Path: path, StatusCode: http.StatusNotFound, Message: kind + " ID is required"}
+}
+
 // GetInitiative fetches one initiative.
 func (s *Store) GetInitiative(ctx context.Context, id string) (*store.Initiative, error) {
+	if id == "" {
+		return nil, emptyID("/initiatives/", "initiative")
+	}
 	var out store.Initiative
 	if err := s.do(ctx, http.MethodGet, "/initiatives/"+url.PathEscape(id), nil, nil, &out); err != nil {
 		return nil, err
@@ -178,6 +187,9 @@ func rmiExtraFields(r *store.RoadmapItem) []string {
 
 // GetRMI fetches one RMI.
 func (s *Store) GetRMI(ctx context.Context, id string) (*store.RoadmapItem, error) {
+	if id == "" {
+		return nil, emptyID("/rmis/", "RMI")
+	}
 	var out store.RoadmapItem
 	if err := s.do(ctx, http.MethodGet, "/rmis/"+url.PathEscape(id), nil, nil, &out); err != nil {
 		return nil, err

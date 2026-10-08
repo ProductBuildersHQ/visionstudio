@@ -48,8 +48,11 @@ func TestMCPToolsAgainstRemote(t *testing.T) {
 		t.Fatalf("initiative_create = %+v", created)
 	}
 
-	// Phases have no create endpoint yet; seed one server-side.
-	if _, err := fake.Service.CreatePhase(ctx, "INIT-ACME-001/phase-1", "INIT-ACME-001", 1, "Foundation", ""); err != nil {
+	// Phases have no MCP tool; create one through the remote store.
+	if _, err := service.New(newStore(t, fake)).CreatePhase(ctx, "INIT-ACME-001/phase-1", "INIT-ACME-001", 1, "Foundation", ""); err != nil {
+		t.Fatal(err)
+	}
+	if err := fake.Service.Store.CreateRepository(ctx, &store.Repository{ID: "github.com/acme/app", Organization: "acme", RepositoryName: "app", Status: "active"}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -75,26 +78,6 @@ func TestMCPToolsAgainstRemote(t *testing.T) {
 	}
 	if len(inits) != 1 || inits[0].ID != "INIT-ACME-001" {
 		t.Fatalf("initiative_list = %+v", inits)
-	}
-
-	// A tool whose store calls have no cloud endpoint yet fails with a
-	// clear, agent-readable error instead of fabricated output.
-	// (The server surfaces handler errors as JSON-RPC errors.)
-	res, err := cs.CallTool(ctx, &mcp.CallToolParams{
-		Name:      "task_claim",
-		Arguments: map[string]any{"rmi_id": "RMI-ACME-001", "worker": "agent-1"},
-	})
-	var msg string
-	switch {
-	case err != nil:
-		msg = err.Error()
-	case res.IsError:
-		msg = toolText(t, res)
-	default:
-		t.Fatalf("task_claim succeeded in remote mode; want not-supported error")
-	}
-	if !strings.Contains(msg, "not supported in remote mode") {
-		t.Fatalf("task_claim error = %q", msg)
 	}
 
 	// Every HTTP call carried the bearer credential.

@@ -12,8 +12,12 @@
 //	svc := service.New(rs)
 //	err = mcpserver.Run(ctx, svc)
 //
-// The cloud API's first slice covers initiatives and RMIs (plus read-only
-// phases and programs). Every other store method returns an error wrapping
+// The cloud tenant API covers the agent-work surface: programs, initiatives,
+// phases, RMIs and their dependencies, assignments (leases), delivery
+// evidence, spec workflows and documents, judge results, and read access to
+// releases and repositories. Store methods with no endpoint (initiative
+// dependencies, repository and release writes, organizations, people, spec
+// workflow writes, maturity, DevX and PRISM data) return an error wrapping
 // ErrNotSupported rather than faking a result.
 //
 // Authentication is pluggable. WithToken sends "Authorization: Bearer
@@ -48,10 +52,35 @@ var (
 	ErrForbidden = errors.New("remote: forbidden")
 	// ErrNotFound: the entity or route does not exist (404).
 	ErrNotFound = errors.New("remote: not found")
-	// ErrConflict: the write conflicts with existing state (409).
+	// ErrConflict: the write conflicts with existing state (409), including
+	// a lease conflict.
 	ErrConflict = errors.New("remote: conflict")
+	// ErrLeaseConflict: a 409 with code LEASE_CONFLICT — another session
+	// holds a live lease on the RMI, or the assignment is no longer active.
+	// Errors matching it also match ErrConflict.
+	ErrLeaseConflict = errors.New("remote: lease conflict")
+	// ErrInvalid: the server rejected the request as invalid (400).
+	ErrInvalid = errors.New("remote: invalid request")
+	// ErrInvalidReference: a 400 with code INVALID_REFERENCE — the body
+	// references an entity that does not exist. Errors matching it also
+	// match ErrInvalid.
+	ErrInvalidReference = errors.New("remote: invalid reference")
 	// ErrNotSupported: the operation has no cloud API endpoint yet.
 	ErrNotSupported = errors.New("remote: not supported in remote mode")
+)
+
+// Error codes the cloud API sends in an error response's "code" field. The
+// HTTP status is authoritative; the code refines it. Service errors may also
+// carry a pcerr code (e.g. STATE_CONFLICT) verbatim.
+const (
+	CodeUnauthenticated  = "UNAUTHENTICATED"
+	CodeForbidden        = "FORBIDDEN"
+	CodeInvalid          = "INVALID"
+	CodeInvalidReference = "INVALID_REFERENCE"
+	CodeNotFound         = "NOT_FOUND"
+	CodeConflict         = "CONFLICT"
+	CodeLeaseConflict    = "LEASE_CONFLICT"
+	CodeInternal         = "INTERNAL"
 )
 
 // APIError is a non-2xx response from the cloud API.
@@ -59,6 +88,9 @@ type APIError struct {
 	Method     string
 	Path       string
 	StatusCode int
+	// Code is the server's machine-readable error code (see the Code*
+	// constants), or empty when the response carried none.
+	Code string
 	// Message is the server's {"error": "..."} text, or the raw body when
 	// the response was not the JSON error shape.
 	Message string
@@ -69,12 +101,20 @@ func (e *APIError) Error() string {
 	if msg == "" {
 		msg = http.StatusText(e.StatusCode)
 	}
-	s := fmt.Sprintf("remote %s %s: %d: %s", e.Method, e.Path, e.StatusCode, msg)
+	status := fmt.Sprint(e.StatusCode)
+	if e.Code != "" {
+		status += " " + e.Code
+	}
+	s := fmt.Sprintf("remote %s %s: %s: %s", e.Method, e.Path, status, msg)
 	switch e.StatusCode {
 	case http.StatusUnauthorized:
 		s += " (missing or invalid credential; run 'visionstudio cloud login' or set VISIONSTUDIO_REMOTE_TOKEN)"
 	case http.StatusForbidden:
 		s += " (credential is not a member of this tenant)"
+	case http.StatusConflict:
+		if e.Code == CodeLeaseConflict {
+			s += " (another session holds the lease, or the assignment is no longer active)"
+		}
 	}
 	return s
 }
@@ -90,6 +130,12 @@ func (e *APIError) Is(target error) bool {
 		return e.StatusCode == http.StatusNotFound
 	case ErrConflict:
 		return e.StatusCode == http.StatusConflict
+	case ErrLeaseConflict:
+		return e.StatusCode == http.StatusConflict && e.Code == CodeLeaseConflict
+	case ErrInvalid:
+		return e.StatusCode == http.StatusBadRequest
+	case ErrInvalidReference:
+		return e.StatusCode == http.StatusBadRequest && e.Code == CodeInvalidReference
 	}
 	return false
 }
@@ -112,7 +158,11 @@ func (e *NotSupportedError) Error() string {
 // Unwrap lets errors.Is(err, ErrNotSupported) match.
 func (e *NotSupportedError) Unwrap() error { return ErrNotSupported }
 
-func notSupported(op string) error { return &NotSupportedError{Op: op} }
+// notServed reports an operation the cloud API deliberately does not serve
+// to remote stores, naming the area so the message says why.
+func notServed(op, area string) error {
+	return &NotSupportedError{Op: op, Reason: "the VisionStudio Cloud API does not serve " + area + " to remote clients"}
+}
 
 // Option configures a Store.
 type Option func(*Store)
@@ -246,13 +296,64 @@ func (s *Store) BaseURL() string { return s.base.String() }
 // Tenant returns the tenant slug requests are scoped to.
 func (s *Store) Tenant() string { return s.tenant }
 
+// Principal is the authenticated caller as the cloud reports it.
+type Principal struct {
+	ID    string `json:"id"`
+	Email string `json:"email,omitempty"`
+	// AuthMethod is session, access_token, api_key, or dev.
+	AuthMethod string `json:"auth_method,omitempty"`
+}
+
+// Membership is one tenant the principal belongs to.
+type Membership struct {
+	Tenant string `json:"tenant"`
+	Name   string `json:"name,omitempty"`
+	Role   string `json:"role,omitempty"`
+}
+
+// Identity is the body of GET /api/v1/me: the principal and every tenant
+// membership.
+type Identity struct {
+	Principal   Principal    `json:"principal"`
+	Memberships []Membership `json:"memberships"`
+}
+
+// TenantIdentity is the body of GET /t/{tenant}/api/v1/me: the principal
+// and its role in the store's tenant.
+type TenantIdentity struct {
+	Principal Principal `json:"principal"`
+	Tenant    string    `json:"tenant"`
+	Role      string    `json:"role,omitempty"`
+}
+
 // Ping verifies the URL, credential, and tenant membership with one cheap
-// authenticated read. A nil error means the store is usable.
+// authenticated read (GET /t/{tenant}/api/v1/me). A nil error means the
+// store is usable.
 func (s *Store) Ping(ctx context.Context) error {
-	var resp struct {
-		Programs []*store.Program `json:"programs"`
+	_, err := s.TenantMe(ctx)
+	return err
+}
+
+// TenantMe returns the caller's principal and role in the store's tenant.
+func (s *Store) TenantMe(ctx context.Context) (*TenantIdentity, error) {
+	var out TenantIdentity
+	if err := s.do(ctx, http.MethodGet, "/me", nil, nil, &out); err != nil {
+		return nil, err
 	}
-	return s.do(ctx, http.MethodGet, "/programs", nil, nil, &resp)
+	return &out, nil
+}
+
+// Me returns the caller's principal and every tenant membership
+// (GET /api/v1/me, outside any tenant).
+func (s *Store) Me(ctx context.Context) (*Identity, error) {
+	var out Identity
+	if err := s.request(ctx, http.MethodGet, "/api/v1/me", nil, nil, &out); err != nil {
+		return nil, err
+	}
+	if out.Memberships == nil {
+		out.Memberships = []Membership{}
+	}
+	return &out, nil
 }
 
 func defaultUserAgent() string {
@@ -260,19 +361,48 @@ func defaultUserAgent() string {
 	return "visionstudio/" + v + " (remote-store)"
 }
 
-// endpoint builds base + /t/{tenant}/api/v1 + rel (+ query).
-func (s *Store) endpoint(rel string, q url.Values) string {
+// idPath joins a collection path and an entity ID, escaping the ID as one
+// path segment (a "/" in it is sent as %2F, which the API accepts).
+func idPath(collection, id string) string {
+	return collection + "/" + url.PathEscape(id)
+}
+
+// endpoint builds base + rawRel (+ query). rawRel is an already-escaped
+// path relative to the cloud root.
+func (s *Store) endpoint(rawRel string, q url.Values) (string, error) {
 	u := *s.base
-	u.Path = u.Path + "/t/" + url.PathEscape(s.tenant) + "/api/v1" + rel
+	raw := s.base.EscapedPath() + rawRel
+	p, err := url.PathUnescape(raw)
+	if err != nil {
+		return "", fmt.Errorf("remote: invalid request path %q: %w", rawRel, err)
+	}
+	u.Path, u.RawPath = p, raw
 	if len(q) > 0 {
 		u.RawQuery = q.Encode()
 	}
-	return u.String()
+	return u.String(), nil
 }
 
-// do performs one request. body (if non-nil) is JSON-encoded; out (if
+// do performs one request against the tenant API: rel is an escaped path
+// relative to /t/{tenant}/api/v1. body (if non-nil) is JSON-encoded; out (if
 // non-nil) receives the decoded 2xx response.
 func (s *Store) do(ctx context.Context, method, rel string, q url.Values, body, out any) error {
+	return s.requestAs(ctx, method, "/t/"+url.PathEscape(s.tenant)+"/api/v1"+rel, rel, q, body, out)
+}
+
+// request performs one request at an escaped path relative to the cloud
+// root (for endpoints outside a tenant).
+func (s *Store) request(ctx context.Context, method, rawRel string, q url.Values, body, out any) error {
+	return s.requestAs(ctx, method, rawRel, rawRel, q, body, out)
+}
+
+// requestAs performs the request; label is the path errors report.
+func (s *Store) requestAs(ctx context.Context, method, rawRel, label string, q url.Values, body, out any) error {
+	rel := label
+	target, err := s.endpoint(rawRel, q)
+	if err != nil {
+		return err
+	}
 	var rdr io.Reader
 	if body != nil {
 		buf, err := json.Marshal(body)
@@ -281,7 +411,7 @@ func (s *Store) do(ctx context.Context, method, rel string, q url.Values, body, 
 		}
 		rdr = bytes.NewReader(buf)
 	}
-	req, err := http.NewRequestWithContext(ctx, method, s.endpoint(rel, q), rdr)
+	req, err := http.NewRequestWithContext(ctx, method, target, rdr)
 	if err != nil {
 		return fmt.Errorf("remote: build request: %w", err)
 	}
@@ -310,9 +440,10 @@ func (s *Store) do(ctx context.Context, method, rel string, q url.Values, body, 
 		return fmt.Errorf("remote %s %s: read response: %w", method, rel, err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return &APIError{Method: method, Path: rel, StatusCode: resp.StatusCode, Message: errorMessage(data)}
+		msg, code := errorMessage(data)
+		return &APIError{Method: method, Path: rel, StatusCode: resp.StatusCode, Code: code, Message: msg}
 	}
-	if out == nil {
+	if out == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
 	}
 	if err := json.Unmarshal(data, out); err != nil {
@@ -321,17 +452,19 @@ func (s *Store) do(ctx context.Context, method, rel string, q url.Values, body, 
 	return nil
 }
 
-// errorMessage extracts {"error": "..."} or falls back to the trimmed body.
-func errorMessage(data []byte) string {
+// errorMessage extracts {"error": "...", "code": "..."} or falls back to the
+// trimmed body and no code.
+func errorMessage(data []byte) (msg, code string) {
 	var e struct {
 		Error string `json:"error"`
+		Code  string `json:"code"`
 	}
 	if err := json.Unmarshal(data, &e); err == nil && e.Error != "" {
-		return e.Error
+		return e.Error, e.Code
 	}
-	msg := strings.TrimSpace(string(data))
+	msg = strings.TrimSpace(string(data))
 	if len(msg) > 512 {
 		msg = msg[:512] + "..."
 	}
-	return msg
+	return msg, ""
 }

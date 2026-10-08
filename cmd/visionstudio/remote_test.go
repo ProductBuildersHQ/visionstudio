@@ -10,6 +10,7 @@ import (
 
 	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/remote/remotetest"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
 const (
@@ -88,12 +89,38 @@ func TestRemoteModeUnsupportedIsClear(t *testing.T) {
 	fake := newFakeCloud(t)
 	t.Setenv(envRemoteToken, cliTestToken)
 
-	// `rmi create` validates --repo against the registry, which has no
-	// cloud endpoint yet: the error must say so, not "not found".
-	_, err := runCLI(t, "", "rmi", "create", "--repo", "github.com/acme/app", "--title", "t", "--type", "task",
+	// Organizations have no cloud endpoint: the error must say so, not
+	// report an empty list.
+	_, err := runCLI(t, "", "registry", "org", "list",
 		"--remote", fake.URL, "--remote-tenant", cliTestTenant)
 	if err == nil || !strings.Contains(err.Error(), "not supported in remote mode") {
-		t.Fatalf("rmi create err = %v, want not-supported", err)
+		t.Fatalf("registry org list err = %v, want not-supported", err)
+	}
+}
+
+func TestRemoteModeRMICreateUsesTenantRegistry(t *testing.T) {
+	isolateRemoteEnv(t)
+	fake := newFakeCloud(t)
+	t.Setenv(envRemoteToken, cliTestToken)
+	remoteArgs := []string{"--remote", fake.URL, "--remote-tenant", cliTestTenant}
+
+	// `rmi create` validates --repo against the tenant's registry.
+	_, err := runCLI(t, "", append([]string{"rmi", "create", "--repo", "github.com/acme/app", "--title", "t", "--type", "task"}, remoteArgs...)...)
+	if err == nil || !strings.Contains(err.Error(), "not found in registry") {
+		t.Fatalf("rmi create (unregistered repo) err = %v, want not found in registry", err)
+	}
+
+	ctx := context.Background()
+	if err := fake.Service.Store.CreateRepository(ctx, &store.Repository{ID: "github.com/acme/app", Organization: "acme", RepositoryName: "app", Status: "active"}); err != nil {
+		t.Fatal(err)
+	}
+	out, err := runCLI(t, "", append([]string{"rmi", "create", "--repo", "github.com/acme/app", "--title", "t", "--type", "task"}, remoteArgs...)...)
+	if err != nil {
+		t.Fatalf("rmi create: %v\n%s", err, out)
+	}
+	rmis, err := fake.Service.ListRMIsByRepo(ctx, "github.com/acme/app")
+	if err != nil || len(rmis) != 1 {
+		t.Fatalf("tenant RMIs = %+v, %v", rmis, err)
 	}
 }
 

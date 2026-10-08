@@ -125,25 +125,6 @@ func TestRMICreateGetList(t *testing.T) {
 	}
 }
 
-func TestProgramsReadOnly(t *testing.T) {
-	fake := newFake(t)
-	rs := newStore(t, fake)
-	ctx := context.Background()
-	if _, err := fake.Service.CreateProgram(ctx, "PROG-X", "X", "acme", ""); err != nil {
-		t.Fatal(err)
-	}
-	p, err := rs.GetProgram(ctx, "PROG-X")
-	if err != nil || p.Name != "X" {
-		t.Fatalf("GetProgram = %+v, %v", p, err)
-	}
-	if _, err := rs.GetProgram(ctx, "PROG-NOPE"); !errors.Is(err, remote.ErrNotFound) {
-		t.Fatalf("GetProgram missing err = %v, want ErrNotFound", err)
-	}
-	if err := rs.CreateProgram(ctx, &store.Program{ID: "PROG-Y"}); !errors.Is(err, remote.ErrNotSupported) {
-		t.Fatalf("CreateProgram err = %v, want ErrNotSupported", err)
-	}
-}
-
 func TestRequestHeaders(t *testing.T) {
 	fake := newFake(t)
 	rs := newStore(t, fake, remote.WithUserAgent("test-agent/1"))
@@ -270,10 +251,23 @@ func TestErrorMapping(t *testing.T) {
 		t.Fatalf("missing RMI err = %v, want ErrNotFound", err)
 	}
 
+	if apiErr.Code != remote.CodeNotFound {
+		t.Fatalf("APIError.Code = %q, want %q", apiErr.Code, remote.CodeNotFound)
+	}
+
 	// Service-layer validation surfaces as a 400 with the server's message.
 	err = rs.CreateRMI(ctx, &store.RoadmapItem{ID: "RMI-X-001"})
-	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusBadRequest || !strings.Contains(apiErr.Message, "required") {
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusBadRequest || !strings.Contains(apiErr.Message, "required") || !errors.Is(err, remote.ErrInvalid) {
 		t.Fatalf("invalid create err = %v", err)
+	}
+	if errors.Is(err, remote.ErrInvalidReference) {
+		t.Fatalf("plain 400 matched ErrInvalidReference: %v", err)
+	}
+
+	// Strict decoding: a body the server cannot decode is a 400 INVALID.
+	err = rs.CreatePhase(ctx, &store.Phase{})
+	if !errors.As(err, &apiErr) || apiErr.StatusCode != http.StatusBadRequest || apiErr.Code != remote.CodeInvalid {
+		t.Fatalf("empty phase err = %v", err)
 	}
 }
 
@@ -286,6 +280,7 @@ func TestStatusMappingFromRawServer(t *testing.T) {
 		{http.StatusForbidden, remote.ErrForbidden},
 		{http.StatusNotFound, remote.ErrNotFound},
 		{http.StatusConflict, remote.ErrConflict},
+		{http.StatusBadRequest, remote.ErrInvalid},
 	}
 	for _, tc := range cases {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
@@ -306,6 +301,45 @@ func TestStatusMappingFromRawServer(t *testing.T) {
 				t.Errorf("status %d also matched %v", tc.status, other.want)
 			}
 		}
+	}
+
+	// The error code refines the status.
+	for _, tc := range []struct {
+		status    int
+		code      string
+		want, alt error
+	}{
+		{http.StatusConflict, remote.CodeLeaseConflict, remote.ErrLeaseConflict, remote.ErrConflict},
+		{http.StatusBadRequest, remote.CodeInvalidReference, remote.ErrInvalidReference, remote.ErrInvalid},
+	} {
+		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(tc.status)
+			_, _ = w.Write([]byte(`{"error":"boom","code":"` + tc.code + `"}`))
+		}))
+		rs, err := remote.New(srv.URL, testTenant)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = rs.ListInitiatives(context.Background())
+		srv.Close()
+		var apiErr *remote.APIError
+		if !errors.Is(err, tc.want) || !errors.Is(err, tc.alt) || !errors.As(err, &apiErr) || apiErr.Code != tc.code || !strings.Contains(err.Error(), tc.code) {
+			t.Errorf("%d %s: err = %v", tc.status, tc.code, err)
+		}
+	}
+	// Without the code, the refined sentinels do not match.
+	srvConflict := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusConflict)
+		_, _ = w.Write([]byte(`{"error":"dup","code":"CONFLICT"}`))
+	}))
+	rsConflict, err := remote.New(srvConflict.URL, testTenant)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = rsConflict.ListInitiatives(context.Background())
+	srvConflict.Close()
+	if !errors.Is(err, remote.ErrConflict) || errors.Is(err, remote.ErrLeaseConflict) {
+		t.Errorf("409 CONFLICT err = %v", err)
 	}
 
 	// Non-JSON error bodies are surfaced verbatim; 5xx matches no sentinel.
@@ -330,33 +364,21 @@ func TestUnsupportedOperationsFailClearly(t *testing.T) {
 	svc := service.New(rs)
 	ctx := context.Background()
 
-	if _, err := fake.Service.CreateInitiative(ctx, "INIT-ACME-001", "acme", "Launch", "", "", "", ""); err != nil {
-		t.Fatal(err)
-	}
-	_, err := svc.TransitionInitiative(ctx, "INIT-ACME-001", "planned")
-	if !errors.Is(err, remote.ErrNotSupported) || !strings.Contains(err.Error(), "UpdateInitiative is not supported in remote mode") {
-		t.Fatalf("TransitionInitiative err = %v", err)
-	}
-	if _, err := svc.ListRepositories(ctx); !errors.Is(err, remote.ErrNotSupported) {
-		t.Fatalf("ListRepositories err = %v", err)
-	}
-	if _, err := fake.Service.CreateRMI(ctx, "RMI-ACME-001", "github.com/acme/app", "INIT-ACME-001", "", "t", "", "task", "", true, 1, nil); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := svc.ClaimRMI(ctx, "RMI-ACME-001", "w", "", time.Hour); !errors.Is(err, remote.ErrNotSupported) {
-		t.Fatalf("ClaimRMI err = %v", err)
-	}
-
-	// Create-time fields the cloud create endpoint cannot carry are
-	// rejected rather than silently dropped, before any request is sent.
+	// Areas the cloud does not serve fail clearly, naming the area, before
+	// any request is sent.
 	before := len(fake.Requests())
-	err = rs.CreateInitiative(ctx, &store.Initiative{ID: "INIT-ACME-002", Title: "t", HomeRepo: "github.com/acme/app"})
-	if !errors.Is(err, remote.ErrNotSupported) || !strings.Contains(err.Error(), "home_repo") {
-		t.Fatalf("CreateInitiative with home_repo err = %v", err)
+	err := rs.CreateInitiativeDependency(ctx, &store.InitiativeDependency{SourceInitiativeID: "A", TargetInitiativeID: "B"})
+	if !errors.Is(err, remote.ErrNotSupported) || !strings.Contains(err.Error(), "CreateInitiativeDependency is not supported in remote mode") || !strings.Contains(err.Error(), "initiative dependencies") {
+		t.Fatalf("CreateInitiativeDependency err = %v", err)
 	}
-	err = rs.CreateRMI(ctx, &store.RoadmapItem{ID: "RMI-ACME-009", RepositoryID: "r", Title: "t", ItemType: "task", Status: "completed"})
-	if !errors.Is(err, remote.ErrNotSupported) {
-		t.Fatalf("CreateRMI completed err = %v", err)
+	if _, err := svc.ListOrganizations(ctx); !errors.Is(err, remote.ErrNotSupported) {
+		t.Fatalf("ListOrganizations err = %v", err)
+	}
+	if _, err := rs.ListCapabilityModels(ctx); !errors.Is(err, remote.ErrNotSupported) {
+		t.Fatalf("ListCapabilityModels err = %v", err)
+	}
+	if _, err := rs.ListPRISMDocuments(ctx); !errors.Is(err, remote.ErrNotSupported) {
+		t.Fatalf("ListPRISMDocuments err = %v", err)
 	}
 	if len(fake.Requests()) != before {
 		t.Fatalf("unsupported operations reached the server: %+v", fake.Requests())

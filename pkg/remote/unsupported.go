@@ -6,405 +6,242 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
-// The methods in this file have no VisionStudio Cloud tenant API endpoint
-// yet (the API's first slice covers initiatives and RMIs). Each returns a
-// *NotSupportedError wrapping ErrNotSupported, so callers fail clearly
-// instead of silently reading empty data or dropping writes.
+// The methods in this file have no VisionStudio Cloud tenant API endpoint:
+// the cloud does not serve these areas to remote clients. Each returns a
+// *NotSupportedError wrapping ErrNotSupported that names the area, so
+// callers fail clearly instead of silently reading empty data or dropping
+// writes.
 
-// --- ProgramStore ---
-
-func (s *Store) CreateProgram(_ context.Context, _ *store.Program) error {
-	return notSupported("CreateProgram")
-}
-
-func (s *Store) UpdateProgram(_ context.Context, _ *store.Program) error {
-	return notSupported("UpdateProgram")
-}
-
-// --- InitiativeStore ---
-
-func (s *Store) UpdateInitiative(_ context.Context, _ *store.Initiative) error {
-	return notSupported("UpdateInitiative")
-}
+// --- initiative dependencies ---
 
 func (s *Store) CreateInitiativeDependency(_ context.Context, _ *store.InitiativeDependency) error {
-	return notSupported("CreateInitiativeDependency")
+	return notServed("CreateInitiativeDependency", "initiative dependencies")
 }
 
 func (s *Store) ListInitiativeDependencies(_ context.Context, _ string) ([]*store.InitiativeDependency, error) {
-	return nil, notSupported("ListInitiativeDependencies")
+	return nil, notServed("ListInitiativeDependencies", "initiative dependencies")
 }
 
 func (s *Store) ListAllInitiativeDependencies(_ context.Context) ([]*store.InitiativeDependency, error) {
-	return nil, notSupported("ListAllInitiativeDependencies")
+	return nil, notServed("ListAllInitiativeDependencies", "initiative dependencies")
 }
 
-// --- PhaseStore ---
-
-func (s *Store) CreatePhase(_ context.Context, _ *store.Phase) error {
-	return notSupported("CreatePhase")
-}
-
-func (s *Store) DeletePhase(_ context.Context, _ string) error {
-	return notSupported("DeletePhase")
-}
-
-// --- RMIStore ---
-
-func (s *Store) UpdateRMI(_ context.Context, _ *store.RoadmapItem) error {
-	return notSupported("UpdateRMI")
-}
-
-func (s *Store) CreateDependency(_ context.Context, _ *store.RMIDependency) error {
-	return notSupported("CreateDependency")
-}
-
-func (s *Store) ListDependencies(_ context.Context, _ string) ([]*store.RMIDependency, error) {
-	return nil, notSupported("ListDependencies")
-}
-
-func (s *Store) ListAllDependencies(_ context.Context) ([]*store.RMIDependency, error) {
-	return nil, notSupported("ListAllDependencies")
-}
-
-// --- AssignmentStore ---
-
-func (s *Store) CreateAssignment(_ context.Context, _ *store.Assignment) error {
-	return notSupported("CreateAssignment")
-}
-
-func (s *Store) GetAssignment(_ context.Context, _ string) (*store.Assignment, error) {
-	return nil, notSupported("GetAssignment")
-}
-
-func (s *Store) GetActiveAssignment(_ context.Context, _ string) (*store.Assignment, error) {
-	return nil, notSupported("GetActiveAssignment")
-}
-
-func (s *Store) ListActiveAssignments(_ context.Context) ([]*store.Assignment, error) {
-	return nil, notSupported("ListActiveAssignments")
-}
-
-func (s *Store) ListAllAssignments(_ context.Context) ([]*store.Assignment, error) {
-	return nil, notSupported("ListAllAssignments")
-}
-
-func (s *Store) UpdateAssignment(_ context.Context, _ *store.Assignment) error {
-	return notSupported("UpdateAssignment")
-}
-
-// --- EvidenceStore ---
-
-func (s *Store) CreateEvidence(_ context.Context, _ *store.DeliveryEvidence) error {
-	return notSupported("CreateEvidence")
-}
-
-func (s *Store) ListEvidenceByRMI(_ context.Context, _ string) ([]*store.DeliveryEvidence, error) {
-	return nil, notSupported("ListEvidenceByRMI")
-}
-
-func (s *Store) ListEvidenceByInitiative(_ context.Context, _ string) ([]*store.DeliveryEvidence, error) {
-	return nil, notSupported("ListEvidenceByInitiative")
-}
-
-func (s *Store) ListAllEvidence(_ context.Context) ([]*store.DeliveryEvidence, error) {
-	return nil, notSupported("ListAllEvidence")
-}
-
-// --- RepositoryStore ---
+// --- repository writes ---
 
 func (s *Store) CreateRepository(_ context.Context, _ *store.Repository) error {
-	return notSupported("CreateRepository")
-}
-
-func (s *Store) GetRepository(_ context.Context, _ string) (*store.Repository, error) {
-	return nil, notSupported("GetRepository")
-}
-
-func (s *Store) ListRepositories(_ context.Context) ([]*store.Repository, error) {
-	return nil, notSupported("ListRepositories")
-}
-
-func (s *Store) ListRepositoriesByOrg(_ context.Context, _ string) ([]*store.Repository, error) {
-	return nil, notSupported("ListRepositoriesByOrg")
+	return notServed("CreateRepository", "repository writes")
 }
 
 func (s *Store) UpdateRepository(_ context.Context, _ *store.Repository) error {
-	return notSupported("UpdateRepository")
+	return notServed("UpdateRepository", "repository writes")
 }
 
 func (s *Store) DeleteRepository(_ context.Context, _ string) error {
-	return notSupported("DeleteRepository")
+	return notServed("DeleteRepository", "repository writes")
 }
 
+// --- repository dependencies ---
+
 func (s *Store) CreateRepoDependency(_ context.Context, _ *store.RepositoryDependency) error {
-	return notSupported("CreateRepoDependency")
+	return notServed("CreateRepoDependency", "repository dependencies")
 }
 
 func (s *Store) ListRepoDependencies(_ context.Context, _ string) ([]*store.RepositoryDependency, error) {
-	return nil, notSupported("ListRepoDependencies")
+	return nil, notServed("ListRepoDependencies", "repository dependencies")
 }
 
 func (s *Store) ListAllRepoDependencies(_ context.Context) ([]*store.RepositoryDependency, error) {
-	return nil, notSupported("ListAllRepoDependencies")
+	return nil, notServed("ListAllRepoDependencies", "repository dependencies")
 }
 
-// --- ReleaseStore ---
+// --- release writes ---
 
 func (s *Store) CreateRelease(_ context.Context, _ *store.Release) error {
-	return notSupported("CreateRelease")
-}
-
-func (s *Store) GetRelease(_ context.Context, _ string) (*store.Release, error) {
-	return nil, notSupported("GetRelease")
-}
-
-func (s *Store) ListReleases(_ context.Context) ([]*store.Release, error) {
-	return nil, notSupported("ListReleases")
-}
-
-func (s *Store) ListReleasesByRepo(_ context.Context, _ string) ([]*store.Release, error) {
-	return nil, notSupported("ListReleasesByRepo")
-}
-
-func (s *Store) ListReleasesByInitiative(_ context.Context, _ string) ([]*store.Release, error) {
-	return nil, notSupported("ListReleasesByInitiative")
+	return notServed("CreateRelease", "release writes")
 }
 
 func (s *Store) UpdateRelease(_ context.Context, _ *store.Release) error {
-	return notSupported("UpdateRelease")
+	return notServed("UpdateRelease", "release writes")
 }
 
 func (s *Store) DeleteRelease(_ context.Context, _ string) error {
-	return notSupported("DeleteRelease")
+	return notServed("DeleteRelease", "release writes")
 }
 
-// --- OrganizationStore ---
+// --- organizations ---
 
 func (s *Store) CreateOrganization(_ context.Context, _ *store.Organization) error {
-	return notSupported("CreateOrganization")
+	return notServed("CreateOrganization", "organizations")
 }
 
 func (s *Store) GetOrganization(_ context.Context, _ string) (*store.Organization, error) {
-	return nil, notSupported("GetOrganization")
+	return nil, notServed("GetOrganization", "organizations")
 }
 
 func (s *Store) GetOrganizationByLogin(_ context.Context, _ string) (*store.Organization, error) {
-	return nil, notSupported("GetOrganizationByLogin")
+	return nil, notServed("GetOrganizationByLogin", "organizations")
 }
 
 func (s *Store) ListOrganizations(_ context.Context) ([]*store.Organization, error) {
-	return nil, notSupported("ListOrganizations")
+	return nil, notServed("ListOrganizations", "organizations")
 }
 
 func (s *Store) UpdateOrganization(_ context.Context, _ *store.Organization) error {
-	return notSupported("UpdateOrganization")
+	return notServed("UpdateOrganization", "organizations")
 }
 
-// --- PersonStore ---
+// --- people ---
 
 func (s *Store) CreatePerson(_ context.Context, _ *store.Person) error {
-	return notSupported("CreatePerson")
+	return notServed("CreatePerson", "people")
 }
 
 func (s *Store) GetPerson(_ context.Context, _ string) (*store.Person, error) {
-	return nil, notSupported("GetPerson")
+	return nil, notServed("GetPerson", "people")
 }
 
 func (s *Store) ListPeople(_ context.Context) ([]*store.Person, error) {
-	return nil, notSupported("ListPeople")
+	return nil, notServed("ListPeople", "people")
 }
 
 func (s *Store) UpdatePerson(_ context.Context, _ *store.Person) error {
-	return notSupported("UpdatePerson")
+	return notServed("UpdatePerson", "people")
 }
 
-// --- SpecWorkflowStore ---
+// --- spec workflow writes (workflows come from the embedded catalog) ---
 
 func (s *Store) CreateSpecWorkflow(_ context.Context, _ *store.SpecWorkflow) error {
-	return notSupported("CreateSpecWorkflow")
-}
-
-func (s *Store) GetSpecWorkflow(_ context.Context, _ string) (*store.SpecWorkflow, error) {
-	return nil, notSupported("GetSpecWorkflow")
-}
-
-func (s *Store) ListSpecWorkflows(_ context.Context) ([]*store.SpecWorkflow, error) {
-	return nil, notSupported("ListSpecWorkflows")
+	return notServed("CreateSpecWorkflow", "spec workflow writes")
 }
 
 func (s *Store) UpdateSpecWorkflow(_ context.Context, _ *store.SpecWorkflow) error {
-	return notSupported("UpdateSpecWorkflow")
+	return notServed("UpdateSpecWorkflow", "spec workflow writes")
 }
 
 func (s *Store) DeleteSpecWorkflow(_ context.Context, _ string) error {
-	return notSupported("DeleteSpecWorkflow")
+	return notServed("DeleteSpecWorkflow", "spec workflow writes")
 }
 
-func (s *Store) SelectWorkflowForInitiative(_ context.Context, _ string, _ string) error {
-	return notSupported("SelectWorkflowForInitiative")
-}
-
-func (s *Store) GetWorkflowForInitiative(_ context.Context, _ string) (*store.InitiativeWorkflow, error) {
-	return nil, notSupported("GetWorkflowForInitiative")
-}
-
-// --- JudgeStore ---
-
-func (s *Store) CreateJudgeResult(_ context.Context, _ *store.JudgeResult) error {
-	return notSupported("CreateJudgeResult")
-}
-
-func (s *Store) ListJudgeResults(_ context.Context, _ string) ([]*store.JudgeResult, error) {
-	return nil, notSupported("ListJudgeResults")
-}
-
-// --- MaturityStore ---
+// --- capability models ---
 
 func (s *Store) CreateCapabilityModel(_ context.Context, _ *store.CapabilityModel) error {
-	return notSupported("CreateCapabilityModel")
+	return notServed("CreateCapabilityModel", "capability models")
 }
 
 func (s *Store) GetCapabilityModel(_ context.Context, _ string) (*store.CapabilityModel, error) {
-	return nil, notSupported("GetCapabilityModel")
+	return nil, notServed("GetCapabilityModel", "capability models")
 }
 
 func (s *Store) ListCapabilityModels(_ context.Context) ([]*store.CapabilityModel, error) {
-	return nil, notSupported("ListCapabilityModels")
+	return nil, notServed("ListCapabilityModels", "capability models")
 }
 
 func (s *Store) UpdateCapabilityModel(_ context.Context, _ *store.CapabilityModel) error {
-	return notSupported("UpdateCapabilityModel")
+	return notServed("UpdateCapabilityModel", "capability models")
 }
 
+// --- maturity assessments ---
+
 func (s *Store) CreateMaturityAssessment(_ context.Context, _ *store.MaturityAssessment) error {
-	return notSupported("CreateMaturityAssessment")
+	return notServed("CreateMaturityAssessment", "maturity assessments")
 }
 
 func (s *Store) GetMaturityAssessment(_ context.Context, _ string) (*store.MaturityAssessment, error) {
-	return nil, notSupported("GetMaturityAssessment")
+	return nil, notServed("GetMaturityAssessment", "maturity assessments")
 }
 
 func (s *Store) ListMaturityAssessments(_ context.Context, _ string) ([]*store.MaturityAssessment, error) {
-	return nil, notSupported("ListMaturityAssessments")
+	return nil, notServed("ListMaturityAssessments", "maturity assessments")
 }
 
 func (s *Store) ListMaturityAssessmentsByOrg(_ context.Context, _ string) ([]*store.MaturityAssessment, error) {
-	return nil, notSupported("ListMaturityAssessmentsByOrg")
+	return nil, notServed("ListMaturityAssessmentsByOrg", "maturity assessments")
 }
 
-// --- DevXStore ---
+// --- DevX period reports ---
 
 func (s *Store) CreateDevXPeriodReport(_ context.Context, _ *store.DevXPeriodReport) error {
-	return notSupported("CreateDevXPeriodReport")
+	return notServed("CreateDevXPeriodReport", "DevX period reports")
 }
 
 func (s *Store) GetDevXPeriodReport(_ context.Context, _ string) (*store.DevXPeriodReport, error) {
-	return nil, notSupported("GetDevXPeriodReport")
+	return nil, notServed("GetDevXPeriodReport", "DevX period reports")
 }
 
 func (s *Store) ListDevXPeriodReports(_ context.Context, _ string) ([]*store.DevXPeriodReport, error) {
-	return nil, notSupported("ListDevXPeriodReports")
+	return nil, notServed("ListDevXPeriodReports", "DevX period reports")
 }
 
 func (s *Store) ListDevXPeriodReportsByRepo(_ context.Context, _ string) ([]*store.DevXPeriodReport, error) {
-	return nil, notSupported("ListDevXPeriodReportsByRepo")
+	return nil, notServed("ListDevXPeriodReportsByRepo", "DevX period reports")
 }
 
 func (s *Store) ListDevXPeriodReportsByOrg(_ context.Context, _ string) ([]*store.DevXPeriodReport, error) {
-	return nil, notSupported("ListDevXPeriodReportsByOrg")
+	return nil, notServed("ListDevXPeriodReportsByOrg", "DevX period reports")
 }
 
-// --- PRISMRoadmapStore ---
+// --- PRISM roadmaps ---
 
 func (s *Store) CreatePRISMRoadmap(_ context.Context, _ *store.PRISMRoadmap) error {
-	return notSupported("CreatePRISMRoadmap")
+	return notServed("CreatePRISMRoadmap", "PRISM roadmaps")
 }
 
 func (s *Store) GetPRISMRoadmap(_ context.Context, _ string) (*store.PRISMRoadmap, error) {
-	return nil, notSupported("GetPRISMRoadmap")
+	return nil, notServed("GetPRISMRoadmap", "PRISM roadmaps")
 }
 
 func (s *Store) ListPRISMRoadmaps(_ context.Context) ([]*store.PRISMRoadmap, error) {
-	return nil, notSupported("ListPRISMRoadmaps")
+	return nil, notServed("ListPRISMRoadmaps", "PRISM roadmaps")
 }
 
 func (s *Store) ListPRISMRoadmapsByRepo(_ context.Context, _ string) ([]*store.PRISMRoadmap, error) {
-	return nil, notSupported("ListPRISMRoadmapsByRepo")
+	return nil, notServed("ListPRISMRoadmapsByRepo", "PRISM roadmaps")
 }
 
 func (s *Store) UpdatePRISMRoadmap(_ context.Context, _ *store.PRISMRoadmap) error {
-	return notSupported("UpdatePRISMRoadmap")
+	return notServed("UpdatePRISMRoadmap", "PRISM roadmaps")
 }
 
+// --- PRISM goals ---
+
 func (s *Store) CreatePRISMGoal(_ context.Context, _ *store.PRISMGoal) error {
-	return notSupported("CreatePRISMGoal")
+	return notServed("CreatePRISMGoal", "PRISM goals")
 }
 
 func (s *Store) GetPRISMGoal(_ context.Context, _ string) (*store.PRISMGoal, error) {
-	return nil, notSupported("GetPRISMGoal")
+	return nil, notServed("GetPRISMGoal", "PRISM goals")
 }
 
 func (s *Store) ListPRISMGoals(_ context.Context, _ string) ([]*store.PRISMGoal, error) {
-	return nil, notSupported("ListPRISMGoals")
+	return nil, notServed("ListPRISMGoals", "PRISM goals")
 }
 
 func (s *Store) UpdatePRISMGoal(_ context.Context, _ *store.PRISMGoal) error {
-	return notSupported("UpdatePRISMGoal")
+	return notServed("UpdatePRISMGoal", "PRISM goals")
 }
 
-// --- PRISMDocumentStore ---
+// --- PRISM documents ---
 
 func (s *Store) CreatePRISMDocument(_ context.Context, _ *store.PRISMDocument) error {
-	return notSupported("CreatePRISMDocument")
+	return notServed("CreatePRISMDocument", "PRISM documents")
 }
 
 func (s *Store) GetPRISMDocument(_ context.Context, _ string) (*store.PRISMDocument, error) {
-	return nil, notSupported("GetPRISMDocument")
+	return nil, notServed("GetPRISMDocument", "PRISM documents")
 }
 
 func (s *Store) ListPRISMDocuments(_ context.Context) ([]*store.PRISMDocument, error) {
-	return nil, notSupported("ListPRISMDocuments")
+	return nil, notServed("ListPRISMDocuments", "PRISM documents")
 }
 
 func (s *Store) ListPRISMDocumentsByOrg(_ context.Context, _ string) ([]*store.PRISMDocument, error) {
-	return nil, notSupported("ListPRISMDocumentsByOrg")
+	return nil, notServed("ListPRISMDocumentsByOrg", "PRISM documents")
 }
 
 func (s *Store) ListPRISMDocumentsByRepo(_ context.Context, _ string) ([]*store.PRISMDocument, error) {
-	return nil, notSupported("ListPRISMDocumentsByRepo")
+	return nil, notServed("ListPRISMDocumentsByRepo", "PRISM documents")
 }
 
 func (s *Store) UpdatePRISMDocument(_ context.Context, _ *store.PRISMDocument) error {
-	return notSupported("UpdatePRISMDocument")
-}
-
-// --- SpecDocumentStore ---
-
-func (s *Store) CreateSpecDocument(_ context.Context, _ *store.SpecDocument) error {
-	return notSupported("CreateSpecDocument")
-}
-
-func (s *Store) GetSpecDocument(_ context.Context, _ string) (*store.SpecDocument, error) {
-	return nil, notSupported("GetSpecDocument")
-}
-
-func (s *Store) ListSpecDocuments(_ context.Context) ([]*store.SpecDocument, error) {
-	return nil, notSupported("ListSpecDocuments")
-}
-
-func (s *Store) ListSpecDocumentsByRepo(_ context.Context, _ string) ([]*store.SpecDocument, error) {
-	return nil, notSupported("ListSpecDocumentsByRepo")
-}
-
-func (s *Store) ListSpecDocumentsByInitiative(_ context.Context, _ string) ([]*store.SpecDocument, error) {
-	return nil, notSupported("ListSpecDocumentsByInitiative")
-}
-
-func (s *Store) UpdateSpecDocument(_ context.Context, _ *store.SpecDocument) error {
-	return notSupported("UpdateSpecDocument")
-}
-
-func (s *Store) DeleteSpecDocument(_ context.Context, _ string) error {
-	return notSupported("DeleteSpecDocument")
+	return notServed("UpdatePRISMDocument", "PRISM documents")
 }

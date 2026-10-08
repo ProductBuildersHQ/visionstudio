@@ -80,7 +80,7 @@ See [Installation](docs/getting-started/installation.md) and [Quick Start](docs/
 - 📈 **[Performance](docs/dashboard/performance.md)** - Token spend and cost tracking by model, initiative, phase, and RMI
 - 🩺 **[Maturity Assessments](docs/dashboard/maturity.md)** - Framework-based capability maturity scoring, plus SCALE platform adoption and code-leverage/reuse graphs
 - 🔌 **MCP Server** - Stdio server exposing initiatives/RMIs/work assignments to agent sessions
-- ☁️ **[Remote Mode](docs/guide/remote-mode.md)** - `--remote <url>` runs the same CLI commands and MCP server against a VisionStudio Cloud tenant (`visionstudio cloud login` stores the API key); the first slice covers initiatives and RMIs
+- ☁️ **[Remote Mode](docs/guide/remote-mode.md)** - `--remote <url>` runs the same CLI commands and MCP server against a VisionStudio Cloud tenant (`visionstudio cloud login` stores the API key); covers the agent-work surface (initiatives, phases, RMIs, dependencies, work claims, evidence, specs)
 
 ### Specification Authoring & Evaluation
 

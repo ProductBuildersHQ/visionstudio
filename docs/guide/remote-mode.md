@@ -111,32 +111,56 @@ claude mcp add visionstudio -- visionstudio mcp --remote https://cloud.example.c
 
 ## What works today
 
-The cloud tenant API's first slice covers initiatives and RMIs. Store
-operations that have no cloud endpoint return a
-`... is not supported in remote mode` error. They never return empty or
-invented data.
+The cloud tenant API serves the full agent-work surface. Store operations
+that have no cloud endpoint return a `... is not supported in remote mode`
+error that names the area. They never return empty or invented data.
 
 | Area | Remote support |
 |------|----------------|
-| Initiatives | create, get, list |
-| RMIs | create, get, list (by initiative, all; by repository and status filtered client-side) |
-| Phases | list |
-| Programs | list, get |
-| Everything else (updates, transitions, claims, evidence, dependencies, repositories, releases, specs, workflows, ...) | not supported yet |
+| Programs | create, get, list, update |
+| Initiatives | create, get, list, update (including lifecycle transitions) |
+| Phases | create, list, delete (refused while the phase has RMIs) |
+| RMIs | create, get, list (by initiative, repository, status, or all), update (status changes, moves, origin, context spec) |
+| RMI dependencies | create, list (per RMI, all) |
+| Assignments (work leases) | claim, get, get active, list (active, all), renew, hand off, release, complete |
+| Delivery evidence | create, list (by RMI, by initiative, all) |
+| Releases | get, list (by repository, by initiative, all) — read-only |
+| Repositories | get, list (by organization, all) — read-only |
+| Spec workflows | get, list, select for an initiative, get an initiative's selection |
+| Spec documents | create, get, list (by initiative, by repository, all), update, delete |
+| Judge results | create, list by initiative |
 
-Create calls are also rejected, before any request is sent, if they set
-fields that the cloud create endpoint cannot accept. Examples are an
-initiative's home repo or program, and an RMI's `origin` or `context_spec`.
-Without this check those fields would be silently dropped.
+MCP tools that work end to end include `initiative_list`, `initiative_get`,
+`initiative_create`, `rmi_create`, `program_list`, `program_create`,
+`work_ready`, `task_claim`, `task_update` (status, evidence, handoff,
+completion), `task_release`, `workflow_list` and `workflow_select`. On the
+CLI, `initiative`, `rmi` (including `update`, `move` and `dep`), `phase`,
+`program` and `work` commands run against the tenant; `rmi create` validates
+`--repo` against the tenant's repository registry.
 
-MCP tools that work end to end: `initiative_list`, `initiative_create`
-(without `program_id`), `rmi_create` (without `origin`/`context_spec`),
-`program_list`, and `workflow_list`, which reads the embedded catalog. The
-remaining tools fail with a clear not-supported error. These include
-`initiative_get` (needs releases by initiative), `work_ready` (needs
-dependencies and assignments), and `task_claim`/`task_update`/`task_release`
-(need assignment, evidence and RMI-update endpoints). On the CLI, `rmi create`
-currently fails because it validates `--repo` against the repository registry.
+The server enforces the lease rules a shared database needs. A claim while
+another session holds a live lease on the RMI, or an update to an assignment
+that is no longer active (released, completed, expired, or taken over), fails
+with `409 LEASE_CONFLICT`, which `errors.Is` matches as both
+`remote.ErrLeaseConflict` and `remote.ErrConflict`.
+
+Creates that set fields the cloud create endpoint cannot carry (an
+initiative's status, home repo, program, specs or lifecycle timestamps; an
+RMI's status, `origin`, `context_spec` or `completed_at`) are sent as a create
+followed by a full update. The two requests are not atomic: if the update
+fails, the entity exists with only its create fields and the error says so.
+
+### Remaining gaps
+
+These areas have no cloud endpoint yet and fail with a not-supported error:
+
+- initiative dependencies
+- repository writes (register, update, archive, remove) and repository dependencies
+- release writes (`release record` and friends)
+- organizations and people
+- spec workflow writes (workflows come from the embedded catalog)
+- capability models and maturity assessments, DevX period reports, and PRISM
+  roadmaps, goals and documents
 
 ## Embedding: custom HTTP clients and request signing
 
@@ -160,10 +184,22 @@ transport can authenticate however it needs to. The stock binary uses Go's
 default proxy settings (`HTTPS_PROXY`), so a local signing proxy also works
 without code changes.
 
-Errors are typed. `*remote.APIError` carries the HTTP status and the server's
-message, and `errors.Is` matches `remote.ErrUnauthorized` (401),
-`remote.ErrForbidden` (403, not a member of the tenant), `remote.ErrNotFound`
-(404), `remote.ErrConflict` (409) and `remote.ErrNotSupported`.
+Errors are typed. `*remote.APIError` carries the HTTP status, the server's
+machine-readable `Code` (for example `INVALID`, `INVALID_REFERENCE`,
+`NOT_FOUND`, `CONFLICT`, `LEASE_CONFLICT`) and its message. `errors.Is`
+matches `remote.ErrUnauthorized` (401), `remote.ErrForbidden` (403, not a
+member of the tenant), `remote.ErrInvalid` (400), `remote.ErrInvalidReference`
+(400 `INVALID_REFERENCE`: the body names an entity that does not exist),
+`remote.ErrNotFound` (404), `remote.ErrConflict` (409),
+`remote.ErrLeaseConflict` (409 `LEASE_CONFLICT`) and `remote.ErrNotSupported`.
+
+`Store.Ping` checks the URL, credential and tenant membership with
+`GET /t/<tenant>/api/v1/me`. `Store.Me` returns the credential's principal and
+every tenant membership (`GET /api/v1/me`), which `visionstudio cloud status`
+prints after verifying access.
 
 For tests, `pkg/remote/remotetest` provides an in-process fake of the tenant
-API. It serves requests through the real service layer over an in-memory store.
+API. It mirrors the cloud contract (strict request decoding, `[]` for empty
+lists, the `{"assignment": null}` and `{"workflow": null}` wrappers, the error
+codes, and both lease-conflict rules) and serves requests through the real
+service layer over an in-memory store.

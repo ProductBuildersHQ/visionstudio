@@ -238,3 +238,54 @@ func TestMaskToken(t *testing.T) {
 		}
 	}
 }
+
+func TestRemoteModeRMIUpdateMoveAndWork(t *testing.T) {
+	isolateRemoteEnv(t)
+	fake := newFakeCloud(t)
+	t.Setenv(envRemoteToken, cliTestToken)
+	remoteArgs := []string{"--remote", fake.URL, "--remote-tenant", cliTestTenant}
+	run := func(args ...string) string {
+		t.Helper()
+		out, err := runCLI(t, "", append(args, remoteArgs...)...)
+		if err != nil {
+			t.Fatalf("%v: %v\n%s", args, err, out)
+		}
+		return out
+	}
+
+	ctx := context.Background()
+	if _, err := fake.Service.CreateInitiative(ctx, "INIT-ACME-001", "acme", "Launch", "", "", "", ""); err != nil {
+		t.Fatal(err)
+	}
+	for _, ph := range []string{"INIT-ACME-001/phase-1", "INIT-ACME-001/phase-2"} {
+		if _, err := fake.Service.CreatePhase(ctx, ph, "INIT-ACME-001", 1, ph, ""); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := fake.Service.CreateRMI(ctx, "RMI-ACME-001", "github.com/acme/app", "INIT-ACME-001", "INIT-ACME-001/phase-1", "t", "", "task", "", true, 1, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	run("rmi", "update", "RMI-ACME-001", "--status", "ready", "--title", "Renamed", "--origin", "discussion")
+	rmi, err := fake.Service.GetRMI(ctx, "RMI-ACME-001")
+	if err != nil || rmi.Status != "ready" || rmi.Title != "Renamed" || rmi.Origin != "discussion" {
+		t.Fatalf("server-side RMI after update = %+v, %v", rmi, err)
+	}
+
+	out := run("rmi", "move", "RMI-ACME-001", "--phase", "INIT-ACME-001/phase-2", "--seq", "2")
+	if !strings.Contains(out, "Moved RMI-ACME-001 to INIT-ACME-001/phase-2") {
+		t.Fatalf("rmi move output = %q", out)
+	}
+	if rmi, _ := fake.Service.GetRMI(ctx, "RMI-ACME-001"); rmi.PhaseID != "INIT-ACME-001/phase-2" || rmi.SequenceNumber != 2 {
+		t.Fatalf("server-side RMI after move = %+v", rmi)
+	}
+
+	run("work", "claim", "RMI-ACME-001", "--worker", "session-1")
+	if a, err := fake.Service.Store.GetActiveAssignment(ctx, "RMI-ACME-001"); err != nil || a == nil || a.Worker != "session-1" {
+		t.Fatalf("server-side assignment after claim = %+v, %v", a, err)
+	}
+	_, err = runCLI(t, "", append([]string{"work", "claim", "RMI-ACME-001", "--worker", "session-2"}, remoteArgs...)...)
+	if err == nil {
+		t.Fatal("second claim succeeded")
+	}
+}

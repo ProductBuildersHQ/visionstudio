@@ -195,7 +195,7 @@ func TestCloudLoginStatusLogout(t *testing.T) {
 	if strings.Contains(out, cliTestToken) {
 		t.Fatalf("status leaked the credential: %q", out)
 	}
-	for _, want := range []string{"inactive for this invocation", fake.URL, "acme", "vsc_live_…alue", "Access:     ok"} {
+	for _, want := range []string{"inactive for this invocation", fake.URL, "acme", "vsc_live_…alue", "Access:     ok", "Principal:  " + remotetest.PrincipalEmail, "Tenants:    acme (owner)"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("status output missing %q:\n%s", want, out)
 		}

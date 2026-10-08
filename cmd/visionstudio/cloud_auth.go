@@ -14,6 +14,7 @@ import (
 	"golang.org/x/term"
 
 	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/remote"
 )
 
 // verifyTimeout bounds the credential check in login/status.
@@ -215,7 +216,8 @@ func cloudStatusCmd() *cobra.Command {
 		Use:   "status",
 		Short: "Show the resolved remote-mode settings and verify the credential",
 		Long: `Show which cloud URL, tenant, and credential remote mode would use, where
-each came from, and whether the credential can access the tenant. Exits non-zero
+each came from, and whether the credential can access the tenant; on success it
+also shows the credential's principal and tenant memberships. Exits non-zero
 when verification fails. Without --remote/$VISIONSTUDIO_REMOTE_URL it reports on
 the URL of the last 'cloud login' (commands still run locally unless --remote
 is given).`,
@@ -257,7 +259,54 @@ is given).`,
 				return err
 			}
 			cmd.Println("  Access:     ok")
+			id, err := remoteIdentity(cmd.Context(), rs)
+			if err != nil {
+				// Access is already verified; the identity lookup is
+				// informational, so report it without failing.
+				cmd.Printf("  Principal:  (unavailable: %v)\n", err)
+				return nil
+			}
+			printIdentity(cmd, id)
 			return nil
 		},
 	}
+}
+
+// remoteIdentity fetches the credential's principal and tenant memberships
+// (GET /api/v1/me).
+func remoteIdentity(ctx context.Context, rs *remoteSettings) (*remote.Identity, error) {
+	st, err := newRemoteStore(rs)
+	if err != nil {
+		return nil, err
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	ctx, cancel := context.WithTimeout(ctx, verifyTimeout)
+	defer cancel()
+	return st.Me(ctx)
+}
+
+func printIdentity(cmd *cobra.Command, id *remote.Identity) {
+	who := id.Principal.Email
+	if who == "" {
+		who = id.Principal.ID
+	}
+	if id.Principal.AuthMethod != "" {
+		who += "  (via " + id.Principal.AuthMethod + ")"
+	}
+	cmd.Printf("  Principal:  %s\n", who)
+	if len(id.Memberships) == 0 {
+		cmd.Println("  Tenants:    (none listed)")
+		return
+	}
+	tenants := make([]string, 0, len(id.Memberships))
+	for _, m := range id.Memberships {
+		t := m.Tenant
+		if m.Role != "" {
+			t += " (" + m.Role + ")"
+		}
+		tenants = append(tenants, t)
+	}
+	cmd.Printf("  Tenants:    %s\n", strings.Join(tenants, ", "))
 }

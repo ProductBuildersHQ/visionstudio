@@ -634,8 +634,8 @@ github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB7
 github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/grokify/godolt v0.3.0 h1:aFBrRKUXDWe7UME9PH/xT+G/fVfQCNOrDgf2mS9xC9o=
 github.com/grokify/godolt v0.3.0/go.mod h1:NX3DZszMrfksxOKY1fHz3BgJqPOgUmlU6FkX/nhhsZA=
-github.com/grokify/gogit v0.13.1 h1:aRD3K5IOviJMFAq+pWnNE0nZ66lGaR8yWCwcn9bc3lw=
-github.com/grokify/gogit v0.13.1/go.mod h1:Z3Hkm296MVSSmWAQHvNdWNRXW6Jd/exCLEIijyyL5Dk=
+github.com/grokify/gogit v0.14.0 h1:e0oolOV0C9XZpKZYryE/6kGGXpeOsylHq+jWdTLucc4=
+github.com/grokify/gogit v0.14.0/go.mod h1:Wy9tAbgnMRaVxL6K910kLEz74Q6rn16FAENk5QQrqQs=
 github.com/grokify/gogithub v0.18.0 h1:kNmr08nS+56GVR7KbBaBYGR+rppL+NJzUqYdqWVg4Fk=
 github.com/grokify/gogithub v0.18.0/go.mod h1:4WOH8NMIwb46JKN0PjARPB/HtjCyArHw/kWbsMlC3B0=
 github.com/grokify/mogo v0.75.0 h1:YVOGu49NWvltMfG9wh3aarRD6CTF7y0llEFU+HU9drc=

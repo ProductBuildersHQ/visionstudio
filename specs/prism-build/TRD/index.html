@@ -1,0 +1,2904 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="LLM-powered platform for roadmap execution, specification authoring, and evaluation">
+      
+      
+      
+        <link rel="canonical" href="https://productbuildershq.com/visionstudio/specs/prism-build/TRD/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>PRISM Control — Technical Requirements Document (TRD) - VisionStudio</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="https://productbuildershq.com/css/productbuildershq-mkdocs.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prism-control-technical-requirements-document-trd" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+<!-- ProductBuildersHQ Unified Navigation -->
+<div id="pbhq-navbar-container"></div>
+
+
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="VisionStudio" class="md-header__button md-logo" aria-label="VisionStudio" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VisionStudio
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PRISM Control — Technical Requirements Document (TRD)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ProductBuildersHQ/visionstudio" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ProductBuildersHQ/visionstudio
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="VisionStudio" class="md-nav__button md-logo" aria-label="VisionStudio" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    VisionStudio
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ProductBuildersHQ/visionstudio" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ProductBuildersHQ/visionstudio
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/troubleshooting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI & Agents
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI & Agents
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/remote-mode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remote Mode & MCP (Cloud)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dashboard Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dashboard Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dashboard/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tour
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dashboard/initiatives/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programs, Initiatives & RMIs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dashboard/repositories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repositories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dashboard/specs-and-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Specs & Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dashboard/maturity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maturity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dashboard/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide (Legacy Desktop App)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide (Legacy Desktop App)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/projects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/workflows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/methodologies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Methodology Selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/editor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Editor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/aidlc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIDLC Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/v2mom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V2MOM Cascade
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/maturity/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maturity Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/organization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Organization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/samples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sample Projects
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/devx/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DevX Usage Dashboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/aidlc-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AIDLC API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Type Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/ecosystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecosystem
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go Daemon
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/frontend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Frontend
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../development/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Releases
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/unreleased/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unreleased
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.7.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.7.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.6.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.6.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.5.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.5.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.4.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.4.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.3.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.3.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.2.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../releases/v0.1.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.1.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Architecture Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Architecture Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dolt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dolt
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-and-portability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup and portability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-data-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Data Model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Data Model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tables-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tables (v1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-vocabularies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status vocabularies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ent-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Ent Layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-package-layout-sdk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Package Layout (SDK)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cli-surface-prismctl-cobra" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. CLI Surface (prismctl, Cobra)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-mcp-server-prismctl-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. MCP Server (prismctl mcp)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-session-protocol-and-commit-attribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Session Protocol and Commit Attribution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Session Protocol and Commit Attribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#trailer-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Trailer specification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ingest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ingest
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-validation-prismctl-validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Validation (prismctl validate)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-initiative-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Initiative Report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Testing Strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-gitscan-integration-pkgreposcan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. gitscan Integration (pkg/reposcan)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. gitscan Integration (pkg/reposcan)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-multi-tenancy-readiness-not-implemented-in-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Multi-Tenancy Readiness (not implemented in v1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-context-assembly-phase-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Context Assembly (Phase 7)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Context Assembly (Phase 7)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#alignment-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Alignment decisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context-package-pkgcontextbuild" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context package (pkg/contextbuild)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-handoff-projection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase handoff projection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#surfaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surfaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-token-attribution-reporting-phase-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Token Attribution Reporting (Phase 8)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="16. Token Attribution Reporting (Phase 8)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-sources-pkgtokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data sources (pkg/tokens)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#consistency-contract-with-devfolio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consistency contract with devfolio
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#surfaces_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Surfaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="prism-control-technical-requirements-document-trd">PRISM Control — Technical Requirements Document (TRD)<a class="headerlink" href="#prism-control-technical-requirements-document-trd" title="Permanent link">&para;</a></h1>
+<p><strong>Status:</strong> Draft
+<strong>Date:</strong> 2026-07-23
+<strong>Initiative:</strong> <code>INIT-PRISMCONTROL-001</code></p>
+<h2 id="1-architecture-overview">1. Architecture Overview<a class="headerlink" href="#1-architecture-overview" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                        ┌──────────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                        │   Consumers                  │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                        │   VisionStudio (SQL, RO)     │
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                        │   devfolio / omnidevx (join) │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                        │   future web UI (SQL, RO)    │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                        └──────────────┬───────────────┘
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                       │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>┌───────────────┐   ┌──────────────────▼───────────────┐
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│ Claude Code   │──►│  prism-control                   │
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>│ sessions      │   │                                  │
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│ (MCP + CLI)   │   │  SDK: root package facade        │
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>└───────────────┘   │  pkg/*: domain + service (logic) │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>                    │  store interface ─► Ent ─► Dolt  │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>┌───────────────┐   │                                  │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│ humans / CI   │──►│  adapters: cmd/prismctl (Cobra)  │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>│ (CLI)         │   │            prismctl mcp (go-sdk) │
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>└───────────────┘   └──────────────────────────────────┘
+</code></pre></div>
+<h3 id="principles">Principles<a class="headerlink" href="#principles" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Library-first.</strong> All behavior lives in importable Go packages (the SDK). <code>cmd/prismctl</code> and the MCP server are thin adapters over one shared service layer; CLI and MCP write paths call identical service methods so protocol rules (lease checks, status transitions) cannot diverge.</li>
+<li><strong>Headless.</strong> No UI in this repo. Consumers read the Dolt SQL server or generated artifacts.</li>
+<li><strong>Plan is authoritative; commits are evidence.</strong> Ingest never mutates plan structure. A commit referencing an RMI that belongs to a different repo is a validation error, not new data.</li>
+<li><strong>Unit-testable core.</strong> Domain logic (dependency graphs, lease expiry, trailer parsing, report computation, status derivation) is pure or depends only on the store interface, so it tests without Dolt.</li>
+</ol>
+<h2 id="2-storage">2. Storage<a class="headerlink" href="#2-storage" title="Permanent link">&para;</a></h2>
+<h3 id="dolt">Dolt<a class="headerlink" href="#dolt" title="Permanent link">&para;</a></h3>
+<ul>
+<li>One canonical Dolt database for the whole portfolio (not per-repo).</li>
+<li>Local <code>dolt sql-server</code> on the developer machine; all sessions and VisionStudio connect via MySQL wire protocol. Claims are plain SQL transactions — no file/git locking.</li>
+<li>Every logical write = SQL transaction + <code>CALL DOLT_COMMIT(...)</code> with a structured message (<code>actor</code>, <code>operation</code>, <code>ids</code>). This yields a full audit history and enables <code>dolt_history_*</code> / <code>dolt_diff_*</code> / <code>AS OF</code> queries for progress-over-time reporting.</li>
+<li><strong>Portability rule (NFR4):</strong> reports and consumer-facing queries use plain SQL over base tables plus explicit lifecycle timestamps. Dolt system tables are an enhancement (time-series views), never a dependency.</li>
+</ul>
+<h3 id="backup-and-portability">Backup and portability<a class="headerlink" href="#backup-and-portability" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Dolt remote push (DoltHub, file remote, or git remote via <code>refs/dolt/data</code>).</li>
+<li><code>prismctl export</code> writes JSONL snapshots (one file per table) plus a manifest (<code>dolt_commit</code>, <code>exported_at</code>, record counts) into <code>exports/</code>, committed to this git repo. Snapshots double as offline agent context and CI validation input.</li>
+</ul>
+<h2 id="3-data-model">3. Data Model<a class="headerlink" href="#3-data-model" title="Permanent link">&para;</a></h2>
+<p>ID conventions:</p>
+<ul>
+<li>Initiative: <code>INIT-&lt;NAME&gt;-&lt;NNN&gt;</code> (e.g., <code>INIT-PRISMCONTROL-001</code>).</li>
+<li>RMI: <code>RMI-&lt;REPOSLUG&gt;-&lt;NNN&gt;</code> where <code>REPOSLUG</code> is the uppercased alphanumeric repo name (e.g., <code>RMI-PRISMCONTROL-014</code>, <code>RMI-OMNIDEVXCORE-003</code>). IDs are allocated centrally and never reused.</li>
+<li>Assignment: <code>ASSIGN-&lt;NNNN&gt;</code>.</li>
+</ul>
+<h3 id="tables-v1">Tables (v1)<a class="headerlink" href="#tables-v1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">initiatives</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="n">initiative_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">organization</span><span class="w">      </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">      </span><span class="c1">-- future tenancy scoping</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">title</span><span class="w">             </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="n">description</span><span class="w">       </span><span class="nb">TEXT</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="n">status</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">       </span><span class="c1">-- lifecycle below</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="n">priority</span><span class="w">          </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="c1">-- explicit lifecycle timestamps (do not rely on dolt history)</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="n">created_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">    </span><span class="n">planned_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">executing_at</span><span class="w">      </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">    </span><span class="n">delivery_complete_at</span><span class="w"> </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="n">released_at</span><span class="w">       </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">    </span><span class="n">closed_at</span><span class="w">         </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="w">    </span><span class="n">updated_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="p">);</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">repositories</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="w">    </span><span class="n">repository_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w">   </span><span class="c1">-- e.g. github.com/plexusone/omnidevx</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a><span class="w">    </span><span class="n">organization</span><span class="w">      </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="w">    </span><span class="n">repository_name</span><span class="w">   </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a><span class="w">    </span><span class="n">default_branch</span><span class="w">    </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;main&#39;</span><span class="p">,</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a><span class="w">    </span><span class="n">local_path</span><span class="w">        </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">512</span><span class="p">),</span><span class="w">               </span><span class="c1">-- absolute path on disk (for ingest/scan)</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a><span class="w">    </span><span class="n">go_module</span><span class="w">         </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span><span class="w">               </span><span class="c1">-- go.mod module path (from gitscan)</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a><span class="w">    </span><span class="k">domain</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="w">    </span><span class="n">status</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a><span class="w">    </span><span class="n">ingest_high_water</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span><span class="w">               </span><span class="c1">-- last scanned commit SHA</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a><span class="w">    </span><span class="k">UNIQUE</span><span class="w"> </span><span class="p">(</span><span class="n">organization</span><span class="p">,</span><span class="w"> </span><span class="n">repository_name</span><span class="p">)</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a><span class="p">);</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">repository_dependencies</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a><span class="w">    </span><span class="n">source_repository_id</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">   </span><span class="c1">-- source depends on target</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a><span class="w">    </span><span class="n">target_repository_id</span><span class="w"> </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a><span class="w">    </span><span class="n">dependency_type</span><span class="w">      </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">     </span><span class="c1">-- go_module</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">source_repository_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_repository_id</span><span class="p">,</span><span class="w"> </span><span class="n">dependency_type</span><span class="p">),</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">source_repository_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">repositories</span><span class="p">(</span><span class="n">repository_id</span><span class="p">),</span>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">target_repository_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">repositories</span><span class="p">(</span><span class="n">repository_id</span><span class="p">)</span>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="p">);</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">phases</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="w">    </span><span class="n">phase_id</span><span class="w">          </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w">    </span><span class="c1">-- e.g. INIT-PRISMCONTROL-001/phase-1</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="w">    </span><span class="n">initiative_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a><span class="w">    </span><span class="n">sequence_number</span><span class="w">   </span><span class="nb">INT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="w">    </span><span class="n">title</span><span class="w">             </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="w">    </span><span class="n">theme</span><span class="w">             </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span><span class="w">               </span><span class="c1">-- the grouping rationale</span>
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="w">    </span><span class="c1">-- NOTE: no status column; phase status is ALWAYS derived from member RMIs</span>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">initiative_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">initiatives</span><span class="p">(</span><span class="n">initiative_id</span><span class="p">)</span>
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="p">);</span>
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">roadmap_items</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a><span class="w">    </span><span class="n">rmi_id</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a><span class="w">    </span><span class="n">repository_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a><span class="w">    </span><span class="n">initiative_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a><span class="w">    </span><span class="n">phase_id</span><span class="w">          </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a><span class="w">    </span><span class="n">title</span><span class="w">             </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a><span class="w">    </span><span class="n">description</span><span class="w">       </span><span class="nb">TEXT</span><span class="p">,</span>
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a><span class="w">    </span><span class="n">item_type</span><span class="w">         </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">       </span><span class="c1">-- capability|task|spec|release</span>
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a><span class="w">    </span><span class="n">status</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a><span class="w">    </span><span class="n">priority</span><span class="w">          </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span>
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a><span class="w">    </span><span class="n">required</span><span class="w">          </span><span class="nb">BOOLEAN</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="k">TRUE</span><span class="p">,</span>
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a><span class="w">    </span><span class="n">sequence_number</span><span class="w">   </span><span class="nb">INT</span><span class="p">,</span>
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a><span class="w">    </span><span class="n">acceptance_criteria</span><span class="w"> </span><span class="n">JSON</span><span class="p">,</span><span class="w">                     </span><span class="c1">-- array of strings</span>
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a><span class="w">    </span><span class="n">created_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a><span class="w">    </span><span class="n">completed_at</span><span class="w">      </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a><span class="w">    </span><span class="n">updated_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">repository_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">repositories</span><span class="p">(</span><span class="n">repository_id</span><span class="p">),</span>
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">initiative_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">initiatives</span><span class="p">(</span><span class="n">initiative_id</span><span class="p">),</span>
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">phase_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">phases</span><span class="p">(</span><span class="n">phase_id</span><span class="p">)</span>
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a><span class="p">);</span>
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">rmi_dependencies</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a><span class="w">    </span><span class="n">source_rmi_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">       </span><span class="c1">-- source depends on target</span>
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a><span class="w">    </span><span class="n">target_rmi_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a><span class="w">    </span><span class="n">relationship</span><span class="w">      </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">       </span><span class="c1">-- requires|relates</span>
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a><span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">source_rmi_id</span><span class="p">,</span><span class="w"> </span><span class="n">target_rmi_id</span><span class="p">,</span><span class="w"> </span><span class="n">relationship</span><span class="p">)</span>
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a><span class="p">);</span>
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">assignments</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a><span class="w">    </span><span class="n">assignment_id</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a><span class="w">    </span><span class="n">rmi_id</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a><span class="w">    </span><span class="n">worker</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">      </span><span class="c1">-- session ID; MUST match omnidevx claudecode session identifier</span>
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a><span class="w">    </span><span class="n">status</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">       </span><span class="c1">-- active|released|expired|completed</span>
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a><span class="w">    </span><span class="n">lease_expires_at</span><span class="w">  </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a><span class="w">    </span><span class="n">workspace</span><span class="w">         </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">512</span><span class="p">),</span><span class="w">               </span><span class="c1">-- local path / worktree</span>
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a><span class="w">    </span><span class="n">handoff</span><span class="w">           </span><span class="n">JSON</span><span class="p">,</span><span class="w">                       </span><span class="c1">-- completed/remaining/decisions/next_action</span>
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a><span class="w">    </span><span class="n">created_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a><span class="w">    </span><span class="n">updated_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">rmi_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">roadmap_items</span><span class="p">(</span><span class="n">rmi_id</span><span class="p">)</span>
+<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a><span class="p">);</span>
+<a id="__codelineno-1-90" name="__codelineno-1-90" href="#__codelineno-1-90"></a>
+<a id="__codelineno-1-91" name="__codelineno-1-91" href="#__codelineno-1-91"></a><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">delivery_evidence</span><span class="w"> </span><span class="p">(</span>
+<a id="__codelineno-1-92" name="__codelineno-1-92" href="#__codelineno-1-92"></a><span class="w">    </span><span class="n">evidence_id</span><span class="w">       </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<a id="__codelineno-1-93" name="__codelineno-1-93" href="#__codelineno-1-93"></a><span class="w">    </span><span class="n">rmi_id</span><span class="w">            </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-94" name="__codelineno-1-94" href="#__codelineno-1-94"></a><span class="w">    </span><span class="n">evidence_type</span><span class="w">     </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">       </span><span class="c1">-- commit|pr|release|changelog|test</span>
+<a id="__codelineno-1-95" name="__codelineno-1-95" href="#__codelineno-1-95"></a><span class="w">    </span><span class="n">reference</span><span class="w">         </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span><span class="w">      </span><span class="c1">-- SHA, URL, tag, changelog entry ID</span>
+<a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a><span class="w">    </span><span class="n">commit_type</span><span class="w">       </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">32</span><span class="p">),</span><span class="w">                </span><span class="c1">-- conventional commit type (commits only)</span>
+<a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a><span class="w">    </span><span class="n">commit_scope</span><span class="w">      </span><span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">64</span><span class="p">),</span>
+<a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a><span class="w">    </span><span class="n">occurred_at</span><span class="w">       </span><span class="n">DATETIME</span><span class="p">,</span>
+<a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a><span class="w">    </span><span class="n">created_at</span><span class="w">        </span><span class="n">DATETIME</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a><span class="w">    </span><span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">rmi_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">roadmap_items</span><span class="p">(</span><span class="n">rmi_id</span><span class="p">)</span>
+<a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a><span class="p">);</span>
+</code></pre></div>
+<p>Deferred to a later phase (designed in the ideation doc, not built in v1): <code>release_sets</code>, <code>component_releases</code>, <code>release_dependencies</code>, <code>release_validations</code>.</p>
+<h3 id="status-vocabularies">Status vocabularies<a class="headerlink" href="#status-vocabularies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Initiative lifecycle:</strong> <code>proposed → planned → executing → delivery_complete → releasing → released → closed</code> (plus <code>cancelled</code>). Each forward transition stamps its timestamp column.</li>
+<li><strong>RMI:</strong> <code>planned | ready | in_progress | blocked | completed | cancelled</code>.</li>
+<li><strong>Phase (derived only):</strong> <code>completed</code> (all required RMIs completed) · <code>in_progress</code> (any RMI active) · <code>blocked</code> (a required RMI blocked) · <code>planned</code> (none started) · <code>partial</code> (required done, optional remain).</li>
+<li><strong>Assignment:</strong> <code>active | released | expired | completed</code>.</li>
+</ul>
+<h2 id="4-ent-layer">4. Ent Layer<a class="headerlink" href="#4-ent-layer" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Ent (<code>entgo.io/ent</code>) generates the typed query layer against the schema above; MySQL dialect targets Dolt.</li>
+<li><strong>Phase-1 spike (RMI-PRISMCONTROL-001) — COMPLETED.</strong> Result: Ent's MySQL dialect is fully compatible with Dolt 2.2.2. DDL (<code>CREATE TABLE</code>), CRUD, SQL transactions, <code>CALL DOLT_COMMIT</code> / <code>CALL DOLT_ADD</code>, <code>dolt_history_*</code> queries, and <code>AS OF</code> time-travel queries all work. No Atlas/migration fallback needed; Ent codegen + standard MySQL driver (<code>go-sql-driver/mysql</code>) connects to <code>dolt sql-server</code> without issues. The unit-of-work pattern (SQL tx commit → <code>DOLT_ADD</code> + <code>DOLT_COMMIT</code>) is confirmed viable.</li>
+<li><strong>Unit of work:</strong> a service-layer wrapper runs <code>fn(tx)</code> inside an Ent transaction then issues the Dolt commit. All mutating service methods go through it.</li>
+</ul>
+<h2 id="5-package-layout-sdk">5. Package Layout (SDK)<a class="headerlink" href="#5-package-layout-sdk" title="Permanent link">&para;</a></h2>
+<p>Module: <code>github.com/ProductBuildersHQ/prism-build</code>. Root package <code>prismcontrol</code> is the SDK facade (mirrors the omnidevx pattern): <code>prismcontrol.New(cfg) (*Client, error)</code> exposing the service API consumed by CLI, MCP, and external importers.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>prism-control/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>├── prismcontrol.go        # SDK facade: Client, config, constructors
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>├── cmd/prismctl/          # Cobra CLI (thin adapter)
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>├── pkg/
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>│   ├── initiative/        # initiative + phase domain: lifecycle, derived phase status
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>│   ├── rmi/               # RMI domain: IDs, statuses, dependency graph, ready-work logic
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>│   ├── assignment/        # leases: claim, renew, release, expiry
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>│   ├── evidence/          # evidence types; trailer spec + parser
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>│   ├── ingest/            # git-history scan (high-water marks), CHANGELOG.json ingest
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>│   ├── report/            # initiative report computation + JSON/Markdown rendering
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>│   ├── registry/          # repository catalog
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>│   ├── reposcan/          # bulk registry import via gogit/scanner (gitscan integration)
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>│   ├── export/            # JSONL snapshots + manifest
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>│   ├── store/             # storage interface + in-memory fake (for unit tests)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>│   │   └── doltstore/     # Ent implementation, unit-of-work, Dolt commits
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>│   └── mcpserver/         # MCP tools over the service layer (importable)
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>├── ent/                   # Ent schema + generated code
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>├── schema/                # generated JSON Schemas (//go:embed) for export/report types
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>├── exports/               # JSONL snapshots (generated, committed)
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>└── docs/specs/            # PRD, TRD, PLAN, ROADMAP
+</code></pre></div>
+<p>JSON-emitting types (report, export, handoff) follow the Go-first schema workflow: structs are the source of truth, <code>invopop/jsonschema</code> generates <code>schema/*.schema.json</code>, <code>schemago lint</code> validates, schemas embedded via <code>//go:embed</code>.</p>
+<h2 id="6-cli-surface-prismctl-cobra">6. CLI Surface (<code>prismctl</code>, Cobra)<a class="headerlink" href="#6-cli-surface-prismctl-cobra" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>prismctl db init|serve|commit-log         # bootstrap Dolt, run sql-server helper, audit log
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>prismctl registry add|list|scan|deps|unpushed  # repository catalog + gitscan integration
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>prismctl initiative create|list|get|status|transition
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>prismctl phase add|list                   # themed groupings within an initiative
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>prismctl rmi create|update|get|list       # RMIs + dependency edges (--depends-on)
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>prismctl work ready [--repo|--initiative] # ready ∧ unblocked ∧ unclaimed
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>prismctl claim &lt;rmi&gt; --worker &lt;session&gt; --lease 4h    # prints the Refs: trailer
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>prismctl release|renew &lt;assignment&gt;
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>prismctl update &lt;rmi&gt; --status ... --evidence pr:URL --handoff file.json
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>prismctl ingest git --repo &lt;path&gt; [--all] # trailer scan from high-water mark
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>prismctl ingest changelog --repo &lt;path&gt;   # CHANGELOG.json (structured-changelog)
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>prismctl report initiative &lt;id&gt; [--format json|markdown]
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>prismctl validate                         # consistency checks (see §9)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>prismctl export                           # JSONL snapshots to exports/
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>prismctl mcp                              # stdio MCP server
+</code></pre></div>
+<h2 id="7-mcp-server-prismctl-mcp">7. MCP Server (<code>prismctl mcp</code>)<a class="headerlink" href="#7-mcp-server-prismctl-mcp" title="Permanent link">&para;</a></h2>
+<p>Official Go SDK (<code>github.com/modelcontextprotocol/go-sdk</code>), stdio transport, registered per session via <code>.mcp.json</code>. Tools mirror protocol verbs and call the same service methods as the CLI. Keep the surface small — schemas cost context in every session:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>initiative_list</code> / <code>initiative_get</code></td>
+<td>Browse initiatives, derived phase progress</td>
+</tr>
+<tr>
+<td><code>initiative_create</code> / <code>rmi_create</code></td>
+<td>Plan: decompose initiative into phased, per-repo RMIs</td>
+</tr>
+<tr>
+<td><code>work_ready</code></td>
+<td>Ready ∧ unblocked ∧ unclaimed, filterable by repo</td>
+</tr>
+<tr>
+<td><code>task_claim</code> / <code>task_release</code></td>
+<td>Lease claim; returns the <code>Refs:</code> trailer to use</td>
+</tr>
+<tr>
+<td><code>task_update</code></td>
+<td>Status, evidence refs, handoff notes</td>
+</tr>
+<tr>
+<td><code>report_initiative</code></td>
+<td>End-to-end report (JSON)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-session-protocol-and-commit-attribution">8. Session Protocol and Commit Attribution<a class="headerlink" href="#8-session-protocol-and-commit-attribution" title="Permanent link">&para;</a></h2>
+<p>The protocol is documented in this repo's <code>CLAUDE.md</code> (product repos' <code>CLAUDE.md</code> get one pointer line):</p>
+<ol>
+<li><strong>Plan</strong> — create/verify the initiative, phases, and per-repo RMIs before implementation work starts (duration measurement begins at creation).</li>
+<li><strong>Claim</strong> — <code>task_claim</code> with the session identifier and a lease (default 4h). The response includes the exact trailer line.</li>
+<li><strong>Execute</strong> — work in the product repo. Every commit made under a claim carries the trailer.</li>
+<li><strong>Update</strong> — <code>task_update</code> with status, evidence, and a compact handoff (<code>completed</code> / <code>remaining</code> / <code>decisions</code> / <code>next_action</code>); release or renew the lease.</li>
+</ol>
+<h3 id="trailer-specification">Trailer specification<a class="headerlink" href="#trailer-specification" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>feat(compositor): add alpha-channel overlay support
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Refs: RMI-VIDEOASCODE-019
+</code></pre></div>
+<ul>
+<li>Git trailer with key <code>Refs:</code>; value is one RMI ID (comma-separated if a commit genuinely serves several). Conventional-Commits-compliant (footers follow git trailer format).</li>
+<li>RMI only — never the initiative ID; the RMI→initiative edge is resolved in the database at report time.</li>
+<li>Subject line stays clean; extraction is <code>git log --format='%H|%(trailers:key=Refs,valueonly)'</code>.</li>
+<li>Squash-merge backups: RMI in the PR body; branch naming <code>rmi/&lt;repo&gt;-&lt;nnn&gt;-&lt;slug&gt;</code>. Attribution precedence: trailer → PR reference → branch name.</li>
+<li>Not every commit requires a trailer; the report exposes an <strong>unattributed residual</strong> (commits in participating repos during the initiative window without attribution) as the data-quality signal.</li>
+</ul>
+<h3 id="ingest">Ingest<a class="headerlink" href="#ingest" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Scan-once, query-forever: <code>prismctl ingest git</code> walks commits since <code>repositories.ingest_high_water</code>, parses trailers and conventional-commit type/scope, writes <code>delivery_evidence</code> rows, advances the high-water mark. All downstream queries are SQL; consumers never touch git.</li>
+<li>Changelog ingest maps <code>CHANGELOG.json</code> (structured-changelog) entries to RMIs via the trailer-populated reference (schema extension to structured-changelog: optional RMI ref field).</li>
+</ul>
+<h2 id="9-validation-prismctl-validate">9. Validation (<code>prismctl validate</code>)<a class="headerlink" href="#9-validation-prismctl-validate" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Trailer references a non-existent RMI, or an RMI whose repo ≠ the commit's repo (evidence never mutates the plan — these are errors to surface).</li>
+<li>Dangling <code>rmi_dependencies</code> edges; dependency cycles.</li>
+<li>Expired <code>active</code> leases (auto-expire + report).</li>
+<li>Status coherence: initiative <code>delivery_complete</code> while required RMIs are open; <code>completed</code> RMIs lacking required evidence.</li>
+<li>Duplicate IDs; ID-format violations.</li>
+</ul>
+<h2 id="10-initiative-report">10. Initiative Report<a class="headerlink" href="#10-initiative-report" title="Permanent link">&para;</a></h2>
+<p><code>prismctl report initiative INIT-X</code> (also MCP <code>report_initiative</code>). Computation in <code>pkg/report</code> from store data only (portable per NFR4).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;initiative_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;INIT-OMNIDEVX-EFFECTIVENESS-001&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">&quot;duration&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;created&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;executing&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;delivery_complete&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;days_executing&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">34</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">&quot;phases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="p">{</span><span class="nt">&quot;phase_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;phase-1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;theme&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;…&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;completed&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;rmis_completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;rmis_total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="p">],</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="nt">&quot;repos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;list&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;…&quot;</span><span class="p">]},</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="nt">&quot;rmis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;required_completed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">},</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="nt">&quot;commits&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">87</span><span class="p">,</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="nt">&quot;by_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;feat&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">31</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fix&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;test&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;docs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;refactor&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;chore&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">},</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="nt">&quot;by_repo&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;omnidevx-core&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">29</span><span class="p">},</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="nt">&quot;unattributed_in_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">  </span><span class="nt">&quot;releases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;repo&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;omnidevx-core&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v0.4.0&quot;</span><span class="p">}]</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="11-testing-strategy">11. Testing Strategy<a class="headerlink" href="#11-testing-strategy" title="Permanent link">&para;</a></h2>
+<p>Unit-first, enabled by the layering:</p>
+<ul>
+<li><strong>Pure domain logic</strong> (highest coverage): dependency graph / ready-work / cycle detection (<code>pkg/rmi</code>), lease expiry (<code>pkg/assignment</code>), trailer + conventional-commit parsing (<code>pkg/evidence</code>), report computation (<code>pkg/report</code>), derived phase status (<code>pkg/initiative</code>) — table-driven tests, no I/O.</li>
+<li><strong>Service layer:</strong> tested against the in-memory fake store (<code>pkg/store</code>), covering protocol rules (claim conflicts, invalid transitions, evidence validation).</li>
+<li><strong>Store implementation:</strong> a deliberately small integration suite against a real local Dolt (schema migration, unit-of-work + <code>DOLT_COMMIT</code>, history queries) — the only tests requiring Dolt, skippable via build tag when unavailable.</li>
+<li><strong>Adapters:</strong> CLI/MCP tests assert argument→service-call mapping, not behavior (behavior is tested once, in the service layer).</li>
+</ul>
+<p>Error handling follows the global standard: return errors up; panic only on invariant violations; <code>t.Fatal</code> in tests; never discard errors.</p>
+<h2 id="12-dependencies">12. Dependencies<a class="headerlink" href="#12-dependencies" title="Permanent link">&para;</a></h2>
+<p>Per the dependency-verification standard, confirm latest versions at implementation time (<code>go list -m -versions</code>, GitHub releases) — do not copy versions from this document:</p>
+<ul>
+<li><code>entgo.io/ent</code> — ORM/codegen (MySQL dialect → Dolt)</li>
+<li><code>github.com/spf13/cobra</code> — CLI</li>
+<li><code>github.com/modelcontextprotocol/go-sdk</code> — MCP server</li>
+<li><code>github.com/invopop/jsonschema</code> + <code>github.com/grokify/schemago</code> — schema generation/lint</li>
+<li><code>github.com/grokify/gogit</code> — repository scanning, dependency graph, topological sort (gitscan integration)</li>
+<li><code>github.com/grokify/structured-changelog</code> — changelog parsing (via <code>schangelog</code> conventions)</li>
+<li>Dolt binary (external runtime dependency, not a Go module)</li>
+</ul>
+<h2 id="13-gitscan-integration-pkgreposcan">13. gitscan Integration (<code>pkg/reposcan</code>)<a class="headerlink" href="#13-gitscan-integration-pkgreposcan" title="Permanent link">&para;</a></h2>
+<p><code>github.com/grokify/gogit/scanner</code> is imported as a Go library (not called via CLI). Key integration points:</p>
+<ul>
+<li><strong>Bulk registry import</strong> (<code>prismctl registry scan &lt;path&gt;</code>): <code>scanner.ScanDirectoryWithProgress</code> scans an org directory (e.g., <code>~/go/src/github.com/plexusone</code>) and auto-registers all git repos found — populating <code>repository_name</code>, <code>organization</code>, <code>local_path</code>, <code>go_module</code>, and <code>status</code> fields. Repos already in the registry are updated (path, module, status); new repos are inserted.</li>
+<li><strong>Dependency graph</strong> (<code>prismctl registry deps</code>): <code>scanner.TopologicalSort</code> + the <code>Dependencies</code> field from go.mod parsing populate <code>repository_dependencies</code> rows. Only dependencies between repos within the registered set are stored (external module deps are ignored). This feeds the release-ordering feature (Phase 6, RMI-026).</li>
+<li><strong>Impact analysis</strong>: <code>scanner.GetTransitiveDependents(seeds, all)</code> answers "if I change repo X, which downstream repos in the registry need attention?" — available as a service method and future MCP tool.</li>
+<li><strong>Unpushed detection</strong> (<code>prismctl registry unpushed</code>): <code>RepoResult.HasUncommittedChanges</code> / <code>HasUnpushedCommits</code> flags repos with un-pushed work. Combined with active assignments, this surfaces "claimed but not pushed" as a validation warning.</li>
+<li><strong>Activity filtering</strong>: <code>RepoResult.LatestModTime</code> enables <code>--since</code> filtering on scan output, so only recently active repos surface during planning.</li>
+</ul>
+<h3 id="data-flow">Data flow<a class="headerlink" href="#data-flow" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>~/go/src/github.com/{org}/
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>        │
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>        ▼
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  gogit/scanner.ScanDirectoryWithProgress
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        │
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        ▼
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  pkg/reposcan.Import(results) ──► repositories table
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>        │                          repository_dependencies table
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>        ▼
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>  prismctl registry scan ──► Dolt commit
+</code></pre></div>
+<h2 id="14-multi-tenancy-readiness-not-implemented-in-v1">14. Multi-Tenancy Readiness (not implemented in v1)<a class="headerlink" href="#14-multi-tenancy-readiness-not-implemented-in-v1" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>organization</code> columns on <code>initiatives</code> and <code>repositories</code> from day one; single-tenant v1 uses one constant value.</li>
+<li>Portability rule NFR4 keeps consumer queries valid against a plain MySQL read replica for a future hosted UI.</li>
+<li>No auth in v1; the Dolt SQL server binds to localhost.</li>
+</ul>
+<h2 id="15-context-assembly-phase-7">15. Context Assembly (Phase 7)<a class="headerlink" href="#15-context-assembly-phase-7" title="Permanent link">&para;</a></h2>
+<p>Origin: <code>IDEATION_CHAT_CACHE-OPTIMIZATION.md</code> (cache-cost ideation, 2026-07). Adopted principle: <strong>specs are the cache, not the chat</strong>. An agent session's working context is assembled deterministically from the PRISM execution graph and repository specs, rather than accumulated as conversation history. The phase remains the default context lifecycle boundary — the session protocol already claims and completes by phase; Phase 7 adds the re-grounding artifact each new session starts from.</p>
+<h3 id="alignment-decisions">Alignment decisions<a class="headerlink" href="#alignment-decisions" title="Permanent link">&para;</a></h3>
+<p>How the ideation proposals map onto the implemented system:</p>
+<table>
+<thead>
+<tr>
+<th>Ideation proposal</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Context Builder service</td>
+<td><strong>Adopt</strong> — <code>pkg/contextbuild</code>, <code>prismctl context build</code>, one MCP tool</td>
+</tr>
+<tr>
+<td>Phase-boundary context lifecycle with structured handoff</td>
+<td><strong>Already implemented</strong> — <code>work claim-phase</code>/<code>complete-phase</code> + assignment handoff JSON; Phase 7 adds a phase-level handoff projection</td>
+</tr>
+<tr>
+<td>Repo <code>ROADMAP.md</code> as generated projection of the DB</td>
+<td><strong>Already implemented</strong> for product repos (RMI-027, <code>roadmap generate</code>); this repo keeps a hand-maintained <code>docs/specs/ROADMAP.md</code> with <code>roadmap diff</code> drift detection</td>
+</tr>
+<tr>
+<td>RMIs spanning multiple repositories</td>
+<td><strong>Reject</strong> — the implemented model stands: one repo per RMI; cross-repo work is dependency-linked RMIs. The context repo set is <em>derived</em> from those edges instead</td>
+</tr>
+<tr>
+<td>~9 new phase/context MCP tools</td>
+<td><strong>Reject</strong> — a single <code>context_build</code> tool; §7's keep-the-surface-small rule applies</td>
+</tr>
+<tr>
+<td>Rename <code>PLAN.md</code> → <code>IMPLEMENTATION-PLAN.md</code></td>
+<td><strong>Defer</strong> — org-wide convention change; decide outside this repo</td>
+</tr>
+<tr>
+<td>Overlap scoring (continue/compact/fork recommendations)</td>
+<td><strong>Defer</strong> — requires file-level RMI metadata that only exists after evidence ingest; revisit using ingested commit evidence</td>
+</tr>
+<tr>
+<td>CacheLane-style cache proxy</td>
+<td><strong>Defer</strong> — evaluate only after deterministic assembly ships; expected residual value is small</td>
+</tr>
+<tr>
+<td>Cache-friendly restructuring of spec prose</td>
+<td><strong>Adopt partially</strong> — stability classes and canonical ordering live in the generated package, never in the source documents; specs stay provider-neutral</td>
+</tr>
+</tbody>
+</table>
+<h3 id="context-package-pkgcontextbuild">Context package (<code>pkg/contextbuild</code>)<a class="headerlink" href="#context-package-pkgcontextbuild" title="Permanent link">&para;</a></h3>
+<p>A context package is built for a <strong>phase</strong> (orientation) or an <strong>RMI</strong> (narrow re-grounding). Go structs are the source of truth; JSON Schema generated via <code>invopop/jsonschema</code>, linted with <code>schemago</code>, embedded under <code>schema/</code>.</p>
+<p>Contents, ordered stable → volatile, each section carrying a stability class and a provenance revision (Dolt commit for graph data, git SHA for spec files):</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Stability</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Program / initiative definition, decisions</td>
+<td><code>stable</code></td>
+<td>Dolt</td>
+</tr>
+<tr>
+<td>Phase objective, member RMIs, dependency edges</td>
+<td><code>phase_stable</code></td>
+<td>Dolt</td>
+</tr>
+<tr>
+<td>Prerequisite phase handoffs</td>
+<td><code>phase_stable</code></td>
+<td>Dolt (handoff projection)</td>
+</tr>
+<tr>
+<td>Current RMI: title, acceptance criteria, dependencies, repo</td>
+<td><code>rmi_stable</code></td>
+<td>Dolt</td>
+</tr>
+<tr>
+<td>Spec-file references (paths + revisions)</td>
+<td><code>rmi_stable</code></td>
+<td>registry <code>local_path</code> + git</td>
+</tr>
+<tr>
+<td>Assignment state, lease, evidence to date</td>
+<td><code>volatile</code></td>
+<td>Dolt</td>
+</tr>
+</tbody>
+</table>
+<p>Rules:</p>
+<ul>
+<li><strong>References, not copies.</strong> Spec content (<code>docs/specs/{PRD,TRD,PLAN}.md</code>) is referenced by path and git revision; the agent reads the files. This keeps packages small and immune to copy staleness.</li>
+<li><strong>Derived repo set.</strong> Primary = the RMI's <code>repository_id</code>; secondary = repositories of dependency RMIs and registered <code>repository_dependencies</code> targets. No new linkage tables (optional <code>context_spec</code> overrides are RMI-035).</li>
+<li><strong>Canonical output.</strong> Fixed section and repo ordering, stable serialization, no generated timestamps or random identifiers in stable sections; operational metadata last. Two builds at the same revisions are byte-identical.</li>
+</ul>
+<h3 id="phase-handoff-projection">Phase handoff projection<a class="headerlink" href="#phase-handoff-projection" title="Permanent link">&para;</a></h3>
+<p><code>prismctl phase handoff &lt;phase-id&gt;</code> aggregates member-RMI assignment handoffs (<code>completed</code>/<code>remaining</code>/<code>decisions</code>/<code>next_action</code>), evidence refs, and derived phase status into one JSON + Markdown artifact. Context packages embed it for prerequisite phases, replacing the prior phase's transcript.</p>
+<h3 id="surfaces">Surfaces<a class="headerlink" href="#surfaces" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>prismctl context build &lt;rmi-id|phase-id&gt; [--format json|markdown] [--out FILE]
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>prismctl phase handoff &lt;phase-id&gt; [--format json|markdown]
+</code></pre></div>
+<p>MCP adds exactly one tool, <code>context_build</code>, calling the same service method as the CLI.</p>
+<h3 id="non-goals">Non-goals<a class="headerlink" href="#non-goals" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No provider-specific cache markers (Claude cache breakpoints, CacheLane lanes) in packages or specs; if ever needed, they belong in a downstream adapter.</li>
+<li>No conversation-history storage or pruning — PRISM assembles fresh context; the agent runtime owns its transcript.</li>
+<li>No automatic session-scope recommendations (continue/compact/fork) in v1.</li>
+</ul>
+<h2 id="16-token-attribution-reporting-phase-8">16. Token Attribution Reporting (Phase 8)<a class="headerlink" href="#16-token-attribution-reporting-phase-8" title="Permanent link">&para;</a></h2>
+<p>Maps token spend to the planning graph. Ownership boundary (PRD §6) is preserved: omnidevx owns collection and pricing, devfolio owns developer-experience reports, and the <code>devx</code> analytics database (devfolio's Dolt spec) lives <strong>separately from <code>prismcontrol</code>, on the same Dolt SQL server</strong> — cross-database joins give single-surface reporting without merging schemas. PRISM computes only initiative-scoped <em>attribution</em>, not developer metrics.</p>
+<h3 id="data-sources-pkgtokens">Data sources (<code>pkg/tokens</code>)<a class="headerlink" href="#data-sources-pkgtokens" title="Permanent link">&para;</a></h3>
+<p><code>TokenSource</code> interface yielding token events (session ID, workspace, model, timestamp, input/output/cache-read/cache-creation tokens):</p>
+<table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>Source</th>
+<th>Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSONL reader</td>
+<td>omnidevx store <code>events/YYYY/MM/DD/*.jsonl</code>, <code>ai.message.completed</code> events</td>
+<td>now</td>
+</tr>
+<tr>
+<td><code>devx</code> SQL reader</td>
+<td><code>devx.token_events</code> on the shared Dolt server</td>
+<td>after devfolio ingest (<code>RMI-DEVFOLIO-050</code>+)</td>
+</tr>
+</tbody>
+</table>
+<p>Cost is computed with <code>omnidevx-core/report</code>'s embedded pricing (<code>LookupPricing</code>/<code>EstimateCost</code>) — no pricing table is maintained in this repo.</p>
+<h3 id="attribution">Attribution<a class="headerlink" href="#attribution" title="Permanent link">&para;</a></h3>
+<p>Precedence, mirroring commit attribution (§8). Every event in a report window lands in exactly one bucket:</p>
+<ol>
+<li><strong>Session + time window</strong> — <code>event.session_id = assignments.worker</code> and event timestamp within the assignment's <code>created_at</code>..<code>completed_at</code> (open-ended for active leases). Worker IDs are Claude Code session UUIDs via <code>CLAUDE_CODE_SESSION_ID</code> auto-detection. Attributed to RMI → phase → initiative → program.</li>
+<li><strong>Repository-level</strong> — no matching assignment, but event workspace resolves to a registered repository (<code>local_path</code>). Attributed to the repository; surfaced as in-scope unattributed spend.</li>
+<li><strong>Out-of-management</strong> — workspace resolves to no registered repository. Summarized as a coverage gap (total + cost, optionally by workspace); never itemized into planning entities.</li>
+</ol>
+<h3 id="consistency-contract-with-devfolio">Consistency contract with devfolio<a class="headerlink" href="#consistency-contract-with-devfolio" title="Permanent link">&para;</a></h3>
+<p>devfolio reports <strong>overall</strong> spend — every project, PRISM-managed or not. PRISM reports the <strong>subset</strong> attributable to the planning graph. Consistency is by construction, never by adjustment:</p>
+<ul>
+<li>Both systems read the same omnidevx events and compute cost with the same embedded pricing; PRISM never re-collects, re-prices, or corrects figures.</li>
+<li>For any window: <code>bucket1 + bucket2 + bucket3 = devfolio overall spend</code>, and PRISM's managed spend (buckets 1+2) equals devfolio's spend filtered to the same workspaces. Equality of totals holds only when every active project is PRISM-tracked.</li>
+<li>Period reports state <strong>coverage</strong>: managed spend ÷ overall spend for the window, so the subset relation is visible rather than implied.</li>
+</ul>
+<h3 id="surfaces_1">Surfaces<a class="headerlink" href="#surfaces_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>prismctl report tokens --initiative &lt;id&gt; [--format json|markdown]
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>prismctl report tokens --quarter 2026-Q3 | --since &lt;t&gt; --until &lt;t&gt;
+</code></pre></div>
+<p>Initiative mode: totals by token category, cost by model, per-RMI rows, session count, residual. Period mode: initiatives active in the window → member RMIs → tokens/cost, sorted by spend, plus the residual bucket. Dashboard gains token/cost columns (summary) and per-phase/per-RMI spend (detail). No new MCP tools (§7 rule); the report is CLI/dashboard-only.</p>
+<p>Cross-database views (with <code>devx</code> present): <code>v_initiative_tokens</code>, <code>v_unattributed_tokens</code> — defined in <code>views.sql</code> alongside the VisionStudio views, subject to the same NFR4 portability rule (plain SQL, no Dolt system tables).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/ProductBuildersHQ/visionstudio" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://productbuildershq.com/js/site-nav.min.js"></script>
+      
+        <script src="https://productbuildershq.com/js/pbhq-nav.js"></script>
+      
+    
+  </body>
+</html>

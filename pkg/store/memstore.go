@@ -304,6 +304,22 @@ func (m *MemStore) CreateDependency(_ context.Context, dep *RMIDependency) error
 	return nil
 }
 
+func (m *MemStore) DeleteDependency(_ context.Context, sourceID, targetID string) (int, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	kept := m.deps[:0]
+	removed := 0
+	for _, d := range m.deps {
+		if d.SourceRMIID == sourceID && d.TargetRMIID == targetID {
+			removed++
+			continue
+		}
+		kept = append(kept, d)
+	}
+	m.deps = kept
+	return removed, nil
+}
+
 func (m *MemStore) ListDependencies(_ context.Context, rmiID string) ([]*RMIDependency, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()

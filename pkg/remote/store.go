@@ -393,6 +393,11 @@ func (s *Store) ListDependencies(ctx context.Context, rmiID string) ([]*store.RM
 	return list[store.RMIDependency](ctx, s, idPath("/rmis", rmiID)+"/dependencies", nil, "dependencies")
 }
 
+// DeleteDependency is not served by the VisionStudio Cloud API yet.
+func (s *Store) DeleteDependency(_ context.Context, _, _ string) (int, error) {
+	return 0, &NotSupportedError{Op: "DeleteDependency"}
+}
+
 // ListAllDependencies lists every RMI dependency edge in the tenant.
 func (s *Store) ListAllDependencies(ctx context.Context) ([]*store.RMIDependency, error) {
 	return list[store.RMIDependency](ctx, s, "/dependencies", nil, "dependencies")

@@ -264,6 +264,9 @@ type RMIStore interface {
 	CreateDependency(ctx context.Context, dep *RMIDependency) error
 	ListDependencies(ctx context.Context, rmiID string) ([]*RMIDependency, error)
 	ListAllDependencies(ctx context.Context) ([]*RMIDependency, error)
+	// DeleteDependency removes the edges from source to target, whatever
+	// their relationship, and reports how many it removed.
+	DeleteDependency(ctx context.Context, sourceID, targetID string) (int, error)
 }
 
 // AssignmentStore defines persistence for lease-based work claims.

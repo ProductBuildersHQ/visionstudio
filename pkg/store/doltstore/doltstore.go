@@ -724,6 +724,18 @@ func (d *DoltStore) CreateDependency(ctx context.Context, dep *store.RMIDependen
 	return nil
 }
 
+func (d *DoltStore) DeleteDependency(ctx context.Context, sourceID, targetID string) (int, error) {
+	n, err := d.client.RMIDependency.Delete().
+		Where(
+			rmidependency.SourceRmiIDEQ(sourceID),
+			rmidependency.TargetRmiIDEQ(targetID),
+		).Exec(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("delete RMI dependency %s -> %s: %w", sourceID, targetID, err)
+	}
+	return n, nil
+}
+
 func (d *DoltStore) ListDependencies(ctx context.Context, rmiID string) ([]*store.RMIDependency, error) {
 	rows, err := d.client.RMIDependency.Query().
 		Where(

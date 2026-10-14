@@ -115,6 +115,38 @@ func TestDoltStoreRoundTrips(t *testing.T) {
 		t.Fatalf("create rmi: %v", err)
 	}
 
+	t.Run("dependency delete removes only the named edge", func(t *testing.T) {
+		other := &store.RoadmapItem{
+			ID: "RMI-APP-002", RepositoryID: repo.ID, InitiativeID: "INIT-APP-001",
+			Title: "y", ItemType: "capability", Status: "proposed", CreatedAt: now, UpdatedAt: now,
+		}
+		if err := ds.CreateRMI(ctx, other); err != nil {
+			t.Fatal(err)
+		}
+		for _, d := range []*store.RMIDependency{
+			{SourceRMIID: "RMI-APP-002", TargetRMIID: "RMI-APP-001", Relationship: "requires"},
+			{SourceRMIID: "RMI-APP-001", TargetRMIID: "RMI-APP-002", Relationship: "relates"},
+		} {
+			if err := ds.CreateDependency(ctx, d); err != nil {
+				t.Fatal(err)
+			}
+		}
+		n, err := ds.DeleteDependency(ctx, "RMI-APP-002", "RMI-APP-001")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if n != 1 {
+			t.Fatalf("removed %d edges, want 1", n)
+		}
+		deps, err := ds.ListDependencies(ctx, "RMI-APP-002")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(deps) != 1 || deps[0].SourceRMIID != "RMI-APP-001" {
+			t.Fatalf("remaining edges = %+v, want only RMI-APP-001 -> RMI-APP-002", deps)
+		}
+	})
+
 	t.Run("repository fields round-trip", func(t *testing.T) {
 		got, err := ds.GetRepository(ctx, repo.ID)
 		if err != nil {

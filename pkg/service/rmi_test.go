@@ -374,3 +374,23 @@ func TestListAllRMIs(t *testing.T) {
 		t.Fatalf("expected 2 RMIs across all initiatives, got %d", len(all))
 	}
 }
+
+func TestDeleteDependency(t *testing.T) {
+	ctx := context.Background()
+	svc := newTestService()
+
+	if err := svc.CreateDependency(ctx, "RMI-D-001", "RMI-D-002", "requires"); err != nil {
+		t.Fatal(err)
+	}
+	n, err := svc.DeleteDependency(ctx, "RMI-D-001", "RMI-D-002")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n != 1 {
+		t.Fatalf("removed %d edges, want 1", n)
+	}
+	// None left: an error, so a mistyped ID is reported.
+	if _, err := svc.DeleteDependency(ctx, "RMI-D-001", "RMI-D-002"); err == nil {
+		t.Fatal("expected an error when there is no edge to remove")
+	}
+}

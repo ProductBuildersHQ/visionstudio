@@ -194,6 +194,32 @@ func TestMemStoreRMIDependencies(t *testing.T) {
 	if len(deps) != 1 {
 		t.Fatalf("expected 1 dependency, got %d", len(deps))
 	}
+
+	if err := s.CreateDependency(ctx, &RMIDependency{SourceRMIID: "RMI-A-003", TargetRMIID: "RMI-A-001", Relationship: "requires"}); err != nil {
+		t.Fatal(err)
+	}
+	n, err := s.DeleteDependency(ctx, "RMI-A-002", "RMI-A-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if n != 1 {
+		t.Fatalf("expected 1 removed, got %d", n)
+	}
+	if deps, err = s.ListDependencies(ctx, "RMI-A-002"); err != nil {
+		t.Fatal(err)
+	}
+	if len(deps) != 0 {
+		t.Fatalf("expected the edge to be gone, got %d", len(deps))
+	}
+	if deps, err = s.ListDependencies(ctx, "RMI-A-003"); err != nil {
+		t.Fatal(err)
+	}
+	if len(deps) != 1 {
+		t.Fatalf("expected the other edge to remain, got %d", len(deps))
+	}
+	if n, err = s.DeleteDependency(ctx, "RMI-A-002", "RMI-A-001"); err != nil || n != 0 {
+		t.Fatalf("second delete: n=%d err=%v", n, err)
+	}
 }
 
 func TestMemStoreEvidenceByInitiative(t *testing.T) {

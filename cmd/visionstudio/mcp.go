@@ -31,7 +31,7 @@ $VISIONSTUDIO_REMOTE_TOKEN:
     "mcpServers": {
       "visionstudio": {
         "command": "visionstudio",
-        "args": ["mcp", "--remote", "https://cloud.example.com/t/acme"]
+        "args": ["mcp", "--remote", "https://cloud.example.com/o/acme"]
       }
     }
   }

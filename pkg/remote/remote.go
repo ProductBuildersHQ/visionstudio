@@ -1,5 +1,5 @@
 // Package remote is an HTTP-backed implementation of store.Store that talks
-// to a VisionStudio Cloud tenant's CRUD API (/t/{tenant}/api/v1/...).
+// to a VisionStudio Cloud tenant's CRUD API (/o/{tenant}/api/v1/...).
 //
 // Because pkg/service and every adapter above it (the CLI commands and
 // pkg/mcpserver) depend only on the store.Store interface, wrapping a remote
@@ -215,7 +215,7 @@ const maxResponseBytes = 64 << 20
 
 // Store implements store.Store against a VisionStudio Cloud tenant.
 type Store struct {
-	base      *url.URL // scheme://host[/prefix], no trailing slash, no /t/{tenant}
+	base      *url.URL // scheme://host[/prefix], no trailing slash, no tenant segment
 	tenant    string
 	token     string
 	hc        *http.Client
@@ -226,8 +226,8 @@ var _ store.Store = (*Store)(nil)
 
 // New returns a Store for the tenant at baseURL. baseURL may be the cloud
 // root ("https://cloud.example.com") or already include the tenant segment
-// ("https://cloud.example.com/t/acme"); in the latter case tenant may be
-// empty, and must match if given.
+// ("https://cloud.example.com/o/acme", or the former /t/acme); in the
+// latter case tenant may be empty, and must match if given.
 func New(baseURL, tenant string, opts ...Option) (*Store, error) {
 	base, urlTenant, err := ParseBaseURL(baseURL)
 	if err != nil {
@@ -236,7 +236,7 @@ func New(baseURL, tenant string, opts ...Option) (*Store, error) {
 	tenant = strings.TrimSpace(tenant)
 	switch {
 	case tenant == "" && urlTenant == "":
-		return nil, errors.New("remote: a tenant slug is required (pass one, or use a URL ending in /t/<tenant>)")
+		return nil, errors.New("remote: a tenant is required (pass one, or use a URL ending in /o/<tenant>)")
 	case tenant == "":
 		tenant = urlTenant
 	case urlTenant != "" && urlTenant != tenant:
@@ -258,8 +258,10 @@ func New(baseURL, tenant string, opts ...Option) (*Store, error) {
 }
 
 // ParseBaseURL validates a cloud URL and splits off an optional trailing
-// /t/{tenant} (and anything after it, e.g. /api/v1). It returns the cloud
-// root without a trailing slash and the tenant slug, if present.
+// /o/{tenant} (and anything after it, e.g. /api/v1). The former /t/{tenant}
+// segment is accepted too, so URLs saved before the cloud moved its tenant
+// API to /o/ keep working. It returns the cloud root without a trailing
+// slash and the tenant, if present.
 func ParseBaseURL(raw string) (*url.URL, string, error) {
 	raw = strings.TrimSpace(raw)
 	if raw == "" {
@@ -281,13 +283,25 @@ func ParseBaseURL(raw string) (*url.URL, string, error) {
 	u.RawQuery, u.Fragment, u.RawFragment = "", "", ""
 	path := strings.TrimRight(u.Path, "/")
 	var tenant string
-	if i := strings.Index(path+"/", "/t/"); i >= 0 {
-		rest := strings.TrimPrefix(path[i:], "/t/")
-		tenant, _, _ = strings.Cut(rest, "/")
+	if i := tenantSegment(path + "/"); i >= 0 {
+		tenant, _, _ = strings.Cut(path[i+len("/o/"):], "/")
 		path = path[:i]
 	}
 	u.Path, u.RawPath = path, ""
 	return u, tenant, nil
+}
+
+// tenantSegment returns the index of the first /o/ or /t/ segment in path,
+// or -1. Both prefixes are three bytes long.
+func tenantSegment(path string) int {
+	o, t := strings.Index(path, "/o/"), strings.Index(path, "/t/")
+	switch {
+	case o < 0:
+		return t
+	case t < 0 || o < t:
+		return o
+	}
+	return t
 }
 
 // BaseURL returns the cloud root URL (without the tenant segment).
@@ -318,7 +332,7 @@ type Identity struct {
 	Memberships []Membership `json:"memberships"`
 }
 
-// TenantIdentity is the body of GET /t/{tenant}/api/v1/me: the principal
+// TenantIdentity is the body of GET /o/{tenant}/api/v1/me: the principal
 // and its role in the store's tenant.
 type TenantIdentity struct {
 	Principal Principal `json:"principal"`
@@ -327,7 +341,7 @@ type TenantIdentity struct {
 }
 
 // Ping verifies the URL, credential, and tenant membership with one cheap
-// authenticated read (GET /t/{tenant}/api/v1/me). A nil error means the
+// authenticated read (GET /o/{tenant}/api/v1/me). A nil error means the
 // store is usable.
 func (s *Store) Ping(ctx context.Context) error {
 	_, err := s.TenantMe(ctx)
@@ -384,10 +398,10 @@ func (s *Store) endpoint(rawRel string, q url.Values) (string, error) {
 }
 
 // do performs one request against the tenant API: rel is an escaped path
-// relative to /t/{tenant}/api/v1. body (if non-nil) is JSON-encoded; out (if
+// relative to /o/{tenant}/api/v1. body (if non-nil) is JSON-encoded; out (if
 // non-nil) receives the decoded 2xx response.
 func (s *Store) do(ctx context.Context, method, rel string, q url.Values, body, out any) error {
-	return s.requestAs(ctx, method, "/t/"+url.PathEscape(s.tenant)+"/api/v1"+rel, rel, q, body, out)
+	return s.requestAs(ctx, method, "/o/"+url.PathEscape(s.tenant)+"/api/v1"+rel, rel, q, body, out)
 }
 
 // request performs one request at an escaped path relative to the cloud

@@ -37,7 +37,7 @@ also works. It is read, in order, from:
   an interactive prompt (input hidden)
 
 When a tenant is known (--remote-tenant, $VISIONSTUDIO_REMOTE_TENANT, or a URL
-ending in /t/<tenant>), the credential is verified against that tenant before it
+ending in /o/<tenant>), the credential is verified against that tenant before it
 is saved, and the tenant is remembered as the default for this URL.
 
 The credential is stored in ~/.productbuildershq/visionstudio/credentials.json
@@ -47,7 +47,7 @@ device login flow is planned; until then, paste an API key.
 Logging in never switches commands to remote mode by itself: pass --remote <url>
 (or set $VISIONSTUDIO_REMOTE_URL) per invocation.`,
 		Example: `  visionstudio cloud login --remote https://cloud.example.com --remote-tenant acme
-  op read op://vault/visionstudio/key | visionstudio cloud login --remote https://cloud.example.com/t/acme --with-token`,
+  op read op://vault/visionstudio/key | visionstudio cloud login --remote https://cloud.example.com/o/acme --with-token`,
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load()

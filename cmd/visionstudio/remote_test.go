@@ -73,7 +73,7 @@ func TestRemoteModeFromEnvAndURLTenant(t *testing.T) {
 	isolateRemoteEnv(t)
 	fake := newFakeCloud(t)
 	t.Setenv(envRemoteToken, cliTestToken)
-	t.Setenv(envRemoteURL, fake.URL+"/t/"+cliTestTenant)
+	t.Setenv(envRemoteURL, fake.URL+"/o/"+cliTestTenant)
 
 	out, err := runCLI(t, "", "initiative", "create", "--id", "INIT-ACME-002", "--title", "Env", "--workflow", "pbhq-lite")
 	if err != nil {

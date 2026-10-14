@@ -1,6 +1,6 @@
 // Package remotetest provides an in-process fake of the VisionStudio Cloud
 // tenant API for testing code that uses pkg/remote. It mirrors the cloud
-// API's documented contract — routes under /t/{tenant}/api/v1 plus
+// API's documented contract — routes under /o/{tenant}/api/v1 plus
 // GET /api/v1/me, bearer/X-API-Key authentication, tenant membership (401 vs
 // 403), the {"error", "code"} error body with 400/404/409 classification,
 // strict request decoding, [] for empty lists, the {"assignment": null} and
@@ -95,7 +95,7 @@ func NewServer(token string, tenants ...string) *Server {
 }
 
 func (s *Server) routes(mux *http.ServeMux) {
-	const t = "/t/{tenant}/api/v1"
+	const t = "/o/{tenant}/api/v1"
 
 	mux.HandleFunc("GET /api/v1/me", s.getMe)
 	mux.HandleFunc("GET "+t+"/me", s.getTenantMe)
@@ -264,7 +264,7 @@ func (s *Server) getMe(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"principal": principal(), "memberships": ms})
 }
 
-// getTenantMe serves GET /t/{tenant}/api/v1/me.
+// getTenantMe serves GET /o/{tenant}/api/v1/me.
 func (s *Server) getTenantMe(w http.ResponseWriter, r *http.Request) {
 	if !s.authorize(w, r) {
 		return

@@ -26,7 +26,7 @@ const (
 // remoteSettings is a resolved remote-mode configuration. Source fields
 // describe where each value came from, for `cloud status`.
 type remoteSettings struct {
-	RawURL       string // as given (may include /t/<tenant>)
+	RawURL       string // as given (may include /o/<tenant>)
 	BaseURL      string // canonical cloud root, the credentials key
 	URLSource    string
 	Tenant       string
@@ -39,8 +39,8 @@ type remoteSettings struct {
 // The tenant flag is --remote-tenant (not --tenant) because `sync` and
 // `pull` already define a local --tenant with different meaning.
 func addRemoteFlags(cmd *cobra.Command) {
-	cmd.PersistentFlags().String("remote", "", "VisionStudio Cloud URL: run against a cloud tenant instead of the local database (default: $"+envRemoteURL+"; may end in /t/<tenant>)")
-	cmd.PersistentFlags().String("remote-tenant", "", "Cloud tenant slug for --remote (default: $"+envRemoteTenant+", the URL's /t/<tenant>, or the tenant saved by 'cloud login')")
+	cmd.PersistentFlags().String("remote", "", "VisionStudio Cloud URL: run against a cloud tenant instead of the local database (default: $"+envRemoteURL+"; may end in /o/<tenant>)")
+	cmd.PersistentFlags().String("remote-tenant", "", "Cloud tenant for --remote, an organization ID or slug (default: $"+envRemoteTenant+", the URL's /o/<tenant>, or the tenant saved by 'cloud login')")
 }
 
 // remoteURLFlag returns the remote URL from --remote or the environment,

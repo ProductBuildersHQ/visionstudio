@@ -136,7 +136,7 @@ func TestRequestHeaders(t *testing.T) {
 		t.Fatalf("requests = %d", len(reqs))
 	}
 	r := reqs[0]
-	if r.Path != "/t/acme/api/v1/initiatives" {
+	if r.Path != "/o/acme/api/v1/initiatives" {
 		t.Errorf("path = %q", r.Path)
 	}
 	if got := r.Header.Get("Authorization"); got != "Bearer "+testToken {
@@ -403,6 +403,11 @@ func TestNewURLAndTenant(t *testing.T) {
 	}{
 		{url: "https://cloud.example.com", tenant: "acme", wantBase: "https://cloud.example.com", wantTen: "acme"},
 		{url: "https://cloud.example.com/", tenant: "acme", wantBase: "https://cloud.example.com", wantTen: "acme"},
+		{url: "https://cloud.example.com/o/acme", wantBase: "https://cloud.example.com", wantTen: "acme"},
+		{url: "https://cloud.example.com/o/acme/api/v1/", tenant: "acme", wantBase: "https://cloud.example.com", wantTen: "acme"},
+		{url: "https://example.com/vs/o/acme", wantBase: "https://example.com/vs", wantTen: "acme"},
+		{url: "https://cloud.example.com/o/acme", tenant: "other", wantErr: true},
+		// The former /t/ segment still parses.
 		{url: "https://cloud.example.com/t/acme", wantBase: "https://cloud.example.com", wantTen: "acme"},
 		{url: "https://cloud.example.com/t/acme/api/v1/", tenant: "acme", wantBase: "https://cloud.example.com", wantTen: "acme"},
 		{url: "https://example.com/vs/t/acme", wantBase: "https://example.com/vs", wantTen: "acme"},
@@ -439,7 +444,7 @@ func TestBasePathPrefixPreserved(t *testing.T) {
 	front := httptest.NewServer(mux)
 	defer front.Close()
 
-	rs, err := remote.New(front.URL+"/prefix/t/"+testTenant, "", remote.WithToken(testToken))
+	rs, err := remote.New(front.URL+"/prefix/o/"+testTenant, "", remote.WithToken(testToken))
 	if err != nil {
 		t.Fatal(err)
 	}

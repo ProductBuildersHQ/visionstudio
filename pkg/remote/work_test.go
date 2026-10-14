@@ -59,7 +59,7 @@ func TestPrograms(t *testing.T) {
 	if err != nil || got.Name != "X" {
 		t.Fatalf("GetProgram = %+v, %v", got, err)
 	}
-	if r := lastRequest(t, fake); r.Method != http.MethodGet || r.Path != "/t/acme/api/v1/programs/PROG-X" {
+	if r := lastRequest(t, fake); r.Method != http.MethodGet || r.Path != "/o/acme/api/v1/programs/PROG-X" {
 		t.Fatalf("GetProgram request = %s %s", r.Method, r.Path)
 	}
 	if _, err := rs.GetProgram(ctx, "PROG-NOPE"); !errors.Is(err, remote.ErrNotFound) {
@@ -93,7 +93,7 @@ func TestInitiativeUpdateAndTransition(t *testing.T) {
 		t.Fatalf("planned_at not stamped: %+v", in)
 	}
 	r := lastRequest(t, fake)
-	if r.Method != http.MethodPut || r.Path != "/t/acme/api/v1/initiatives/INIT-ACME-001" {
+	if r.Method != http.MethodPut || r.Path != "/o/acme/api/v1/initiatives/INIT-ACME-001" {
 		t.Fatalf("UpdateInitiative request = %s %s", r.Method, r.Path)
 	}
 	srv, err := fake.Service.GetInitiative(ctx, "INIT-ACME-001")
@@ -207,7 +207,7 @@ func TestPhaseCreateDelete(t *testing.T) {
 		t.Fatalf("RemovePhase: %v", err)
 	}
 	r := lastRequest(t, fake)
-	if r.Method != http.MethodDelete || r.RawPath != "/t/acme/api/v1/phases/INIT-ACME-001%2Fphase-2" || r.Path != "/t/acme/api/v1/phases/INIT-ACME-001/phase-2" {
+	if r.Method != http.MethodDelete || r.RawPath != "/o/acme/api/v1/phases/INIT-ACME-001%2Fphase-2" || r.Path != "/o/acme/api/v1/phases/INIT-ACME-001/phase-2" {
 		t.Fatalf("DeletePhase request = %s %s (raw %s)", r.Method, r.Path, r.RawPath)
 	}
 	phases, err := rs.ListPhases(ctx, "INIT-ACME-001")
@@ -302,7 +302,7 @@ func TestAssignmentLifecycle(t *testing.T) {
 	if err != nil || !renewed.LeaseExpiresAt.After(now.Add(90*time.Minute)) {
 		t.Fatalf("RenewLease = %+v, %v", renewed, err)
 	}
-	if r := lastRequest(t, fake); r.Method != http.MethodPut || r.Path != "/t/acme/api/v1/assignments/"+id {
+	if r := lastRequest(t, fake); r.Method != http.MethodPut || r.Path != "/o/acme/api/v1/assignments/"+id {
 		t.Fatalf("RenewLease request = %s %s", r.Method, r.Path)
 	}
 
@@ -460,7 +460,7 @@ func TestReleasesAndRepositoriesReadOnly(t *testing.T) {
 	if err != nil || got.Tag != "v1.0.0" {
 		t.Fatalf("GetRelease = %+v, %v", got, err)
 	}
-	if r := lastRequest(t, fake); r.RawPath != "/t/acme/api/v1/releases/github.com%2Facme%2Fapp@v1.0.0" {
+	if r := lastRequest(t, fake); r.RawPath != "/o/acme/api/v1/releases/github.com%2Facme%2Fapp@v1.0.0" {
 		t.Fatalf("GetRelease raw path = %q", r.RawPath)
 	}
 	for name, fn := range map[string]func() ([]*store.Release, error){
@@ -586,7 +586,7 @@ func TestIdentity(t *testing.T) {
 	if err := rs.Ping(ctx); err != nil {
 		t.Fatalf("Ping: %v", err)
 	}
-	if r := lastRequest(t, fake); r.Path != "/t/acme/api/v1/me" {
+	if r := lastRequest(t, fake); r.Path != "/o/acme/api/v1/me" {
 		t.Fatalf("Ping path = %q", r.Path)
 	}
 	tm, err := rs.TenantMe(ctx)

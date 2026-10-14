@@ -757,7 +757,7 @@ func rmiDepCmd() *cobra.Command {
 		Use:   "dep",
 		Short: "Manage RMI dependencies",
 	}
-	cmd.AddCommand(rmiDepAddCmd(), rmiDepListCmd())
+	cmd.AddCommand(rmiDepAddCmd(), rmiDepRemoveCmd(), rmiDepListCmd())
 	return cmd
 }
 
@@ -790,6 +790,40 @@ func rmiDepAddCmd() *cobra.Command {
 	cmd.Flags().String("source", "", "Source RMI ID (the one that depends) (required)")
 	cmd.Flags().String("target", "", "Target RMI ID (the one depended upon) (required)")
 	cmd.Flags().String("relationship", "requires", "Relationship type (requires, relates)")
+	return cmd
+}
+
+func rmiDepRemoveCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "remove",
+		Short: "Remove the dependency between two RMIs",
+		Long: `Remove the dependency edges from --source to --target, whatever their
+relationship. Roadmap import adds edges but never removes them, so use this
+when an RMI no longer depends on another (for example after one is cancelled
+or replaced).`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			source, _ := cmd.Flags().GetString("source")
+			target, _ := cmd.Flags().GetString("target")
+			if source == "" || target == "" {
+				return fmt.Errorf("--source and --target are required")
+			}
+
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			n, err := svc.DeleteDependency(cmd.Context(), source, target)
+			if err != nil {
+				return err
+			}
+			cmd.Printf("Removed %d dependency edge(s): %s -> %s\n", n, source, target)
+			return nil
+		},
+	}
+	cmd.Flags().String("source", "", "Source RMI ID (the one that depends) (required)")
+	cmd.Flags().String("target", "", "Target RMI ID (the one depended upon) (required)")
 	return cmd
 }
 

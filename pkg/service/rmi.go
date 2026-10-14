@@ -214,6 +214,19 @@ func (s *Service) UpdatePhaseStatus(ctx context.Context, phaseID, fromStatus, to
 	return updated, skipped, nil
 }
 
+// DeleteDependency removes the dependency edges from source to target. It
+// is an error when there is none, so a mistyped ID does not pass silently.
+func (s *Service) DeleteDependency(ctx context.Context, sourceID, targetID string) (int, error) {
+	n, err := s.Store.DeleteDependency(ctx, sourceID, targetID)
+	if err != nil {
+		return 0, err
+	}
+	if n == 0 {
+		return 0, fmt.Errorf("no dependency from %s to %s", sourceID, targetID)
+	}
+	return n, nil
+}
+
 // ListDependencies returns all dependency edges for an RMI.
 func (s *Service) ListDependencies(ctx context.Context, rmiID string) ([]*store.RMIDependency, error) {
 	return s.Store.ListDependencies(ctx, rmiID)

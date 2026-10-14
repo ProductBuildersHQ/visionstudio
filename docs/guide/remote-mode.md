@@ -6,7 +6,7 @@ at a VisionStudio Cloud tenant instead. It is not a second implementation. The
 CLI and `pkg/mcpserver` talk to `pkg/service`, which talks to the `store.Store`
 interface. Remote mode swaps the local Dolt store for `pkg/remote`, an HTTP
 implementation of that interface that calls the cloud tenant API at
-`/t/<tenant>/api/v1/...`.
+`/o/<tenant>/api/v1/...`.
 
 Remote mode and local mode are separate systems. Nothing syncs between them,
 and remote mode is opt-in per invocation.
@@ -32,13 +32,16 @@ visionstudio initiative create --remote https://cloud.example.com \
 | Setting | Resolved from (first match wins) |
 |---------|----------------------------------|
 | Cloud URL (turns remote mode on) | `--remote <url>` → `$VISIONSTUDIO_REMOTE_URL` |
-| Tenant | `--remote-tenant` → `$VISIONSTUDIO_REMOTE_TENANT` → URL ending in `/t/<tenant>` → tenant saved by `cloud login` |
+| Tenant | `--remote-tenant` → `$VISIONSTUDIO_REMOTE_TENANT` → URL ending in `/o/<tenant>` → tenant saved by `cloud login` |
 | Credential | `$VISIONSTUDIO_REMOTE_TOKEN` → key saved by `cloud login` for that URL |
 
 Notes:
 
-- `--remote https://cloud.example.com/t/acme` is equivalent to
+- `--remote https://cloud.example.com/o/acme` is equivalent to
   `--remote https://cloud.example.com --remote-tenant acme`.
+- The tenant is the organization's ID or its slug. A bearer token names
+  organizations by ID only, so use the ID with one. A URL ending in the
+  former `/t/<tenant>` still works; the client calls `/o/`.
 - The tenant flag is `--remote-tenant`, not `--tenant`, because `sync` and
   `pull` already use a local `--tenant` flag with a different meaning.
 - `--remote` cannot be combined with `--dsn` or `--data-dir`.
@@ -79,7 +82,7 @@ the cloud tenant:
   "mcpServers": {
     "visionstudio": {
       "command": "visionstudio",
-      "args": ["mcp", "--remote", "https://cloud.example.com/t/acme"]
+      "args": ["mcp", "--remote", "https://cloud.example.com/o/acme"]
     }
   }
 }
@@ -95,7 +98,7 @@ environment:
       "command": "visionstudio",
       "args": ["mcp"],
       "env": {
-        "VISIONSTUDIO_REMOTE_URL": "https://cloud.example.com/t/acme",
+        "VISIONSTUDIO_REMOTE_URL": "https://cloud.example.com/o/acme",
         "VISIONSTUDIO_REMOTE_TOKEN": "${VISIONSTUDIO_REMOTE_TOKEN}"
       }
     }
@@ -106,7 +109,7 @@ environment:
 Or register it from the command line:
 
 ```bash
-claude mcp add visionstudio -- visionstudio mcp --remote https://cloud.example.com/t/acme
+claude mcp add visionstudio -- visionstudio mcp --remote https://cloud.example.com/o/acme
 ```
 
 ## What works today
@@ -194,7 +197,7 @@ member of the tenant), `remote.ErrInvalid` (400), `remote.ErrInvalidReference`
 `remote.ErrLeaseConflict` (409 `LEASE_CONFLICT`) and `remote.ErrNotSupported`.
 
 `Store.Ping` checks the URL, credential and tenant membership with
-`GET /t/<tenant>/api/v1/me`. `Store.Me` returns the credential's principal and
+`GET /o/<tenant>/api/v1/me`. `Store.Me` returns the credential's principal and
 every tenant membership (`GET /api/v1/me`), which `visionstudio cloud status`
 prints after verifying access.
 

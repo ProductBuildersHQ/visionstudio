@@ -497,6 +497,19 @@ func (d *DoltStore) CreatePhase(ctx context.Context, p *store.Phase) error {
 	return nil
 }
 
+func (d *DoltStore) UpdatePhase(ctx context.Context, p *store.Phase) error {
+	b := d.client.Phase.UpdateOneID(p.ID).SetTitle(p.Title)
+	if p.Theme != "" {
+		b.SetTheme(p.Theme)
+	} else {
+		b.ClearTheme()
+	}
+	if err := b.Exec(ctx); err != nil {
+		return fmt.Errorf("update phase %s: %w", p.ID, err)
+	}
+	return nil
+}
+
 func (d *DoltStore) ListPhases(ctx context.Context, initiativeID string) ([]*store.Phase, error) {
 	rows, err := d.client.Phase.Query().
 		Where(phase.HasInitiativeWith(initiativeEnt.IDEQ(initiativeID))).

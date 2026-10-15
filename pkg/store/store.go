@@ -249,6 +249,8 @@ type InitiativeStore interface {
 type PhaseStore interface {
 	CreatePhase(ctx context.Context, phase *Phase) error
 	ListPhases(ctx context.Context, initiativeID string) ([]*Phase, error)
+	// UpdatePhase saves a phase's title and theme.
+	UpdatePhase(ctx context.Context, phase *Phase) error
 	DeletePhase(ctx context.Context, id string) error
 }
 

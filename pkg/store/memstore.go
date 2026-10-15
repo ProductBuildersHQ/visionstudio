@@ -198,6 +198,18 @@ func (m *MemStore) ListPhases(_ context.Context, initiativeID string) ([]*Phase,
 	return result, nil
 }
 
+func (m *MemStore) UpdatePhase(_ context.Context, phase *Phase) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	existing, ok := m.phases[phase.ID]
+	if !ok {
+		return fmt.Errorf("phase %s not found", phase.ID)
+	}
+	existing.Title = phase.Title
+	existing.Theme = phase.Theme
+	return nil
+}
+
 func (m *MemStore) DeletePhase(_ context.Context, id string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

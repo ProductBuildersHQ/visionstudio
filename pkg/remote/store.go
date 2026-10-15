@@ -223,6 +223,11 @@ func (s *Store) ListPhases(ctx context.Context, initiativeID string) ([]*store.P
 	return list[store.Phase](ctx, s, "/phases", url.Values{"initiative": {initiativeID}}, "phases")
 }
 
+// UpdatePhase is not served by the VisionStudio Cloud API yet.
+func (s *Store) UpdatePhase(_ context.Context, _ *store.Phase) error {
+	return &NotSupportedError{Op: "UpdatePhase"}
+}
+
 // DeletePhase deletes a phase. The server refuses (409) a phase that still
 // has member RMIs.
 func (s *Store) DeletePhase(ctx context.Context, id string) error {

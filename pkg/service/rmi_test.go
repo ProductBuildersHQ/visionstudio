@@ -394,3 +394,40 @@ func TestDeleteDependency(t *testing.T) {
 		t.Fatal("expected an error when there is no edge to remove")
 	}
 }
+
+func TestUpdatePhase(t *testing.T) {
+	ctx := context.Background()
+	svc := newTestService()
+	if _, err := svc.CreateInitiative(ctx, "INIT-P-001", "default", "P", "", "", "", ""); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := svc.CreatePhase(ctx, "INIT-P-001/phase-2", "INIT-P-001", 2, "Adoption", "Old theme"); err != nil {
+		t.Fatal(err)
+	}
+	str := func(s string) *string { return &s }
+
+	p, err := svc.UpdatePhase(ctx, "INIT-P-001/phase-2", str("First product"), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if p.Title != "First product" || p.Theme != "Old theme" {
+		t.Fatalf("title only: %+v", p)
+	}
+	if p, err = svc.UpdatePhase(ctx, "INIT-P-001/phase-2", nil, str("")); err != nil || p.Theme != "" || p.Title != "First product" {
+		t.Fatalf("clearing the theme: %+v %v", p, err)
+	}
+	phases, err := svc.ListPhases(ctx, "INIT-P-001")
+	if err != nil || len(phases) != 1 || phases[0].Title != "First product" {
+		t.Fatalf("stored: %+v %v", phases, err)
+	}
+
+	if _, err := svc.UpdatePhase(ctx, "INIT-P-001/phase-2", str("  "), nil); err == nil {
+		t.Fatal("an empty title must be refused")
+	}
+	if _, err := svc.UpdatePhase(ctx, "INIT-P-001/phase-9", str("x"), nil); err == nil {
+		t.Fatal("a missing phase must be reported")
+	}
+	if _, err := svc.UpdatePhase(ctx, "phase-2", str("x"), nil); err == nil {
+		t.Fatal("a malformed phase ID must be refused")
+	}
+}

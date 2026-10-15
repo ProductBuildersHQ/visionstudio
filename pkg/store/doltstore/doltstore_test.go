@@ -115,6 +115,26 @@ func TestDoltStoreRoundTrips(t *testing.T) {
 		t.Fatalf("create rmi: %v", err)
 	}
 
+	t.Run("phase update saves title and theme", func(t *testing.T) {
+		ph := &store.Phase{ID: "INIT-APP-001/phase-1", InitiativeID: "INIT-APP-001", SequenceNumber: 1, Title: "Adoption", Theme: "Old"}
+		if err := ds.CreatePhase(ctx, ph); err != nil {
+			t.Fatal(err)
+		}
+		if err := ds.UpdatePhase(ctx, &store.Phase{ID: ph.ID, Title: "First product"}); err != nil {
+			t.Fatal(err)
+		}
+		phases, err := ds.ListPhases(ctx, "INIT-APP-001")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(phases) != 1 || phases[0].Title != "First product" || phases[0].Theme != "" {
+			t.Fatalf("phases = %+v, want the new title and no theme", phases)
+		}
+		if err := ds.UpdatePhase(ctx, &store.Phase{ID: "INIT-APP-001/phase-9", Title: "x"}); err == nil {
+			t.Fatal("updating a missing phase must fail")
+		}
+	})
+
 	t.Run("dependency delete removes only the named edge", func(t *testing.T) {
 		other := &store.RoadmapItem{
 			ID: "RMI-APP-002", RepositoryID: repo.ID, InitiativeID: "INIT-APP-001",

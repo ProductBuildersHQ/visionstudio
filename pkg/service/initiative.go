@@ -157,6 +157,41 @@ func (s *Service) CreatePhase(ctx context.Context, id, initiativeID string, seq 
 	return p, nil
 }
 
+// UpdatePhase changes a phase's title, theme or both; a nil argument leaves
+// that field as it is. The title may not be made empty.
+func (s *Service) UpdatePhase(ctx context.Context, phaseID string, title, theme *string) (*store.Phase, error) {
+	parts := strings.SplitN(phaseID, "/", 2)
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid phase ID %q (expected INITIATIVE-ID/phase-N)", phaseID)
+	}
+	phases, err := s.Store.ListPhases(ctx, parts[0])
+	if err != nil {
+		return nil, fmt.Errorf("list phases: %w", err)
+	}
+	var p *store.Phase
+	for _, candidate := range phases {
+		if candidate.ID == phaseID {
+			p = candidate
+		}
+	}
+	if p == nil {
+		return nil, fmt.Errorf("phase %s not found", phaseID)
+	}
+	if title != nil {
+		if strings.TrimSpace(*title) == "" {
+			return nil, fmt.Errorf("a phase's title may not be empty")
+		}
+		p.Title = *title
+	}
+	if theme != nil {
+		p.Theme = *theme
+	}
+	if err := s.Store.UpdatePhase(ctx, p); err != nil {
+		return nil, err
+	}
+	return p, nil
+}
+
 // ListPhases returns phases for an initiative.
 func (s *Service) ListPhases(ctx context.Context, initiativeID string) ([]*store.Phase, error) {
 	return s.Store.ListPhases(ctx, initiativeID)

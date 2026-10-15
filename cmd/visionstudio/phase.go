@@ -15,7 +15,51 @@ func phaseCmd() *cobra.Command {
 		Use:   "phase",
 		Short: "Manage phases within an initiative",
 	}
-	cmd.AddCommand(phaseAddCmd(), phaseListCmd(), phaseRemoveCmd())
+	cmd.AddCommand(phaseAddCmd(), phaseUpdateCmd(), phaseListCmd(), phaseRemoveCmd())
+	return cmd
+}
+
+func phaseUpdateCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update <phase-id>",
+		Short: "Rename a phase or change its theme",
+		Long: `Change a phase's title, theme or both. Only the flags given change.
+
+'roadmap import' also updates a phase's title and theme from the ROADMAP.md
+heading and **Theme:** line; use this command when changing them directly.`,
+		Example: `  visionstudio phase update INIT-MYPROJECT-001/phase-2 --title "First product"
+  visionstudio phase update INIT-MYPROJECT-001/phase-2 --theme "Portfolio's web app, shipped by the host"`,
+		Args: cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			var title, theme *string
+			if cmd.Flags().Changed("title") {
+				v, _ := cmd.Flags().GetString("title")
+				title = &v
+			}
+			if cmd.Flags().Changed("theme") {
+				v, _ := cmd.Flags().GetString("theme")
+				theme = &v
+			}
+			if title == nil && theme == nil {
+				return fmt.Errorf("give --title, --theme or both")
+			}
+
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			p, err := svc.UpdatePhase(cmd.Context(), args[0], title, theme)
+			if err != nil {
+				return err
+			}
+			cmd.Printf("Updated phase %s: %s\n", p.ID, p.Title)
+			return nil
+		},
+	}
+	cmd.Flags().String("title", "", "New title")
+	cmd.Flags().String("theme", "", "New theme (empty clears it)")
 	return cmd
 }
 

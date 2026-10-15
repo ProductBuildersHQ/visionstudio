@@ -845,8 +845,8 @@ github.com/plexusone/dashforge v0.7.0 h1:8BQB26/chOlHqle/vzPs5HaJUZBWsJoK1Esg7Wv
 github.com/plexusone/dashforge v0.7.0/go.mod h1:Tl75pRp6vAJHDXqN3lVwTkZGfeWZYlJEnxSrWDLIvmM=
 github.com/plexusone/devfolio v0.5.0 h1:na+2Imz2VqeyCtxe1JSTNBGE4SmUELF9eq9LxLFnVOc=
 github.com/plexusone/devfolio v0.5.0/go.mod h1:S5hO1hS0MzlMFapRWK2igr8DbBxbzgeFbbGU5qVP3Rg=
-github.com/plexusone/omnidevx-core v0.3.0 h1:uKSJAjs74fzod5iM3W3opG53eNX1v4J0WHK4mC2QL/0=
-github.com/plexusone/omnidevx-core v0.3.0/go.mod h1:ryBtws1QCxC6eWAtNddW4doPzVDOz9tBZsoA0gC1w/A=
+github.com/plexusone/omnidevx-core v0.4.1 h1:zGwdr3tSkLIdyNCu+yUIkVZUaczt9zMfnkfTNAa3NLk=
+github.com/plexusone/omnidevx-core v0.4.1/go.mod h1:hogpULebRMxZoYziqA/tw1rp+G7pnaL42mt+DCCXLnQ=
 github.com/plexusone/structured-evaluation v0.14.0 h1:gACNOB//bGD78F8WQlUhCtfBNY4FcRPxcLsbEWGzBc0=
 github.com/plexusone/structured-evaluation v0.14.0/go.mod h1:C7/anlUnYBxXMGRggHD7f2eQ+6ejXvXEIsCadG/D1kg=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=

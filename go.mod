@@ -22,7 +22,7 @@ require (
 	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/plexusone/dashforge v0.7.0
 	github.com/plexusone/devfolio v0.5.0
-	github.com/plexusone/omnidevx-core v0.3.0
+	github.com/plexusone/omnidevx-core v0.4.1
 	github.com/plexusone/structured-evaluation v0.14.0
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/term v0.46.0

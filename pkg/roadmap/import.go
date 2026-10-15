@@ -78,10 +78,13 @@ func (imp *Importer) Import(ctx context.Context, parsed *Roadmap, defaultRepo, d
 				changed = true
 			}
 			if changed && !dryRun {
-				if imp.UpdatePhase != nil {
-					if err := imp.UpdatePhase(ctx, existing); err != nil {
-						return actions, fmt.Errorf("update phase %s: %w", phaseID, err)
-					}
+				// Reporting "updated" without saving would hide the change, so
+				// an importer that cannot save a phase refuses instead.
+				if imp.UpdatePhase == nil {
+					return actions, fmt.Errorf("update phase %s: this importer cannot update phases", phaseID)
+				}
+				if err := imp.UpdatePhase(ctx, existing); err != nil {
+					return actions, fmt.Errorf("update phase %s: %w", phaseID, err)
 				}
 			}
 			action := "unchanged"

@@ -264,6 +264,10 @@ Use --dry-run to preview changes without writing.`,
 				UpdateRMI: func(ctx context.Context, rmi *store.RoadmapItem) error {
 					return svc.UpdateRMI(ctx, rmi)
 				},
+				UpdatePhase: func(ctx context.Context, p *store.Phase) error {
+					_, err := svc.UpdatePhase(ctx, p.ID, &p.Title, &p.Theme)
+					return err
+				},
 			}
 
 			if dryRun {

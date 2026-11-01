@@ -16,6 +16,7 @@
       {"description": "The execution and repo-snapshot IR schemas gain the optional `hidden`, `visibility`, and `origin` properties, which the local store types have and the `prism-build` types lacked", "commit": "a0d7893"}
     ],
     "fixed": [
+      {"description": "`UnitOfWork.Execute` on the Dolt store ran its function outside the transaction it opened, so an error did not roll back the function's writes. The function now gets a store bound to the transaction; a rename inside it joins that transaction, and a Dolt commit or a nested unit of work inside it is refused"},
       {"description": "Regenerated the devx IR schema, which had fallen behind its Go types (adds `visualization` and `questionId`, describes per-model maps as objects)", "commit": "2dca272"}
     ],
     "documentation": [

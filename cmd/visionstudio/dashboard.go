@@ -9,14 +9,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"os/signal"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strings"
 	"time"
 
+	"github.com/grokify/oscompat/process"
 	"github.com/spf13/cobra"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/report"
@@ -797,19 +796,9 @@ func formatCost(usd float64) string {
 	return fmt.Sprintf("$%.4f", usd)
 }
 
+// openBrowser opens u, a URL or a file, in the user's default application.
 func openBrowser(u string) error {
-	var cmd *exec.Cmd
-	switch runtime.GOOS {
-	case "darwin":
-		cmd = exec.Command("open", u)
-	case "linux":
-		cmd = exec.Command("xdg-open", u)
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", u)
-	default:
-		return fmt.Errorf("unsupported platform %s — open %s manually", runtime.GOOS, u)
-	}
-	return cmd.Start()
+	return process.OpenDefault(u)
 }
 
 // --- renderers ---

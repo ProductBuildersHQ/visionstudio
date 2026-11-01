@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	ofs "github.com/grokify/oscompat/fs"
 )
 
 // CredentialsFileName holds secrets (VisionStudio Cloud API keys). It is
@@ -76,10 +78,11 @@ func (c *Credentials) Save() error {
 	return c.SaveTo(path)
 }
 
-// SaveTo writes credentials to path with owner-only permissions (0600),
-// tightening an existing file's mode if it was looser.
+// SaveTo writes credentials to path with owner-only permissions (0600) where
+// the platform enforces file modes, replacing the file whole so a reader never
+// sees a partial write and a looser mode on an existing file does not survive.
 func (c *Credentials) SaveTo(path string) error {
-	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
+	if err := ofs.MkdirAllPrivate(filepath.Dir(path)); err != nil {
 		return fmt.Errorf("create config dir: %w", err)
 	}
 	data, err := json.MarshalIndent(c, "", "  ")
@@ -87,12 +90,8 @@ func (c *Credentials) SaveTo(path string) error {
 		return err
 	}
 	data = append(data, '\n')
-	if err := os.WriteFile(path, data, 0o600); err != nil {
+	if err := ofs.WriteFileAtomicPrivate(path, data); err != nil {
 		return fmt.Errorf("write %s: %w", path, err)
-	}
-	// WriteFile only applies the mode when creating the file.
-	if err := os.Chmod(path, 0o600); err != nil {
-		return fmt.Errorf("chmod %s: %w", path, err)
 	}
 	return nil
 }

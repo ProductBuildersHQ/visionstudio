@@ -8,6 +8,9 @@ import (
 	"strings"
 	"testing"
 
+	ofs "github.com/grokify/oscompat/fs"
+	"github.com/grokify/oscompat/testutil"
+
 	config "github.com/ProductBuildersHQ/visionstudio/pkg/cliconfig"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/remote/remotetest"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -23,8 +26,9 @@ const (
 // config, credentials, or database.
 func isolateRemoteEnv(t *testing.T) string {
 	t.Helper()
-	home := t.TempDir()
-	t.Setenv("HOME", home)
+	// Sets HOME and, for Windows, USERPROFILE, so os.UserHomeDir points here
+	// on every platform and nothing reaches the real home directory.
+	home := testutil.SetTempHomeDir(t)
 	for _, k := range []string{envRemoteURL, envRemoteTenant, envRemoteToken, "VISIONSTUDIO_DSN", "VISIONSTUDIO_DATA"} {
 		t.Setenv(k, "")
 	}
@@ -170,8 +174,8 @@ func TestCloudLoginStatusLogout(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if perm := info.Mode().Perm(); perm != 0o600 {
-		t.Fatalf("credentials mode = %o, want 600", perm)
+	if !ofs.IsPrivate(info) {
+		t.Fatalf("credentials mode = %o, want 600", info.Mode().Perm())
 	}
 	creds, err := config.LoadCredentialsFrom(credPath)
 	if err != nil {

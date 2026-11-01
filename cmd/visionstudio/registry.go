@@ -28,7 +28,7 @@ func registryCmd() *cobra.Command {
 		Use:   "registry",
 		Short: "Manage the repository catalog",
 	}
-	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryRemoveCmd(), registryDoctorCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
+	cmd.AddCommand(registryAddCmd(), registryListCmd(), registryUpdateCmd(), registryArchiveCmd(), registryRenameCmd(), registryRemoveCmd(), registryDoctorCmd(), registryScanCmd(), registryDepsCmd(), registryUnpushedCmd(), registryOrgCmd(), registryPersonCmd(), registryVisibilityCmd(), registryFocusCmd())
 	return cmd
 }
 
@@ -190,7 +190,8 @@ func registryArchiveCmd() *cobra.Command {
 		Short: "Archive a repository (status change, record preserved)",
 		Long: `Marks a repository archived without deleting its record or the
 RMIs/releases/spec documents that reference it. Preferred over
-'registry remove' for a merge or rename — pair with --superseded-by to
+'registry remove' for a merge. For a rename, 'registry rename' moves
+everything that references the repository, not only its RMIs. Pair with --superseded-by to
 point at the repository that replaced it, and --reassign-rmis to also
 repoint every RMI still on this repository to --superseded-by as part
 of the same operation (equivalent to running 'rmi bulk-update' first).`,
@@ -269,6 +270,111 @@ of the same operation (equivalent to running 'rmi bulk-update' first).`,
 	return cmd
 }
 
+func registryRenameCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "rename <old-repo-id> <new-repo-id>",
+		Short: "Move a repository to a new ID, with everything that references it",
+		Long: `Moves a repository to a new ID after the repository itself was renamed
+(for example on GitHub), in one transaction:
+
+  - registers <new-repo-id>, copying the old record's branch, path, domain,
+    and visibility (an existing record with that ID is reused as it is)
+  - repoints the RMIs, spec documents, initiatives whose home repository it
+    is, repository dependencies, PRISM roadmaps, goals, and documents, and
+    DevX reports
+  - archives <old-repo-id> with superseded_by set to <new-repo-id>
+
+RMI and initiative IDs do not change: an ID is not a label, so
+RMI-OLDSLUG-001 stays RMI-OLDSLUG-001 on the new repository.
+
+Releases stay on the old ID by default, since they were published under
+that name and their IDs carry it; --move-releases moves them too. A
+dependency that would point a repository at itself, or repeat an existing
+edge, is dropped. The Go module path follows the rename when it was the old
+ID or under it; --go-module sets it explicitly. --path sets the new local
+working tree.
+
+Run it again to finish a rename done partly by hand (for example after
+'registry add' and 'registry archive --reassign-rmis'): it reuses the new
+record and moves what is left. --dry-run reports what would move and
+changes nothing. On Dolt the rename is one commit, so it can be reverted as
+one step.`,
+		Example: `  visionstudio registry rename github.com/myorg/old-name github.com/myorg/new-name --dry-run
+  visionstudio registry rename github.com/myorg/old-name github.com/myorg/new-name \
+    --path ~/go/src/github.com/myorg/new-name`,
+		Args: cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			svc, cleanup, err := connectService(cmd)
+			if err != nil {
+				return err
+			}
+			defer cleanup()
+
+			oldID, err := resolveRepoID(cmd.Context(), svc, args[0])
+			if err != nil {
+				return err
+			}
+			req := service.RenameRepositoryRequest{}
+			req.LocalPath, _ = cmd.Flags().GetString("path")
+			req.GoModule, _ = cmd.Flags().GetString("go-module")
+			req.MoveReleases, _ = cmd.Flags().GetBool("move-releases")
+			req.DryRun, _ = cmd.Flags().GetBool("dry-run")
+
+			to, res, err := svc.RenameRepository(cmd.Context(), oldID, args[1], req)
+			if err != nil {
+				return err
+			}
+			verb := "Renamed"
+			if req.DryRun {
+				verb = "Would rename"
+			}
+			cmd.Printf("%s %s to %s\n", verb, oldID, to.ID)
+			switch {
+			case res.Created && req.DryRun:
+				cmd.Printf("  would register %s\n", to.ID)
+			case res.Created:
+				cmd.Printf("  registered %s\n", to.ID)
+			default:
+				cmd.Printf("  reused the existing record %s\n", to.ID)
+			}
+			for _, row := range []struct {
+				n    int
+				what string
+			}{
+				{res.RMIs, "RMIs"},
+				{res.RMIContextSpecs, "RMI context specs"},
+				{res.SpecDocuments, "spec documents"},
+				{res.Initiatives, "initiative home repositories"},
+				{res.Dependencies, "repository dependencies"},
+				{res.DependenciesDropped, "repository dependencies dropped as self-references or duplicates"},
+				{res.PRISMRoadmaps, "PRISM roadmaps"},
+				{res.PRISMGoals, "PRISM goals"},
+				{res.PRISMDocuments, "PRISM documents"},
+				{res.DevXReports, "DevX reports"},
+				{res.Releases, "releases"},
+			} {
+				if row.n > 0 {
+					cmd.Printf("  %d %s\n", row.n, row.what)
+				}
+			}
+			if !req.MoveReleases {
+				cmd.Printf("  releases stay on %s (use --move-releases to move them)\n", oldID)
+			}
+			if req.DryRun {
+				cmd.Printf("  %s would be archived, superseded by %s\n", oldID, to.ID)
+			} else {
+				cmd.Printf("  %s archived, superseded by %s\n", oldID, to.ID)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().String("path", "", "New local working-tree path (default: keep the old one)")
+	cmd.Flags().String("go-module", "", "New Go module path (default: follows the rename when the old one was the repository ID)")
+	cmd.Flags().Bool("move-releases", false, "Also move the releases, which otherwise stay on the old ID")
+	cmd.Flags().Bool("dry-run", false, "Report what would move and change nothing")
+	return cmd
+}
+
 func registryUpdateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <repo-id>",
@@ -277,9 +383,8 @@ func registryUpdateCmd() *cobra.Command {
 
 The repository's ID stays "github.com/<org>/<name>" as originally
 registered — --org/--name correct metadata on this same record, they do
-not rename the ID. For an actual repository merge/rename, use
-'registry archive --superseded-by <new-id>' followed by 'registry add'
-for the new ID (see 'registry archive --help').`,
+not rename the ID. To rename a repository, use 'registry rename'; to merge
+one into another, use 'registry archive --superseded-by'.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)

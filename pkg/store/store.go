@@ -37,8 +37,12 @@ type Store interface {
 // The production implementation wraps an Ent transaction and issues
 // CALL DOLT_COMMIT on success; the in-memory fake is a no-op.
 type UnitOfWork interface {
-	// Execute runs fn inside a transaction. If fn returns nil the
-	// transaction and Dolt commit are applied; otherwise both roll back.
+	// Execute runs fn inside a transaction. The store fn receives is bound
+	// to that transaction, so all of fn's writes through it commit or roll
+	// back together: if fn returns nil the transaction and Dolt commit are
+	// applied; otherwise both roll back. Write through the store fn
+	// receives, not through another handle, or the write escapes the
+	// transaction.
 	Execute(ctx context.Context, fn func(ctx context.Context, s Store) error) error
 }
 
@@ -300,6 +304,42 @@ type RepositoryStore interface {
 	CreateRepoDependency(ctx context.Context, dep *RepositoryDependency) error
 	ListRepoDependencies(ctx context.Context, repoID string) ([]*RepositoryDependency, error)
 	ListAllRepoDependencies(ctx context.Context) ([]*RepositoryDependency, error)
+	// RenameRepository moves a repository to a new ID in one transaction:
+	// it creates to (unless a record with its ID already exists), repoints
+	// everything that references from to to.ID, and archives from with
+	// SupersededBy set to to.ID. See RenameRepositoryOptions for what moves.
+	RenameRepository(ctx context.Context, from, to *Repository, opts RenameRepositoryOptions) (*RenameRepositoryResult, error)
+}
+
+// RenameRepositoryOptions controls a repository rename.
+type RenameRepositoryOptions struct {
+	// MoveReleases also moves the repository's releases. By default they
+	// stay on the old ID, since they were published under that name and
+	// their IDs carry it.
+	MoveReleases bool
+	// DryRun counts what would move and changes nothing.
+	DryRun bool
+}
+
+// RenameRepositoryResult counts what a rename moved, or would move on a dry
+// run.
+type RenameRepositoryResult struct {
+	// Created is true when the new repository record was made, and false
+	// when one with that ID already existed and was reused.
+	Created         bool `json:"created"`
+	RMIs            int  `json:"rmis"`
+	RMIContextSpecs int  `json:"rmi_context_specs"`
+	SpecDocuments   int  `json:"spec_documents"`
+	Releases        int  `json:"releases"`
+	Initiatives     int  `json:"initiatives"`
+	Dependencies    int  `json:"dependencies"`
+	// DependenciesDropped counts edges removed because, once renamed, they
+	// would point a repository at itself or repeat an existing edge.
+	DependenciesDropped int `json:"dependencies_dropped"`
+	PRISMRoadmaps       int `json:"prism_roadmaps"`
+	PRISMGoals          int `json:"prism_goals"`
+	PRISMDocuments      int `json:"prism_documents"`
+	DevXReports         int `json:"devx_reports"`
 }
 
 // Release is a per-repository release (a shipped git tag). ID is

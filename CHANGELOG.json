@@ -8,11 +8,15 @@
     "ProductBuildersHQ"
   ],
   "unreleased": {
+    "added": [
+      {"description": "`registry rename <old-id> <new-id>` moves a repository to a new ID in one transaction: it registers the new ID, repoints RMIs, spec documents, initiative home repositories, repository dependencies, PRISM roadmaps, goals, and documents, and DevX reports, and archives the old record as superseded. Releases stay unless `--move-releases` is given; `--dry-run` reports what would move; running it again finishes a partial rename; on Dolt it is one commit"}
+    ],
     "changed": [
       {"description": "Execution IR types alias this module's own `pkg/store` instead of the `prism-build` module, which is no longer a dependency; `prism-build` was folded into visionstudio and archived", "commit": "e95aced"},
       {"description": "The execution and repo-snapshot IR schemas gain the optional `hidden`, `visibility`, and `origin` properties, which the local store types have and the `prism-build` types lacked", "commit": "a0d7893"}
     ],
     "fixed": [
+      {"description": "`UnitOfWork.Execute` on the Dolt store ran its function outside the transaction it opened, so an error did not roll back the function's writes. The function now gets a store bound to the transaction; a rename inside it joins that transaction, and a Dolt commit or a nested unit of work inside it is refused"},
       {"description": "Regenerated the devx IR schema, which had fallen behind its Go types (adds `visualization` and `questionId`, describes per-model maps as objects)", "commit": "2dca272"}
     ],
     "documentation": [

@@ -13,6 +13,7 @@
     ],
     "changed": [
       {"description": "Cloud credentials are written atomically, through oscompat, with owner-only permissions where the platform enforces them, so a reader never sees a partial file"},
+      {"description": "The dashboard opens the browser through oscompat's `process.OpenDefault` in place of its own per-platform switch. It also opens on the BSDs, where it used to print the URL to open by hand"},
       {"description": "Execution IR types alias this module's own `pkg/store` instead of the `prism-build` module, which is no longer a dependency; `prism-build` was folded into visionstudio and archived", "commit": "e95aced"},
       {"description": "The execution and repo-snapshot IR schemas gain the optional `hidden`, `visibility`, and `origin` properties, which the local store types have and the `prism-build` types lacked", "commit": "a0d7893"}
     ],
@@ -26,7 +27,8 @@
       {"description": "Folded in the `prism-build` specifications under `docs/specs/prism-build`, and the plan for INIT-PRISMCONTROL-003 into its initiative directory", "commit": "00812c3"}
     ],
     "dependencies": [
-      {"description": "Bumped `github.com/grokify/gogithub` from v0.17.0 to v0.18.0", "commit": "ba5d231"}
+      {"description": "Bumped `github.com/grokify/gogithub` from v0.17.0 to v0.18.0", "commit": "ba5d231"},
+      {"description": "Bumped `github.com/grokify/oscompat` from v0.5.0 to v0.13.0, for its atomic private file writes, portable process checks, and `process.OpenDefault`"}
     ]
   },
   "releases": [

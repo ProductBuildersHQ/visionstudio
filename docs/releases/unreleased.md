@@ -16,6 +16,8 @@
 
 - **Credentials** are written atomically, with owner-only permissions where the platform enforces them.
 
+- **The dashboard** opens the browser through oscompat instead of its own per-platform code, and now also opens it on the BSDs.
+
 ## Full Changelog
 
 See [CHANGELOG.md](../../CHANGELOG.md) for the complete list of changes.

@@ -7,31 +7,187 @@
   "maintainers": [
     "ProductBuildersHQ"
   ],
-  "unreleased": {
-    "added": [
-      {"description": "`registry rename <old-id> <new-id>` moves a repository to a new ID in one transaction: it registers the new ID, repoints RMIs, spec documents, initiative home repositories, repository dependencies, PRISM roadmaps, goals, and documents, and DevX reports, and archives the old record as superseded. Releases stay unless `--move-releases` is given; `--dry-run` reports what would move; running it again finishes a partial rename; on Dolt it is one commit"}
-    ],
-    "changed": [
-      {"description": "Cloud credentials are written atomically, through oscompat, with owner-only permissions where the platform enforces them, so a reader never sees a partial file"},
-      {"description": "The dashboard opens the browser through oscompat's `process.OpenDefault` in place of its own per-platform switch. It also opens on the BSDs, where it used to print the URL to open by hand"},
-      {"description": "Execution IR types alias this module's own `pkg/store` instead of the `prism-build` module, which is no longer a dependency; `prism-build` was folded into visionstudio and archived", "commit": "e95aced"},
-      {"description": "The execution and repo-snapshot IR schemas gain the optional `hidden`, `visibility`, and `origin` properties, which the local store types have and the `prism-build` types lacked", "commit": "a0d7893"}
-    ],
-    "fixed": [
-      {"description": "On Windows, the check for whether a database or dashboard process is still running always answered yes, so `db stop` and `app stop` could not tell a stopped process from a running one. It now uses oscompat's process check, which works on every platform"},
-      {"description": "The Windows test run failed: a test redirected only `HOME`, which Windows ignores, so the cloud login wrote credentials to the runner's real profile, and two tests asserted Unix file modes, which Windows does not have. The home directory is now isolated on every platform and file privacy is checked only where modes are enforced"},
-      {"description": "`UnitOfWork.Execute` on the Dolt store ran its function outside the transaction it opened, so an error did not roll back the function's writes. The function now gets a store bound to the transaction; a rename inside it joins that transaction, and a Dolt commit or a nested unit of work inside it is refused"},
-      {"description": "Regenerated the devx IR schema, which had fallen behind its Go types (adds `visualization` and `questionId`, describes per-model maps as objects)", "commit": "2dca272"}
-    ],
-    "documentation": [
-      {"description": "Folded in the `prism-build` specifications under `docs/specs/prism-build`, and the plan for INIT-PRISMCONTROL-003 into its initiative directory", "commit": "00812c3"}
-    ],
-    "dependencies": [
-      {"description": "Bumped `github.com/grokify/gogithub` from v0.17.0 to v0.18.0", "commit": "ba5d231"},
-      {"description": "Bumped `github.com/grokify/oscompat` from v0.5.0 to v0.13.0, for its atomic private file writes, portable process checks, and `process.OpenDefault`"}
-    ]
-  },
+  "unreleased": {},
   "releases": [
+    {
+      "version": "v0.8.0",
+      "date": "2026-11-01",
+      "highlights": [
+        {
+          "description": "Remote mode: `--remote` runs the CLI and the MCP server against a VisionStudio Cloud tenant, including the agent work loop of claims, delivery evidence, and judge results, with `cloud login`, `cloud logout`, and `cloud status` to manage the credential"
+        },
+        {
+          "description": "`registry rename` moves a repository to a new ID together with everything that references it, in one transaction"
+        },
+        {
+          "description": "Units of work on the Dolt store are transactions: an error rolls back everything the function wrote"
+        },
+        {
+          "description": "Windows: process handling, credential writes, and opening the dashboard go through oscompat, so visionstudio has no OS-specific code, and the Windows test run passes"
+        }
+      ],
+      "added": [
+        {
+          "description": "`--remote <url>` (or `$VISIONSTUDIO_REMOTE_URL`) runs every command that opens the store, including `visionstudio mcp`, against a VisionStudio Cloud tenant. The tenant comes from `--remote-tenant`, `$VISIONSTUDIO_REMOTE_TENANT`, a URL ending in `/o/<tenant>`, or the tenant saved at login; the credential from `$VISIONSTUDIO_REMOTE_TOKEN` or the saved login. `--remote` cannot be combined with `--dsn` or `--data-dir`",
+          "commit": "c89378a"
+        },
+        {
+          "description": "`cloud login` saves a cloud API key, read from standard input with `--with-token`, from `$VISIONSTUDIO_REMOTE_TOKEN`, or from a hidden prompt, and verifies it against the tenant when one is known; `cloud logout` removes it; `cloud status` verifies access and shows the credential's principal and tenant memberships",
+          "commit": "c89378a"
+        },
+        {
+          "description": "`pkg/remote`, a `store.Store` over the cloud tenant API (`/o/{tenant}/api/v1`), so the unchanged service layer, CLI, and MCP server run against a tenant. It covers programs, initiatives, RMIs, phases, dependencies, assignments, delivery evidence, read-only releases and repositories, spec workflows and documents, and judge results; other methods return `ErrNotSupported` instead of faking results. Authentication is pluggable: a bearer token, a custom transport, or a request signer",
+          "commit": "e75289b"
+        },
+        {
+          "description": "`pkg/cliconfig` keeps cloud credentials per cloud URL in `credentials.json`, apart from `config.json`, so configuration can be shown or shared without exposing secrets",
+          "commit": "ca1d7d3"
+        },
+        {
+          "description": "`registry rename <old-id> <new-id>` moves a repository to a new ID in one transaction: it registers the new ID, repoints RMIs, spec documents, initiative home repositories, repository dependencies, PRISM roadmaps, goals, and documents, and DevX reports, and archives the old record as superseded. Releases stay unless `--move-releases` is given; `--dry-run` reports what would move; running it again finishes a partial rename; on Dolt it is one commit"
+        },
+        {
+          "description": "`phase update` renames a phase or changes its theme; only the flags given change, an empty theme clears it, and an empty title is refused",
+          "commit": "5ab5265"
+        },
+        {
+          "description": "`rmi dep remove` removes the dependency edge between two RMIs, which roadmap import never removes; removing an edge that does not exist is an error, so a mistyped ID is reported",
+          "commit": "3892d97"
+        }
+      ],
+      "changed": [
+        {
+          "description": "Cloud credentials are written atomically, through oscompat, with owner-only permissions where the platform enforces them, so a reader never sees a partial file"
+        },
+        {
+          "description": "The dashboard opens the browser through oscompat's `process.OpenDefault` in place of its own per-platform switch. It also opens on the BSDs, where it used to print the URL to open by hand"
+        },
+        {
+          "description": "Execution IR types alias this module's own `pkg/store` instead of the `prism-build` module, which is no longer a dependency; `prism-build` was folded into visionstudio and archived",
+          "commit": "e95aced"
+        },
+        {
+          "description": "The execution and repo-snapshot IR schemas gain the optional `hidden`, `visibility`, and `origin` properties, which the local store types have and the `prism-build` types lacked",
+          "commit": "a0d7893"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "On Windows, the check for whether a database or dashboard process is still running always answered yes, so `db stop` and `app stop` could not tell a stopped process from a running one. It now uses oscompat's process check, which works on every platform"
+        },
+        {
+          "description": "The Windows test run failed: a test redirected only `HOME`, which Windows ignores, so the cloud login wrote credentials to the runner's real profile, and two tests asserted Unix file modes, which Windows does not have. The home directory is now isolated on every platform and file privacy is checked only where modes are enforced"
+        },
+        {
+          "description": "`UnitOfWork.Execute` on the Dolt store ran its function outside the transaction it opened, so an error did not roll back the function's writes. The function now gets a store bound to the transaction; a rename inside it joins that transaction, and a Dolt commit or a nested unit of work inside it is refused"
+        },
+        {
+          "description": "Regenerated the devx IR schema, which had fallen behind its Go types (adds `visualization` and `questionId`, describes per-model maps as objects)",
+          "commit": "2dca272"
+        },
+        {
+          "description": "Roadmap import reported a renamed phase or a changed theme as updated but never saved it; the CLI now saves it, and an importer that cannot save phases refuses the change instead of skipping it",
+          "commit": "ad590e2"
+        },
+        {
+          "description": "A store built with `NewPostgresFromConn` over a single connection panicked on every update, because Ent can begin a transaction only on a pool; transactions now begin on the connection and keep its session settings, and closing the store leaves the caller's connection open",
+          "commit": "ef15c49"
+        }
+      ],
+      "tests": [
+        {
+          "description": "Remote store CRUD, authentication, errors, each store method, and the agent work loop, against an in-process fake of the full tenant API, plus the MCP server end to end",
+          "commit": "cd9b6f2"
+        },
+        {
+          "description": "Remote mode resolution and the cloud login lifecycle",
+          "commit": "102a4ce"
+        },
+        {
+          "description": "Repository rename against the in-memory and Dolt stores and the service",
+          "commit": "e55815e"
+        },
+        {
+          "description": "A unit of work commits or rolls back as one on Dolt; the test fails against the old code",
+          "commit": "c489029"
+        },
+        {
+          "description": "Phase updates in the stores, the service, and the roadmap importer",
+          "commit": "a074fa5"
+        },
+        {
+          "description": "Removing RMI dependencies in both stores and the service",
+          "commit": "cf5e2a7"
+        },
+        {
+          "description": "Updates and transactions over a single Postgres connection",
+          "commit": "ed8153b"
+        },
+        {
+          "description": "The home directory is isolated and file privacy checked portably on every OS",
+          "commit": "3f6e9a8"
+        }
+      ],
+      "documentation": [
+        {
+          "description": "A remote mode guide covers `--remote` and its settings, cloud login and credential storage, running the MCP server against the cloud, the supported operations and remaining gaps, and embedding `pkg/remote`",
+          "commit": "fb6f315"
+        },
+        {
+          "description": "The Repositories page documents `registry rename`",
+          "commit": "96fa201"
+        },
+        {
+          "description": "Folded in the `prism-build` specifications under `docs/specs/prism-build`, and the plan for INIT-PRISMCONTROL-003 into its initiative directory",
+          "commit": "00812c3"
+        },
+        {
+          "description": "Specifications for INIT-VISIONSTUDIO-012, phase-level work locking, and INIT-VISIONSTUDIO-013, stable work item IDs",
+          "commit": "8bcea74"
+        },
+        {
+          "description": "Release notes for v0.8.0"
+        }
+      ],
+      "dependencies": [
+        {
+          "description": "Bumped `github.com/grokify/gogithub` from v0.17.0 to v0.18.0",
+          "commit": "ba5d231"
+        },
+        {
+          "description": "Bumped `github.com/grokify/oscompat` from v0.5.0 to v0.13.0, for its atomic private file writes, portable process checks, and `process.OpenDefault`"
+        },
+        {
+          "description": "Bumped `github.com/grokify/gogit` from v0.13.1 to v0.15.1",
+          "commit": "bc118f4"
+        },
+        {
+          "description": "Bumped `github.com/grokify/prism-maturity` from v0.14.0 to v0.15.0",
+          "commit": "211bc2a"
+        },
+        {
+          "description": "Bumped `github.com/plexusone/omnidevx-core` from v0.3.0 to v0.4.1",
+          "commit": "c2b1474"
+        },
+        {
+          "description": "Bumped `github.com/plexusone/structured-evaluation` from v0.14.0 to v0.15.0"
+        },
+        {
+          "description": "Bumped `github.com/go-chi/chi/v5` from v5.3.2 to v5.5.0"
+        },
+        {
+          "description": "Added `golang.org/x/term` v0.47.0 as a direct dependency, for the hidden credential prompt of `cloud login`"
+        },
+        {
+          "description": "Removed `github.com/ProductBuildersHQ/prism-build`, now part of this module",
+          "commit": "e95aced"
+        },
+        {
+          "description": "Updated indirect dependencies, including the AWS SDK, Google Cloud, OpenTelemetry, gRPC, and `golang.org/x` modules",
+          "commit": "e219b9d"
+        }
+      ]
+    },
     {
       "version": "v0.7.0",
       "date": "2026-10-01",

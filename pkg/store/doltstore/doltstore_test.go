@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
+	"github.com/ProductBuildersHQ/visionstudio/pkg/store/storetest"
 )
 
 // newTestStore boots a throwaway dolt sql-server in a temp directory on a
@@ -284,4 +285,26 @@ func TestDoltStoreRoundTrips(t *testing.T) {
 			t.Fatal("expected not-found after delete")
 		}
 	})
+}
+
+func TestDoltStoreRenameRepository(t *testing.T) {
+	ds := newTestStore(t)
+	storetest.RenameRepository(t, ds)
+
+	// The rename is recorded as one Dolt commit, so it can be reverted as one.
+	ctx := context.Background()
+	if dirty, err := ds.HasUncommittedChanges(ctx); err != nil || dirty {
+		t.Errorf("working set after rename: dirty=%v err=%v", dirty, err)
+	}
+	var msg string
+	if err := ds.db.QueryRowContext(ctx, "SELECT message FROM dolt_log ORDER BY date DESC LIMIT 1").Scan(&msg); err != nil {
+		t.Fatal(err)
+	}
+	if want := "visionstudio: rename repository github.com/acme/old-name to github.com/acme/new-name"; msg != want {
+		t.Errorf("last commit = %q, want %q", msg, want)
+	}
+}
+
+func TestDoltStoreRenameRepositoryFinishesAPartialRename(t *testing.T) {
+	storetest.RenameRepositoryFinishesAPartialRename(t, newTestStore(t))
 }

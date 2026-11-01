@@ -37,8 +37,12 @@ type Store interface {
 // The production implementation wraps an Ent transaction and issues
 // CALL DOLT_COMMIT on success; the in-memory fake is a no-op.
 type UnitOfWork interface {
-	// Execute runs fn inside a transaction. If fn returns nil the
-	// transaction and Dolt commit are applied; otherwise both roll back.
+	// Execute runs fn inside a transaction. The store fn receives is bound
+	// to that transaction, so all of fn's writes through it commit or roll
+	// back together: if fn returns nil the transaction and Dolt commit are
+	// applied; otherwise both roll back. Write through the store fn
+	// receives, not through another handle, or the write escapes the
+	// transaction.
 	Execute(ctx context.Context, fn func(ctx context.Context, s Store) error) error
 }
 

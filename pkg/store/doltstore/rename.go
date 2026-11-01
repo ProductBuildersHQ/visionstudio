@@ -19,13 +19,24 @@ import (
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
-// RenameRepository moves a repository to a new ID inside one transaction. A
+// RenameRepository moves a repository to a new ID inside one transaction, its
+// own or, inside a unit of work, the unit of work's. A
 // dry run does the same work and rolls it back, so its counts are exact. On
 // success the change is recorded as one Dolt commit, so it can be reverted as
 // one step.
 func (d *DoltStore) RenameRepository(ctx context.Context, from, to *store.Repository, opts store.RenameRepositoryOptions) (*store.RenameRepositoryResult, error) {
 	if from == nil || to == nil || from.ID == "" || to.ID == "" || from.ID == to.ID {
 		return nil, fmt.Errorf("rename repository: need two different repository IDs")
+	}
+	if d.inTx {
+		// Inside a unit of work, join its transaction: the unit of work
+		// commits or rolls back the rename with everything else, and records
+		// the Dolt commit. A dry run needs a transaction of its own to roll
+		// back, so it cannot run here.
+		if opts.DryRun {
+			return nil, fmt.Errorf("rename repository: a dry run cannot run inside a unit of work")
+		}
+		return renameRepository(ctx, d.client, from, to, opts)
 	}
 	tx, err := d.client.Tx(ctx)
 	if err != nil {

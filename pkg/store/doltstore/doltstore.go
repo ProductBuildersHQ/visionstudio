@@ -43,6 +43,9 @@ type DoltStore struct {
 	client *ent.Client
 	db     *sql.DB        // pooled handle; nil for connection-scoped stores
 	dolt   *godolt.Client // nil for non-Dolt (Postgres) stores
+	// inTx is true for the store a UnitOfWork hands its function: client is
+	// then the transaction's, so every write joins that transaction.
+	inTx bool
 }
 
 // New creates a DoltStore from a MySQL-compatible DSN (local Dolt).
@@ -132,6 +135,12 @@ func (d *DoltStore) Migrate(ctx context.Context) error {
 // This is useful for explicit commits outside of UnitOfWork, or for
 // committing accumulated changes from multiple operations.
 func (d *DoltStore) Commit(ctx context.Context, message string) error {
+	if d.inTx {
+		// A Dolt commit runs on the pooled connection, outside the SQL
+		// transaction, so it would snapshot a working set that does not yet
+		// hold the transaction's writes. The UnitOfWork commits when it ends.
+		return fmt.Errorf("dolt commit inside a unit of work: the unit of work commits when it ends")
+	}
 	if d.dolt == nil {
 		// Non-Dolt (Postgres) store: Ent writes are already durable; there is
 		// no working set to snapshot.
@@ -188,15 +197,20 @@ func NewUnitOfWork(s *DoltStore, actor string) *DoltUnitOfWork {
 	return &DoltUnitOfWork{store: s, actor: actor}
 }
 
-// Execute runs fn inside an Ent transaction. On success, it stages
-// all changes and issues a DOLT_COMMIT.
+// Execute runs fn inside an Ent transaction. The store fn receives is bound to
+// that transaction, so every write fn makes through it commits or rolls back
+// together. On success, it stages all changes and issues a DOLT_COMMIT.
 func (u *DoltUnitOfWork) Execute(ctx context.Context, fn func(ctx context.Context, s store.Store) error) error {
+	if u.store.inTx {
+		return fmt.Errorf("begin transaction: a unit of work cannot nest inside another")
+	}
 	tx, err := u.store.client.Tx(ctx)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
 
-	if err := fn(ctx, u.store); err != nil {
+	txStore := &DoltStore{client: tx.Client(), db: u.store.db, dolt: u.store.dolt, inTx: true}
+	if err := fn(ctx, txStore); err != nil {
 		if rerr := tx.Rollback(); rerr != nil {
 			return fmt.Errorf("rollback failed: %v (original: %w)", rerr, err)
 		}

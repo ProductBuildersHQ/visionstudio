@@ -2,6 +2,7 @@ package doltstore
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"os"
@@ -307,4 +308,106 @@ func TestDoltStoreRenameRepository(t *testing.T) {
 
 func TestDoltStoreRenameRepositoryFinishesAPartialRename(t *testing.T) {
 	storetest.RenameRepositoryFinishesAPartialRename(t, newTestStore(t))
+}
+
+// The store a unit of work hands its function is bound to the transaction, so
+// an error rolls back every write, and success commits them as one Dolt commit.
+func TestDoltUnitOfWorkIsATransaction(t *testing.T) {
+	ds := newTestStore(t)
+	ctx := context.Background()
+	now := time.Date(2026, 11, 1, 0, 0, 0, 0, time.UTC)
+	initiative := func(id string) *store.Initiative {
+		return &store.Initiative{ID: id, Organization: "default", Title: id, Status: "draft", CreatedAt: now, UpdatedAt: now}
+	}
+	failure := errors.New("stop here")
+
+	t.Run("an error rolls back every write", func(t *testing.T) {
+		err := NewUnitOfWork(ds, "test").Execute(ctx, func(ctx context.Context, s store.Store) error {
+			if err := s.CreateInitiative(ctx, initiative("INIT-UOW-001")); err != nil {
+				return err
+			}
+			if err := s.CreateInitiative(ctx, initiative("INIT-UOW-002")); err != nil {
+				return err
+			}
+			return failure
+		})
+		if !errors.Is(err, failure) {
+			t.Fatalf("err = %v, want the function's error", err)
+		}
+		for _, id := range []string{"INIT-UOW-001", "INIT-UOW-002"} {
+			if _, err := ds.GetInitiative(ctx, id); err == nil {
+				t.Errorf("%s was written although the unit of work failed", id)
+			}
+		}
+	})
+
+	t.Run("success commits once", func(t *testing.T) {
+		err := NewUnitOfWork(ds, "alice").Execute(ctx, func(ctx context.Context, s store.Store) error {
+			return s.CreateInitiative(ctx, initiative("INIT-UOW-003"))
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := ds.GetInitiative(ctx, "INIT-UOW-003"); err != nil {
+			t.Fatalf("the write did not land: %v", err)
+		}
+		var msg string
+		if err := ds.db.QueryRowContext(ctx, "SELECT message FROM dolt_log ORDER BY date DESC LIMIT 1").Scan(&msg); err != nil {
+			t.Fatal(err)
+		}
+		if msg != "visionstudio: alice" {
+			t.Errorf("last commit = %q", msg)
+		}
+	})
+
+	t.Run("a rename joins the transaction and rolls back with it", func(t *testing.T) {
+		for _, id := range []string{"github.com/uow/old", "github.com/uow/other"} {
+			if err := ds.CreateRepository(ctx, &store.Repository{ID: id, Organization: "uow", RepositoryName: id[len("github.com/uow/"):], DefaultBranch: "main", Status: "active"}); err != nil {
+				t.Fatal(err)
+			}
+		}
+		from, err := ds.GetRepository(ctx, "github.com/uow/old")
+		if err != nil {
+			t.Fatal(err)
+		}
+		to := *from
+		to.ID, to.RepositoryName = "github.com/uow/new", "new"
+		err = NewUnitOfWork(ds, "test").Execute(ctx, func(ctx context.Context, s store.Store) error {
+			if _, err := s.RenameRepository(ctx, from, &to, store.RenameRepositoryOptions{}); err != nil {
+				return err
+			}
+			return failure
+		})
+		if !errors.Is(err, failure) {
+			t.Fatalf("err = %v", err)
+		}
+		if _, err := ds.GetRepository(ctx, "github.com/uow/new"); err == nil {
+			t.Error("the renamed record survived the rollback")
+		}
+		if r, err := ds.GetRepository(ctx, "github.com/uow/old"); err != nil || r.Status != "active" {
+			t.Errorf("the old record = %+v (%v), want it untouched", r, err)
+		}
+	})
+
+	t.Run("what cannot run inside a unit of work is refused", func(t *testing.T) {
+		err := NewUnitOfWork(ds, "test").Execute(ctx, func(ctx context.Context, s store.Store) error {
+			inner, ok := s.(*DoltStore)
+			if !ok {
+				t.Fatalf("store is %T", s)
+			}
+			if err := inner.Commit(ctx, "mid-transaction"); err == nil {
+				t.Error("a Dolt commit inside the transaction was accepted")
+			}
+			if err := NewUnitOfWork(inner, "nested").Execute(ctx, func(context.Context, store.Store) error { return nil }); err == nil {
+				t.Error("a nested unit of work was accepted")
+			}
+			if _, err := s.RenameRepository(ctx, &store.Repository{ID: "github.com/uow/old"}, &store.Repository{ID: "github.com/uow/x"}, store.RenameRepositoryOptions{DryRun: true}); err == nil {
+				t.Error("a dry-run rename inside the transaction was accepted")
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 }

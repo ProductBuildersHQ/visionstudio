@@ -245,3 +245,7 @@ func (s *Store) ListPRISMDocumentsByRepo(_ context.Context, _ string) ([]*store.
 func (s *Store) UpdatePRISMDocument(_ context.Context, _ *store.PRISMDocument) error {
 	return notServed("UpdatePRISMDocument", "PRISM documents")
 }
+
+func (s *Store) RenameRepository(_ context.Context, _, _ *store.Repository, _ store.RenameRepositoryOptions) (*store.RenameRepositoryResult, error) {
+	return nil, notServed("RenameRepository", "repository writes")
+}

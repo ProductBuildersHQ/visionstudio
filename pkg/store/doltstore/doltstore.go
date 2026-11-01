@@ -1122,7 +1122,12 @@ func entRepoToStore(r *ent.Repository) *store.Repository {
 }
 
 func (d *DoltStore) CreateRepository(ctx context.Context, repo *store.Repository) error {
-	b := d.client.Repository.Create().
+	return createRepository(ctx, d.client, repo)
+}
+
+// createRepository creates repo with client, which may be a transaction's.
+func createRepository(ctx context.Context, client *ent.Client, repo *store.Repository) error {
+	b := client.Repository.Create().
 		SetID(repo.ID).
 		SetOrganization(repo.Organization).
 		SetRepositoryName(repo.RepositoryName).

@@ -10,6 +10,12 @@
 
 - **Units of work are transactions.** On the Dolt store, `UnitOfWork.Execute` opened a transaction but ran its function against the store outside it, so an error did not roll back the function's writes. The function now receives a store bound to the transaction. A `registry rename` inside a unit of work joins its transaction, and a Dolt commit or a nested unit of work inside one is refused.
 
+- **Windows.** The check for whether a database or dashboard process is still running always answered yes on Windows, so `db stop` and `app stop` could not tell a stopped process from a running one. Process handling now goes through oscompat and works the same on every platform. The Windows test run passes again: tests isolate the home directory on every platform, and check file privacy only where the platform enforces modes.
+
+## Changed
+
+- **Credentials** are written atomically, with owner-only permissions where the platform enforces them.
+
 ## Full Changelog
 
 See [CHANGELOG.md](../../CHANGELOG.md) for the complete list of changes.

@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	ofs "github.com/grokify/oscompat/fs"
 )
 
 func TestCredentialsRoundTripAndMode(t *testing.T) {
@@ -46,11 +48,16 @@ func TestCredentialsRoundTripAndMode(t *testing.T) {
 	}
 }
 
+// assertMode checks the file's mode where the platform enforces modes. On
+// Windows modes are not meaningful, so only the file's existence is checked.
 func assertMode(t *testing.T, path string, want os.FileMode) {
 	t.Helper()
 	info, err := os.Stat(path)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if !ofs.PermissionsEnforced() {
+		return
 	}
 	if got := info.Mode().Perm(); got != want {
 		t.Fatalf("mode = %o, want %o", got, want)

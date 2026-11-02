@@ -159,6 +159,14 @@ visionstudio rmi update RMI-MYREPO-007 --acceptance "schema generated; tests pas
 
 Each criterion is trimmed, and empty ones are dropped.
 
+Agents set them through the MCP `rmi_update` tool, which takes `acceptance_criteria` as a list; an empty list clears them:
+
+```json
+{ "rmi_id": "RMI-MYREPO-007", "acceptance_criteria": ["schema generated", "tests pass", "docs updated"] }
+```
+
+`rmi_update` changes the same fields as `rmi update`: status, title, repository, description, priority, required, origin, context spec, and acceptance criteria. Fields left out keep their values, and every change is checked before any is written.
+
 ### Reassigning RMIs to a different repository
 
 ```bash

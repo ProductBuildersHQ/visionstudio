@@ -15,8 +15,8 @@ require (
 	github.com/grokify/gogit v0.15.1
 	github.com/grokify/mogo v0.75.0
 	github.com/grokify/oscompat v0.13.0
-	github.com/grokify/prism-maturity v0.15.0
-	github.com/grokify/prism-roadmap v0.21.0
+	github.com/grokify/prism-maturity v0.15.1
+	github.com/grokify/prism-roadmap v0.22.0
 	github.com/invopop/jsonschema v0.14.0
 	github.com/lib/pq v1.12.3
 	github.com/modelcontextprotocol/go-sdk v1.8.0
@@ -141,7 +141,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.27.0 // indirect
 	github.com/grokify/gogithub v0.18.0 // indirect
 	github.com/grokify/pidl v0.10.0 // indirect
-	github.com/grokify/prism-core v0.5.0 // indirect
+	github.com/grokify/prism-core v0.6.0 // indirect
 	github.com/hashicorp/golang-lru v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl/v2 v2.25.0 // indirect

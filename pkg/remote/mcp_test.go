@@ -3,6 +3,7 @@ package remote_test
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -69,6 +70,18 @@ func TestMCPToolsAgainstRemote(t *testing.T) {
 	// Both writes landed in the tenant's (server-side) store.
 	if _, err := fake.Service.GetRMI(ctx, "RMI-ACME-001"); err != nil {
 		t.Fatalf("server-side GetRMI: %v", err)
+	}
+
+	// rmi_update → PUT /rmis/{id}
+	callTool(t, cs, "rmi_update", map[string]any{
+		"rmi_id": "RMI-ACME-001", "status": "in_progress", "acceptance_criteria": []string{"it builds", "it ships"},
+	})
+	updated, err := fake.Service.GetRMI(ctx, "RMI-ACME-001")
+	if err != nil {
+		t.Fatalf("server-side GetRMI: %v", err)
+	}
+	if updated.Status != "in_progress" || !slices.Equal(updated.AcceptanceCriteria, []string{"it builds", "it ships"}) {
+		t.Fatalf("server-side RMI after rmi_update = %+v", updated)
 	}
 
 	// initiative_list → GET /initiatives

@@ -2,7 +2,11 @@ package service
 
 import (
 	"context"
+	"errors"
+	"slices"
 	"testing"
+
+	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
 func TestCreateRMI(t *testing.T) {
@@ -429,5 +433,85 @@ func TestUpdatePhase(t *testing.T) {
 	}
 	if _, err := svc.UpdatePhase(ctx, "phase-2", str("x"), nil); err == nil {
 		t.Fatal("a malformed phase ID must be refused")
+	}
+}
+
+func TestEditRMI(t *testing.T) {
+	ctx := context.Background()
+	svc := newTestService()
+	if _, err := svc.CreateRMI(ctx, "RMI-E-001", "github.com/test/repo", "", "", "Edit test", "Before", "capability", "high", true, 0,
+		[]string{"old criterion"}); err != nil {
+		t.Fatal(err)
+	}
+	ptr := func(s string) *string { return &s }
+
+	// Only the fields given change; criteria are cleaned.
+	criteria := []string{" schema generated ", "", "tests pass"}
+	ch := RMIChanges{Description: ptr(""), AcceptanceCriteria: &criteria}
+	if got := ch.Fields(); !slices.Equal(got, []string{"description", "acceptance"}) {
+		t.Fatalf("Fields() = %q", got)
+	}
+	rmi, err := svc.EditRMI(ctx, "RMI-E-001", ch)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rmi.Title != "Edit test" || rmi.Priority != "high" || rmi.Description != "" {
+		t.Fatalf("unexpected fields: %+v", rmi)
+	}
+	if !slices.Equal(rmi.AcceptanceCriteria, []string{"schema generated", "tests pass"}) {
+		t.Fatalf("acceptance = %q", rmi.AcceptanceCriteria)
+	}
+
+	// Status and fields together: completed stamps CompletedAt, and both stick.
+	cleared := []string{}
+	spec := &store.ContextSpec{ExtraRepos: []string{"github.com/test/other"}}
+	rmi, err = svc.EditRMI(ctx, "RMI-E-001", RMIChanges{
+		Status: ptr(RMIStatusCompleted), Title: ptr("Edited"), AcceptanceCriteria: &cleared,
+		ContextSpec: spec, SetContextSpec: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	stored, err := svc.GetRMI(ctx, "RMI-E-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range []*store.RoadmapItem{rmi, stored} {
+		if r.Status != RMIStatusCompleted || r.CompletedAt == nil || r.Title != "Edited" || len(r.AcceptanceCriteria) != 0 || r.ContextSpec == nil {
+			t.Fatalf("after status and fields: %+v", r)
+		}
+	}
+
+	// A nil ContextSpec with SetContextSpec clears it.
+	if rmi, err = svc.EditRMI(ctx, "RMI-E-001", RMIChanges{SetContextSpec: true}); err != nil {
+		t.Fatal(err)
+	}
+	if rmi.ContextSpec != nil {
+		t.Fatalf("context spec not cleared: %+v", rmi.ContextSpec)
+	}
+
+	// A bad change refuses the whole edit, writing nothing.
+	for name, bad := range map[string]RMIChanges{
+		"status": {Title: ptr("Not written"), Status: ptr("bogus")},
+		"origin": {Title: ptr("Not written"), Origin: ptr("bogus")},
+		"title":  {Description: ptr("Not written"), Title: ptr("  ")},
+		"repo":   {Description: ptr("Not written"), RepositoryID: ptr("")},
+	} {
+		if _, err := svc.EditRMI(ctx, "RMI-E-001", bad); err == nil {
+			t.Errorf("%s: expected an error", name)
+		}
+	}
+	if stored, err = svc.GetRMI(ctx, "RMI-E-001"); err != nil {
+		t.Fatal(err)
+	}
+	if stored.Title != "Edited" || stored.Description != "" {
+		t.Fatalf("a refused edit was written: %+v", stored)
+	}
+
+	if _, err := svc.EditRMI(ctx, "RMI-E-001", RMIChanges{}); !errors.Is(err, ErrNoRMIChanges) {
+		t.Fatalf("no changes: err = %v, want ErrNoRMIChanges", err)
+	}
+	if _, err := svc.EditRMI(ctx, "RMI-NOPE-001", RMIChanges{Title: ptr("x")}); err == nil {
+		t.Fatal("expected error for nonexistent RMI")
 	}
 }

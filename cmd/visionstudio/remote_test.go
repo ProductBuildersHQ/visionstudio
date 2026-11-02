@@ -289,6 +289,15 @@ func TestRemoteModeRMIUpdateMoveAndWork(t *testing.T) {
 	if rmi, err = fake.Service.GetRMI(ctx, "RMI-ACME-001"); err != nil || len(rmi.AcceptanceCriteria) != 0 {
 		t.Fatalf("server-side RMI after clearing acceptance = %+v, %v", rmi, err)
 	}
+	// An explicitly empty title, or no change at all, is refused.
+	for _, args := range [][]string{
+		{"rmi", "update", "RMI-ACME-001", "--title", ""},
+		{"rmi", "update", "RMI-ACME-001"},
+	} {
+		if out, err := runCLI(t, "", append(args, remoteArgs...)...); err == nil {
+			t.Fatalf("%v succeeded; want an error\n%s", args, out)
+		}
+	}
 
 	out = run("rmi", "move", "RMI-ACME-001", "--phase", "INIT-ACME-001/phase-2", "--seq", "2")
 	if !strings.Contains(out, "Moved RMI-ACME-001 to INIT-ACME-001/phase-2") {

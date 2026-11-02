@@ -141,3 +141,20 @@ func TestParseAcceptance(t *testing.T) {
 		}
 	}
 }
+
+func TestCleanAcceptance(t *testing.T) {
+	cases := []struct {
+		in   []string
+		want []string
+	}{
+		{nil, nil},
+		{[]string{}, nil},
+		{[]string{" ", ""}, nil},
+		{[]string{" schema generated ", "", "tests pass"}, []string{"schema generated", "tests pass"}},
+	}
+	for _, c := range cases {
+		if got := CleanAcceptance(c.in); !slices.Equal(got, c.want) {
+			t.Errorf("CleanAcceptance(%q) = %q, want %q", c.in, got, c.want)
+		}
+	}
+}

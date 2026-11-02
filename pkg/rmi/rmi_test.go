@@ -1,6 +1,7 @@
 package rmi
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
@@ -119,5 +120,24 @@ func TestReadyWork(t *testing.T) {
 	// RMI-A-004: planned, no deps, but assigned -> excluded
 	if len(ready) != 1 || ready[0] != "RMI-A-001" {
 		t.Fatalf("expected [RMI-A-001], got %v", ready)
+	}
+}
+
+func TestParseAcceptance(t *testing.T) {
+	cases := []struct {
+		raw  string
+		want []string
+	}{
+		{"", nil},
+		{"  ", nil},
+		{"; ;", nil},
+		{"schema generated", []string{"schema generated"}},
+		{" schema generated ; tests pass ", []string{"schema generated", "tests pass"}},
+		{"a; ;b;", []string{"a", "b"}},
+	}
+	for _, c := range cases {
+		if got := ParseAcceptance(c.raw); !slices.Equal(got, c.want) {
+			t.Errorf("ParseAcceptance(%q) = %q, want %q", c.raw, got, c.want)
+		}
 	}
 }

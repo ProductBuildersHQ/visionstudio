@@ -7,7 +7,18 @@
   "maintainers": [
     "ProductBuildersHQ"
   ],
-  "unreleased": {},
+  "unreleased": {
+    "added": [
+      {
+        "description": "`rmi update --acceptance` replaces an RMI's acceptance criteria, given as one semicolon-separated string; an empty value clears them"
+      }
+    ],
+    "fixed": [
+      {
+        "description": "`rmi create --acceptance` drops empty criteria, such as the one a trailing semicolon left; create and update share `rmi.ParseAcceptance`"
+      }
+    ]
+  },
   "releases": [
     {
       "version": "v0.8.0",

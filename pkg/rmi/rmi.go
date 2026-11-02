@@ -53,6 +53,19 @@ func ValidOrigin(o string) bool {
 	return o == "" || slices.Contains(Origins, o)
 }
 
+// ParseAcceptance splits acceptance criteria written as one semicolon-separated
+// string, as the --acceptance flags take them, into a list. Each criterion is
+// trimmed and empty ones are dropped, so "a; ;b;" gives [a b] and "" gives nil.
+func ParseAcceptance(raw string) []string {
+	var out []string
+	for _, c := range strings.Split(raw, ";") {
+		if c = strings.TrimSpace(c); c != "" {
+			out = append(out, c)
+		}
+	}
+	return out
+}
+
 var rmiIDPattern = regexp.MustCompile(`^RMI-[A-Z0-9]+-\d{3}$`)
 
 // ValidID reports whether id matches the RMI-<REPOSLUG>-<NNN> format.

@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -276,7 +277,20 @@ func TestRemoteModeRMIUpdateMoveAndWork(t *testing.T) {
 		t.Fatalf("server-side RMI after update = %+v, %v", rmi, err)
 	}
 
-	out := run("rmi", "move", "RMI-ACME-001", "--phase", "INIT-ACME-001/phase-2", "--seq", "2")
+	out := run("rmi", "update", "RMI-ACME-001", "--acceptance", "schema generated; ; tests pass")
+	if !strings.Contains(out, "fields: acceptance") {
+		t.Fatalf("rmi update --acceptance output = %q", out)
+	}
+	rmi, err = fake.Service.GetRMI(ctx, "RMI-ACME-001")
+	if err != nil || !slices.Equal(rmi.AcceptanceCriteria, []string{"schema generated", "tests pass"}) || rmi.Title != "Renamed" {
+		t.Fatalf("server-side RMI after --acceptance = %+v, %v", rmi, err)
+	}
+	run("rmi", "update", "RMI-ACME-001", "--acceptance", "")
+	if rmi, err = fake.Service.GetRMI(ctx, "RMI-ACME-001"); err != nil || len(rmi.AcceptanceCriteria) != 0 {
+		t.Fatalf("server-side RMI after clearing acceptance = %+v, %v", rmi, err)
+	}
+
+	out = run("rmi", "move", "RMI-ACME-001", "--phase", "INIT-ACME-001/phase-2", "--seq", "2")
 	if !strings.Contains(out, "Moved RMI-ACME-001 to INIT-ACME-001/phase-2") {
 		t.Fatalf("rmi move output = %q", out)
 	}

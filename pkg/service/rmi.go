@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	rmidomain "github.com/ProductBuildersHQ/visionstudio/pkg/rmi"
 	"github.com/ProductBuildersHQ/visionstudio/pkg/store"
 )
 
@@ -108,6 +110,124 @@ func (s *Service) UpdateRMIStatus(ctx context.Context, id, status string) (*stor
 func (s *Service) UpdateRMI(ctx context.Context, rmi *store.RoadmapItem) error {
 	rmi.UpdatedAt = time.Now()
 	return s.Store.UpdateRMI(ctx, rmi)
+}
+
+// ErrNoRMIChanges is returned by EditRMI when no change is given.
+var ErrNoRMIChanges = errors.New("no RMI changes given")
+
+// RMIChanges are the changes EditRMI makes to an RMI. A nil field is left as
+// it is; a non-nil one replaces the RMI's value, so a pointer to "" clears a
+// description or priority and a pointer to an empty list clears the acceptance
+// criteria. Acceptance criteria are trimmed and empty ones dropped.
+type RMIChanges struct {
+	Status             *string
+	Title              *string
+	RepositoryID       *string
+	Description        *string
+	Priority           *string
+	Required           *bool
+	Origin             *string
+	AcceptanceCriteria *[]string
+	// ContextSpec replaces the context spec when SetContextSpec is true; a nil
+	// ContextSpec then clears it.
+	ContextSpec    *store.ContextSpec
+	SetContextSpec bool
+}
+
+// Fields names the fields the changes set, in a fixed order: status, title,
+// repo, description, priority, required, context_spec, origin, acceptance.
+func (c RMIChanges) Fields() []string {
+	var out []string
+	for _, f := range []struct {
+		name string
+		set  bool
+	}{
+		{"status", c.Status != nil},
+		{"title", c.Title != nil},
+		{"repo", c.RepositoryID != nil},
+		{"description", c.Description != nil},
+		{"priority", c.Priority != nil},
+		{"required", c.Required != nil},
+		{"context_spec", c.SetContextSpec},
+		{"origin", c.Origin != nil},
+		{"acceptance", c.AcceptanceCriteria != nil},
+	} {
+		if f.set {
+			out = append(out, f.name)
+		}
+	}
+	return out
+}
+
+// check reports a change no RMI can take, before anything is written.
+func (c RMIChanges) check() error {
+	if len(c.Fields()) == 0 {
+		return ErrNoRMIChanges
+	}
+	if c.Status != nil && !validRMIStatuses[*c.Status] {
+		return fmt.Errorf("invalid RMI status: %q", *c.Status)
+	}
+	if c.Title != nil && strings.TrimSpace(*c.Title) == "" {
+		return fmt.Errorf("an RMI's title cannot be empty")
+	}
+	if c.RepositoryID != nil && strings.TrimSpace(*c.RepositoryID) == "" {
+		return fmt.Errorf("an RMI's repository cannot be empty")
+	}
+	if c.Origin != nil && !rmidomain.ValidOrigin(*c.Origin) {
+		return fmt.Errorf("invalid origin %q (want one of: %s)", *c.Origin, strings.Join(rmidomain.Origins, ", "))
+	}
+	return nil
+}
+
+// EditRMI makes the changes to the RMI and returns it as stored. Every change
+// is checked before any is written. A status change goes through
+// UpdateRMIStatus, which stamps CompletedAt; the other fields are then written
+// together. The command line's rmi update and the MCP rmi_update tool both
+// edit through it, so they accept and refuse the same changes.
+func (s *Service) EditRMI(ctx context.Context, id string, c RMIChanges) (*store.RoadmapItem, error) {
+	if err := c.check(); err != nil {
+		return nil, err
+	}
+	rmi, err := s.Store.GetRMI(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if c.Status != nil {
+		if rmi, err = s.UpdateRMIStatus(ctx, id, *c.Status); err != nil {
+			return nil, err
+		}
+	}
+	if c.Status != nil && len(c.Fields()) == 1 {
+		return rmi, nil
+	}
+	if c.Title != nil {
+		rmi.Title = *c.Title
+	}
+	if c.RepositoryID != nil {
+		rmi.RepositoryID = *c.RepositoryID
+	}
+	if c.Description != nil {
+		rmi.Description = *c.Description
+	}
+	if c.Priority != nil {
+		rmi.Priority = *c.Priority
+	}
+	if c.Required != nil {
+		rmi.Required = *c.Required
+	}
+	if c.SetContextSpec {
+		rmi.ContextSpec = c.ContextSpec
+	}
+	if c.Origin != nil {
+		rmi.Origin = *c.Origin
+	}
+	if c.AcceptanceCriteria != nil {
+		rmi.AcceptanceCriteria = rmidomain.CleanAcceptance(*c.AcceptanceCriteria)
+	}
+	if err := s.UpdateRMI(ctx, rmi); err != nil {
+		return nil, err
+	}
+	return rmi, nil
 }
 
 // MoveRMI re-parents an RMI to another phase (and its initiative). The target

@@ -1,11 +1,12 @@
 // Package mcpserver exposes PRISM Control as an MCP server.
-// It registers the 9 core tools from TRD §7 and delegates to the
-// shared service layer so protocol rules never diverge from the CLI.
+// It registers the core tools from TRD §7, and later additions, and delegates
+// to the shared service layer so protocol rules never diverge from the CLI.
 package mcpserver
 
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -50,6 +51,7 @@ func registerTools(s *mcp.Server, svc *service.Service) {
 	s.AddTool(initiativeGetTool(), initiativeGetHandler(svc))
 	s.AddTool(initiativeCreateTool(), initiativeCreateHandler(svc))
 	s.AddTool(rmiCreateTool(), rmiCreateHandler(svc))
+	s.AddTool(rmiUpdateTool(), rmiUpdateHandler(svc))
 	s.AddTool(workReadyTool(), workReadyHandler(svc))
 	s.AddTool(taskClaimTool(), taskClaimHandler(svc))
 	s.AddTool(taskReleaseTool(), taskReleaseHandler(svc))
@@ -307,6 +309,84 @@ func rmiCreateHandler(svc *service.Service) mcp.ToolHandler {
 			if err := svc.UpdateRMI(ctx, rmi); err != nil {
 				return nil, err
 			}
+		}
+		return jsonResult(rmi)
+	}
+}
+
+// ---------- rmi_update ----------
+
+func rmiUpdateTool() *mcp.Tool {
+	return &mcp.Tool{
+		Name:        "rmi_update",
+		Description: "Change fields of an existing Roadmap Item (RMI). Only the fields given change; the rest are left as they are. Every change is checked before any is written. Returns the RMI as stored.",
+		InputSchema: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"rmi_id":{"type":"string","description":"RMI ID to change (e.g. RMI-MYREPO-007)"},
+				"status":{"type":"string","enum":["proposed","planned","ready","in_progress","completed","blocked","cancelled"],"description":"New status; completed stamps the completion time"},
+				"title":{"type":"string","description":"New title; cannot be empty"},
+				"repository_id":{"type":"string","description":"New repository ID (e.g. github.com/org/repo)"},
+				"description":{"type":"string","description":"New description; an empty string clears it"},
+				"priority":{"type":"string","description":"New priority; an empty string clears it"},
+				"required":{"type":"boolean","description":"Whether this RMI is required for phase completion"},
+				"origin":{"type":"string","enum":["spec","implementation","acceptance_testing","discussion"],"description":"How this RMI's scope was identified"},
+				"acceptance_criteria":{"type":"array","items":{"type":"string"},"description":"Acceptance criteria, replacing the current ones; an empty list clears them. To add one, send the whole list."},
+				"context_spec":{"type":["object","null"],"description":"Context assembly overrides, replacing the current ones; null clears them","properties":{"extra_repos":{"type":"array","items":{"type":"string"},"description":"Additional repos to include"},"include_specs":{"type":"array","items":{"type":"string"},"description":"Spec files to include"},"exclude_specs":{"type":"array","items":{"type":"string"},"description":"Spec files to exclude"}}}
+			},
+			"required":["rmi_id"]
+		}`),
+	}
+}
+
+func rmiUpdateHandler(svc *service.Service) mcp.ToolHandler {
+	return func(ctx context.Context, req *mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		var args struct {
+			RMIID              string          `json:"rmi_id"`
+			Status             *string         `json:"status"`
+			Title              *string         `json:"title"`
+			RepositoryID       *string         `json:"repository_id"`
+			Description        *string         `json:"description"`
+			Priority           *string         `json:"priority"`
+			Required           *bool           `json:"required"`
+			Origin             *string         `json:"origin"`
+			AcceptanceCriteria *[]string       `json:"acceptance_criteria"`
+			ContextSpec        json.RawMessage `json:"context_spec"`
+		}
+		if err := json.Unmarshal(req.Params.Arguments, &args); err != nil {
+			return nil, fmt.Errorf("parse arguments: %w", err)
+		}
+		if args.RMIID == "" {
+			return nil, fmt.Errorf("rmi_id is required")
+		}
+		ch := service.RMIChanges{
+			Status:       args.Status,
+			Title:        args.Title,
+			RepositoryID: args.RepositoryID,
+			Description:  args.Description,
+			Priority:     args.Priority,
+			Required:     args.Required,
+			Origin:       args.Origin,
+			// A list, even an empty one, replaces the criteria; an absent
+			// one (or null) leaves them.
+			AcceptanceCriteria: args.AcceptanceCriteria,
+		}
+		if len(args.ContextSpec) > 0 {
+			ch.SetContextSpec = true
+			if string(args.ContextSpec) != "null" {
+				var spec store.ContextSpec
+				if err := json.Unmarshal(args.ContextSpec, &spec); err != nil {
+					return nil, fmt.Errorf("parse context_spec: %w", err)
+				}
+				ch.ContextSpec = &spec
+			}
+		}
+		rmi, err := svc.EditRMI(ctx, args.RMIID, ch)
+		if errors.Is(err, service.ErrNoRMIChanges) {
+			return nil, fmt.Errorf("give at least one field to change: status, title, repository_id, description, priority, required, origin, acceptance_criteria, or context_spec")
+		}
+		if err != nil {
+			return nil, err
 		}
 		return jsonResult(rmi)
 	}

@@ -54,11 +54,17 @@ func ValidOrigin(o string) bool {
 }
 
 // ParseAcceptance splits acceptance criteria written as one semicolon-separated
-// string, as the --acceptance flags take them, into a list. Each criterion is
-// trimmed and empty ones are dropped, so "a; ;b;" gives [a b] and "" gives nil.
+// string, as the --acceptance flags take them, into a list cleaned by
+// CleanAcceptance, so "a; ;b;" gives [a b] and "" gives nil.
 func ParseAcceptance(raw string) []string {
+	return CleanAcceptance(strings.Split(raw, ";"))
+}
+
+// CleanAcceptance trims each acceptance criterion and drops empty ones. It
+// returns nil when none is left.
+func CleanAcceptance(criteria []string) []string {
 	var out []string
-	for _, c := range strings.Split(raw, ";") {
+	for _, c := range criteria {
 		if c = strings.TrimSpace(c); c != "" {
 			out = append(out, c)
 		}

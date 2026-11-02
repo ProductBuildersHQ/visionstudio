@@ -7,19 +7,54 @@
   "maintainers": [
     "ProductBuildersHQ"
   ],
-  "unreleased": {
-    "added": [
-      {
-        "description": "`rmi update --acceptance` replaces an RMI's acceptance criteria, given as one semicolon-separated string; an empty value clears them"
-      }
-    ],
-    "fixed": [
-      {
-        "description": "`rmi create --acceptance` drops empty criteria, such as the one a trailing semicolon left; create and update share `rmi.ParseAcceptance`"
-      }
-    ]
-  },
   "releases": [
+    {
+      "version": "v0.9.0",
+      "date": "2026-11-01",
+      "highlights": [
+        {
+          "description": "MCP tool `rmi_update`: agents change an RMI's status, title, repository, description, priority, required flag, origin, context spec, and acceptance criteria, through the same service method as `rmi update`"
+        },
+        {
+          "description": "`rmi update --acceptance` sets and clears an RMI's acceptance criteria from the command line"
+        }
+      ],
+      "added": [
+        {
+          "description": "`rmi update --acceptance` replaces an RMI's acceptance criteria, given as one semicolon-separated string; an empty value clears them"
+        },
+        {
+          "description": "MCP tool `rmi_update` changes an RMI's status, title, repository, description, priority, required flag, origin, context spec, and acceptance criteria; fields left out keep their values, an empty `acceptance_criteria` list clears the criteria, and a null `context_spec` clears the spec"
+        },
+        {
+          "description": "`service.EditRMI` applies a `service.RMIChanges` to an RMI, checking every change before writing any; `rmi update` and `rmi_update` both edit through it, and `rmi.CleanAcceptance` trims criteria and drops empty ones for both"
+        }
+      ],
+      "changed": [
+        {
+          "description": "`rmi update` refuses an explicitly empty `--title`, `--status`, or `--repo` instead of ignoring it, and checks every change before writing any, so an invalid `--context-spec` no longer leaves a status change applied"
+        }
+      ],
+      "fixed": [
+        {
+          "description": "`rmi create --acceptance` drops empty criteria, such as the one a trailing semicolon left; create and update share `rmi.ParseAcceptance`"
+        }
+      ],
+      "dependencies": [
+        {
+          "description": "Bumped `github.com/grokify/prism-roadmap` from v0.21.0 to v0.22.0",
+          "commit": "004d44b"
+        },
+        {
+          "description": "Bumped `github.com/grokify/prism-maturity` from v0.15.0 to v0.15.1",
+          "commit": "004d44b"
+        },
+        {
+          "description": "Bumped `github.com/grokify/prism-core` from v0.5.0 to v0.6.0 (indirect)",
+          "commit": "004d44b"
+        }
+      ]
+    },
     {
       "version": "v0.8.0",
       "date": "2026-11-01",

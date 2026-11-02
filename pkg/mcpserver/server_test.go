@@ -3,6 +3,7 @@ package mcpserver
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -459,5 +460,60 @@ func TestContextBuildMarkdown(t *testing.T) {
 	}
 	if !strings.Contains(text, "RMI-TEST-001") {
 		t.Error("markdown output missing RMI ID")
+	}
+}
+
+func TestRMIUpdate(t *testing.T) {
+	cs, svc := setup(t)
+	seedInitiative(t, svc)
+
+	text := callTool(t, cs, "rmi_update", map[string]any{
+		"rmi_id":              "RMI-TEST-001",
+		"status":              "in_progress",
+		"acceptance_criteria": []string{"schema generated", " ", "tests pass"},
+		"context_spec":        map[string]any{"extra_repos": []string{"github.com/test/other"}},
+	})
+	var rmi store.RoadmapItem
+	if err := json.Unmarshal([]byte(text), &rmi); err != nil {
+		t.Fatal(err)
+	}
+	if rmi.Status != "in_progress" || rmi.Title != "First item" || rmi.ContextSpec == nil {
+		t.Fatalf("after update: %+v", rmi)
+	}
+	if want := []string{"schema generated", "tests pass"}; !slices.Equal(rmi.AcceptanceCriteria, want) {
+		t.Fatalf("acceptance = %q, want %q", rmi.AcceptanceCriteria, want)
+	}
+
+	// An empty list clears the criteria and null clears the context spec;
+	// fields left out keep their values.
+	callTool(t, cs, "rmi_update", map[string]any{
+		"rmi_id":              "RMI-TEST-001",
+		"acceptance_criteria": []string{},
+		"context_spec":        nil,
+	})
+	stored, err := svc.GetRMI(context.Background(), "RMI-TEST-001")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(stored.AcceptanceCriteria) != 0 || stored.ContextSpec != nil || stored.Status != "in_progress" {
+		t.Fatalf("after clearing: %+v", stored)
+	}
+
+	for name, args := range map[string]map[string]any{
+		"no changes":     {"rmi_id": "RMI-TEST-001"},
+		"no rmi_id":      {"title": "x"},
+		"invalid origin": {"rmi_id": "RMI-TEST-001", "title": "Not written", "origin": "bogus"},
+		"unknown RMI":    {"rmi_id": "RMI-NOPE-001", "title": "x"},
+	} {
+		res, err := cs.CallTool(context.Background(), &mcp.CallToolParams{Name: "rmi_update", Arguments: args})
+		if err == nil && !res.IsError {
+			t.Errorf("%s: expected an error", name)
+		}
+	}
+	if stored, err = svc.GetRMI(context.Background(), "RMI-TEST-001"); err != nil {
+		t.Fatal(err)
+	}
+	if stored.Title != "First item" {
+		t.Fatalf("a refused update was written: title %q", stored.Title)
 	}
 }

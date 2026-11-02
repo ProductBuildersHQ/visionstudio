@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -577,7 +578,9 @@ func rmiUpdateCmd() *cobra.Command {
 		Use:   "update <rmi-id>",
 		Short: "Update an RMI's status or fields",
 		Long: `Update an RMI's status or fields. Only the flags you pass change; the
-rest of the RMI is left as it is.
+rest of the RMI is left as it is. Every change is checked before any is
+written, so one bad value (an empty --title, an unknown --status or --origin)
+leaves the RMI untouched. The MCP rmi_update tool makes the same changes.
 
 --acceptance replaces the RMI's acceptance criteria with the semicolon-separated
 list given, as on 'rmi create'. Pass an empty string to clear them. To add one
@@ -593,108 +596,78 @@ criterion, pass the whole list ('rmi get' prints the current one).`,
 			}
 			defer cleanup()
 
-			status, _ := cmd.Flags().GetString("status")
-			title, _ := cmd.Flags().GetString("title")
-			description, _ := cmd.Flags().GetString("description")
-			priority, _ := cmd.Flags().GetString("priority")
-			repo, _ := cmd.Flags().GetString("repo")
-			contextSpecJSON, _ := cmd.Flags().GetString("context-spec")
-			origin, _ := cmd.Flags().GetString("origin")
-			acceptance, _ := cmd.Flags().GetString("acceptance")
-			setAcceptance := cmd.Flags().Changed("acceptance")
-
-			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" && !cmd.Flags().Changed("origin") && !setAcceptance {
-				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, --context-spec, --origin, or --acceptance is required")
-			}
-			if !rmidomain.ValidOrigin(origin) {
-				return fmt.Errorf("invalid --origin %q (want one of: %s)", origin, strings.Join(rmidomain.Origins, ", "))
-			}
-
-			if repo != "" {
-				repo, err = resolveRepoID(cmd.Context(), svc, repo)
-				if err != nil {
-					return err
-				}
-			}
-
-			if status != "" {
-				rmi, err := svc.UpdateRMIStatus(cmd.Context(), args[0], status)
-				if err != nil {
-					return err
-				}
-				cmd.Printf("Updated %s status to %s\n", rmi.ID, rmi.Status)
-			}
-
-			if title != "" || repo != "" || cmd.Flags().Changed("description") || cmd.Flags().Changed("priority") || cmd.Flags().Changed("required") || contextSpecJSON != "" || cmd.Flags().Changed("origin") || setAcceptance {
-				rmi, err := svc.GetRMI(cmd.Context(), args[0])
-				if err != nil {
-					return err
-				}
-				if title != "" {
-					rmi.Title = title
-				}
-				if repo != "" {
-					rmi.RepositoryID = repo
-				}
-				if cmd.Flags().Changed("description") {
-					rmi.Description = description
-				}
-				if cmd.Flags().Changed("priority") {
-					rmi.Priority = priority
-				}
-				if cmd.Flags().Changed("required") {
-					required, err := cmd.Flags().GetBool("required")
+			flags := cmd.Flags()
+			var ch service.RMIChanges
+			for name, field := range map[string]**string{
+				"status":      &ch.Status,
+				"title":       &ch.Title,
+				"description": &ch.Description,
+				"priority":    &ch.Priority,
+				"origin":      &ch.Origin,
+			} {
+				if flags.Changed(name) {
+					v, err := flags.GetString(name)
 					if err != nil {
 						return err
 					}
-					rmi.Required = required
+					*field = &v
 				}
-				if contextSpecJSON != "" {
-					if contextSpecJSON == "null" || contextSpecJSON == "{}" {
-						rmi.ContextSpec = nil
-					} else {
-						var spec store.ContextSpec
-						if err := json.Unmarshal([]byte(contextSpecJSON), &spec); err != nil {
-							return fmt.Errorf("invalid --context-spec JSON: %w", err)
-						}
-						rmi.ContextSpec = &spec
-					}
-				}
-				if cmd.Flags().Changed("origin") {
-					rmi.Origin = origin
-				}
-				if setAcceptance {
-					rmi.AcceptanceCriteria = rmidomain.ParseAcceptance(acceptance)
-				}
-				if err := svc.UpdateRMI(cmd.Context(), rmi); err != nil {
+			}
+			if flags.Changed("repo") {
+				ref, err := flags.GetString("repo")
+				if err != nil {
 					return err
 				}
-				var fields []string
-				if title != "" {
-					fields = append(fields, "title")
+				repo, err := resolveRepoID(cmd.Context(), svc, ref)
+				if err != nil {
+					return err
 				}
-				if repo != "" {
-					fields = append(fields, "repo")
+				ch.RepositoryID = &repo
+			}
+			if flags.Changed("required") {
+				required, err := flags.GetBool("required")
+				if err != nil {
+					return err
 				}
-				if cmd.Flags().Changed("description") {
-					fields = append(fields, "description")
+				ch.Required = &required
+			}
+			if flags.Changed("context-spec") {
+				raw, err := flags.GetString("context-spec")
+				if err != nil {
+					return err
 				}
-				if cmd.Flags().Changed("priority") {
-					fields = append(fields, "priority")
+				ch.SetContextSpec = true
+				if raw != "null" && raw != "{}" {
+					var spec store.ContextSpec
+					if err := json.Unmarshal([]byte(raw), &spec); err != nil {
+						return fmt.Errorf("invalid --context-spec JSON: %w", err)
+					}
+					ch.ContextSpec = &spec
 				}
-				if cmd.Flags().Changed("required") {
-					fields = append(fields, "required")
+			}
+			if flags.Changed("acceptance") {
+				raw, err := flags.GetString("acceptance")
+				if err != nil {
+					return err
 				}
-				if contextSpecJSON != "" {
-					fields = append(fields, "context_spec")
-				}
-				if cmd.Flags().Changed("origin") {
-					fields = append(fields, "origin")
-				}
-				if setAcceptance {
-					fields = append(fields, "acceptance")
-				}
-				cmd.Printf("Updated %s fields: %s\n", args[0], strings.Join(fields, ", "))
+				criteria := rmidomain.ParseAcceptance(raw)
+				ch.AcceptanceCriteria = &criteria
+			}
+
+			rmi, err := svc.EditRMI(cmd.Context(), args[0], ch)
+			if errors.Is(err, service.ErrNoRMIChanges) {
+				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, --context-spec, --origin, or --acceptance is required")
+			}
+			if err != nil {
+				return err
+			}
+			fields := ch.Fields()
+			if ch.Status != nil {
+				cmd.Printf("Updated %s status to %s\n", rmi.ID, rmi.Status)
+				fields = fields[1:]
+			}
+			if len(fields) > 0 {
+				cmd.Printf("Updated %s fields: %s\n", rmi.ID, strings.Join(fields, ", "))
 			}
 			return nil
 		},

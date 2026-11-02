@@ -123,7 +123,7 @@ error that names the area. They never return empty or invented data.
 | Programs | create, get, list, update |
 | Initiatives | create, get, list, update (including lifecycle transitions) |
 | Phases | create, list, delete (refused while the phase has RMIs) |
-| RMIs | create, get, list (by initiative, repository, status, or all), update (status changes, moves, origin, context spec) |
+| RMIs | create, get, list (by initiative, repository, status, or all), update (status changes, moves, origin, context spec, acceptance criteria) |
 | RMI dependencies | create, list (per RMI, all) |
 | Assignments (work leases) | claim, get, get active, list (active, all), renew, hand off, release, complete |
 | Delivery evidence | create, list (by RMI, by initiative, all) |
@@ -134,7 +134,7 @@ error that names the area. They never return empty or invented data.
 | Judge results | create, list by initiative |
 
 MCP tools that work end to end include `initiative_list`, `initiative_get`,
-`initiative_create`, `rmi_create`, `program_list`, `program_create`,
+`initiative_create`, `rmi_create`, `rmi_update`, `program_list`, `program_create`,
 `work_ready`, `task_claim`, `task_update` (status, evidence, handoff,
 completion), `task_release`, `workflow_list` and `workflow_select`. On the
 CLI, `initiative`, `rmi` (including `update`, `move` and `dep`), `phase`,

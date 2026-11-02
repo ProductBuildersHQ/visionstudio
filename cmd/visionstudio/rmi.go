@@ -292,15 +292,7 @@ span multiple repositories, each RMI naming its own --repo.
 				}
 			}
 
-			var acceptance []string
-			if acceptanceRaw != "" {
-				acceptance = strings.Split(acceptanceRaw, ";")
-				for i := range acceptance {
-					acceptance[i] = strings.TrimSpace(acceptance[i])
-				}
-			}
-
-			rmi, err := svc.CreateRMI(cmd.Context(), id, repo, initiative, phase, title, desc, itemType, priority, required, seq, acceptance)
+			rmi, err := svc.CreateRMI(cmd.Context(), id, repo, initiative, phase, title, desc, itemType, priority, required, seq, rmidomain.ParseAcceptance(acceptanceRaw))
 			if err != nil {
 				return err
 			}
@@ -584,7 +576,16 @@ func rmiUpdateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update <rmi-id>",
 		Short: "Update an RMI's status or fields",
-		Args:  cobra.ExactArgs(1),
+		Long: `Update an RMI's status or fields. Only the flags you pass change; the
+rest of the RMI is left as it is.
+
+--acceptance replaces the RMI's acceptance criteria with the semicolon-separated
+list given, as on 'rmi create'. Pass an empty string to clear them. To add one
+criterion, pass the whole list ('rmi get' prints the current one).`,
+		Example: `  visionstudio rmi update RMI-MYREPO-007 --status completed
+  visionstudio rmi update RMI-MYREPO-007 --acceptance "schema generated; tests pass; docs updated"
+  visionstudio rmi update RMI-MYREPO-007 --acceptance ""`,
+		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			svc, cleanup, err := connectService(cmd)
 			if err != nil {
@@ -599,9 +600,11 @@ func rmiUpdateCmd() *cobra.Command {
 			repo, _ := cmd.Flags().GetString("repo")
 			contextSpecJSON, _ := cmd.Flags().GetString("context-spec")
 			origin, _ := cmd.Flags().GetString("origin")
+			acceptance, _ := cmd.Flags().GetString("acceptance")
+			setAcceptance := cmd.Flags().Changed("acceptance")
 
-			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" && !cmd.Flags().Changed("origin") {
-				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, --context-spec, or --origin is required")
+			if status == "" && title == "" && repo == "" && !cmd.Flags().Changed("description") && !cmd.Flags().Changed("priority") && !cmd.Flags().Changed("required") && contextSpecJSON == "" && !cmd.Flags().Changed("origin") && !setAcceptance {
+				return fmt.Errorf("at least one of --status, --title, --repo, --description, --priority, --required, --context-spec, --origin, or --acceptance is required")
 			}
 			if !rmidomain.ValidOrigin(origin) {
 				return fmt.Errorf("invalid --origin %q (want one of: %s)", origin, strings.Join(rmidomain.Origins, ", "))
@@ -622,7 +625,7 @@ func rmiUpdateCmd() *cobra.Command {
 				cmd.Printf("Updated %s status to %s\n", rmi.ID, rmi.Status)
 			}
 
-			if title != "" || repo != "" || cmd.Flags().Changed("description") || cmd.Flags().Changed("priority") || cmd.Flags().Changed("required") || contextSpecJSON != "" || cmd.Flags().Changed("origin") {
+			if title != "" || repo != "" || cmd.Flags().Changed("description") || cmd.Flags().Changed("priority") || cmd.Flags().Changed("required") || contextSpecJSON != "" || cmd.Flags().Changed("origin") || setAcceptance {
 				rmi, err := svc.GetRMI(cmd.Context(), args[0])
 				if err != nil {
 					return err
@@ -660,6 +663,9 @@ func rmiUpdateCmd() *cobra.Command {
 				if cmd.Flags().Changed("origin") {
 					rmi.Origin = origin
 				}
+				if setAcceptance {
+					rmi.AcceptanceCriteria = rmidomain.ParseAcceptance(acceptance)
+				}
 				if err := svc.UpdateRMI(cmd.Context(), rmi); err != nil {
 					return err
 				}
@@ -685,6 +691,9 @@ func rmiUpdateCmd() *cobra.Command {
 				if cmd.Flags().Changed("origin") {
 					fields = append(fields, "origin")
 				}
+				if setAcceptance {
+					fields = append(fields, "acceptance")
+				}
 				cmd.Printf("Updated %s fields: %s\n", args[0], strings.Join(fields, ", "))
 			}
 			return nil
@@ -698,6 +707,7 @@ func rmiUpdateCmd() *cobra.Command {
 	cmd.Flags().Bool("required", false, "Whether the RMI is required for phase completion")
 	cmd.Flags().String("context-spec", "", "Context spec JSON (use \"null\" or \"{}\" to clear)")
 	cmd.Flags().String("origin", "", "How this RMI's scope was identified: spec, implementation, acceptance_testing, discussion")
+	cmd.Flags().String("acceptance", "", "Acceptance criteria (semicolon-separated), replacing the current ones; use empty string to clear")
 	return cmd
 }
 

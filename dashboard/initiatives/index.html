@@ -821,6 +821,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#rmi-acceptance-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RMI acceptance criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reassigning-rmis-to-a-different-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1885,6 +1896,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v0.9.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    v0.9.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v0.8.0/" class="md-nav__link">
         
   
@@ -2287,6 +2326,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#rmi-acceptance-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RMI acceptance criteria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#reassigning-rmis-to-a-different-repository" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2419,8 +2469,17 @@
 <p>Roadmap items and phases are populated by syncing <code>ROADMAP.md</code> into the database — see <a href="../../getting-started/quickstart/#working-with-initiatives-from-the-cli">Quick Start</a>.</p>
 <h3 id="rmi-origin">RMI origin<a class="headerlink" href="#rmi-origin" title="Permanent link">&para;</a></h3>
 <p>Every RMI has an <code>origin</code> — how its scope was identified: <code>spec</code> (default, in the original PRD/ROADMAP), <code>implementation</code> (the agent found it necessary while building another RMI), <code>acceptance_testing</code> (a human found it using the shipped result), or <code>discussion</code> (proposed directly in conversation). Set it with <code>--origin</code> on <code>rmi create</code>/<code>rmi update</code>, filter with <code>rmi list --origin &lt;value&gt;</code>; non-default origins show in <code>rmi get</code>'s output and an ORIGIN column on <code>rmi list</code>. See CLAUDE.md's "RMI provenance" convention for when to file scope discovered mid-work as a new RMI rather than folding it into an existing one.</p>
+<h3 id="rmi-acceptance-criteria">RMI acceptance criteria<a class="headerlink" href="#rmi-acceptance-criteria" title="Permanent link">&para;</a></h3>
+<p>An RMI's acceptance criteria say what must be true for it to count as done. Set them with <code>--acceptance</code> on <code>rmi create</code> as one semicolon-separated string; <code>rmi get</code> lists them. <code>rmi update --acceptance</code> replaces the whole list, and <code>--acceptance ""</code> clears it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>update<span class="w"> </span>RMI-MYREPO-007<span class="w"> </span>--acceptance<span class="w"> </span><span class="s2">&quot;schema generated; tests pass; docs updated&quot;</span>
+</code></pre></div>
+<p>Each criterion is trimmed, and empty ones are dropped.</p>
+<p>Agents set them through the MCP <code>rmi_update</code> tool, which takes <code>acceptance_criteria</code> as a list; an empty list clears them:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;rmi_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RMI-MYREPO-007&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;acceptance_criteria&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;schema generated&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests pass&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;docs updated&quot;</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><code>rmi_update</code> changes the same fields as <code>rmi update</code>: status, title, repository, description, priority, required, origin, context spec, and acceptance criteria. Fields left out keep their values, and every change is checked before any is written.</p>
 <h3 id="reassigning-rmis-to-a-different-repository">Reassigning RMIs to a different repository<a class="headerlink" href="#reassigning-rmis-to-a-different-repository" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>bulk-update<span class="w"> </span>--repo<span class="w"> </span>&lt;old-repo&gt;<span class="w"> </span>--set-repo<span class="w"> </span>&lt;new-repo&gt;<span class="w"> </span><span class="o">[</span>--initiative<span class="w"> </span>&lt;id&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>visionstudio<span class="w"> </span>rmi<span class="w"> </span>bulk-update<span class="w"> </span>--repo<span class="w"> </span>&lt;old-repo&gt;<span class="w"> </span>--set-repo<span class="w"> </span>&lt;new-repo&gt;<span class="w"> </span><span class="o">[</span>--initiative<span class="w"> </span>&lt;id&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dry-run<span class="o">]</span>
 </code></pre></div>
 <p>Repoints every matching RMI's repository field in one call — <code>--dry-run</code> previews the change first. This is folded into <code>registry archive --superseded-by &lt;new-id&gt; --reassign-rmis</code> as a single operation when the reassignment is part of retiring the old repository — see <a href="../repositories/#managing-repository-entries">Repositories</a>.</p>
 

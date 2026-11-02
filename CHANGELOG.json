@@ -11,6 +11,17 @@
     "added": [
       {
         "description": "`rmi update --acceptance` replaces an RMI's acceptance criteria, given as one semicolon-separated string; an empty value clears them"
+      },
+      {
+        "description": "MCP tool `rmi_update` changes an RMI's status, title, repository, description, priority, required flag, origin, context spec, and acceptance criteria; fields left out keep their values, an empty `acceptance_criteria` list clears the criteria, and a null `context_spec` clears the spec"
+      },
+      {
+        "description": "`service.EditRMI` applies a `service.RMIChanges` to an RMI, checking every change before writing any; `rmi update` and `rmi_update` both edit through it, and `rmi.CleanAcceptance` trims criteria and drops empty ones for both"
+      }
+    ],
+    "changed": [
+      {
+        "description": "`rmi update` refuses an explicitly empty `--title`, `--status`, or `--repo` instead of ignoring it, and checks every change before writing any, so an invalid `--context-spec` no longer leaves a status change applied"
       }
     ],
     "fixed": [

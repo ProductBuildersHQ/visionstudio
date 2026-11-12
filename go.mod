@@ -25,7 +25,7 @@ require (
 	github.com/plexusone/omnidevx-core v0.4.1
 	github.com/plexusone/structured-evaluation v0.15.0
 	github.com/spf13/cobra v1.10.2
-	golang.org/x/term v0.47.0
+	golang.org/x/term v0.48.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -210,7 +210,7 @@ require (
 	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/oauth2 v0.37.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/telemetry v0.0.0-20261021172232-6cd571d43fbb // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.16.0 // indirect

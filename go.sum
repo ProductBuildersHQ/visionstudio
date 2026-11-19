@@ -847,8 +847,8 @@ github.com/plexusone/devfolio v0.5.0 h1:na+2Imz2VqeyCtxe1JSTNBGE4SmUELF9eq9LxLFn
 github.com/plexusone/devfolio v0.5.0/go.mod h1:S5hO1hS0MzlMFapRWK2igr8DbBxbzgeFbbGU5qVP3Rg=
 github.com/plexusone/omnidevx-core v0.4.1 h1:zGwdr3tSkLIdyNCu+yUIkVZUaczt9zMfnkfTNAa3NLk=
 github.com/plexusone/omnidevx-core v0.4.1/go.mod h1:hogpULebRMxZoYziqA/tw1rp+G7pnaL42mt+DCCXLnQ=
-github.com/plexusone/structured-evaluation v0.15.0 h1:g7iZspYk7KXCBA8cop593qFAkm9hFyNOlL6JzUu+4os=
-github.com/plexusone/structured-evaluation v0.15.0/go.mod h1:OTnHiQTahzDllybpy7qrPfrjhJVN6RKHZ06awY68PRE=
+github.com/plexusone/structured-evaluation v0.16.0 h1:voJX1VTb6aBe3CG1KUivW2GeMDThL3g+CIS3tnE0PNA=
+github.com/plexusone/structured-evaluation v0.16.0/go.mod h1:8QPMyL3n8P7N7kmYVCBH0tNIbqqh6AbMUGHSmQVGnPA=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
